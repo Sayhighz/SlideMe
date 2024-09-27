@@ -4,6 +4,8 @@ import StatusItem from '../components/StatusItem'; // ปรับเส้น�
 import { useFonts } from 'expo-font';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+import tw from 'twrnc'; // import twrnc
+
 const HomePage = ({ username }) => {
     const [fontsLoaded] = useFonts({
         'Mitr-Regular': require('../assets/fonts/Mitr-Regular.ttf'), // ใช้ฟอนต์ที่คุณต้องการ
@@ -41,7 +43,11 @@ const HomePage = ({ username }) => {
       <View style={styles.divider} />
 
       <View style={styles.content}>
-        <Text>Home</Text>
+        <Text >Home</Text>
+      </View>
+
+      <View style={tw` justify-center items-center bg-red-900`}>
+        <Text style={tw`text-white text-lg`}>tailwind ใช้กับ expo ได้ ไอกาย</Text>
       </View>
     </View>
   );
