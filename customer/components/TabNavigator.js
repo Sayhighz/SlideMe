@@ -23,10 +23,10 @@ const TabNavigator = () => {
               iconName = focused ? 'time' : 'time-outline';
               break;
             case 'Notification':
-              iconName = focused ? 'alert' : 'alert-outline';
+              iconName = focused ? 'notifications' : 'notifications-outline';
               break;
             case 'Account':
-              iconName = focused ? 'man' : 'man-outline';
+              iconName = focused ? 'person-circle' : 'person-circle-outline';
               break;
             default:
               iconName = 'Home'; // icon เริ่มต้น

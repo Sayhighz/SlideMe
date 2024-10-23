@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Modal, Button } from 'react-native';
-import tw from 'twrnc';
+import tw from "twrnc"; // import twrnc
 
 const HistoryPage = () => {
   const [filter, setFilter] = useState('all'); // State สำหรับกรอง
