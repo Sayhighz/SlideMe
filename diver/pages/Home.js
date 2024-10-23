@@ -12,7 +12,6 @@ const HomePage = ({ username }) => {
         'Mitr-Medium': require('../assets/fonts/Mitr-Medium.ttf'), // ฟอนต์หนา
       });
     
-      // หากฟอนต์ยังโหลดไม่เสร็จให้แสดงตัวโหลด
       if (!fontsLoaded) {
         return (
           <View style={styles.loadingContainer}>
