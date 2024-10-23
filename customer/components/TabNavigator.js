@@ -3,8 +3,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import HomePage from '../pages/homePage/Home';
 import HistoryPage from '../pages/historyPage/History';
-import AccountPage from '../pages/accountPage/Account';
-import NotificationPage from '../pages/notificationPage/Notification';
+// import WalletPage from '../pages//Wallet';
+// import MorePage from '../pages/More';
 
 const Tab = createBottomTabNavigator();
 
@@ -22,14 +22,14 @@ const TabNavigator = () => {
             case 'History':
               iconName = focused ? 'time' : 'time-outline';
               break;
-            case 'Notification':
-              iconName = focused ? 'notifications' : 'notifications-outline';
+            case 'Wallet':
+              iconName = focused ? 'wallet' : 'wallet-outline';
               break;
-            case 'Account':
-              iconName = focused ? 'person-circle' : 'person-circle-outline';
+            case 'More':
+              iconName = focused ? 'ellipsis-horizontal' : 'ellipsis-horizontal-outline';
               break;
             default:
-              iconName = 'Home'; // icon เริ่มต้น
+              iconName = 'home'; // icon เริ่มต้น
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -39,13 +39,12 @@ const TabNavigator = () => {
         tabBarStyle: {
           display: 'flex', // แสดง tabBar
         },
-        headerShown: false,
       })}
     >
       <Tab.Screen name="Home" component={HomePage} />
       <Tab.Screen name="History" component={HistoryPage} />
-      <Tab.Screen name="Notification" component={NotificationPage} />
-      <Tab.Screen name="Account" component={AccountPage} />
+      {/* <Tab.Screen name="Wallet" component={WalletPage} />
+      <Tab.Screen name="More" component={MorePage} /> */}
     </Tab.Navigator>
   );
 };

@@ -3,7 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Text, View, TouchableOpacity, ScrollView } from "react-native";
 
 import tw from "twrnc"; // import twrnc
-import Map from "../../components/maps/Map";
+// import Map from "../../components/maps/Map";
 
 const HomePage = ({ navigation }) => {
   const [origin, setOrigin] = useState([]);
@@ -66,7 +66,7 @@ const HomePage = ({ navigation }) => {
   return (
     <SafeAreaView style={tw`flex-1`}>
       <View style={tw`flex-1 px-10 py-5`}>
-        <Map setDestination={setDestination} setOrigin={setOrigin} />
+        {/* <Map setDestination={setDestination} setOrigin={setOrigin} /> */}
       </View>
       <View style={tw`flex-1 mt-5 border py-1 `}>
         <View style={tw`flex flex-row justify-around`}>

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "SlideMe-Diver",
-    "slug": "SlideMe-Diver",
+    "name": "SlideMe-Customer",
+    "slug": "SlideMe-Customer",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -19,19 +19,13 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "package": "com.anonymous.SlideMeDiver"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-font"
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "75cb8dd3-c664-4dcc-94d5-89f2772fec32"
-      }
-    }
+    ]
   }
 }
