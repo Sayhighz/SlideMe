@@ -16,7 +16,7 @@ const HomePage = ({ navigation }) => {
 
   return (
     <SafeAreaView style={tw`flex-1 bg-blue-500 justify-center items-center `}>
-      <View style={tw` justify-center items-center bg-red-900 flex flex-col mb-10 `}>
+      <View style={tw` justify-center items-center flex flex-col mb-10 `}>
           <View style={tw`bg-lime-600 w-3/5 h-20 justify-around items-center mb-10 rounded-lg pr-5 pl-5 mt-5`}>
             <Button title="ร้านแนะนำ" color="white" onPress={() => navigation.navigate("RecommendedStore")}  />
           </View>
