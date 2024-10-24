@@ -1,8 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import HomePage from '../pages/homePage/Home';
+import Map from '../pages/map/Map';
 import HistoryPage from '../pages/historyPage/History';
+import HomePage from '../pages/homePage/Home';
 // import WalletPage from '../pages//Wallet';
 // import MorePage from '../pages/More';
 
@@ -11,6 +12,7 @@ const Tab = createBottomTabNavigator();
 const TabNavigator = () => {
   return (
     <Tab.Navigator
+      initialRouteName="Home"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
@@ -42,6 +44,7 @@ const TabNavigator = () => {
       })}
     >
       <Tab.Screen name="Home" component={HomePage} />
+      <Tab.Screen name="Map" component={Map} />
       <Tab.Screen name="History" component={HistoryPage} />
       {/* <Tab.Screen name="Wallet" component={WalletPage} />
       <Tab.Screen name="More" component={MorePage} /> */}
