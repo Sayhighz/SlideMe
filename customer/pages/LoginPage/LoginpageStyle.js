@@ -4,7 +4,7 @@ export default StyleSheet.create({
     container: {
         flex: 1,
         marginTop: 70,
-        justifyContent: 'flex-start', // ใช้ 'flex-start' แทน 'top'
+        justifyContent: 'flex-start',
         alignItems: 'center',
         backgroundColor: '#fff',
     },
@@ -13,62 +13,88 @@ export default StyleSheet.create({
         color: '#60B876',
         fontWeight: 'bold',
         textAlign: 'center',
-        // lineHeight: 50, // กำหนดความสูงของบรรทัดให้เท่ากับขนาดฟอนต์
     },
-
     ME: {
         fontSize: 110,
         color: '#60B876',
         fontWeight: 'bold',
         textAlign: 'center',
-        lineHeight: 100, // Set line height if needed
+        lineHeight: 100,
         zIndex: 99,
     },
-
     BorderContainer: {
-        width: 350,                // ความกว้างของเส้นขอบ
-        height: 650,               // ความสูงของเส้นขอบ
-        // borderWidth: 2,            // ความหนาของเส้นขอบ
-        // borderColor: '#60B876',    // สีของเส้นขอบ
-        borderRadius: 10,          // มุมโค้งของเส้นขอบ
-        padding: 10,               // ระยะห่างด้านในจากขอบถึงเนื้อหา
-        alignItems: 'center',       // จัดแนวเนื้อหาภายใน Border
+        width: 350,
+        height: 650,
+        borderRadius: 10,
+        padding: 10,
+        alignItems: 'center',
     },
     BorderText: {
-        width: 200,                // ความกว้างของเส้นขอบ
-        height: 200,               // ความสูงของเส้นขอบ
-        // borderWidth: 2,            // ความหนาของเส้นขอบ
-        // borderColor: '#60B876',    // สีของเส้นขอบ
-        borderRadius: 10,          // มุมโค้งของเส้นขอบ
-        padding: 10,               // ระยะห่างด้านในจากขอบถึงเนื้อหา
-        alignItems: 'center',       // จัดแนวเนื้อหาภายใน Border
+        width: 200,
+        height: 200,
+        borderRadius: 10,
+        padding: 10,
+        alignItems: 'center',
     },
     buttonContainer: {
-        marginTop: 80,
-        width: 325,                // ความกว้างของปุ่ม
-        height: 100,                // ความสูงของปุ่ม
-        // alignItems: 'center',       // จัดแนวเนื้อหาภายในปุ่ม
+        borderWidth: 2,
+        borderColor: '#60B876',
+        borderRadius: 40,
+        width: 380,
+        height: 600,
+        justifyContent: 'flex-start',
+        backgroundColor: '#60B876',
+        alignItems: 'center',
+        shadowColor: '#000', // สีของเงา
+        shadowOffset: {
+            width: 0, // ระยะห่างของเงาในแนวนอน
+            height: 4, // เพิ่มระยะห่างของเงาในแนวตั้ง
+        },
+        shadowOpacity: 0.6, // เพิ่มความเข้มของเงา
+        shadowRadius: 10, // เพิ่มความนุ่มนวลของเงา
+        elevation: 8, // เพิ่มระดับความสูงของเงา
     },
     button: {
-        backgroundColor: 'transparent', // ใช้พื้นหลังโปร่งใส
-        borderColor: '#60B876',         // สีกรอบของปุ่ม
-        borderWidth: 2,                 // ความหนาของกรอบ
-        padding: 10,                    // ระยะห่างภายในของปุ่ม
-        borderRadius: 10,               // มุมโค้งของปุ่ม
-        marginTop: 20,                  // ระยะห่างด้านบน
+        width: 325,
+        backgroundColor: 'transparent',
+        borderColor: '#ffffff',
+        borderWidth: 2,
+        padding: 10,
+        borderRadius: 10,
+        marginTop: 200,
     },
     buttonHovered: {
-        backgroundColor: '#60B876', // เปลี่ยนสีพื้นหลังเมื่อ hover
+        backgroundColor: '#ffffff',
     },
     buttonText: {
-        color: '#60B876',            // สีตัวอักษรของปุ่ม
-        fontSize: 16,                // ขนาดตัวอักษรของปุ่ม
-        textAlign: 'center',         // จัดแนวตัวอักษรกลาง
+        fontWeight: 'bold',
+        color: '#ffffff',
+        fontSize: 20,
+        textAlign: 'center',
     },
     icon: {
         marginLeft: 0,
-        width: 24, // Set desired width
-        height: 24, // Set desired height
-        marginRight: 10, // Space between icon and text
+        width: 24,
+        height: 24,
+        marginRight: 10,
+    },
+    textAboveButtonContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 20,
+    },
+    textAboveButton: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#ffffff',
+        fontFamily: 'Mitr-Medium',
+    },
+    Support: {
+        marginTop: 5,
+        fontSize: 10,
+        fontWeight: 'bold',
+        color: '#ffffff',
+        fontFamily: 'Mitr-Medium',
     },
 });
