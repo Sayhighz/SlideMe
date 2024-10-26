@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -54,3 +55,5 @@ const TabNavigator = () => {
 };
 
 export default TabNavigator;
+=======
+>>>>>>> 611663afac1a0536966eda5768854b5b0e1d5248

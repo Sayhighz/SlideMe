@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.3",
+    "@material-tailwind/react": "^2.1.10",
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/native": "^6.1.18",
+    "@react-navigation/stack": "^6.4.1",
     "expo": "~51.0.28",
     "expo-font": "~12.0.10",
     "expo-location": "^17.0.1",
@@ -21,12 +23,16 @@
     "react-dom": "18.2.0",
     "react-native": "0.74.5",
     "react-native-gesture-handler": "^2.19.0",
+<<<<<<< HEAD
     "react-native-get-random-values": "^1.11.0",
     "react-native-google-places-autocomplete": "^2.5.7",
     "react-native-maps": "^1.18.2",
     "react-native-maps-directions": "^1.9.0",
+=======
+    "react-native-paper": "^5.12.5",
+>>>>>>> 611663afac1a0536966eda5768854b5b0e1d5248
     "react-native-reanimated": "^3.15.3",
-    "react-native-safe-area-context": "^4.11.0",
+    "react-native-safe-area-context": "^4.11.1",
     "react-native-screens": "^3.34.0",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.10",

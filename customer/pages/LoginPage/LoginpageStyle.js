@@ -45,14 +45,14 @@ export default StyleSheet.create({
         justifyContent: 'flex-start',
         backgroundColor: '#60B876',
         alignItems: 'center',
-        shadowColor: '#000', // สีของเงา
+        shadowColor: '#000',
         shadowOffset: {
-            width: 0, // ระยะห่างของเงาในแนวนอน
-            height: 4, // เพิ่มระยะห่างของเงาในแนวตั้ง
+            width: 0,
+            height: 4,
         },
-        shadowOpacity: 0.6, // เพิ่มความเข้มของเงา
-        shadowRadius: 10, // เพิ่มความนุ่มนวลของเงา
-        elevation: 8, // เพิ่มระดับความสูงของเงา
+        shadowOpacity: 0.6,
+        shadowRadius: 10,
+        elevation: 8,
     },
     button: {
         width: 325,
@@ -63,20 +63,11 @@ export default StyleSheet.create({
         borderRadius: 10,
         marginTop: 200,
     },
-    buttonHovered: {
-        backgroundColor: '#ffffff',
-    },
     buttonText: {
         fontWeight: 'bold',
         color: '#ffffff',
         fontSize: 20,
         textAlign: 'center',
-    },
-    icon: {
-        marginLeft: 0,
-        width: 24,
-        height: 24,
-        marginRight: 10,
     },
     textAboveButtonContainer: {
         display: 'flex',
@@ -96,5 +87,12 @@ export default StyleSheet.create({
         fontWeight: 'bold',
         color: '#ffffff',
         fontFamily: 'Mitr-Medium',
+    },
+    topLeftBackButton: { 
+        position: 'absolute', 
+        top: 0, // Align to the top edge
+        left: 0, // Align to the left edge
+        padding: 10,
+        zIndex: 1,
     },
 });
