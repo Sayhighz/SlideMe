@@ -31,7 +31,7 @@ const TabNavigator = () => {
               iconName = focused ? 'ellipsis-horizontal' : 'ellipsis-horizontal-outline';
               break;
             default:
-              iconName = 'home'; // icon เริ่มต้น
+              // iconName = 'home'; // icon เริ่มต้น
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;

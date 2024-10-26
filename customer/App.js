@@ -5,12 +5,13 @@ import TabNavigator from './components/TabNavigator';
 import Loginpage from './pages/LoginPage/Loginpage';
 
 
+
   
   const App = () => {
   return (
     <NavigationContainer>
-      {/* <TabNavigator /> */}
-      <Loginpage></Loginpage>
+      <TabNavigator />
+      {/* <Loginpage></Loginpage> */}
     </NavigationContainer>
   );
 
