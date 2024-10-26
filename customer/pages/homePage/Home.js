@@ -1,8 +1,6 @@
 import React from 'react'
 import { Text , View , TouchableOpacity} from 'react-native'
 import { Card } from 'react-native-paper'
-import { Link } from 'expo-router'
-import Map from '../map/Map'
 import Order from '../detailOrder/Order'
 import tw from 'twrnc'
 

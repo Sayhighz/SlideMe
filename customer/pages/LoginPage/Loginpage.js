@@ -4,9 +4,11 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import styles from './LoginpageStyle';
 import SignupPage from '../SignupPage/SignupPage';
 
-function Loginpage() {
+function Loginpage({ navigation }) {
     const [showMainContent, setShowMainContent] = useState(true);
     const fadeAnim = useRef(new Animated.Value(1)).current;
+    
+    
 
     const handleNext = () => {
         Animated.timing(fadeAnim, {

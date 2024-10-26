@@ -15,7 +15,7 @@ function HomeStack(){
   return(
     
     <Stack.Navigator>
-      <Stack.Screen name="LoginPage" component={Loginpage}/>
+      
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="Map" component={Map}/>
       <Stack.Screen name="Order" component={Order} options={{headerShown: false}}/>
@@ -28,10 +28,12 @@ function HomeStack(){
   return (
     <NavigationContainer>
       {/* <TabNavigator /> */}
-      <Tab.Navigator>
-      <Tab.Screen name="Home" component={HomeStack} options={{headerShown: false}}/>
-      <Tab.Screen name="Map" component={Map} options={{headerShown: false}}/>
-      </Tab.Navigator>
+      <Stack.Navigator initialRouteName="Login">
+      <Stack.Screen name="Login" component={Loginpage} options={{headerShown: false}}/>
+      <Stack.Screen name="HomeStack" component={HomeStack} options={{headerShown: false}}/>
+      {/* <Tab.Screen name="Map" component={Map} options={{headerShown: false}}/> */}
+      
+      </Stack.Navigator>
       
     </NavigationContainer>
   );

@@ -2,8 +2,17 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // ใช้ FontAwesome หรือตามที่ต้องการ
 import SignupPageStyle from './SignupPageStyle';
+import Home from '../homePage/Home';
+import { useNavigation } from '@react-navigation/native';
 
-const SignupPage = ({ onBack }) => {
+
+
+const SignupPage = () => {
+
+    const navigation = useNavigation();
+    const handleSignup = () => {
+        navigation.navigate('HomeStack')
+    }
     return (
         <View style={SignupPageStyle.newContentContainer}>
             {/* Back button in top-left corner */}
@@ -26,7 +35,7 @@ const SignupPage = ({ onBack }) => {
                     <Icon name="apple" size={20} color="#fff" />
                     <Text style={SignupPageStyle.backButtonText}>เข้าสู่ระบบด้วย Apple</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={SignupPageStyle.backButton}>
+                <TouchableOpacity style={SignupPageStyle.backButton} onPress={handleSignup}>
                     <Icon name="phone" size={20} color="#fff" />
                     <Text style={SignupPageStyle.backButtonText}>เข้าสู่ระบบด้วย โทรศัพท์</Text>
                 </TouchableOpacity>
