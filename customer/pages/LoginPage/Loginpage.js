@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, Animated } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import styles from './LoginpageStyle';
 import SignupPage from '../SignupPage/SignupPage';
 
@@ -40,14 +41,18 @@ function Loginpage() {
     return (
         <View style={styles.container}>
             <View style={styles.BorderContainer}>
+                {/* Show back button in top-left only when SignupPage is active */}
+                {!showMainContent && (
+                    <TouchableOpacity style={styles.topLeftBackButton} onPress={handleBack}>
+                        <Icon name="arrow-left" size={20} color="#000" />
+                    </TouchableOpacity>
+                )}
+
                 <View style={styles.BorderText}>
                     <Text style={styles.Slide}>SLIDE</Text>
                     <Text style={styles.ME}>ME</Text>
                 </View>
 
-                {/* <View style={styles.background}>
-
-                </View> */}
                 <Animated.View style={[styles.buttonContainer, { opacity: fadeAnim }]}>
                     {showMainContent ? (
                         <View style={styles.textAboveButtonContainer}>
