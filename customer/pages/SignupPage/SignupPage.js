@@ -1,10 +1,12 @@
 // NewContent.js
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import SignupPageStyle from './SignupPageStyle';
 
 const SignupPage = ({ onBack }) => {
     return (
+        <ScrollView>
+            
         <View style={SignupPageStyle.newContentContainer}>
             <Text style={SignupPageStyle.newContentText}>ยินดีต้อนรับสู่ SLIDE ME!</Text>
             <View style={SignupPageStyle.buttonContainer}>
@@ -25,6 +27,7 @@ const SignupPage = ({ onBack }) => {
                 </TouchableOpacity>
             </View>
         </View>
+        </ScrollView>
     );
 };
 

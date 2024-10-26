@@ -4,6 +4,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Map from '../pages/map/Map';
 import HistoryPage from '../pages/historyPage/History';
 import HomePage from '../pages/homePage/Home';
+import MapPage from '../pages/map/Map';
 // import WalletPage from '../pages//Wallet';
 // import MorePage from '../pages/More';
 
@@ -44,7 +45,7 @@ const TabNavigator = () => {
       })}
     >
       <Tab.Screen name="Home" component={HomePage} />
-      <Tab.Screen name="Map" component={Map} />
+      <Tab.Screen name="Map" component={MapPage} />
       <Tab.Screen name="History" component={HistoryPage} />
       {/* <Tab.Screen name="Wallet" component={WalletPage} />
       <Tab.Screen name="More" component={MorePage} /> */}
