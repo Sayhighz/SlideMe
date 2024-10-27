@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, TextInput,  TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialIcons, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
-import { Card } from 'react-native-paper';
+
 import tw from 'twrnc';
 
 const recentLocations = [
@@ -12,19 +12,21 @@ const recentLocations = [
 ];
 
 const rideOptions = [
-  { id: '1', label: 'Advance Booking', icon: 'calendar', color: '#A5DFF3' },
-  { id: '2', label: '', icon: 'motorcycle', color: '#C1E7BE' },
-  { id: '3', label: 'Driver for your car', icon: 'car', color: '#F8E3A3' },
+  { id: '1', label: 'Book a car', icon: 'calendar', color: '#A5DFF3' },
+  { id: '2', label: 'Category of car', icon: 'motorcycle', color: '#C1E7BE' },
+  { id: '3', label: '', icon: 'car', color: '#F8E3A3' },
   { id: '4', label: 'Rent by the hour', icon: 'person', color: '#FAD4A3' },
 ];
 
 export default function Order({ navigation }) {
   return (
-    <View style={tw`flex-1 p-5 bg-green-100`}>
+    <View style={tw`flex-1 p-5 `}>
+        {/* <Image /> */}
       {/* Header Section */}
       <View style={tw`flex-row items-center mb-4`}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
         <MaterialIcons name="arrow-back" size={24} color="black" />
+        
         </TouchableOpacity>
         <Text style={styles.headerTitle}></Text>
       </View>
