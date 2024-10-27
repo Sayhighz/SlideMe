@@ -15,7 +15,7 @@ function HomeStack(){
   return(
     
     <Stack.Navigator>
-      <Stack.Screen name="LoginPage" component={Loginpage}/>
+      <Stack.Screen name="LoginPage" component={Loginpage} options={{headerShown: false}}/>
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="Map" component={Map}/>
       <Stack.Screen name="Order" component={Order} options={{headerShown: false}}/>

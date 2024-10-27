@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 export default StyleSheet.create({
     container: {
         flex: 1,
-        // marginTop: 70,
+         marginTop: 30,
         justifyContent: 'flex-start',
         alignItems: 'center',
         backgroundColor: '#fff',
@@ -90,7 +90,7 @@ export default StyleSheet.create({
     },
     topLeftBackButton: { 
         position: 'absolute', 
-        top: 0, // Align to the top edge
+        top: 10, // Align to the top edge
         left: 0, // Align to the left edge
         padding: 10,
         zIndex: 1,
