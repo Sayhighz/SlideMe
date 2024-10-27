@@ -5,14 +5,12 @@ import SignupPageStyle from './SignupPageStyle';
 import Home from '../homePage/Home';
 import { useNavigation } from '@react-navigation/native';
 
+const SignupPage = ({ onBack,onLogin }) => {
 
-
-const SignupPage = () => {
-
-    const navigation = useNavigation();
-    const handleSignup = () => {
-        navigation.navigate('HomeStack')
-    }
+    const handleLoginClick = () => {
+        // Trigger the login state change
+        onLogin();
+      };
     return (
         <ScrollView>
         <View style={SignupPageStyle.newContentContainer}>
@@ -38,7 +36,7 @@ const SignupPage = () => {
                 </TouchableOpacity>
                 <TouchableOpacity style={SignupPageStyle.backButton} onPress={handleSignup}>
                     <Icon name="phone" size={20} color="#fff" />
-                    <Text style={SignupPageStyle.backButtonText}>เข้าสู่ระบบด้วย โทรศัพท์</Text>
+                    <Text style={SignupPageStyle.backButtonText} onPress={handleLoginClick}>เข้าสู่ระบบด้วย โทรศัพท์</Text>
                 </TouchableOpacity>
             </View>
         </View>
