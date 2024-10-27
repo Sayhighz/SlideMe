@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity,ScrollView  } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // ใช้ FontAwesome หรือตามที่ต้องการ
 import SignupPageStyle from './SignupPageStyle';
 import Home from '../homePage/Home';
@@ -14,6 +14,7 @@ const SignupPage = () => {
         navigation.navigate('HomeStack')
     }
     return (
+        <ScrollView>
         <View style={SignupPageStyle.newContentContainer}>
             {/* Back button in top-left corner */}
             {/* <TouchableOpacity style={SignupPageStyle.topLeftBackButton} onPress={onBack}>
@@ -41,6 +42,7 @@ const SignupPage = () => {
                 </TouchableOpacity>
             </View>
         </View>
+        </ScrollView>
     );
 };
 
