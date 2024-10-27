@@ -4,7 +4,7 @@ const SignupPageStyle = {
         fontSize: 20, 
         fontWeight: 'bold', 
         color: '#ffffff', 
-        fontFamily: 'Mitr-Medium', 
+        // fontFamily: 'Mitr-Medium', 
         textAlign: 'center',
         marginBottom: 150,
     },
@@ -12,7 +12,7 @@ const SignupPageStyle = {
         fontSize: 20,
         fontWeight: 'bold', 
         color: '#ffffff', 
-        fontFamily: 'Mitr-Medium', 
+        // fontFamily: 'Mitr-Medium', 
         textAlign: 'center',  // Center-align the text
         marginLeft: 10,       // Add margin for consistent spacing
     },
