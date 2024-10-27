@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -48,12 +47,10 @@ const TabNavigator = () => {
       <Tab.Screen name="Home" component={HomePage} />
       <Tab.Screen name="Map" component={MapPage} />
       <Tab.Screen name="History" component={HistoryPage} />
-      {/* <Tab.Screen name="Wallet" component={WalletPage} />
+      {/* /* <Tab.Screen name="Wallet" component={WalletPage} />
       <Tab.Screen name="More" component={MorePage} /> */}
     </Tab.Navigator>
   );
 };
 
 export default TabNavigator;
-=======
->>>>>>> 611663afac1a0536966eda5768854b5b0e1d5248

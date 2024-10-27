@@ -3,9 +3,9 @@ import { View, Text, FlatList, TouchableOpacity, Modal, Button } from 'react-nat
 import tw from "twrnc"; // import twrnc
 
 const HistoryPage = () => {
-  const [filter, setFilter] = useState('all'); // State สำหรับกรอง
-  const [modalVisible, setModalVisible] = useState(false); // State สำหรับแสดงโมดัล
-  const [selectedItem, setSelectedItem] = useState(null); // State สำหรับเก็บข้อมูลรายการที่เลือก
+  const [filter, setFilter] = useState('all');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const serviceHistoryData = [
     { id: '1', date: '2024-10-20', serviceType: 'รถกระบะ', status: 'สำเร็จ', amount: '200฿', origin: 'ถนนสุขุมวิท', destination: 'ห้างสรรพสินค้า' },
@@ -13,14 +13,14 @@ const HistoryPage = () => {
     { id: '3', date: '2024-10-18', serviceType: 'NETA NIGHT', status: 'สำเร็จ', amount: '300฿', origin: 'บ้านลูกค้า', destination: 'สำนักงาน' },
   ];
 
-  // ฟังก์ชันกรองข้อมูล
+  // filter fuction
   const filteredData = serviceHistoryData.filter(item => {
     if (filter === 'success') return item.status === 'สำเร็จ';
     if (filter === 'canceled') return item.status === 'ยกเลิก';
-    return true; // สำหรับกรองทั้งหมด
+    return true;
   });
 
-  // ฟังก์ชันเปิดโมดัล
+  // modal
   const openModal = (item) => {
     setSelectedItem(item);
     setModalVisible(true);
@@ -41,7 +41,7 @@ const HistoryPage = () => {
     <View style={tw`flex-1 p-4 bg-gray-100`}>
       <Text style={tw`text-2xl font-bold mb-4`}>ประวัติการเรียกใช้บริการ</Text>
       
-      {/* ปุ่มกรอง */}
+      {/* filter button */}
       <View style={tw`flex-row mb-4`}>
         <TouchableOpacity 
           style={tw`bg-blue-500 rounded-full px-4 py-2 mr-2`}

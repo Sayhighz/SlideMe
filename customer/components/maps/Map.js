@@ -1,46 +1,39 @@
 import React, { useEffect, useRef, useState } from "react";
-import { SafeAreaView, View, Button , Text, Dimensions} from "react-native";
-
+import { SafeAreaView, View, Button, Text, Dimensions } from "react-native";
 import tw from "twrnc"; // import twrnc
-
 import MapView, { Circle, Marker, Polygon, Polyline } from "react-native-maps";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-// import { GOOGLE_MAPS_API_KEY } from "../../src/config/constants";
 import MapViewDirections from "react-native-maps-directions";
 import * as Location from "expo-location";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
 
-
-function Map({setDestination,setOrigin,origin,destination,store}) {
-
+function Map({ setDestination, setOrigin, origin, destination, store }) {
   const [myLocation, setMyLocation] = useState({});
   const [region, setRegion] = useState(null);
 
   useEffect(() => {
     _getLocation();
     setOrigin({
-      latitude: 13.854543008326594, 
-      longitude: 100.6155871693916
-    })
+      latitude: 13.854543008326594,
+      longitude: 100.6155871693916,
+    });
   }, []);
 
   const _getLocation = async () => {
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        console.warn("Permission");
         console.warn("Permission to access location was denied");
         return;
       }
-  
-      // เฝ้าดูตำแหน่งของผู้ใช้แบบเรียลไทม์
+
+      // Watch user's location in real-time
       await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.High,
           timeInterval: 600000, // Update every 10 minutes
-          // distanceInterval: 1
         },
         (location) => {
           const { latitude, longitude } = location.coords;
@@ -58,8 +51,7 @@ function Map({setDestination,setOrigin,origin,destination,store}) {
         }
       );
     } catch (error) {
-      console.warn("Error");
-      console.warn(error);
+      console.warn("Error fetching location", error);
     }
   };
 
@@ -71,7 +63,8 @@ function Map({setDestination,setOrigin,origin,destination,store}) {
           region={region}
           onRegionChangeComplete={setRegion}
         >
-
+          {/* Render current location marker if coordinates are available */}
+          {myLocation.latitude && myLocation.longitude && (
             <Marker
               coordinate={{
                 latitude: myLocation.latitude,
@@ -81,12 +74,15 @@ function Map({setDestination,setOrigin,origin,destination,store}) {
               title="ตําแหน่งของฉัน"
               description="อยู่นี่จ้า"
             />
+          )}
 
+          {/* Render draggable marker if origin is available */}
+          {origin.latitude && origin.longitude && (
             <Marker
               draggable
               coordinate={{
-                latitude: 13.854543008326594, 
-                longitude: 100.6155871693916
+                latitude: 13.854543008326594,
+                longitude: 100.6155871693916,
               }}
               pinColor="red"
               title="ลองลากดู"
@@ -96,10 +92,12 @@ function Map({setDestination,setOrigin,origin,destination,store}) {
                 setDestination(newLocation);
               }}
             />
+          )}
 
-          {
-            (destination == null || destination.length === 0) && (
-              store.map((item, index) => (
+          {/* Render store markers if destination is not set */}
+          {(!destination || destination.length === 0) &&
+            store.map((item, index) => (
+              item.latitude && item.longitude && ( // Check for valid coordinates
                 <Marker
                   key={index}
                   coordinate={{
@@ -110,45 +108,49 @@ function Map({setDestination,setOrigin,origin,destination,store}) {
                   title={item.name}
                   description={item.price}
                 />
-              ))
-            )
-          }
+              )
+            ))}
 
-
-          {
-            destination ? 
-            <Marker 
+          {/* Render destination marker if available */}
+          {destination && destination.latitude && destination.longitude && (
+            <Marker
               coordinate={{
                 latitude: destination.latitude,
-                longitude: destination.longitude
+                longitude: destination.longitude,
               }}
               pinColor="red"
               title="ปลายทาง"
               description="ตำแหน่งปลายทางจ้า"
-            /> 
-            : null
-          }
+            />
+          )}
 
-          <Circle
-            center={myLocation}
-            radius={5000}
-            fillColor="rgba(255, 0, 0, 0.1)"
-            strokeColor="rgba(255, 0, 0, 0.1)"
-          />
+          {/* Draw a circle around the user's location */}
+          {myLocation.latitude && myLocation.longitude && (
+            <Circle
+              center={myLocation}
+              radius={5000}
+              fillColor="rgba(255, 0, 0, 0.1)"
+              strokeColor="rgba(255, 0, 0, 0.1)"
+            />
+          )}
 
-          {origin && destination && origin.latitude && destination.latitude ? (
-            <MapViewDirections
-              strokeColor="blue"
-              strokeWidth={3}
-              origin={origin}
-              destination={destination}
-              apikey= {GOOGLE_MAPS_API_KEY}
-              onError={(errorMessage) => {
-                console.log("Error fetching directions: ", errorMessage);
-                alert("ไม่พบเส้นทางระหว่างจุดต้นทางและปลายทางที่ระบุ");
-              }}
-            /> 
-          ) : null}
+          {/* Render directions if both origin and destination are set */}
+          {origin &&
+            destination &&
+            origin.latitude &&
+            destination.latitude && (
+              <MapViewDirections
+                strokeColor="blue"
+                strokeWidth={3}
+                origin={origin}
+                destination={destination}
+                apikey={GOOGLE_MAPS_API_KEY}
+                onError={(errorMessage) => {
+                  console.log("Error fetching directions: ", errorMessage);
+                  alert("ไม่พบเส้นทางระหว่างจุดต้นทางและปลายทางที่ระบุ");
+                }}
+              />
+            )}
         </MapView>
       </View>
     </SafeAreaView>
