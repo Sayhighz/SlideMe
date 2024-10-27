@@ -36,7 +36,6 @@ const MessageBoxScreen = () => {
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => openModal(item)}>
       <View style={tw`flex-row items-center p-4 bg-white mb-2 rounded shadow`}>
-        {/* แสดงไอคอน */}
         <Icon
           name={item.type === 'coupon' ? 'tag' : 'newspaper'}
           size={30}
@@ -53,19 +52,18 @@ const MessageBoxScreen = () => {
 
   return (
     <View style={tw`flex-1 bg-gray-100`}>
-      {/* Navbar Filter */}
       <View style={tw`flex-row justify-around bg-green-600 p-3`}>
         <TouchableOpacity
           style={filter === 'all' ? tw`border-b-2 border-white` : tw`opacity-70`}
           onPress={() => setFilter('all')}
         >
-          <Text style={tw`text-white text-lg`}>All</Text>
+          <Text style={tw`text-white text-lg`}>ทั้งหมด</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={filter === 'coupon' ? tw`border-b-2 border-white` : tw`opacity-70`}
           onPress={() => setFilter('coupon')}
         >
-          <Text style={tw`text-white text-lg`}>Coupons</Text>
+          <Text style={tw`text-white text-lg`}>คูปองส่วนลด</Text>
         </TouchableOpacity>
       </View>
 
@@ -77,7 +75,6 @@ const MessageBoxScreen = () => {
         />
       </View>
 
-      {/* Modal แสดงรายละเอียด */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -90,7 +87,7 @@ const MessageBoxScreen = () => {
               <>
                 <Text style={tw`text-2xl font-bold mb-3`}>{selectedMessage.title}</Text>
                 <Text style={tw`text-lg mb-5`}>{selectedMessage.content}</Text>
-                <Button title="Close" onPress={closeModal} />
+                <Button title="Close" color={'#60B876'} onPress={closeModal} />
               </>
             )}
           </View>
