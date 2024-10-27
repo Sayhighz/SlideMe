@@ -3,7 +3,12 @@ import { View, Text, TouchableOpacity,ScrollView  } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // ใช้ FontAwesome หรือตามที่ต้องการ
 import SignupPageStyle from './SignupPageStyle';
 
-const SignupPage = ({ onBack }) => {
+const SignupPage = ({ onBack,onLogin }) => {
+
+    const handleLoginClick = () => {
+        // Trigger the login state change
+        onLogin();
+      };
     return (
         <ScrollView>
         <View style={SignupPageStyle.newContentContainer}>
@@ -29,7 +34,7 @@ const SignupPage = ({ onBack }) => {
                 </TouchableOpacity>
                 <TouchableOpacity style={SignupPageStyle.backButton}>
                     <Icon name="phone" size={20} color="#fff" />
-                    <Text style={SignupPageStyle.backButtonText}>เข้าสู่ระบบด้วย โทรศัพท์</Text>
+                    <Text style={SignupPageStyle.backButtonText} onPress={handleLoginClick}>เข้าสู่ระบบด้วย โทรศัพท์</Text>
                 </TouchableOpacity>
             </View>
         </View>
