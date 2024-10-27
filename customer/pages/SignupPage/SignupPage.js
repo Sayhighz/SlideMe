@@ -1,16 +1,11 @@
 import React from 'react';
-<<<<<<< HEAD
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-=======
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity,ScrollView  } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // ใช้ FontAwesome หรือตามที่ต้องการ
->>>>>>> 611663afac1a0536966eda5768854b5b0e1d5248
 import SignupPageStyle from './SignupPageStyle';
 
 const SignupPage = ({ onBack }) => {
     return (
         <ScrollView>
-            
         <View style={SignupPageStyle.newContentContainer}>
             {/* Back button in top-left corner */}
             {/* <TouchableOpacity style={SignupPageStyle.topLeftBackButton} onPress={onBack}>

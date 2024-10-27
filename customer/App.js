@@ -27,17 +27,12 @@ function HomeStack(){
   const App = () => {
   return (
     <NavigationContainer>
-<<<<<<< HEAD
-      <TabNavigator />
-      {/* <Loginpage></Loginpage> */}
-=======
       {/* <TabNavigator /> */}
       <Tab.Navigator>
       <Tab.Screen name="Home" component={HomeStack} options={{headerShown: false}}/>
       <Tab.Screen name="Map" component={Map} options={{headerShown: false}}/>
       </Tab.Navigator>
       
->>>>>>> 611663afac1a0536966eda5768854b5b0e1d5248
     </NavigationContainer>
   );
 

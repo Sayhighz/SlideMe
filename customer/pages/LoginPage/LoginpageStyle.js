@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 export default StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: 70,
+        // marginTop: 70,
         justifyContent: 'flex-start',
         alignItems: 'center',
         backgroundColor: '#fff',
@@ -40,7 +40,7 @@ export default StyleSheet.create({
         borderWidth: 2,
         borderColor: '#60B876',
         borderRadius: 40,
-        width: 380,
+        width: 420,
         height: 600,
         justifyContent: 'flex-start',
         backgroundColor: '#60B876',
