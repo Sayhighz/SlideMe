@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, Animated, SafeAreaView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import styles from './LoginpageStyle';
 import SignupPage from '../SignupPage/SignupPage';
@@ -39,6 +39,8 @@ function Loginpage() {
     };
 
     return (
+        <SafeAreaView>
+
         <View style={styles.container}>
             <View style={styles.BorderContainer}>
                 {/* Show back button in top-left only when SignupPage is active */}
@@ -60,7 +62,7 @@ function Loginpage() {
                             <TouchableOpacity
                                 style={styles.button}
                                 onPress={handleNext}
-                            >
+                                >
                                 <Text style={styles.buttonText}>เริ่มต้นใช้งาน</Text>
                             </TouchableOpacity>
                             <Text style={styles.Support}>ข้อมูลติดต่อ/ช่วยเหลือ</Text>
@@ -71,6 +73,7 @@ function Loginpage() {
                 </Animated.View>
             </View>
         </View>
+                    </SafeAreaView>
     );
 }
 

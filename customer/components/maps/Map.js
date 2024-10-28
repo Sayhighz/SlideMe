@@ -1,29 +1,29 @@
-import React, { useEffect, useRef, useState } from "react";
-import { SafeAreaView, View, Button , Text, Dimensions} from "react-native";
+import React, { useEffect, useState } from "react";
+import { SafeAreaView, View } from "react-native";
 
 import tw from "twrnc"; // import twrnc
 
-import MapView, { Circle, Marker, Polygon, Polyline } from "react-native-maps";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-// import { GOOGLE_MAPS_API_KEY } from "../../src/config/constants";
+import MapView, { Circle, Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import * as Location from "expo-location";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
 
+// 13.855827502824274, 100.58551678180032
 
-function Map({setDestination,setOrigin,origin,destination,store}) {
-
+function Map({ setDestination, setOrigin, origin, destination, store }) {
   const [myLocation, setMyLocation] = useState({});
   const [region, setRegion] = useState(null);
 
+  const [spuAddress,setSpuAddress] = useState({
+    latitude:13.855827502824274,
+    longitude:100.58551678180032
+  })
+
   useEffect(() => {
     _getLocation();
-    setOrigin({
-      latitude: 13.854543008326594, 
-      longitude: 100.6155871693916
-    })
+    setDestination(spuAddress)
   }, []);
 
   const _getLocation = async () => {
@@ -34,7 +34,7 @@ function Map({setDestination,setOrigin,origin,destination,store}) {
         console.warn("Permission to access location was denied");
         return;
       }
-  
+
       // เฝ้าดูตำแหน่งของผู้ใช้แบบเรียลไทม์
       await Location.watchPositionAsync(
         {
@@ -52,7 +52,7 @@ function Map({setDestination,setOrigin,origin,destination,store}) {
           };
 
           // Set user's current location
-          setOrigin(location.coords);
+          // setOrigin(location.coords);
           setMyLocation(location.coords);
           setRegion(newRegion); // Set the initial region to zoom in
         }
@@ -71,8 +71,7 @@ function Map({setDestination,setOrigin,origin,destination,store}) {
           region={region}
           onRegionChangeComplete={setRegion}
         >
-
-            <Marker
+          <Marker
               coordinate={{
                 latitude: myLocation.latitude,
                 longitude: myLocation.longitude,
@@ -82,7 +81,22 @@ function Map({setDestination,setOrigin,origin,destination,store}) {
               description="อยู่นี่จ้า"
             />
 
-            <Marker
+          <Marker
+            draggable
+            coordinate={{
+              latitude: destination.latitude,
+              longitude: destination.longitude,
+            }}
+            pinColor="red"
+            title="ต้นทาง"
+            description="ศรีปทุม"
+            onDragEnd={(e) => {
+              const newLocation = e.nativeEvent.coordinate;
+              setDestination(newLocation);
+            }}
+          />
+
+          {/* <Marker
               draggable
               coordinate={{
                 latitude: 13.854543008326594, 
@@ -96,8 +110,22 @@ function Map({setDestination,setOrigin,origin,destination,store}) {
                 setDestination(newLocation);
               }}
             />
+                        <Marker
+              draggable
+              coordinate={{
+                latitude: 13.754543008326594, 
+                longitude: 100.6155871693916
+              }}
+              pinColor="red"
+              title="ลองลากดู"
+              description="ตำแหน่งใหม่ของคุณ"
+              onDragEnd={(e) => {
+                const newLocation = e.nativeEvent.coordinate;
+                setOrigin(newLocation);
+              }}
+            /> */}
 
-          {
+          {/* {
             (destination == null || destination.length === 0) && (
               store.map((item, index) => (
                 <Marker
@@ -112,10 +140,25 @@ function Map({setDestination,setOrigin,origin,destination,store}) {
                 />
               ))
             )
-          }
+          } */}
 
+          {/* Marker Origin */}
+          {/* {
+            origin ?
+            <Marker 
+              coordinate={{
+                latitude:origin.latitude,
+                longitude:origin.longitude
+              }}
+              pinColor="green"
+              title="ต้นทาง"
+              description="ตำแหน่งต้นทางจ้า"
+            />
+            : null
+          } */}
 
-          {
+          {/* Marker destination */}
+          {/* {
             destination ? 
             <Marker 
               coordinate={{
@@ -127,27 +170,29 @@ function Map({setDestination,setOrigin,origin,destination,store}) {
               description="ตำแหน่งปลายทางจ้า"
             /> 
             : null
-          }
+          } */}
 
-          <Circle
+          {/* ระยะรอบตัว */}
+          {/* <Circle
             center={myLocation}
             radius={5000}
             fillColor="rgba(255, 0, 0, 0.1)"
             strokeColor="rgba(255, 0, 0, 0.1)"
-          />
+          /> */}
 
+          {/* เส้นทาง */}
           {origin && destination && origin.latitude && destination.latitude ? (
             <MapViewDirections
               strokeColor="blue"
               strokeWidth={3}
               origin={origin}
               destination={destination}
-              apikey= {GOOGLE_MAPS_API_KEY}
+              apikey={GOOGLE_MAPS_API_KEY}
               onError={(errorMessage) => {
                 console.log("Error fetching directions: ", errorMessage);
                 alert("ไม่พบเส้นทางระหว่างจุดต้นทางและปลายทางที่ระบุ");
               }}
-            /> 
+            />
           ) : null}
         </MapView>
       </View>
