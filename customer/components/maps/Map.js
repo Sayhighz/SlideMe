@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { SafeAreaView, View } from "react-native";
-
+import React, { useEffect, useRef, useState } from "react";
+import { SafeAreaView, View, Button, Text, Dimensions } from "react-native";
 import tw from "twrnc"; // import twrnc
-
-import MapView, { Circle, Marker } from "react-native-maps";
+import MapView, { Circle, Marker, Polygon, Polyline } from "react-native-maps";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import MapViewDirections from "react-native-maps-directions";
 import * as Location from "expo-location";
 import "react-native-get-random-values";
@@ -30,7 +29,6 @@ function Map({ setDestination, setOrigin, origin, destination, store }) {
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        console.warn("Permission");
         console.warn("Permission to access location was denied");
         return;
       }
@@ -40,7 +38,6 @@ function Map({ setDestination, setOrigin, origin, destination, store }) {
         {
           accuracy: Location.Accuracy.High,
           timeInterval: 600000, // Update every 10 minutes
-          // distanceInterval: 1
         },
         (location) => {
           const { latitude, longitude } = location.coords;
@@ -58,8 +55,7 @@ function Map({ setDestination, setOrigin, origin, destination, store }) {
         }
       );
     } catch (error) {
-      console.warn("Error");
-      console.warn(error);
+      console.warn("Error fetching location", error);
     }
   };
 
@@ -71,7 +67,9 @@ function Map({ setDestination, setOrigin, origin, destination, store }) {
           region={region}
           onRegionChangeComplete={setRegion}
         >
-          <Marker
+          {/* Render current location marker if coordinates are available */}
+          {myLocation.latitude && myLocation.longitude && (
+            <Marker
               coordinate={{
                 latitude: myLocation.latitude,
                 longitude: myLocation.longitude,
@@ -80,6 +78,7 @@ function Map({ setDestination, setOrigin, origin, destination, store }) {
               title="ตําแหน่งของฉัน"
               description="อยู่นี่จ้า"
             />
+          )}
 
           <Marker
             draggable
@@ -99,8 +98,8 @@ function Map({ setDestination, setOrigin, origin, destination, store }) {
           {/* <Marker
               draggable
               coordinate={{
-                latitude: 13.854543008326594, 
-                longitude: 100.6155871693916
+                latitude: 13.854543008326594,
+                longitude: 100.6155871693916,
               }}
               pinColor="red"
               title="ลองลากดู"
@@ -163,7 +162,7 @@ function Map({ setDestination, setOrigin, origin, destination, store }) {
             <Marker 
               coordinate={{
                 latitude: destination.latitude,
-                longitude: destination.longitude
+                longitude: destination.longitude,
               }}
               pinColor="red"
               title="ปลายทาง"

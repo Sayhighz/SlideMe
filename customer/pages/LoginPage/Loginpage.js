@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import styles from './LoginpageStyle';
 import SignupPage from '../SignupPage/SignupPage';
 
-function Loginpage() {
+function Loginpage({ onLogin }) {
     const [showMainContent, setShowMainContent] = useState(true);
     const fadeAnim = useRef(new Animated.Value(1)).current;
 
@@ -68,7 +68,7 @@ function Loginpage() {
                             <Text style={styles.Support}>ข้อมูลติดต่อ/ช่วยเหลือ</Text>
                         </View>
                     ) : (
-                        <SignupPage onBack={handleBack} />
+                        <SignupPage onBack={handleBack} onLogin={onLogin}/>
                     )}
                 </Animated.View>
             </View>
