@@ -32,9 +32,9 @@ const SignupPage = ({ onBack,onLogin }) => {
                     <Icon name="apple" size={20} color="#fff" />
                     <Text style={SignupPageStyle.backButtonText}>เข้าสู่ระบบด้วย Apple</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={SignupPageStyle.backButton}>
+                <TouchableOpacity style={SignupPageStyle.backButton} >
                     <Icon name="phone" size={20} color="#fff" />
-                    <Text style={SignupPageStyle.backButtonText} onPress={handleLoginClick}>เข้าสู่ระบบด้วย โทรศัพท์</Text>
+                    <Text style={SignupPageStyle.backButtonText} >เข้าสู่ระบบด้วย โทรศัพท์</Text>
                 </TouchableOpacity>
             </View>
         </View>

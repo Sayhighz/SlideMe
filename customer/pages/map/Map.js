@@ -7,8 +7,11 @@ import tw from "twrnc"; // import twrnc
 import Map from "../../components/maps/Map";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
+import { TouchableOpacity } from "react-native";
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const MapPage = ({ navigation }) => {
+
   const [origin, setOrigin] = useState([]);
   const [destination, setDestination] = useState([]);
 
@@ -141,9 +144,9 @@ const MapPage = ({ navigation }) => {
           />
         </View> */}
           <View style={tw`flex-1 justify-center items-center`}>
-            <Pressable> 
-              <Text>ย้อน</Text>
-            </Pressable>
+          <TouchableOpacity onPress={()=>{navigation.goBack()}}>
+                        <Icon name="arrow-left" size={20} color="#000" />
+                    </TouchableOpacity>
           </View>
         <View style={tw`flex-9`}>
           <GooglePlacesAutocomplete
