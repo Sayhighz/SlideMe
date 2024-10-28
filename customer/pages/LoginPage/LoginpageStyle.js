@@ -41,7 +41,7 @@ export default StyleSheet.create({
         borderColor: '#60B876',
         borderRadius: 40,
         width: 420,
-        height: 600,
+        height: 700,
         justifyContent: 'flex-start',
         backgroundColor: '#60B876',
         alignItems: 'center',
@@ -79,19 +79,19 @@ export default StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         color: '#ffffff',
-        fontFamily: 'Mitr-Medium',
+        // fontFamily: 'Mitr-Medium',
     },
     Support: {
         marginTop: 5,
         fontSize: 10,
         fontWeight: 'bold',
         color: '#ffffff',
-        fontFamily: 'Mitr-Medium',
+        // fontFamily: 'Mitr-Medium',
     },
     topLeftBackButton: { 
         position: 'absolute', 
         top: 10, // Align to the top edge
-        left: 0, // Align to the left edge
+        left: -15, // Align to the left edge
         padding: 10,
         zIndex: 1,
     },
