@@ -61,7 +61,7 @@ export default StyleSheet.create({
         borderWidth: 2,
         padding: 10,
         borderRadius: 10,
-        marginTop: 200,
+        marginTop: 10,
     },
     buttonText: {
         fontWeight: 'bold',

@@ -7,6 +7,8 @@ import SignupPage from '../SignupPage/SignupPage';
 function Loginpage({ onLogin }) {
     const [showMainContent, setShowMainContent] = useState(true);
     const fadeAnim = useRef(new Animated.Value(1)).current;
+    
+    
 
     const handleNext = () => {
         Animated.timing(fadeAnim, {
