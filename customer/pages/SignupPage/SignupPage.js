@@ -36,7 +36,7 @@ const SignupPage = ({ onBack,onLogin }) => {
                 </TouchableOpacity>
                 <TouchableOpacity style={SignupPageStyle.backButton} onPress={handleLoginClick} >
                     <Icon name="phone" size={20} color="#fff" />
-                    <Text style={SignupPageStyle.backButtonText} >เข้าสู่ระบบด้วย โทรศัพท์</Text>
+                    <Text style={SignupPageStyle.backButtonText}>เข้าสู่ระบบด้วย โทรศัพท์</Text>
                 </TouchableOpacity>
             </View>
         </View>
