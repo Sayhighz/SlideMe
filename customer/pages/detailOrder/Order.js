@@ -11,42 +11,11 @@ import { useFocusEffect } from 'expo-router';
 export default function Order({ navigation }) {
 
   const route = useRoute();
-  
-  // const [origin,setOrigin] = useState(null)
-  // const [destination,setDestination] = useState(null)
-  // const [confirmOrigin, setConfirmOrigin] = useState(null);
-  // const [confirmDestination, setConfirmDestination] = useState(null);
 
   const origin = route.params?.origin || "ไม่ระบุ";
   const destination = route.params?.destination || "ไม่ระบุ";
   const confirmOrigin = route.params?.confirmOrigin || "ไม่ระบุ";
   const confirmDestination = route.params?.confirmDestination || "ไม่ระบุ";
-
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     if (route.params?.origin) {
-  //       setOrigin(route.params.origin);
-  //       console.log("ต้นทาง = ",origin)
-  //     }      
-  //     if (route.params?.destination) {
-  //       setDestination(route.params.destination);
-  //       console.log("ปลายทาง = ",destination)
-  //     }
-  //     if (route.params?.confirmOrigin) {
-  //       setConfirmOrigin(route.params.confirmOrigin);
-  //       console.log("ต้นทาง = ",confirmOrigin)
-  //     }
-  //     if (route.params?.confirmDestination) {
-  //       setConfirmDestination(route.params.confirmDestination);
-  //       console.log("ปลายทาง = ",confirmDestination)
-  //     }
-  //   }, [route.params])
-  // );
-
-  // const handleLocationSelection = useCallback((selectedOrigin, selectedDestination) => {
-  //   setOrigin(selectedOrigin);
-  //   setDestination(selectedDestination);
-  // }, []);
 
   return (
     <View style={tw`flex-1 p-5 `}>
