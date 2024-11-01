@@ -7,7 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Home from './pages/homePage/Home';
-import Map from './pages/map/Map';
+import Map from './pages/MapPage/MapPage';
 import Order from './pages/detailOrder/Order';
 import Loginpage from './pages/LoginPage/Loginpage';
 import HistoryPage from './pages/historyPage/History';
@@ -23,8 +23,9 @@ function HomeStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="HomeScreen" component={Home} />
-      <Stack.Screen name="Map" component={Map} />
+      <Stack.Screen name="MapPage" component={Map} options={{ headerShown: false }}/>
       <Stack.Screen name="Order" component={Order} options={{ headerShown: false }} />
+
     </Stack.Navigator>
   );
 }
@@ -97,7 +98,7 @@ const App = () => {
           })}
         >
           <Tab.Screen name="Home" component={HomeStack} options={{ headerShown: false }} />
-          <Tab.Screen name="Map" component={Map} options={{ headerShown: false }} />
+          {/* <Tab.Screen name="Map" component={Map} options={{ headerShown: false }} /> */}
           <Tab.Screen name="ประวัติการใช้บริการ" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }}/>
           <Tab.Screen name="การแจ้งเตือน" component={MessageBoxScreen} options={{ title: 'การแจ้งเตือน' }}/>
           <Tab.Screen name="โปรไฟล์ผู้ใช้" component={UserProfileStack} options={{ headerShown: false }} />
