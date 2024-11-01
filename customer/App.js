@@ -7,7 +7,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Home from './pages/homePage/Home';
-import Map from './pages/map/Map';
 import MapDetail from './pages/Mapdetail/Mapdetail';
 import Order from './pages/detailOrder/Order';
 import Loginpage from './pages/LoginPage/Loginpage';
@@ -25,8 +24,8 @@ function HomeStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Home" component={Home} />
-      <Stack.Screen name="Inputmap" component={MapDetail} />
-      <Stack.Screen name="MapPage" component={MapPage}  />
+      <Stack.Screen name="Inputmap" component={MapDetail} options={{ headerShown: false }}/>
+      <Stack.Screen name="MapPage" component={MapPage} options={{ headerShown: false }}/>
       <Stack.Screen name="Order" component={Order}  />
     </Stack.Navigator>
   );
