@@ -24,8 +24,8 @@ function HomeStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Home" component={Home} />
-      <Stack.Screen name="Inputmap" component={MapDetail} options={{ headerShown: false }}/>
-      <Stack.Screen name="MapPage" component={MapPage} options={{ headerShown: false }}/>
+      <Stack.Screen name="Mapdetail" component={MapDetail} options={{ headerShown: false }}/>
+      <Stack.Screen name="MapPage" component={MapPage} />
       <Stack.Screen name="Order" component={Order}  />
     </Stack.Navigator>
   );
@@ -73,7 +73,7 @@ const App = () => {
               let iconName;
 
               switch (route.name) {
-                case 'Home':
+                case 'Homepage':
                   iconName = 'home';
                   break;
                 case 'Map':
@@ -98,7 +98,7 @@ const App = () => {
             tabBarInactiveTintColor: 'gray',
           })}
         >
-          <Tab.Screen name="Home" component={HomeStack} options={{ headerShown: false }} />
+          <Tab.Screen name="Homepage" component={HomeStack} options={{ headerShown: false }} />
           {/* <Tab.Screen name="Map" component={Map} options={{ headerShown: false }} /> */}
           <Tab.Screen name="ประวัติการใช้บริการ" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }}/>
           <Tab.Screen name="การแจ้งเตือน" component={MessageBoxScreen} options={{ title: 'การแจ้งเตือน' }}/>

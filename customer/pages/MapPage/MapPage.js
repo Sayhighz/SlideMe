@@ -140,7 +140,7 @@ const MapPage = ({ navigation }) => {
   }),[confirmDestination]
 
   const handleConfirm = () => {
-    navigation.navigate('Order', {
+    navigation.navigate('Mapdetail', {
       origin,
       destination,
       confirmOrigin,

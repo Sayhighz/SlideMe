@@ -10,41 +10,58 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
 
+import { useRoute } from "@react-navigation/native";
+
 const locations = [
   {
     id: "1",
     title: "Sripatum University",
-    address: "Phahonyothin Road, Sena Nikhom, Chatuchak, Bangkok",
+    address: "Phahonyothin Road, Sena Nikhom, Chatuchak, ",
     distance: "32.0 km",
   },
   {
     id: "2",
     title: "Sripatum University International College",
-    address: "Phahonyothin Road, Sena Nikhom, Chatuchak, Bangkok",
+    address: "Phahonyothin Road, Sena Nikhom, Chatuchak,",
     distance: "31.0 km",
   },
   {
     id: "3",
     title: "Sripatum University Chonburi Campus",
-    address: "Khlong Tamru, Chon Buri District, Chon Buri",
+    address: "Khlong Tamru, Chon Buri District, ",
     distance: "45.0 km",
   },
   {
     id: "4",
     title: "School of Engineering, Sripatum University",
-    address: "Phahonyothin Road, Sena Nikhom, Chatuchak, Bangkok",
+    address: "Phahonyothin Road, Sena Nikhom, Chatuchak, ",
     distance: "32.0 km",
   },
   {
     id: "5",
     title: "International Continuing Education Center, Sripatum",
-    address: "Phahonyothin Road, Sena Nikhom, Chatuchak, Bangkok",
+    address: "Phahonyothin Road, Sena Nikhom, Chatuchak, ",
     distance: "32.0 km",
   },
 ];
 
-const Mapdetail = ({ navigation }) => {
+
+
+
+
+export default function Mapdetail({ navigation }) {
+
+  const route = useRoute();
+  
+  // const origin = route.params?.origin || "ไม่ระบุ";
+  // const destination = route.params?.destination || "ไม่ระบุ";
+  const confirmOrigin = route.params?.confirmOrigin || "ไม่ระบุ";
+  const confirmDestination = route.params?.confirmDestination || "ไม่ระบุ";
+
   return (
+
+    
+    
     <SafeAreaView style={tw`flex-1 bg-white`}>
       <View style={tw`p-4`}>
         <View style={tw`flex-row`}>
@@ -69,7 +86,9 @@ const Mapdetail = ({ navigation }) => {
           <TextInput
             style={tw`flex-1 p-2 text-gray-700`}
             placeholder="Enter pickup location"
-          />
+            value={confirmOrigin.length ? confirmOrigin : "Enter Pickup Location"} 
+         />
+             
         </View>
 
         {/* Destination Location Input */}
@@ -83,6 +102,7 @@ const Mapdetail = ({ navigation }) => {
           <TextInput
             style={tw`flex-1 p-2 text-gray-700`}
             placeholder="Enter destination"
+            value={confirmDestination.length ? confirmDestination : "Enter Destination Location"}
           />
         </View>
         <View>
@@ -139,4 +159,4 @@ const Mapdetail = ({ navigation }) => {
   );
 };
 
-export default Mapdetail;
+
