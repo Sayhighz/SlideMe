@@ -155,12 +155,23 @@ export default function Order({ navigation }) {
           <TouchableOpacity
             style={[
               styles.optionCard,
-              tw`items-center justify-center mt-4 w-70 h-40 bg-[white]`,
+              tw`items-center justify-center mt-4 w-70 h-30 bg-[white]`,
             ]}
           >
             {/* <FontAwesome5 name={''} size={24} color="black"/> */}
             <Text>More Detail ... </Text>
           </TouchableOpacity>
+        </View>
+        <View style={[styles.optionsContainer]}>
+            <TouchableOpacity
+                        style={[
+                          styles.optionCard,
+                          tw`items-center justify-center mt-4 w-70 h-20 bg-[white] rounded-lg bg-[#60B876]`,
+                        ]}
+                        onPress={()=>{navigation.navigate("payment")}}
+                      >
+              <Text>Go To Payment</Text>
+            </TouchableOpacity>
         </View>
       </View>
     </View>
