@@ -1,10 +1,10 @@
 import mysql from 'mysql'
 
 const con = mysql.createConnection({
-    host: "th55.ruk-com.in.th",
-    user: "slidemep_root",
-    password: "tCjWrta3Y3WhscrgT3PY",
-    database: "slidemep_database"
+    host: "103.253.75.87",
+    user: "Sayhigh",
+    password: "0819897031!Sayhi",
+    database: "slideme"
 })
 
 con.connect(function (err) {
