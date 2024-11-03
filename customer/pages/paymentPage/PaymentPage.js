@@ -137,6 +137,7 @@ export default function PaymentPage({ navigation }) {
         <View style={tw`flex-1 justify-center items-center`}>
           <Pressable
             style={tw`justify-center w-1/2 h-1/2 items-center border-2 rounded-lg bg-[#60B876] border-[#60B876]`}
+            onPress={() => navigation.navigate("viewOrder")}
           >
             <Text>PAY NOW</Text>
           </Pressable>

@@ -17,6 +17,7 @@ import MessageBoxScreen from './pages/MessageBoxScreen/MessageBoxScreen';
 import UserProfile from './pages/userProfile/userProfile';
 import MapPage from './pages/MapPage/MapPage';
 import PaymentPage from './pages/paymentPage/PaymentPage';
+import ViewOrder from './pages/viewOrder/ViewOrder';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -29,6 +30,7 @@ function HomeStack() {
       <Stack.Screen name="MapPage" component={MapPage} />
       <Stack.Screen name="Order" component={Order}  />
       <Stack.Screen name="payment" component={PaymentPage} options={{ headerShown: false }}/>
+      <Stack.Screen name="viewOrder" component={ViewOrder} options={{ headerShown: false }}/>
     </Stack.Navigator>
   );
 }
