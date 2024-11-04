@@ -100,15 +100,10 @@ export default function Order({ navigation }) {
     <Provider>
 
     <View style={tw`flex-1 `}>
-      
+{/*       
       <View style={tw`flex-row items-center `}>
         <Text style={styles.headerTitle}></Text>
-      </View>
-
-      {/* Subtitle */}
-      <Text style={styles.subtitle}>
-        Where do you want to take the Slide Car
-      </Text>
+      </View> */}
 
       {/* Location Search */}
       {/* <TouchableOpacity onPress={() => navigation.navigate("Mapdetail")}>
@@ -120,8 +115,12 @@ export default function Order({ navigation }) {
       </TouchableOpacity> */}
 
       <View style={tw`flex-1 items-center`}>
+              {/* Subtitle */}
+        <Text style={styles.subtitle}>
+          Where do you want to take the Slide Car
+        </Text>
         <TouchableOpacity 
-          style={tw` my-4 justify-around bg-white rounded-lg border border-gray-300 shadow-md w-70 h-25`}
+          style={tw` mb-4 mt-1 justify-around bg-white rounded-lg border border-gray-300 shadow-md w-70 h-25`}
           onPress={() => navigation.navigate("Mapdetail")}
         >
           <View style={tw`flex-row px-4`}>
@@ -152,7 +151,7 @@ export default function Order({ navigation }) {
             )}
           {showPicker && Platform.OS === "ios" && (
               <View
-              style={[styles.datePicker , tw`flex-row items-center justify-center gap-4`] }
+              style={[styles.datePicker , tw`flex-row items-start justify-center gap-4`] }
               >
               <TouchableOpacity onPress={toggleDatePicker} style={[tw`border border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-full shadow-sm hover:bg-blue-50 active:bg-blue-100 focus:outline-none focus:ring focus:ring-blue-300 `]}>
                 <Text style={tw`text-blue-500 text-lg font-medium text-center`}>Cancel</Text>
@@ -214,13 +213,17 @@ export default function Order({ navigation }) {
 
         <View>
           <TouchableOpacity
-            style={[
-                styles.optionCard,
-                tw`items-center justify-center mt-4 w-70 h-20 bg-[white]`,
-            ]}
-            >
-            {/* <FontAwesome5 name={''} size={24} color="black"/> */}
+            style={tw`items-center justify-center mt-4 w-70 h-20 bg-[white]`}
+          >
             <Text>More Detail ... </Text>
+          </TouchableOpacity>
+        </View>
+        <View>
+          <TouchableOpacity
+            style={tw`items-center justify-center mt-4 w-70 h-12 bg-[#60B876] rounded-lg`}
+            onPress={()=>{alert("Order Confirmed!")}}
+          >
+            <Text>Confirm Order</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -233,7 +236,7 @@ const styles = StyleSheet.create({
     container: { flex: 1, padding: 4, backgroundColor: "#F2FFF3" },
     header: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
     headerTitle: { fontSize: 24, fontWeight: "bold", marginLeft: 10 },
-    subtitle: { fontSize: 14, color: "gray", marginBottom: 10,paddingLeft: 16 },
+    subtitle: { fontSize: 14, color: "gray" },
     searchBar: {
         flexDirection: "row",
         alignItems: "center",
@@ -248,11 +251,7 @@ const styles = StyleSheet.create({
   },
   datePicker: {
     height: 40,
-    marginTop: 5,
     flex: 1,
-    
-    
-
   },
 
   optionText: { marginLeft: 10, fontSize: 16 },
