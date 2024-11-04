@@ -99,7 +99,7 @@ export default function Order({ navigation }) {
 
     <Provider>
 
-    <View style={tw`flex-1 p-5 `}>
+    <View style={tw`flex-1 `}>
       
       <View style={tw`flex-row items-center `}>
         <Text style={styles.headerTitle}></Text>
@@ -129,8 +129,10 @@ export default function Order({ navigation }) {
          
           {showPicker && (
               <DateTimePicker
-              mode="date"
-              display={Platform.OS === "ios" ? "spinner" : "calendar"}
+              mode="datetime"
+            //   display={Platform.OS === "ios" ? "spinner" : "calendar"}
+            
+              display="calendar"
               value={date}
               onChange={onChange}
               locale="th"
@@ -158,7 +160,7 @@ export default function Order({ navigation }) {
               onPress={toggleDatePicker}
               style={tw`flex-col items-center justify-center bg-white  rounded-lg border border-gray-300 w-11/12 shadow-md w-70`}
               >
-            <MaterialIcons name="date-range" size={30} color="black" style={tw`mt-2`}/>
+            <MaterialIcons name="date-range" size={25} color="black" style={tw`mt-2`}/>
               <TextInput
                 style={tw`flex-col items-center justify-center bg-white rounded-lg border border-gray-300 w-11/12  w-65 border-transparent text-xl`}
                 placeholder="BOOKING  Date"
@@ -183,9 +185,9 @@ export default function Order({ navigation }) {
             anchor={
                 <TouchableOpacity
                 onPress={() => setMenuVisible(true)}
-                style={tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-70 h-29`}
+                style={tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-70 h-25`}
                 >
-                <FontAwesome5 name="car" size={30} color="black" style={tw`mb-2`} />
+                <FontAwesome5 name="car" size={25} color="black" style={tw`mb-2`} />
                 <Text style={tw`text-xl`}>{category}</Text>
               </TouchableOpacity>
             }
@@ -219,7 +221,7 @@ export default function Order({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 20, backgroundColor: "#F2FFF3" },
+    container: { flex: 1, padding: 4, backgroundColor: "#F2FFF3" },
     header: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
     headerTitle: { fontSize: 24, fontWeight: "bold", marginLeft: 10 },
     subtitle: { fontSize: 14, color: "gray", marginBottom: 10 },

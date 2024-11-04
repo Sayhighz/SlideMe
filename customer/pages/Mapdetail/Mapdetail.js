@@ -62,7 +62,7 @@ export default function Mapdetail({ navigation }) {
 
     
     
-    <SafeAreaView style={tw`flex-1 bg-white`}>
+    <SafeAreaView style={tw`bg-white relative flex-1`}>
       <View style={tw`p-4`}>
         <View style={tw`flex-row`}>
           <TouchableOpacity
@@ -100,7 +100,7 @@ export default function Mapdetail({ navigation }) {
             style={tw`ml-2`}
           />
           <TextInput
-            style={tw`flex-1 p-2 text-gray-700`}
+            style={tw`flex-row p-2 text-gray-700`}
             placeholder="Enter destination"
             value={confirmDestination.length ? confirmDestination : "Enter Destination Location"}
           />
@@ -142,6 +142,13 @@ export default function Mapdetail({ navigation }) {
             </TouchableOpacity>
           )}
         />
+        
+        <TouchableOpacity style={tw`absolute bottom-[-50] self-center bg-white border-2 border-gray-300 p-4 rounded-full`}>
+          <Text style={tw`text-lg font-bold text-blue-600`}>
+            View on map
+          </Text>
+        </TouchableOpacity>
+        
       </View>
 
       {/* Floating Action Button */}
