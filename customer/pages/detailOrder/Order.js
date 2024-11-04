@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState , useEffect } from "react";
 import {
   View,
   Text,
@@ -6,51 +6,101 @@ import {
   StyleSheet,
   Modal,
   Platform,
+  FlatList,
+  Pressable,
 } from "react-native";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import dayjs from "dayjs";
+import "dayjs/locale/th";
 
 import tw, { style } from "twrnc";
 import { useRoute } from "@react-navigation/native";
-import DatePicker from "@react-native-community/datetimepicker";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { TextInput , Menu, Provider} from "react-native-paper";
+import { Provider as PaperProvider } from "react-native-paper";
 
+dayjs.locale("th");
 export default function Order({ navigation }) {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [showPicker, setShowPicker] = useState(false);
+  const [date, setDate] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false); // แสดงหน้าตัวเลือกวันที่
+  const [category, setCategory] = useState("Category");
+  const [menuVisible, setMenuVisible] = useState(false); // แสดงตัวเลือกรถ
 
-  const openDatePicker = () => {
-    Platform.OS === "android" ? setShowPicker(true) : setModalVisible(true);
-  }
-  const closeCalendar = () => {
-    setModalVisible(false); // Hide the modal
+  const toggleDatePicker = () => {
+    setShowPicker(!showPicker);
   };
-
-  const onDateChange = (event , date) => {
-    setShowPicker(Platform.OS === "ios");
-    if (date) {
-        setSelectedDate(date);
-    }
-    setShowPicker(false);
-    }
-
-    // const currentDate = date || selectedDate;
-    // if (Platform.OS === "android");
-    // setShowPicker(false);
-    // setSelectedDate(currentDate);
-    // closeCalendar();
   
 
+  const onChange = ({ type }, selectedDate) => {
+    if (type == "set") {
+      const currentDate = selectedDate;
+      setDate(currentDate);
+
+      if (Platform.OS === "android") {
+        toggleDatePicker();
+        setDate(currentDate);
+      }
+    } else {
+      toggleDatePicker();
+    }
+    // setShowPicker(Platform.OS === "ios");
+    // if (date) {
+    //     setSelectedDate(date);
+    // }
+    // setShowPicker(false);
+    // if (Platform.OS === "ios") {
+    //     closeCalendar();
+    // }
+  };
+  const confirmDate = () => {
+      setDate(date);
+      toggleDatePicker();
+  }
+
+  
+  
+  // const currentDate = date || selectedDate;
+  // if (Platform.OS === "android");
+  // setShowPicker(false);
+  // setSelectedDate(currentDate);
+  // closeCalendar();
+
   const route = useRoute();
-  const origin = route.params?.origin || "ไม่ระบุ";
-  const destination = route.params?.destination || "ไม่ระบุ";
   const confirmOrigin = route.params?.confirmOrigin || "ไม่ระบุ";
   const confirmDestination = route.params?.confirmDestination || "ไม่ระบุ";
 
+  const formatDate = (rawDate) => {
+//     let date = new Date(rawDate);
+    
+//     let year = date.getFullYear();
+//     let month = date.getMonth() + 1;
+//     let day = date.getDate();
+
+//     month = month < 10 ? "0" + month : month;
+//     day = day < 10 ? "0" + day : day;
+//     return `${day}-${month}-${year}`;
+    let date = dayjs(rawDate);
+    let thaiYear = date.year() + 543;
+    return date.format(`D MMMM ${thaiYear}`)}
+
+    const categoryOptions = [
+        { label: "Mini Slide Car", value: "mini" },
+        { label: "Standard Slide Car", value: "standard" },
+        { label: "Heavy Duty Slide Car", value: "heavy" },
+        { label: "Special Slide Car", value: "special" },
+      ];
+    
+      const selectCategory = (label) => {
+        setCategory(label);
+        setMenuVisible(false); // Close the menu after selecting a category
+      };
+
   return (
+
+    <Provider>
+
     <View style={tw`flex-1 p-5 `}>
-      {/* <Image /> */}
-      {/* Header Section */}
+      
       <View style={tw`flex-row items-center `}>
         <Text style={styles.headerTitle}></Text>
       </View>
@@ -76,106 +126,107 @@ export default function Order({ navigation }) {
         </View>
 
         <View style={[styles.optionsContainer]}>
-          <TouchableOpacity
-            style={[
-              styles.optionCard,
-              tw`items-center justify-center mt-4 w-70 h-20 bg-[white]`,
-            ]}
-            onPress={openDatePicker}
-          >
-            {selectedDate ? (
-              <Text style={tw`text-lg font-bold`}>
-                {dayjs(selectedDate).format("DD/MM/YYYY")}
-              </Text>
-            ) : (
-              <View style={tw` items-center`}>
-                <FontAwesome5 name="calendar" size={24} color="black" />
-                <Text style={tw`text-lg font-bold`}>Booking</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        {showPicker && Platform.OS === "android" && (
-            <DatePicker
-            value={selectedDate ? new Date(selectedDate) : new Date()}
-            locale="th"
-            mode="date"
-            minimumDate={dayjs().toDate()}
-            display="calendar"
-            onDateChange={onDateChange} // Set selected date
-        />)}
-
-        {/* iOS */}
-        <Modal
-          transparent={true}
-          animationType="slide"
-          visible={modalVisible}
-          onRequestClose={closeCalendar} // Close modal on back press
-        >
-          <View style={tw`flex-1 justify-center items-center bg-black/50`}>
-            <View style={tw`w-80 p-5 bg-white rounded-lg items-center`}>
-              <DatePicker
-                value={selectedDate ? new Date(selectedDate) : new Date()}
-                locale="th"
-                mode="date"
-                minimumDate={dayjs().toDate()}
-                display="default"
-                onDateChange={(event , date) => {onDateChange(event , date);closeCalendar();}} // Set selected date
+         
+          {showPicker && (
+              <DateTimePicker
+              mode="date"
+              display={Platform.OS === "ios" ? "spinner" : "calendar"}
+              value={date}
+              onChange={onChange}
+              locale="th"
+              style={styles.datePicker}
+              minimumDate={new Date()}
+              maximumDate={new Date('2024-12-31')}
               />
-              <TouchableOpacity
-                onPress={closeCalendar}
-                style={tw`mt-5 p-3 bg-blue-500 rounded`}
+            )}
+          {showPicker && Platform.OS === "ios" && (
+              <View
+              style={[styles.datePicker , tw`flex-row items-center justify-center gap-4`] }
               >
-                <Text style={tw`text-white font-bold`}>Confirm</Text>
+              <TouchableOpacity onPress={toggleDatePicker} style={[tw`border border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-full shadow-sm hover:bg-blue-50 active:bg-blue-100 focus:outline-none focus:ring focus:ring-blue-300 `]}>
+                <Text style={tw`text-blue-500 text-lg font-medium text-center`}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={closeCalendar}
-                style={tw`mt-5 p-3 bg-blue-500 rounded`}
-              >
-                <Text style={tw`text-white font-bold`}>Close</Text>
+              <TouchableOpacity onPress={confirmDate} style={[tw`bg-blue-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-blue-600 active:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300  `]}>
+                <Text style={tw`text-white text-lg font-semibold text-center`}>OK</Text>
               </TouchableOpacity>
+              
             </View>
-          </View>
-        </Modal>
+          )}
 
-        <View style={[styles.optionsContainer]}>
-          <TouchableOpacity
-            style={[
-              styles.optionCard,
-              tw`items-center justify-center mt-4 w-70 h-20 bg-[white]`,
-            ]}
-          >
-            <FontAwesome5 name={"car"} size={24} color="black" />
-            <Text>Category</Text>
-          </TouchableOpacity>
+          {!showPicker && (
+              <TouchableOpacity
+              onPress={toggleDatePicker}
+              style={tw`flex-col items-center justify-center bg-white  rounded-lg border border-gray-300 w-11/12 shadow-md w-70`}
+              >
+            <MaterialIcons name="date-range" size={30} color="black" style={tw`mt-2`}/>
+              <TextInput
+                style={tw`flex-col items-center justify-center bg-white rounded-lg border border-gray-300 w-11/12  w-65 border-transparent text-xl`}
+                placeholder="BOOKING  Date"
+                value={formatDate(date)}
+                onChangeText={setDate}
+                editable={false}
+                onPressIn={toggleDatePicker}
+                underlineColor="transparent"
+                >
+                
+              </TextInput>
+                
+               
+            </TouchableOpacity>
+          )}
+        </View>
+        <View style={tw`w-full items-center mt-4`}>
+          <Menu
+            visible={menuVisible}
+            onDismiss={() => setMenuVisible(false)}
+            mode="elevated"
+            anchor={
+                <TouchableOpacity
+                onPress={() => setMenuVisible(true)}
+                style={tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-70 h-29`}
+                >
+                <FontAwesome5 name="car" size={30} color="black" style={tw`mb-2`} />
+                <Text style={tw`text-xl`}>{category}</Text>
+              </TouchableOpacity>
+            }
+            style={tw`w-70 rounded items-center`}>
+            {categoryOptions.map((option) => (
+                <Menu.Item
+                key={option.value}
+                onPress={() => selectCategory(option.label)}
+                title={option.label}
+                style={tw`bg-white`}
+                />
+            ))}
+          </Menu>
         </View>
 
         <View style={[styles.optionsContainer]}>
           <TouchableOpacity
             style={[
-              styles.optionCard,
-              tw`items-center justify-center mt-4 w-70 h-40 bg-[white]`,
+                styles.optionCard,
+                tw`items-center justify-center mt-4 w-70 h-40 bg-[white]`,
             ]}
-          >
+            >
             {/* <FontAwesome5 name={''} size={24} color="black"/> */}
             <Text>More Detail ... </Text>
           </TouchableOpacity>
         </View>
       </View>
     </View>
+</Provider>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#F2FFF3" },
-  header: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
-  headerTitle: { fontSize: 24, fontWeight: "bold", marginLeft: 10 },
-  subtitle: { fontSize: 14, color: "gray", marginBottom: 10 },
-  searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
+    container: { flex: 1, padding: 20, backgroundColor: "#F2FFF3" },
+    header: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
+    headerTitle: { fontSize: 24, fontWeight: "bold", marginLeft: 10 },
+    subtitle: { fontSize: 14, color: "gray", marginBottom: 10 },
+    searchBar: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#fff",
     borderRadius: 10,
     padding: 10,
     shadowColor: "#000",
@@ -183,6 +234,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 3,
+  },
+  datePicker: {
+    height: 40,
+    marginTop: 5,
+    flex: 1,
+    
+    
+
   },
 
   optionText: { marginLeft: 10, fontSize: 16 },
