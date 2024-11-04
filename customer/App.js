@@ -18,6 +18,7 @@ import UserProfile from './pages/userProfile/userProfile';
 import MapPage from './pages/MapPage/MapPage';
 
 
+import PhoneVerify from './pages/PhoneVerify/PhoneVerify';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -62,6 +63,16 @@ function UserProfileStack() {
   );
 }
 
+function AuthStack({ onLogin }) {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Login" component={Loginpage} options={{ headerShown: false }} />
+      <Stack.Screen name="PhoneVerify" options={{ headerShown: false }}>
+        {() => <PhoneVerify onLogin={onLogin} />}
+      </Stack.Screen>
+    </Stack.Navigator>
+  );
+}
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -110,7 +121,7 @@ const App = () => {
           <Tab.Screen name="โปรไฟล์ผู้ใช้" component={UserProfileStack} options={{ headerShown: false }} />
         </Tab.Navigator>
       ) : (
-        <Loginpage onLogin={handleLogin} />
+        <AuthStack onLogin={handleLogin} />
       )}
     </NavigationContainer>
   );
