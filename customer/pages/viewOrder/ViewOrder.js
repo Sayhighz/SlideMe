@@ -1,10 +1,25 @@
 import { Pressable, SafeAreaView, Text, View } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
 import { TouchableOpacity } from "react-native";
+import MapView, { Marker } from "react-native-maps";
 
 export default function ViewOrder({navigation}) {
+
+    const [origin , setOrigin] = useState(null);
+    const [destination , setDestination] = useState(null);
+    
+    const [driverLocation, setDriverLocation] = useState(null);
+
+    useEffect(() => {
+        setOrigin({name: "ศรีปทุม",latitude: 13.855827502824274, longitude: 100.58551678180032})
+        setDestination({name: "เกษตร" , latitude: 13.843811760571077, longitude: 100.57726985068038})
+
+        setDriverLocation({name: "คนขับ" , latitude: 13.875827502824274, longitude: 100.58551678180032})
+    },[])
+
+
   return (
     <SafeAreaView style={tw`flex-1 relative `}>
       <View style={tw`flex-3`}>
@@ -23,14 +38,43 @@ export default function ViewOrder({navigation}) {
                     <Text style={tw``}>10:12 AM 15 ม.ค. 2567</Text>
                     <Text style={tw``}>xxxxxxxxxxxxxx</Text>
                 </View>
-                <View style={tw`flex-1 justify-around px-4`}>
-                    <Text style={tw``}>ต้นทาง : xxx</Text>
-                    <Text style={tw``}>ปลายทาง : xxx</Text>
+                <View style={tw`flex-1 justify-around mx-4 px-4 bg-gray-200 rounded-lg`}>
+                    <Text style={tw``}>ต้นทาง : {origin.name}</Text>
+                    <Text style={tw``}>ปลายทาง : {destination.name}</Text>
                 </View>
             </View>
             <View style={tw`flex-2`}>
                 <View style={tw`flex-1 bg-black justify-center`}>
-                    <Text style={tw`text-2xl font-bold text-center text-white`}>MAP</Text>
+                    <MapView 
+                        style={tw`flex-1 border-2`}
+                        initialRegion={{
+                            latitude: 13.855890002666245, 
+                            longitude: 100.58553823947129,
+                            latitudeDelta: 0.0922,
+                            longitudeDelta: 0.0421,
+                        }}
+                    >
+                        <Marker
+                            coordinate={origin}
+                            title="origin"
+                            description="origin"
+                        />
+
+                        <Marker
+                            coordinate={destination}
+                            title="destination"
+                            description="destination"
+                            pinColor="green"
+                        />
+
+                        <Marker
+                            coordinate={driverLocation}
+                            title="driverLocation"
+                            description="driverLocation"
+                            pinColor="blue"
+                        />
+
+                    </MapView>
                 </View>
             </View>
         </View>
