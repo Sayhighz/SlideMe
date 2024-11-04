@@ -17,17 +17,22 @@ import MessageBoxScreen from './pages/MessageBoxScreen/MessageBoxScreen';
 import UserProfile from './pages/userProfile/userProfile';
 import MapPage from './pages/MapPage/MapPage';
 
+
+
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function HomeStack() {
   return (
+   
     <Stack.Navigator>
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="Mapdetail" component={MapDetail} options={{ headerShown: false }}/>
       <Stack.Screen name="MapPage" component={MapPage} />
+      
       <Stack.Screen name="Order" component={Order}  />
     </Stack.Navigator>
+    
   );
 }
 
