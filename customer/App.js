@@ -7,7 +7,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Home from './pages/homePage/Home';
-import Map from './pages/map/Map';
 import MapDetail from './pages/Mapdetail/Mapdetail';
 import Order from './pages/detailOrder/Order';
 import Loginpage from './pages/LoginPage/Loginpage';
@@ -16,6 +15,7 @@ import PaymentMethodsListScreen from './pages/PaymentMethod/PaymentMethodsListSc
 import AddPaymentMethod from './pages/PaymentMethod/AddPaymentMethod';
 import MessageBoxScreen from './pages/MessageBoxScreen/MessageBoxScreen';
 import UserProfile from './pages/userProfile/userProfile';
+import MapPage from './pages/MapPage/MapPage';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -24,8 +24,8 @@ function HomeStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Home" component={Home} />
-      <Stack.Screen name="Inputmap" component={MapDetail} />
-      <Stack.Screen name="Map" component={Map}  />
+      <Stack.Screen name="Mapdetail" component={MapDetail} options={{ headerShown: false }}/>
+      <Stack.Screen name="MapPage" component={MapPage} />
       <Stack.Screen name="Order" component={Order}  />
     </Stack.Navigator>
   );
@@ -73,7 +73,7 @@ const App = () => {
               let iconName;
 
               switch (route.name) {
-                case 'Home':
+                case 'Homepage':
                   iconName = 'home';
                   break;
                 case 'Map':
@@ -98,8 +98,8 @@ const App = () => {
             tabBarInactiveTintColor: 'gray',
           })}
         >
-          <Tab.Screen name="Home" component={HomeStack} options={{ headerShown: false }} />
-          <Tab.Screen name="Map" component={Map} options={{ headerShown: false }} />
+          <Tab.Screen name="Homepage" component={HomeStack} options={{ headerShown: false }} />
+          {/* <Tab.Screen name="Map" component={Map} options={{ headerShown: false }} /> */}
           <Tab.Screen name="ประวัติการใช้บริการ" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }}/>
           <Tab.Screen name="การแจ้งเตือน" component={MessageBoxScreen} options={{ title: 'การแจ้งเตือน' }}/>
           <Tab.Screen name="โปรไฟล์ผู้ใช้" component={UserProfileStack} options={{ headerShown: false }} />
