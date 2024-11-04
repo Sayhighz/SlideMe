@@ -64,8 +64,8 @@ export default function Mapdetail({ navigation }) {
 
   const route = useRoute();
   
-  // const origin = route.params?.origin || "ไม่ระบุ";
-  // const destination = route.params?.destination || "ไม่ระบุ";
+  const origin = route.params?.origin || "ไม่ระบุ";
+  const destination = route.params?.destination || "ไม่ระบุ";
   const confirmOrigin = route.params?.confirmOrigin || "ไม่ระบุ";
   const confirmDestination = route.params?.confirmDestination || "ไม่ระบุ";
 
@@ -156,9 +156,19 @@ export default function Mapdetail({ navigation }) {
             />
           </View>
         
-        <TouchableOpacity style={tw`absolute bottom-4 self-center bg-white border-2 border-gray-300 p-4 rounded-full`}>
+        <TouchableOpacity 
+          style={tw`absolute bottom-4 self-center bg-white border-2 border-gray-300 p-4 rounded-full`}
+            onPress={() => {
+              navigation.navigate("Order",{
+                origin,
+                destination,
+                confirmOrigin,
+                confirmDestination,
+              });
+            }}
+        >
           <Text style={tw`text-lg font-bold text-blue-600`}>
-            View on map
+            Confirm
           </Text>
         </TouchableOpacity>
         

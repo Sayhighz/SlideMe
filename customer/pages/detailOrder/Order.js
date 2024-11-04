@@ -111,21 +111,30 @@ export default function Order({ navigation }) {
       </Text>
 
       {/* Location Search */}
-      <TouchableOpacity onPress={() => navigation.navigate("Mapdetail")}>
+      {/* <TouchableOpacity onPress={() => navigation.navigate("Mapdetail")}>
         <View style={styles.searchBar}>
           <MaterialIcons name="place" size={24} color="red" />
           <Text style={styles.nowText}>Now</Text>
           <MaterialIcons name="arrow-drop-down" size={20} color="black" />
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <View style={tw`flex-1 items-center`}>
-        <View style={[styles.optionsContainer]}>
-          <Text>ต้นทาง : {confirmOrigin}</Text>
-          <Text>ปลายทาง : {confirmDestination}</Text>
-        </View>
+        <TouchableOpacity 
+          style={tw` my-4 justify-around bg-white rounded-lg border border-gray-300 shadow-md w-70 h-25`}
+          onPress={() => navigation.navigate("Mapdetail")}
+        >
+          <View style={tw`flex-row px-4`}>
+            <MaterialIcons name="place" size={24} color="red" />
+            <Text>ต้นทาง : {confirmOrigin.length > 25 ? confirmOrigin.slice(0, 25) + "..." : confirmOrigin}</Text>
+          </View>
+          <View style={tw`flex-row px-4`}>
+            <MaterialIcons name="place" size={24} color="green" />
+            <Text>ปลายทาง : {confirmDestination.length > 25 ? confirmDestination.slice(0, 25) + "..." : confirmDestination}</Text>
+          </View>
+        </TouchableOpacity>
 
-        <View style={[styles.optionsContainer]}>
+        <View>
          
           {showPicker && (
               <DateTimePicker
@@ -203,11 +212,11 @@ export default function Order({ navigation }) {
           </Menu>
         </View>
 
-        <View style={[styles.optionsContainer]}>
+        <View>
           <TouchableOpacity
             style={[
                 styles.optionCard,
-                tw`items-center justify-center mt-4 w-70 h-40 bg-[white]`,
+                tw`items-center justify-center mt-4 w-70 h-20 bg-[white]`,
             ]}
             >
             {/* <FontAwesome5 name={''} size={24} color="black"/> */}
@@ -224,7 +233,7 @@ const styles = StyleSheet.create({
     container: { flex: 1, padding: 4, backgroundColor: "#F2FFF3" },
     header: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
     headerTitle: { fontSize: 24, fontWeight: "bold", marginLeft: 10 },
-    subtitle: { fontSize: 14, color: "gray", marginBottom: 10 },
+    subtitle: { fontSize: 14, color: "gray", marginBottom: 10,paddingLeft: 16 },
     searchBar: {
         flexDirection: "row",
         alignItems: "center",
