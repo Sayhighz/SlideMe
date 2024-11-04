@@ -15,6 +15,7 @@ import PaymentMethodsListScreen from './pages/PaymentMethod/PaymentMethodsListSc
 import AddPaymentMethod from './pages/PaymentMethod/AddPaymentMethod';
 import MessageBoxScreen from './pages/MessageBoxScreen/MessageBoxScreen';
 import UserProfile from './pages/userProfile/userProfile';
+import PhoneVerify from './pages/PhoneVerify/PhoneVerify';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -51,6 +52,16 @@ function UserProfileStack() {
     <Stack.Navigator>
       <Stack.Screen name="UserProfile" component={UserProfile} options={{ title: 'โปรไฟล์ผู้ใช้' }} />
       <Stack.Screen name="PaymentMethodsStack" component={PaymentMethodsStack} options={{ headerShown: false }} />
+    </Stack.Navigator>
+  );
+}
+
+function AuthStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Login" component={Loginpage} options={{ headerShown: false }} />
+      {/* <Stack.Screen name="SignupPage" component={SignupPage} /> */}
+      <Stack.Screen name="PhoneVerify" component={PhoneVerify} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
@@ -103,7 +114,7 @@ const App = () => {
           <Tab.Screen name="โปรไฟล์ผู้ใช้" component={UserProfileStack} options={{ headerShown: false }} />
         </Tab.Navigator>
       ) : (
-        <Loginpage onLogin={handleLogin} />
+        <AuthStack onLogin={handleLogin}/>
       )}
     </NavigationContainer>
   );
