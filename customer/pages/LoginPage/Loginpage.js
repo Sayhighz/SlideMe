@@ -75,7 +75,7 @@ function LoginPage({ onLogin }) {
                             </View>
 
                         ) : (
-                            <SignupPage onBack={handleBack} />
+                            <SignupPage onLogin={onLogin} onBack={handleBack} />
                         )}
                     </Animated.View>
                 </View>

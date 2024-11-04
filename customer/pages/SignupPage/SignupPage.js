@@ -67,7 +67,7 @@ const SignupPage = ({ onLogin }) => {
 
                         <TouchableOpacity
                             style={tw`mt-4 w-full bg-green-700 shadow rounded-lg py-2`}
-                            onPress={handlePhoneLogin}
+                            onPress={handlePhoneLogin} onLogin={onLogin}
                         >
                             <Text style={tw`text-white text-lg font-bold text-center`}>
                                 รับรหัสยืนยัน

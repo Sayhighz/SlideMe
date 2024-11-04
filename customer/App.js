@@ -56,16 +56,16 @@ function UserProfileStack() {
   );
 }
 
-function AuthStack() {
+function AuthStack({ onLogin }) {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Login" component={Loginpage} options={{ headerShown: false }} />
-      {/* <Stack.Screen name="SignupPage" component={SignupPage} /> */}
-      <Stack.Screen name="PhoneVerify" component={PhoneVerify} options={{ headerShown: false }} />
+      <Stack.Screen name="PhoneVerify" options={{ headerShown: false }}>
+        {() => <PhoneVerify onLogin={onLogin} />}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 }
-
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -109,12 +109,12 @@ const App = () => {
         >
           <Tab.Screen name="Home" component={HomeStack} options={{ headerShown: false }} />
           <Tab.Screen name="Map" component={Map} options={{ headerShown: false }} />
-          <Tab.Screen name="ประวัติการใช้บริการ" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }}/>
-          <Tab.Screen name="การแจ้งเตือน" component={MessageBoxScreen} options={{ title: 'การแจ้งเตือน' }}/>
+          <Tab.Screen name="ประวัติการใช้บริการ" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }} />
+          <Tab.Screen name="การแจ้งเตือน" component={MessageBoxScreen} options={{ title: 'การแจ้งเตือน' }} />
           <Tab.Screen name="โปรไฟล์ผู้ใช้" component={UserProfileStack} options={{ headerShown: false }} />
         </Tab.Navigator>
       ) : (
-        <AuthStack onLogin={handleLogin}/>
+        <AuthStack onLogin={handleLogin} />
       )}
     </NavigationContainer>
   );
