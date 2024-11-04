@@ -1,33 +1,22 @@
 
 import React from 'react';
-import { View, Text, TextInput,  TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput,  TouchableOpacity, StyleSheet , Image} from 'react-native';
 import { MaterialIcons, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 
-import tw from 'twrnc';
+import tw, { style } from 'twrnc';
 
-const recentLocations = [
-  { id: '1', name: 'The Grand Palace', address: 'Na Phra Lan Rd, Phra Borom Maha Ratchawang' },
-  { id: '2', name: 'Bus Stop Thammasat University', address: 'Na Phra That Rd, Phra Borom Maha Ratchawang' },
-  { id: '3', name: 'MRT Sanam Chai', address: 'Sanam Chai Rd, Phra Borom Maha Ratchawang' },
-];
-
-const rideOptions = [
-  { id: '1', label: 'Book a car', icon: 'calendar', color: '#A5DFF3' },
-  { id: '2', label: 'Category of car', icon: 'motorcycle', color: '#C1E7BE' },
-  { id: '3', label: '', icon: 'car', color: '#F8E3A3' },
-  { id: '4', label: 'Rent by the hour', icon: 'person', color: '#FAD4A3' },
-];
 
 export default function Order({ navigation }) {
   return (
     <View style={tw`flex-1 p-5 `}>
         {/* <Image /> */}
       {/* Header Section */}
-      <View style={tw`flex-row items-center mb-4`}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+      <View style={tw`flex-row items-center `}>
+    
+        {/* <TouchableOpacity onPress={() => navigation.goBack()}>
         <MaterialIcons name="arrow-back" size={24} color="black" />
         
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <Text style={styles.headerTitle}></Text>
       </View>
 
@@ -35,7 +24,7 @@ export default function Order({ navigation }) {
       <Text style={styles.subtitle}>Where do you want to take the Slide Car</Text>
 
       {/* Location Search */}
-        <TouchableOpacity onPress={() => navigation.navigate('Map')}>
+        <TouchableOpacity onPress={() => navigation.navigate('Inputmap')}>
       <View style={styles.searchBar}>
         <MaterialIcons name="place" size={24} color="red" />  
           <Text style={styles.nowText}>Now</Text>
@@ -59,15 +48,40 @@ export default function Order({ navigation }) {
       /> */}
 
       {/* Ride Options */}
-      <Text style={styles.sectionTitle}>Rides for your every need</Text>
-      <View style={[styles.optionsContainer , tw`flex-1 items-center`]} >
+      <Text style={styles.sectionTitle}></Text>
+      {/* <View style={[styles.optionsContainer , tw`flex-1 items-center`]} >
         {rideOptions.map((option) => (
           <TouchableOpacity key={option.id} style={[styles.optionCard, { backgroundColor: option.color } , tw`items-center justify-center mt-4 w-70 h-20`]}>
             <FontAwesome5 name={option.icon} size={24} color="black" />
             <Text style={styles.optionText}>{option.label}</Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </View> */}
+
+     <View style={tw`flex-1 items-center`}>
+    <View style={[styles.optionsContainer]}>
+        <TouchableOpacity style={[styles.optionCard , tw`items-center justify-center mt-4 w-70 h-20 bg-[white]`]}>
+        <FontAwesome5 name={'calendar'} size={24} color="black"/>
+        <Text>Booking</Text>
+        </TouchableOpacity>
+    </View>
+
+    <View style={[styles.optionsContainer]}>
+        <TouchableOpacity style={[styles.optionCard , tw`items-center justify-center mt-4 w-70 h-20 bg-[white]`]}>
+        <FontAwesome5 name={'car'} size={24} color="black"/>
+        <Text>Category</Text>
+        </TouchableOpacity>
+    </View>
+
+    <View style={[styles.optionsContainer]}>
+        <TouchableOpacity style={[styles.optionCard , tw`items-center justify-center mt-4 w-70 h-40 bg-[white]`]}>
+        {/* <FontAwesome5 name={''} size={24} color="black"/> */}
+        <Text>More Detail ... </Text>
+
+        </TouchableOpacity>
+    </View>
+     </View> 
+
     </View>
   );
 }
