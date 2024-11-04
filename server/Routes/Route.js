@@ -27,6 +27,7 @@ router.post("/add_request", (req, res) => {
   
     const values = [
       req.body.customer_id,
+      req.body.driver_id,
       req.body.request_time,
       req.body.pickup_location_lat,
       req.body.pickup_location_long,
@@ -34,7 +35,8 @@ router.post("/add_request", (req, res) => {
       req.body.dropoff_location_lat,
       req.body.dropoff_location_long,
       req.body.dropoff_name,
-      req.body.vehicle_type
+      req.body.vehicle_type,
+      req.body.status,
     ];
   
     con.query(sql, values, (err, result) => {
