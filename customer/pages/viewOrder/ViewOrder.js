@@ -40,17 +40,17 @@ export default function ViewOrder({navigation}) {
             </Pressable>
             <View style={tw`flex-2`}>
                 <View style={tw`flex-1 flex-row justify-around mb-4`}>
-                    <Pressable style={tw`flex-1 bg-gray-300 justify-end rounded-lg items-center w-1/3 mx-4`}>
+                    <Pressable style={tw`flex-1 bg-gray-300 justify-center rounded-lg items-center w-1/3 mx-4`}>
                         <MaterialIcons name="call" size={24} color="green" />
                         <Text>โทร</Text>
                     </Pressable>
-                    <Pressable style={tw`flex-1 bg-gray-300 justify-end rounded-lg items-center w-1/3 mx-4`}>
+                    <Pressable style={tw`flex-1 bg-gray-300 justify-center rounded-lg items-center w-1/3 mx-4`}>
                         <MaterialIcons name="chat" size={24} color="black" />
                         <Text>ข้อความ</Text>
                     </Pressable>
                 </View>
                 <View style={tw`flex-1 justify-center items-center`}>
-                    <Pressable style={tw`flex-1 bg-gray-300 justify-end rounded-lg items-center w-1/3`}>
+                    <Pressable style={tw`flex-1 bg-gray-300 justify-center rounded-lg items-center w-1/3`}>
                         <MaterialIcons name="close" size={24} color="red" />
                         <Text>ยกเลิก</Text>
                     </Pressable>
