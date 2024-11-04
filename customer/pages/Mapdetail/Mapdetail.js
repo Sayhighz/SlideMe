@@ -43,6 +43,17 @@ const locations = [
     address: "Phahonyothin Road, Sena Nikhom, Chatuchak, ",
     distance: "32.0 km",
   },
+  {
+    id: "6",
+    title: "International Continuing Education Center, Sripatum",
+    address: "Phahonyothin Road, Sena Nikhom, Chatuchak, ",
+    distance: "32.0 km",
+  },  {
+    id: "7",
+    title: "International Continuing Education Center, Sripatum",
+    address: "Phahonyothin Road, Sena Nikhom, Chatuchak, ",
+    distance: "32.0 km",
+  },
 ];
 
 
@@ -63,7 +74,7 @@ export default function Mapdetail({ navigation }) {
     
     
     <SafeAreaView style={tw`bg-white relative flex-1`}>
-      <View style={tw`p-4`}>
+      <View style={tw`p-4 flex-1`}>
         <View style={tw`flex-row`}>
           <TouchableOpacity
             onPress={() => {
@@ -105,7 +116,7 @@ export default function Mapdetail({ navigation }) {
             value={confirmDestination.length ? confirmDestination : "Enter Destination Location"}
           />
         </View>
-        <View>
+        <View >
           <TouchableOpacity
             style={tw`flex-row items-center justify-between mt-6 p-4 bg-gray-100 rounded-lg`}
             onPress={() => {
@@ -125,25 +136,27 @@ export default function Mapdetail({ navigation }) {
         <View style={tw`border-b border-gray-300 my-4`} />
 
         {/* Location List */}
-        <FlatList
+        <View style={tw` h-5/12`}>
+          <FlatList
           data={locations}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={tw`flex-row justify-between items-center py-2 border-b border-gray-200`}
+            style={tw`flex-row justify-between items-center py-2 border-b border-gray-200`}
             >
-              <View>
-                <Text style={tw`font-semibold text-gray-800`}>
-                  {item.title}
-                </Text>
-                <Text style={tw`text-sm text-gray-500`}>{item.address}</Text>
-              </View>
-              <Text style={tw`text-gray-700`}>{item.distance}</Text>
-            </TouchableOpacity>
-          )}
-        />
+                <View>
+                  <Text style={tw`font-semibold text-gray-800`}>
+                    {item.title}
+                  </Text>
+                  <Text style={tw`text-sm text-gray-500`}>{item.address}</Text>
+                </View>
+                <Text style={tw`text-gray-700`}>{item.distance}</Text>
+              </TouchableOpacity>
+            )}
+            />
+          </View>
         
-        <TouchableOpacity style={tw`absolute bottom-[-50] self-center bg-white border-2 border-gray-300 p-4 rounded-full`}>
+        <TouchableOpacity style={tw`absolute bottom-4 self-center bg-white border-2 border-gray-300 p-4 rounded-full`}>
           <Text style={tw`text-lg font-bold text-blue-600`}>
             View on map
           </Text>
