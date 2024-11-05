@@ -8,6 +8,7 @@ import {
   Platform,
   FlatList,
   Pressable,
+  Alert,
 } from "react-native";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import dayjs from "dayjs";
@@ -66,6 +67,8 @@ export default function Order({ navigation }) {
   // closeCalendar();
 
   const route = useRoute();
+  const origin = route.params?.origin || "ไม่ระบุ";
+  const destination = route.params?.destination || "ไม่ระบุ";
   const confirmOrigin = route.params?.confirmOrigin || "ไม่ระบุ";
   const confirmDestination = route.params?.confirmDestination || "ไม่ระบุ";
 
@@ -221,7 +224,23 @@ export default function Order({ navigation }) {
         <View>
           <TouchableOpacity
             style={tw`items-center justify-center mt-4 w-70 h-12 bg-[#60B876] rounded-lg`}
-            onPress={()=>{alert("Order Confirmed!")}}
+            onPress={() => {
+              Alert.alert(
+                "Confirm Order", // Title ของ alert
+                `Origin: ${confirmOrigin}
+                \n${origin.latitude}
+                \n${origin.longitude}
+                \nDestination: ${confirmDestination}
+                \n${destination.latitude}
+                \n${destination.longitude}
+                \nCategory: ${category}
+                \nDate: ${date}
+                \nMore Detail: ...`,
+                [
+                  { text: "OK", onPress: () => console.log("OK Pressed") }
+                ]
+              );
+            }}
           >
             <Text>Confirm Order</Text>
           </TouchableOpacity>
