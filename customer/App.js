@@ -19,6 +19,7 @@ import MapPage from './pages/MapPage/MapPage';
 
 
 import PhoneVerify from './pages/PhoneVerify/PhoneVerify';
+import ChooseOffer from './pages/chooseOffer/ChooseOffer';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -30,8 +31,8 @@ function HomeStack() {
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="Mapdetail" component={MapDetail} options={{ headerShown: false }}/>
       <Stack.Screen name="MapPage" component={MapPage} />
-      
       <Stack.Screen name="Order" component={Order}  />
+      <Stack.Screen name="ChooseOffer" component={ChooseOffer} options={{ headerShown: false }}/>
     </Stack.Navigator>
     
   );

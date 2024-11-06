@@ -70,7 +70,7 @@ function PhoneVerify({ onLogin }) {
                     <TouchableOpacity
                         style={[tw`bg-[#60B876] rounded-lg mt-8 w-3/4 p-3`, !isOtpComplete && tw`bg-gray-400`]}
                         onPress={handleLoginClick}
-                        disabled={!isOtpComplete} // ปิดการใช้งานปุ่มเมื่อ OTP ยังไม่ครบ
+                        disabled={!isOtpComplete} // /zzzzปิดการใช้งานปุ่มเมื่อ OTP ยังไม่ครบ
                     >
                         <Text style={tw`text-white text-center font-bold`}>ยืนยัน</Text>
                     </TouchableOpacity>

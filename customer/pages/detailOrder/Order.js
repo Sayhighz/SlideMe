@@ -26,6 +26,7 @@ export default function Order({ navigation }) {
   const [showPicker, setShowPicker] = useState(false); // แสดงหน้าตัวเลือกวันที่
   const [category, setCategory] = useState("Category");
   const [menuVisible, setMenuVisible] = useState(false); // แสดงตัวเลือกรถ
+  const [prepareData, setPrepareData] = useState([]);
 
   const toggleDatePicker = () => {
     setShowPicker(!showPicker);
@@ -225,21 +226,30 @@ export default function Order({ navigation }) {
           <TouchableOpacity
             style={tw`items-center justify-center mt-4 w-70 h-12 bg-[#60B876] rounded-lg`}
             onPress={() => {
-              Alert.alert(
-                "Confirm Order", // Title ของ alert
-                `Origin: ${confirmOrigin}
-                \n${origin.latitude}
-                \n${origin.longitude}
-                \nDestination: ${confirmDestination}
-                \n${destination.latitude}
-                \n${destination.longitude}
-                \nCategory: ${category}
-                \nDate: ${date}
-                \nMore Detail: ...`,
-                [
-                  { text: "OK", onPress: () => console.log("OK Pressed") }
-                ]
-              );
+              setPrepareData({
+                originAddress: confirmOrigin,
+                originLocation: origin,
+                destinationAddress: confirmDestination,
+                destinationLocation: destination,
+                category: category,
+                date: date,
+              })
+              // Alert.alert(
+              //   "Confirm Order", // Title ของ alert
+              //   `Origin: ${confirmOrigin}
+              //   \n${origin.latitude}
+              //   \n${origin.longitude}
+              //   \nDestination: ${confirmDestination}
+              //   \n${destination.latitude}
+              //   \n${destination.longitude}
+              //   \nCategory: ${category}
+              //   \nDate: ${date}
+              //   \nMore Detail: ...`,
+              //   [
+              //     { text: "OK", onPress: () => console.log("OK Pressed") }
+              //   ]
+              // ),
+              navigation.navigate("ChooseOffer",prepareData);
             }}
           >
             <Text>Confirm Order</Text>
