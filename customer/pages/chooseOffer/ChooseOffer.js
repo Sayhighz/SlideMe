@@ -63,6 +63,34 @@ const ChooseOffer = ({ navigation }) => {
         },
         price: 1100,
       },
+      {
+        id: 5,
+        name: "นายหญฺิง ชายหรือหญิง",
+        rating: 4.9,
+        location: {
+          latitude: 13.899879586027092,
+          longitude: 100.58545240878745,
+        },
+        price: 1800,
+      },      {
+        id: 6,
+        name: "นายน๋าย น๋ายนาย",
+        rating: 4.2,
+        location: {
+          latitude: 13.895879586027092,
+          longitude: 100.58945240878745,
+        },
+        price: 900,
+      },      {
+        id: 7,
+        name: "นายอิอิ อิอิ",
+        rating: 4.7,
+        location: {
+          latitude: 13.891879586027092,
+          longitude: 100.58145240878745,
+        },
+        price: 1450,
+      },
     ]);
   }, []);
 
@@ -83,8 +111,8 @@ const ChooseOffer = ({ navigation }) => {
                 <Text style={tw`text-lg font-bold`}>
                   ราคา :{" "}
                   <Text style={tw`text-lg text-red-700`}>
-                    {chooseDriver.price}
-                  </Text>{" "}
+                    {chooseDriver.price}{" "}
+                  </Text>
                   บาท
                 </Text>
                 <Text style={tw`text-lg font-bold`}>
@@ -178,9 +206,9 @@ const ChooseOffer = ({ navigation }) => {
                   }
                 }}
               >
-                <Text style={tw`text-lg font-bold`}>{item.name}</Text>
-                <Text style={tw`text-lg font-bold`}>{item.price} บาท</Text>
-                <Text style={tw`text-lg font-bold`}>
+                <Text style={tw`text-lg font-bold flex-2`}>{item.name}</Text>
+                <Text style={tw`text-lg font-bold flex-2 text-center`}><Text style={tw`text-red-700`}>{item.price}</Text> บาท</Text>
+                <Text style={tw`text-lg font-bold flex-1 text-center`}>
                   <MaterialIcons name="star" size={24} color="yellow" />
                   {item.rating}
                 </Text>
