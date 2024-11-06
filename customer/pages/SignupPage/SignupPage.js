@@ -8,16 +8,27 @@ import { useNavigation } from '@react-navigation/native';
 const SignupPage = ({ onLogin }) => {
     const navigation = useNavigation();
     const [phoneNumber, setPhoneNumber] = useState('');
+    // const [otp, setOtp] = useState('');
 
     const handlePhoneLogin = () => {
         if (phoneNumber.length === 10) {
-            const otp = Math.floor(1000 + Math.random() * 9000);
-            Alert.alert("Your OTP Code", `OTP: ${otp}`);
-            navigation.navigate('PhoneVerify', { phoneNumber, otp });
+            const generatedOtp = generateOtp();
+            setOtp(generatedOtp);
+            Alert.alert("Your OTP Code", `OTP: ${generatedOtp}`);
+            navigation.navigate('PhoneVerify', { phoneNumber, otp: generatedOtp, onResendOtp: handleResendOtp });
         } else {
             Alert.alert("Invalid Input", "Please enter a valid phone number.");
         }
     };
+
+    const generateOtp = () => Math.floor(1000 + Math.random() * 9000);
+
+    // const handleResendOtp = () => {
+    //     const newOtp = generateOtp();
+    //     setOtp(newOtp);
+    //     Alert.alert("Your New OTP Code", `OTP: ${newOtp}`);
+    //     navigation.navigate('PhoneVerify', { phoneNumber, otp: newOtp });
+    // };
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

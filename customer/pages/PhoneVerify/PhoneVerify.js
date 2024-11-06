@@ -1,5 +1,5 @@
 // PhoneVerify.js
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Text, View, TouchableOpacity, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback, Alert } from 'react-native';
 import tw from 'twrnc';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -7,36 +7,49 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 function PhoneVerify({ onLogin }) {
     const route = useRoute();
     const navigation = useNavigation();
-    const { phoneNumber, otp: generatedOtp } = route.params; // รับค่า OTP ที่ส่งมา
+    const { phoneNumber, otp: initialOtp } = route.params;
+
     const [otp, setOtp] = useState(['', '', '', '']);
+    const [generatedOtp, setGeneratedOtp] = useState(initialOtp); // Store current OTP
+    const [cooldown, setCooldown] = useState(0); // Cooldown state
+
     const otpRefs = useRef([React.createRef(), React.createRef(), React.createRef(), React.createRef()]);
 
+    useEffect(() => {
+        let timer;
+        if (cooldown > 0) {
+            timer = setInterval(() => setCooldown(prev => prev - 1), 1000);
+        }
+        return () => clearInterval(timer); // Cleanup on unmount
+    }, [cooldown]);
+
     const handleOtpChange = (index, value) => {
-        let newOtp = [...otp];
+        const newOtp = [...otp];
         newOtp[index] = value;
         setOtp(newOtp);
-
-        if (value && index < otpRefs.current.length - 1) {
-            otpRefs.current[index + 1].current.focus();
-        } else if (!value && index > 0) {
-            otpRefs.current[index - 1].current.focus();
-        }
+        if (value && index < otpRefs.current.length - 1) otpRefs.current[index + 1].current.focus();
+        else if (!value && index > 0) otpRefs.current[index - 1].current.focus();
     };
 
     const handleLoginClick = () => {
-        const enteredOtp = otp.join(''); // รวมค่าจาก otp array เป็น string
-        if (enteredOtp === generatedOtp.toString()) { // เปรียบเทียบ OTP ที่กรอกกับ OTP ที่ส่งมา
-            onLogin(); // เรียกใช้งานฟังก์ชัน onLogin หาก OTP ถูกต้อง
+        const enteredOtp = otp.join('');
+        if (enteredOtp === generatedOtp.toString()) {
+            onLogin();
         } else {
             Alert.alert("OTP ไม่ถูกต้อง", "กรุณาตรวจสอบ OTP อีกครั้ง");
         }
     };
 
-    const handleBack = () => {
-        navigation.goBack();
+    const handleResendClick = () => {
+        if (cooldown === 0) {
+            const newOtp = Math.floor(1000 + Math.random() * 9000);
+            setGeneratedOtp(newOtp); // Update OTP state
+            Alert.alert("New OTP Code", `OTP: ${newOtp}`);
+            setCooldown(15); // Reset cooldown
+        }
     };
 
-    const isOtpComplete = otp.every((digit) => digit !== ''); // ตรวจสอบว่า OTP ครบทุกหลักแล้วหรือไม่
+    const isOtpComplete = otp.every(digit => digit !== '');
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -64,13 +77,18 @@ function PhoneVerify({ onLogin }) {
                         ))}
                     </View>
                     <View style={tw`flex-row justify-between w-full px-10`}>
-                        <Text style={tw`text-blue-500`} onPress={handleBack}>แก้ไขเบอร์โทร ?</Text>
-                        <Text style={tw`text-blue-500`}>ส่งรหัสอีกครั้ง</Text>
+                        <Text style={tw`text-blue-500`} onPress={navigation.goBack}>แก้ไขเบอร์โทร ?</Text>
+                        <Text
+                            style={tw`${cooldown > 0 ? 'text-gray-400' : 'text-blue-500'}`}
+                            onPress={handleResendClick}
+                        >
+                            {cooldown > 0 ? `ส่งรหัสอีกครั้งใน ${cooldown} วินาที` : "ส่งรหัสอีกครั้ง"}
+                        </Text>
                     </View>
                     <TouchableOpacity
                         style={[tw`bg-[#60B876] rounded-lg mt-8 w-3/4 p-3`, !isOtpComplete && tw`bg-gray-400`]}
                         onPress={handleLoginClick}
-                        disabled={!isOtpComplete} // ปิดการใช้งานปุ่มเมื่อ OTP ยังไม่ครบ
+                        disabled={!isOtpComplete}
                     >
                         <Text style={tw`text-white text-center font-bold`}>ยืนยัน</Text>
                     </TouchableOpacity>
