@@ -31,7 +31,7 @@ const ChooseOffer = ({ navigation }) => {
           latitude: 13.855879586027092,
           longitude: 100.54545240878745,
         },
-        price: 1500,
+        price: 1000,
       },
       {
         id: 2,
@@ -41,7 +41,7 @@ const ChooseOffer = ({ navigation }) => {
           latitude: 13.855879586027092,
           longitude: 100.59545240878745,
         },
-        price: 1500,
+        price: 1300,
       },
       {
         id: 3,
@@ -61,7 +61,7 @@ const ChooseOffer = ({ navigation }) => {
           latitude: 13.895879586027092,
           longitude: 100.58545240878745,
         },
-        price: 1500,
+        price: 1100,
       },
     ]);
   }, []);

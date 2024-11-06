@@ -58,7 +58,7 @@ export default function PaymentPage({ navigation }) {
             <Text>บัตรเครดิต/บัตรเดบิต</Text>
           </Pressable>
           <Pressable
-            style={tw`w-1/3 bg-[#60B876] border-[#60B876] border-2 rounded-lg items-center h-full justify-center`}
+            style={tw`w-1/3 bg-gray-300 border-gray-300 border-2 rounded-lg items-center h-full justify-center`}
           >
             <Text>Mobile Banking</Text>
           </Pressable>
@@ -112,7 +112,7 @@ export default function PaymentPage({ navigation }) {
       </View>
       <View style={tw`flex-9 mx-4 mt-4`}>
         <Text>ORDER SUMMARY</Text>
-        <View style={tw`flex-2 bg-gray-200 p-4 mt-4`}>
+        <View style={tw`flex-2 bg-gray-200 p-4 mt-4 rounded-lg`}>
           <View style={tw`flex-1 justify-between`}>
             <View style={tw`flex-row justify-between`}>
               <Text>DELIVERY CHARGE</Text>
