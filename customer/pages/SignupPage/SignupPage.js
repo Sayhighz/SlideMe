@@ -10,12 +10,22 @@ const SignupPage = ({ onLogin }) => {
     const [phoneNumber, setPhoneNumber] = useState('');
     // const [otp, setOtp] = useState('');
 
+    // const handlePhoneLogin = () => {
+    //     if (phoneNumber.length === 10) {
+    //         const generatedOtp = generateOtp();
+    //         setOtp(generatedOtp);
+    //         Alert.alert("Your OTP Code", `OTP: ${generatedOtp}`);
+    //         navigation.navigate('PhoneVerify', { phoneNumber, otp: generatedOtp, onResendOtp: handleResendOtp });
+    //     } else {
+    //         Alert.alert("Invalid Input", "Please enter a valid phone number.");
+    //     }
+    // };
+
     const handlePhoneLogin = () => {
         if (phoneNumber.length === 10) {
-            const generatedOtp = generateOtp();
-            setOtp(generatedOtp);
-            Alert.alert("Your OTP Code", `OTP: ${generatedOtp}`);
-            navigation.navigate('PhoneVerify', { phoneNumber, otp: generatedOtp, onResendOtp: handleResendOtp });
+            const otp = generateOtp();
+            Alert.alert("Your OTP Code", `OTP: ${otp}`);
+            navigation.navigate('PhoneVerify', { phoneNumber, otp });
         } else {
             Alert.alert("Invalid Input", "Please enter a valid phone number.");
         }
