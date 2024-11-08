@@ -101,7 +101,7 @@ const ChooseOffer = ({ navigation }) => {
           <View style={tw`bg-[#FDFFFD] w-4/5 h-1/3 flex rounded-lg p-3`}>
             <View style={tw`flex-2`}>
               <View style={tw`flex-1 justify-between`}>
-                <Text style={tw`text-lg font-bold`}>ข้อมูลคนชับ : </Text>
+                <Text style={tw`text-lg font-bold`}>ข้อมูลคนขับ : </Text>
                 <Text style={tw`text-lg font-bold`}>
                   ชื่อ :{" "}
                   <Text style={tw`text-lg text-green-700`}>
