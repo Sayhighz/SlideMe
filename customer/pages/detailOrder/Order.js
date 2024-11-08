@@ -31,6 +31,8 @@ export default function Order({ navigation }) {
   const [showModal, setShowModal] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showModal2, setShowModal2] = useState(false);
+  const [moreDetail, setMoreDetail] = useState("");
   const [category, setCategory] = useState("Category");
   const [menuVisible, setMenuVisible] = useState(false); // แสดงตัวเลือกรถ
 
@@ -43,6 +45,16 @@ export default function Order({ navigation }) {
       setDate(selectedDate);
       setFormattedDate(dayjs(selectedDate).format("DD/MM/YYYY HH:mm"));
     }
+  };
+
+  const handlePress = () => {
+    setShowModal2(true);
+  };
+
+  const handleRequestSubmit = () => {
+    setMoreDetail(moreDetail);
+    setShowModal2(false);
+    console.log(moreDetail)
   };
 
   const confirmDate = () => {
@@ -297,7 +309,7 @@ export default function Order({ navigation }) {
               anchor={
                 <TouchableOpacity
                   onPress={() => setMenuVisible(true)}
-                  style={tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-80 h-25`}
+                  style={tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-80 h-25 mb-4`}
                 >
                   <FontAwesome5
                     name="car"
@@ -323,10 +335,60 @@ export default function Order({ navigation }) {
 
           <View>
             <TouchableOpacity
-              style={tw`items-center justify-center mt-4 w-70 h-20 bg-[white]`}
+              style={tw` justify-around bg-white rounded-lg border border-gray-300 shadow-md w-80 h-25`}
+              onPress={handlePress}
             >
-              <Text>More Detail ... </Text>
+              <TextInput
+                style={tw`flex-col items-center justify-center bg-white rounded-lg border border-gray-300 w-79  border-transparent text-xl`}
+                placeholder="More Details"
+                underlineColor="transparent"
+                value={moreDetail}
+                editable={false}
+                >
+
+
+              </TextInput>
             </TouchableOpacity>
+
+            <Modal
+              transparent={true}
+              visible={showModal2}
+              animationType="slide"
+              onRequestClose={() => setShowModal2(false)}
+            >
+              <View
+                style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}
+              >
+                <View style={tw`w-80 p-4 bg-white rounded-lg `}>
+                  <TextInput
+                    style={tw`border p-2 mb-4 bg-white rounded-lg`}
+                    placeholder="Enter details about the request..."
+                    value={moreDetail}
+                    onChangeText={setMoreDetail}
+                    underlineColor="transparent"
+                  />
+                  <View 
+                  style={tw`flex-row justify-center gap-5`}>
+                  <TouchableOpacity
+                    title="Close"
+                    onPress={() => moreDetail ? setMoreDetail("") : setShowModal2(false)}
+                    style={tw`bg-red-500 rounded-lg px-4 py-2`}
+                  >
+                    <Text>Close</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    title="Submit"
+                    onPress={handleRequestSubmit}
+                    style={tw`bg-[#60B876] rounded-lg px-4 py-2`}
+                  >
+                    <Text>Submit</Text>
+                  </TouchableOpacity>
+                  </View>
+                  
+                </View>
+              </View>
+            </Modal>
           </View>
           <View>
             <TouchableOpacity
@@ -342,8 +404,14 @@ export default function Order({ navigation }) {
                 \n${destination.longitude}
                 \nCategory: ${category}
                 \nDate: ${formattedDate ? formattedDate : formatDate(date)} 
-                ${Platform.OS === "ios" ? "" : `\nTime: ${formattedTime ? formattedTime : formatTime(date)}`}
-                \nMore Detail: ...`,
+                ${
+                  Platform.OS === "ios"
+                    ? ""
+                    : `\nTime: ${
+                        formattedTime ? formattedTime : formatTime(date)
+                      }`
+                }
+                \nMore Detail: ${moreDetail ? moreDetail : "No more detail"}`,
                   [{ text: "OK", onPress: () => console.log("OK Pressed") }]
                 );
               }}
