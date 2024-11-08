@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Modal, Button } from 'react-native';
-import tw from "twrnc"; // import twrnc
+import { View, Text, FlatList, TouchableOpacity, Modal } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome5'; // Import FontAwesome5 for the car slide icon
+import tw from "twrnc";
 
 const HistoryPage = () => {
   const [filter, setFilter] = useState('all');
@@ -11,57 +12,71 @@ const HistoryPage = () => {
     { id: '1', date: '2024-10-20', serviceType: 'รถกระบะ', status: 'สำเร็จ', amount: '200฿', origin: 'ถนนสุขุมวิท', destination: 'ห้างสรรพสินค้า' },
     { id: '2', date: '2024-10-19', serviceType: 'มอไซ', status: 'ยกเลิก', amount: '0฿', origin: 'โกดังสินค้า', destination: 'บ้านลูกค้า' },
     { id: '3', date: '2024-10-18', serviceType: 'NETA NIGHT', status: 'สำเร็จ', amount: '300฿', origin: 'บ้านลูกค้า', destination: 'สำนักงาน' },
+    { id: '4', date: '2024-10-18', serviceType: 'NETA NIGHT', status: 'สำเร็จ', amount: '300฿', origin: 'บ้านลูกค้า', destination: 'สำนักงาน' },
+    { id: '5', date: '2024-10-18', serviceType: 'NETA NIGHT', status: 'สำเร็จ', amount: '300฿', origin: 'บ้านลูกค้า', destination: 'สำนักงาน' }
   ];
 
-  // filter fuction
   const filteredData = serviceHistoryData.filter(item => {
     if (filter === 'success') return item.status === 'สำเร็จ';
     if (filter === 'canceled') return item.status === 'ยกเลิก';
     return true;
   });
 
-  // modal
   const openModal = (item) => {
     setSelectedItem(item);
     setModalVisible(true);
   };
 
+  const getTextColor = (currentFilter) => {
+    if (currentFilter === filter) {
+      return currentFilter === 'success'
+        ? tw`text-blue-500`
+        : currentFilter === 'canceled'
+        ? tw`text-red-500`
+        : tw`text-black`;
+    }
+    return tw`text-gray-500`;
+  };
+
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => openModal(item)}>
-      <View style={tw`bg-white rounded-lg p-4 mb-4 shadow`}>
-        <Text style={tw`text-lg font-semibold`}>{item.serviceType}</Text>
-        <Text style={tw`text-gray-600`}>วันที่: {item.date}</Text>
-        <Text style={tw`text-gray-600`}>สถานะ: {item.status}</Text>
-        <Text style={tw`text-gray-600`}>ค่าบริการ: {item.amount}</Text>
+      <View style={tw`bg-white rounded-lg p-4 mb-4 shadow flex-row items-center`}>
+        {/* Car slide icon */}
+        <Icon 
+          name="truck-moving" // Use the "truck-moving" icon to represent a car slide
+          size={24} 
+          color="blue" 
+          style={tw`mr-2`} 
+        />
+        <View>
+          <Text style={tw`text-lg font-semibold`}>{item.serviceType}</Text>
+          <Text style={tw`text-gray-600`}>วันที่: {item.date}</Text>
+          <Text style={tw`text-gray-600`}>สถานะ: {item.status}</Text>
+          <Text style={tw`text-gray-600`}>ค่าบริการ: {item.amount}</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <View style={tw`flex-1 p-4 bg-gray-100`}>
-      <Text style={tw`text-2xl font-bold mb-4`}>ประวัติการเรียกใช้บริการ</Text>
+    <View style={tw`flex-1 bg-gray-100`}>
+      <Text style={tw`text-2xl font-bold text-center my-4`}>ประวัติการเรียกใช้บริการ</Text>
       
-      {/* filter button */}
-      <View style={tw`flex-row mb-4`}>
-        <TouchableOpacity 
-          style={tw`bg-blue-500 rounded-full px-4 py-2 mr-2`}
-          onPress={() => setFilter('success')}
-        >
-          <Text style={tw`text-white`}>สำเร็จ</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={tw`bg-red-500 rounded-full px-4 py-2 mr-2`}
-          onPress={() => setFilter('canceled')}
-        >
-          <Text style={tw`text-white`}>ยกเลิก</Text>
+      {/* Navbar filter */}
+      <View style={tw`flex-row justify-around bg-white p-4 shadow`}>
+        <TouchableOpacity onPress={() => setFilter('success')} style={tw`items-center`}>
+          <Icon name="check-circle" size={24} color={filter === 'success' ? 'blue' : 'gray'} />
+          <Text style={getTextColor('success')}>สำเร็จ</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={tw`bg-gray-300 rounded-full px-4 py-2`}
-          onPress={() => setFilter('all')}
-        >
-          <Text>ทั้งหมด</Text>
+        <TouchableOpacity onPress={() => setFilter('canceled')} style={tw`items-center`}>
+          <Icon name="times-circle" size={24} color={filter === 'canceled' ? 'red' : 'gray'} />
+          <Text style={getTextColor('canceled')}>ยกเลิก</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => setFilter('all')} style={tw`items-center`}>
+          <Icon name="list" size={24} color={filter === 'all' ? 'black' : 'gray'} />
+          <Text style={getTextColor('all')}>ทั้งหมด</Text>
         </TouchableOpacity>
       </View>
 
