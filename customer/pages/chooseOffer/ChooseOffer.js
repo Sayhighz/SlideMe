@@ -261,8 +261,8 @@ const ChooseOffer = ({ navigation }) => {
                    style={tw`h-10 w-full border-gray-300 rounded-lg px-3 bg-white`}
                    data={dataDropdown}
                    maxHeight={300}
-                   labelField="label"
-                   valueField="value"
+                   labelField="label"   //ตามdata
+                   valueField="value"   //ตามdata
                    placeholder="Radius"
                    value={radiusInMeters.toString()}
                    onChange={(item) => {

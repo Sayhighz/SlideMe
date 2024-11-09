@@ -249,7 +249,7 @@ export default function Order({ navigation }) {
               //     { text: "OK", onPress: () => console.log("OK Pressed") }
               //   ]
               // ),
-              navigation.navigate("ChooseOffer",prepareData);
+              navigation.navigate("ChooseOffer");
             }}
           >
             <Text>Confirm Order</Text>
