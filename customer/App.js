@@ -18,6 +18,8 @@ import MessageBoxScreen from './pages/MessageBoxScreen/MessageBoxScreen';
 import UserProfile from './pages/userProfile/userProfile';
 import PhoneVerify from './pages/PhoneVerify/PhoneVerify';
 import InfoCustomer from './pages/InfoCustomer/InfoCustomer';
+import EditProfile from './pages/editProfile/editProfile';
+import AddressPage from './pages/addressPage/addressPage';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -55,6 +57,9 @@ function UserProfileStack() {
     <Stack.Navigator>
       <Stack.Screen name="UserProfile" component={UserProfile} options={{ title: 'โปรไฟล์ผู้ใช้' }} />
       <Stack.Screen name="PaymentMethodsStack" component={PaymentMethodsStack} options={{ headerShown: false }} />
+      <Stack.Screen name="HistoryPage" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }} />
+      <Stack.Screen name="editProfile" component={EditProfile} options={{ title: 'แก้ไขข้อมูลผู้ใช้' }} />
+      <Stack.Screen name="addressPage" component={AddressPage} options={{ title: 'แก้ไขข้อมูลที่อยู่' }} />
     </Stack.Navigator>
   );
 }
