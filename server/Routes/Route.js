@@ -86,5 +86,26 @@ const values = [
   });
 
 
+  router.get("/getAllUserPaymentMethods", (req, res) => {
+    const userId = req.query.user_id || 1;
+    const sql = `
+      SELECT
+        payment_type,
+        card_number,
+        account_name,
+        expiration_date
+      FROM
+        slideme.paymentmethods
+      WHERE
+        user_id = ?
+        and status = 1;
+    `;
+    con.query(sql, [userId], (err, result) => {
+      if (err) return res.json({ Status: false, Error: err.message });
+      return res.json({ Status: true, Result: result });
+    });
+  });
+
+
 
 export { router as adminRouter };
