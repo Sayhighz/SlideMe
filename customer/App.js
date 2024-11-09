@@ -16,6 +16,8 @@ import PaymentMethodsListScreen from './pages/PaymentMethod/PaymentMethodsListSc
 import AddPaymentMethod from './pages/PaymentMethod/AddPaymentMethod';
 import MessageBoxScreen from './pages/MessageBoxScreen/MessageBoxScreen';
 import UserProfile from './pages/userProfile/userProfile';
+import PhoneVerify from './pages/PhoneVerify/PhoneVerify';
+import InfoCustomer from './pages/InfoCustomer/InfoCustomer';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -53,6 +55,20 @@ function UserProfileStack() {
     <Stack.Navigator>
       <Stack.Screen name="UserProfile" component={UserProfile} options={{ title: 'โปรไฟล์ผู้ใช้' }} />
       <Stack.Screen name="PaymentMethodsStack" component={PaymentMethodsStack} options={{ headerShown: false }} />
+    </Stack.Navigator>
+  );
+}
+
+// App.js
+
+function AuthStack({ onLogin }) {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Login" component={Loginpage} options={{ headerShown: false }} />
+      <Stack.Screen name="PhoneVerify" component={PhoneVerify} options={{ headerShown: false }} />
+      <Stack.Screen name="InfoCustomer" options={{ headerShown: false }}>
+        {() => <InfoCustomer onLogin={onLogin} />}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 }
@@ -100,12 +116,12 @@ const App = () => {
         >
           <Tab.Screen name="Home" component={HomeStack} options={{ headerShown: false }} />
           <Tab.Screen name="Map" component={Map} options={{ headerShown: false }} />
-          <Tab.Screen name="ประวัติการใช้บริการ" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }}/>
-          <Tab.Screen name="การแจ้งเตือน" component={MessageBoxScreen} options={{ title: 'การแจ้งเตือน' }}/>
+          <Tab.Screen name="ประวัติการใช้บริการ" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }} />
+          <Tab.Screen name="การแจ้งเตือน" component={MessageBoxScreen} options={{ title: 'การแจ้งเตือน' }} />
           <Tab.Screen name="โปรไฟล์ผู้ใช้" component={UserProfileStack} options={{ headerShown: false }} />
         </Tab.Navigator>
       ) : (
-        <Loginpage onLogin={handleLogin} />
+        <AuthStack onLogin={handleLogin} />
       )}
     </NavigationContainer>
   );
