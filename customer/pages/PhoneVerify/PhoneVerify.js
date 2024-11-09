@@ -34,18 +34,20 @@ function PhoneVerify({ onLogin }) {
     const handleLoginClick = () => {
         const enteredOtp = otp.join('');
         if (enteredOtp === generatedOtp.toString()) {
-            onLogin();
+            // ส่ง phoneNumber ไปยัง InfoCustomer screen
+            navigation.navigate('InfoCustomer', { phoneNumber });
         } else {
             Alert.alert("OTP ไม่ถูกต้อง", "กรุณาตรวจสอบ OTP อีกครั้ง");
         }
     };
+    
 
     const handleResendClick = () => {
         if (cooldown === 0) {
             const newOtp = Math.floor(1000 + Math.random() * 9000);
             setGeneratedOtp(newOtp); // Update OTP state
             Alert.alert("New OTP Code", `OTP: ${newOtp}`);
-            setCooldown(15); // Reset cooldown
+            setCooldown(1); // Reset cooldown
         }
     };
 

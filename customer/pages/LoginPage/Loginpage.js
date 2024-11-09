@@ -44,7 +44,7 @@ function LoginPage({ onLogin }) {
                         </TouchableOpacity>
                     )}
 
-                    <View style={tw`p-4 items-center justify-center flex-2`}>
+                    <View style={tw`p-4 items-center justify-center mt-5 flex-2`}>
                         <Text style={tw`text-6xl text-[#60B876] font-bold text-center`}>SLIDE</Text>
                         <Text style={tw`text-8xl text-[#60B876] font-bold text-center leading-none z-10`}>ME</Text>
                     </View>
@@ -56,15 +56,15 @@ function LoginPage({ onLogin }) {
                         ]} 
                     >
                         {showSignupContent ? (
-                            <View style={tw`flex justify-center items-center mt-5 w-full`}>
-                                <Text style={tw`text-xl font-bold text-white text-center`}>
+                            <View style={tw`flex justify-center items-center mt-5 w-full `}>
+                                <Text style={tw`text-xl font-bold text-white text-center `}>
                                     เรียกรถสไลด์ได้ง่าย ๆ ในไม่กี่คลิก!
                                 </Text>
                                 <TouchableOpacity
                                     style={tw`w-[50%] bg-transparent border-2 border-white py-3 rounded-lg mt-50`}
                                     onPress={handleNext}
-                                    accessible={true}
-                                    accessibilityLabel="Start Using"
+                                    // accessible={true}
+                                    // accessibilityLabel="Start Using"
                                 >
                                     <Text style={tw`font-bold text-white text-lg text-center`}>เริ่มต้นใช้งาน</Text>
                                 </TouchableOpacity>

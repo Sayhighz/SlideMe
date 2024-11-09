@@ -16,6 +16,7 @@ import AddPaymentMethod from './pages/PaymentMethod/AddPaymentMethod';
 import MessageBoxScreen from './pages/MessageBoxScreen/MessageBoxScreen';
 import UserProfile from './pages/userProfile/userProfile';
 import PhoneVerify from './pages/PhoneVerify/PhoneVerify';
+import InfoCustomer from './pages/InfoCustomer/InfoCustomer';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -56,16 +57,20 @@ function UserProfileStack() {
   );
 }
 
+// App.js
+
 function AuthStack({ onLogin }) {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Login" component={Loginpage} options={{ headerShown: false }} />
-      <Stack.Screen name="PhoneVerify" options={{ headerShown: false }}>
-        {() => <PhoneVerify onLogin={onLogin} />}
+      <Stack.Screen name="PhoneVerify" component={PhoneVerify} options={{ headerShown: false }} />
+      <Stack.Screen name="InfoCustomer" options={{ headerShown: false }}>
+        {() => <InfoCustomer onLogin={onLogin} />}
       </Stack.Screen>
     </Stack.Navigator>
   );
 }
+
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
