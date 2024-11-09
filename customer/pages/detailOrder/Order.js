@@ -35,7 +35,7 @@ export default function Order({ navigation }) {
   const [moreDetail, setMoreDetail] = useState("");
   const [category, setCategory] = useState("Category");
   const [menuVisible, setMenuVisible] = useState(false); // แสดงตัวเลือกรถ
-  const [prepareData, setPrepareData] = useState([]);
+  const [prepareData , setPrepareData] = useState([]);
 
   const toggleDatePicker = () => {
     setShowPicker(!showPicker);
@@ -274,8 +274,125 @@ export default function Order({ navigation }) {
               </Text>
             </View>
           </TouchableOpacity>
-        </View>
-        <View>
+
+          <View>
+            <TouchableOpacity
+              onPress={() =>
+                Platform.OS === "ios" ? setShowPicker(true) : setShowModal(true)
+              }
+              style={tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-80 h-25`}
+            >
+              <MaterialIcons name="date-range" size={30} color="red" />
+              <TextInput
+                style={tw`flex-col items-center justify-center bg-white rounded-lg border border-gray-300 w-79  border-transparent text-xl`}
+                placeholder="Booking"
+                value={
+                  formattedDate === ""
+                    ? "Select Date"
+                    : `${formattedDate} ${formattedTime}`
+                }
+                onPressIn={
+                  Platform.OS === "ios" ? toggleDatePicker : handleDateChange
+                }
+                editable={false}
+                underlineColor="transparent"
+              />
+            </TouchableOpacity>
+          </View>
+          {Platform.OS === "ios" && showPicker && renderIOSDatePicker()}
+          {Platform.OS === "android" && renderAndroidDatePicker()}
+
+          <View style={tw`w-full items-center mt-4`}>
+            <Menu
+              visible={menuVisible}
+              onDismiss={() => setMenuVisible(false)}
+              mode="elevated"
+              anchor={
+                <TouchableOpacity
+                  onPress={() => setMenuVisible(true)}
+                  style={tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-80 h-25 mb-4`}
+                >
+                  <FontAwesome5
+                    name="car"
+                    size={25}
+                    color="black"
+                    style={tw`mb-2`}
+                  />
+                  <Text style={tw`text-xl`}>{category}</Text>
+                </TouchableOpacity>
+              }
+              style={tw`w-70 rounded items-center`}
+            >
+              {categoryOptions.map((option) => (
+                <Menu.Item
+                  key={option.value}
+                  onPress={() => selectCategory(option.label)}
+                  title={option.label}
+                  style={tw`bg-white`}
+                />
+              ))}
+            </Menu>
+          </View>
+
+          <View>
+            <TouchableOpacity
+              style={tw` justify-around bg-white rounded-lg border border-gray-300 shadow-md w-80 h-25`}
+              onPress={handlePress}
+            >
+              <TextInput
+                style={tw`flex-col items-center justify-center bg-white rounded-lg border border-gray-300 w-79  border-transparent text-xl`}
+                placeholder="More Details"
+                underlineColor="transparent"
+                value={moreDetail}
+                editable={false}
+                >
+
+
+              </TextInput>
+            </TouchableOpacity>
+
+            <Modal
+              transparent={true}
+              visible={showModal2}
+              animationType="slide"
+              onRequestClose={() => setShowModal2(false)}
+            >
+              <View
+                style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}
+              >
+                <View style={tw`w-80 p-4 bg-white rounded-lg `}>
+                  <TextInput
+                    style={tw`border p-2 mb-4 bg-white rounded-lg`}
+                    placeholder="Enter details about the request..."
+                    value={moreDetail}
+                    onChangeText={setMoreDetail}
+                    underlineColor="transparent"
+                  />
+                  <View 
+                  style={tw`flex-row justify-center gap-5`}>
+                  <TouchableOpacity
+                    title="Close"
+                    onPress={() => moreDetail ? setMoreDetail("") : setShowModal2(false)}
+                    style={tw`bg-red-500 rounded-lg px-4 py-2`}
+                  >
+                    <Text>Close</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    title="Submit"
+                    onPress={handleRequestSubmit}
+                    style={tw`bg-[#60B876] rounded-lg px-4 py-2`}
+                  >
+                    <Text>Submit</Text>
+                  </TouchableOpacity>
+                  </View>
+                  
+                </View>
+              </View>
+            </Modal>
+          </View>
+          <View>
+          <View>
           <TouchableOpacity
             style={tw`items-center justify-center mt-4 w-70 h-12 bg-[#60B876] rounded-lg`}
             onPress={() => {
@@ -286,28 +403,16 @@ export default function Order({ navigation }) {
                 destinationLocation: destination,
                 category: category,
                 date: date,
-              })
-              // Alert.alert(
-              //   "Confirm Order", // Title ของ alert
-              //   `Origin: ${confirmOrigin}
-              //   \n${origin.latitude}
-              //   \n${origin.longitude}
-              //   \nDestination: ${confirmDestination}
-              //   \n${destination.latitude}
-              //   \n${destination.longitude}
-              //   \nCategory: ${category}
-              //   \nDate: ${date}
-              //   \nMore Detail: ...`,
-              //   [
-              //     { text: "OK", onPress: () => console.log("OK Pressed") }
-              //   ]
-              // ),
-              navigation.navigate("ChooseOffer",prepareData);
-            }}
-          >
-            <Text>Confirm Order</Text>
-          </TouchableOpacity>
+              }), 
+            //   navigation.navigate("ChooseOffer",prepareData) 
+              
+              console.log(prepareData);
+            }}>
+            <Text style={tw`text-white text-lg font-semibold`}>Next</Text>
+            </TouchableOpacity>
+          </View>
         </View>
+      </View>
       </View>
     </PaperProvider>
   );
