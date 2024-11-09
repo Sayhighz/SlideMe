@@ -12,6 +12,12 @@ export default function HistoryScreen() {
     { id: 1, origin: 'ต้นทาง', destination: 'ปลายทาง', startDate: '25 ก.ย. 67', startTime: '17:00น', carType: 'รถรับ 2008' },
     { id: 2, origin: 'ต้นทาง', destination: 'ปลายทาง', startDate: '25 ก.ย. 67', startTime: '17:00น', carType: 'รถรับ 2008' },
     { id: 3, origin: 'ต้นทาง', destination: 'ปลายทาง', startDate: '25 ก.ย. 67', startTime: '17:00น', carType: 'รถรับ 2008' },
+    { id: 4, origin: 'ต้นทาง', destination: 'ปลายทาง', startDate: '25 ก.ย. 67', startTime: '17:00น', carType: 'รถรับ 2008' },
+    { id: 5, origin: 'ต้นทาง', destination: 'ปลายทาง', startDate: '25 ก.ย. 67', startTime: '17:00น', carType: 'รถรับ 2008' },
+    { id: 6, origin: 'ต้นทาง', destination: 'ปลายทาง', startDate: '25 ก.ย. 67', startTime: '17:00น', carType: 'รถรับ 2008' },
+    { id: 7, origin: 'ต้นทาง', destination: 'ปลายทาง', startDate: '25 ก.ย. 67', startTime: '17:00น', carType: 'รถรับ 2008' },
+    { id: 8, origin: 'ต้นทาง', destination: 'ปลายทาง', startDate: '25 ก.ย. 67', startTime: '17:00น', carType: 'รถรับ 2008' },
+    { id: 9, origin: 'ต้นทาง', destination: 'ปลายทาง', startDate: '25 ก.ย. 67', startTime: '17:00น', carType: 'รถรับ 2008' },
   ];
 
   const openModal = (job) => {
