@@ -23,7 +23,7 @@ const Tab = createBottomTabNavigator();
 function HomeStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Home" component={Home} />
+      <Stack.Screen name="Homes" component={Home} />
       <Stack.Screen name="Inputmap" component={MapDetail} />
       <Stack.Screen name="Map" component={Map}  />
       <Stack.Screen name="Order" component={Order}  />

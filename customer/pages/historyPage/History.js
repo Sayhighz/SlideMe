@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5'; // Import FontAwesome5 for the car slide icon
 import tw from "twrnc";
@@ -7,18 +7,32 @@ const HistoryPage = () => {
   const [filter, setFilter] = useState('all');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [serviceHistoryData, setServiceHistoryData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const serviceHistoryData = [
-    { id: '1', date: '2024-10-20', serviceType: 'รถกระบะ', status: 'สำเร็จ', amount: '200฿', origin: 'ถนนสุขุมวิท', destination: 'ห้างสรรพสินค้า' },
-    { id: '2', date: '2024-10-19', serviceType: 'มอไซ', status: 'ยกเลิก', amount: '0฿', origin: 'โกดังสินค้า', destination: 'บ้านลูกค้า' },
-    { id: '3', date: '2024-10-18', serviceType: 'NETA NIGHT', status: 'สำเร็จ', amount: '300฿', origin: 'บ้านลูกค้า', destination: 'สำนักงาน' },
-    { id: '4', date: '2024-10-18', serviceType: 'NETA NIGHT', status: 'สำเร็จ', amount: '300฿', origin: 'บ้านลูกค้า', destination: 'สำนักงาน' },
-    { id: '5', date: '2024-10-18', serviceType: 'NETA NIGHT', status: 'สำเร็จ', amount: '300฿', origin: 'บ้านลูกค้า', destination: 'สำนักงาน' }
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://10.0.2.2:3000/auth/service_history_customer?customer_id=2');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setServiceHistoryData(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const filteredData = serviceHistoryData.filter(item => {
-    if (filter === 'success') return item.status === 'สำเร็จ';
-    if (filter === 'canceled') return item.status === 'ยกเลิก';
+    if (filter === 'success') return item.service_status === 'สำเร็จ';
+    if (filter === 'canceled') return item.service_status === 'ยกเลิก';
     return true;
   });
 
@@ -41,22 +55,29 @@ const HistoryPage = () => {
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => openModal(item)}>
       <View style={tw`bg-white rounded-lg p-4 mb-4 shadow flex-row items-center`}>
-        {/* Car slide icon */}
         <Icon 
-          name="truck-moving" // Use the "truck-moving" icon to represent a car slide
+          name="truck-moving"
           size={24} 
           color="blue" 
           style={tw`mr-2`} 
         />
         <View>
-          <Text style={tw`text-lg font-semibold`}>{item.serviceType}</Text>
+          <Text style={tw`text-lg font-semibold`}>{item.vehicle_type}</Text>
           <Text style={tw`text-gray-600`}>วันที่: {item.date}</Text>
-          <Text style={tw`text-gray-600`}>สถานะ: {item.status}</Text>
-          <Text style={tw`text-gray-600`}>ค่าบริการ: {item.amount}</Text>
+          <Text style={tw`text-gray-600`}>สถานะ: {item.service_status}</Text>
+          <Text style={tw`text-gray-600`}>ค่าบริการ: {item.service_charge}</Text>
         </View>
       </View>
     </TouchableOpacity>
   );
+
+  if (loading) {
+    return <View style={tw`flex-1 justify-center items-center`}><Text>Loading...</Text></View>;
+  }
+
+  if (error) {
+    return <View style={tw`flex-1 justify-center items-center`}><Text>Error: {error}</Text></View>;
+  }
 
   return (
     <View style={tw`flex-1 bg-gray-100`}>
@@ -98,10 +119,10 @@ const HistoryPage = () => {
           <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
             <View style={tw`bg-white rounded-lg p-4 w-11/12`}>
               <Text style={tw`text-xl font-bold mb-2`}>รายละเอียดเพิ่มเติม</Text>
-              <Text style={tw`text-lg`}>บริการ: {selectedItem.serviceType}</Text>
+              <Text style={tw`text-lg`}>บริการ: {selectedItem.vehicle_type}</Text>
               <Text style={tw`text-lg`}>วันที่: {selectedItem.date}</Text>
-              <Text style={tw`text-lg`}>สถานะ: {selectedItem.status}</Text>
-              <Text style={tw`text-lg`}>ค่าบริการ: {selectedItem.amount}</Text>
+              <Text style={tw`text-lg`}>สถานะ: {selectedItem.service_status}</Text>
+              <Text style={tw`text-lg`}>ค่าบริการ: {selectedItem.service_charge}</Text>
               <Text style={tw`text-lg`}>ต้นทาง: {selectedItem.origin}</Text>
               <Text style={tw`text-lg`}>ปลายทาง: {selectedItem.destination}</Text>
               <TouchableOpacity
