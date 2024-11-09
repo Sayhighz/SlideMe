@@ -35,9 +35,8 @@ export default function Order({ navigation }) {
   const [moreDetail, setMoreDetail] = useState("");
   const [category, setCategory] = useState("Category");
   const [menuVisible, setMenuVisible] = useState(false); // แสดงตัวเลือกรถ
-  const [prepareData , setPrepareData] = useState([]);
+  const [prepareData, setPrepareData] = useState([]);
 
- 
   const toggleDatePicker = () => {
     setShowPicker(!showPicker);
   };
@@ -56,7 +55,7 @@ export default function Order({ navigation }) {
   const handleRequestSubmit = () => {
     setMoreDetail(moreDetail);
     setShowModal2(false);
-    console.log(moreDetail)
+    console.log(moreDetail);
   };
 
   const confirmDate = () => {
@@ -192,20 +191,6 @@ export default function Order({ navigation }) {
     setShowDatePicker(false);
     setShowTimePicker(false);
   };
-  // setShowPicker(Platform.OS === "ios");
-  // if (date) {
-  //     setSelectedDate(date);
-  // }
-  // setShowPicker(false);
-  // if (Platform.OS === "ios") {
-  //     closeCalendar();
-  // }
-
-  // const currentDate = date || selectedDate;
-  // if (Platform.OS === "android");
-  // setShowPicker(false);
-  // setSelectedDate(currentDate);
-  // closeCalendar();
 
   const route = useRoute();
   const origin = route.params?.origin || "ไม่ระบุ";
@@ -234,7 +219,7 @@ export default function Order({ navigation }) {
 
   const categoryOptions = [
     { label: "Mini Slide Car", value: "mini" },
-    { label: "Standard Slide Car", value: "standard" , },
+    { label: "Standard Slide Car", value: "standard" },
     { label: "Heavy Duty Slide Car", value: "heavy" },
     { label: "Special Slide Car", value: "special" },
   ];
@@ -247,7 +232,7 @@ export default function Order({ navigation }) {
   return (
     <PaperProvider>
       <View style={tw`flex-1`}>
-        <View style={tw`flex-1 items-center`}>
+        <View style={tw`flex-1 items-center mt-2`}>
           {/* Subtitle */}
           <Text style={styles.subtitle}>
             Where do you want to take the Slide Car
@@ -346,10 +331,7 @@ export default function Order({ navigation }) {
                 underlineColor="transparent"
                 value={moreDetail}
                 editable={false}
-                >
-
-
-              </TextInput>
+              ></TextInput>
             </TouchableOpacity>
 
             <Modal
@@ -365,57 +347,59 @@ export default function Order({ navigation }) {
                   <TextInput
                     style={tw`border p-2 mb-4 bg-white rounded-lg`}
                     placeholder="Enter details about the request..."
+                    mode="outlined"
                     value={moreDetail}
                     onChangeText={setMoreDetail}
                     underlineColor="transparent"
+                    multiline={true}
+                    textAlignVertical="top"
+                    maxLength={100}
                   />
-                  <View 
-                  style={tw`flex-row justify-center gap-5`}>
-                  <TouchableOpacity
-                    title="Close"
-                    onPress={() => moreDetail ? setMoreDetail("") : setShowModal2(false)}
-                    style={tw`bg-red-500 rounded-lg px-4 py-2`}
-                  >
-                    <Text>Close</Text>
-                  </TouchableOpacity>
+                  <View style={tw`flex-row justify-center gap-5`}>
+                    <TouchableOpacity
+                      title="Close"
+                      onPress={() =>
+                        moreDetail ? setMoreDetail("") : setShowModal2(false)
+                      }
+                      style={tw`bg-red-500 rounded-lg px-4 py-2`}
+                    >
+                      <Text>Close</Text>
+                    </TouchableOpacity>
 
-                  <TouchableOpacity
-                    title="Submit"
-                    onPress={handleRequestSubmit}
-                    style={tw`bg-[#60B876] rounded-lg px-4 py-2`}
-                  >
-                    <Text>Submit</Text>
-                  </TouchableOpacity>
+                    <TouchableOpacity
+                      title="Submit"
+                      onPress={handleRequestSubmit}
+                      style={tw`bg-[#60B876] rounded-lg px-4 py-2`}
+                    >
+                      <Text>Submit</Text>
+                    </TouchableOpacity>
                   </View>
-                  
                 </View>
               </View>
             </Modal>
           </View>
           <View>
-          <View>
-          <TouchableOpacity
-            style={tw`items-center justify-center mt-4 w-70 h-12 bg-[#60B876] rounded-lg`}
-            onPress={() => {
-              setPrepareData({
-                originAddress: confirmOrigin,
-                originLocation: origin,
-                destinationAddress: confirmDestination,
-                destinationLocation: destination,
-                category: category,
-                date: `${formattedDate}`
-              })
-              navigation.navigate("ChooseOffer",prepareData) 
-              console.log(prepareData)
-              
-            }}>
-            <Text style={tw`text-white text-lg font-semibold`}>Next</Text>
-        
-            </TouchableOpacity>
-        
+            <View>
+              <TouchableOpacity
+                style={tw`items-center justify-center mt-4 w-70 h-12 bg-[#60B876] rounded-lg`}
+                onPress={() => {
+                  setPrepareData({
+                    originAddress: confirmOrigin,
+                    originLocation: origin,
+                    destinationAddress: confirmDestination,
+                    destinationLocation: destination,
+                    category: category,
+                    date: `${formattedDate}`,
+                  });
+                  navigation.navigate("ChooseOffer", prepareData);
+                  console.log(prepareData);
+                }}
+              >
+                <Text style={tw`text-white text-lg font-semibold`}>Next</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
       </View>
     </PaperProvider>
   );
