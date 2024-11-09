@@ -12,7 +12,7 @@ import React, { useEffect, useState } from "react";
 import tw from "twrnc";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Circle, Marker } from "react-native-maps";
 
 const ChooseOffer = ({ navigation }) => {
   const [offer, setOffer] = useState([]);
@@ -20,6 +20,8 @@ const ChooseOffer = ({ navigation }) => {
   const [chooseDriver, setChooseDriver] = useState({});
 
   const [openModal, setOpenModal] = useState(false);
+
+  const [filteredOffer, setFilteredOffer] = useState([]);
 
   useEffect(() => {
     setOffer([
@@ -29,7 +31,7 @@ const ChooseOffer = ({ navigation }) => {
         rating: 5.0,
         location: {
           latitude: 13.855879586027092,
-          longitude: 100.54545240878745,
+          longitude: 100.64545240878745,
         },
         price: 1000,
       },
@@ -68,8 +70,8 @@ const ChooseOffer = ({ navigation }) => {
         name: "นายหญฺิง ชายหรือหญิง",
         rating: 4.9,
         location: {
-          latitude: 13.899879586027092,
-          longitude: 100.58545240878745,
+          latitude: 13.929879586027092,
+          longitude: 100.68545240878745,
         },
         price: 1800,
       },      {
@@ -78,7 +80,7 @@ const ChooseOffer = ({ navigation }) => {
         rating: 4.2,
         location: {
           latitude: 13.895879586027092,
-          longitude: 100.58945240878745,
+          longitude: 100.68945240878745,
         },
         price: 900,
       },      {
@@ -86,13 +88,44 @@ const ChooseOffer = ({ navigation }) => {
         name: "นายอิอิ อิอิ",
         rating: 4.7,
         location: {
-          latitude: 13.891879586027092,
+          latitude: 13.951879586027092,
           longitude: 100.58145240878745,
         },
         price: 1450,
       },
     ]);
+
+
   }, []);
+
+  const toRadians = (degrees) => (degrees * Math.PI) / 180;
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371000; // Earth's radius in meters
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) *
+        Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in meters
+  };
+
+  const filterOffers = (offers) => {
+    const filtered = offers.filter((item) => {
+      const distance = calculateDistance(
+        centerPoint.latitude,
+        centerPoint.longitude,
+        item.location.latitude,
+        item.location.longitude
+      );
+      return distance <= radiusInMeters;
+    });
+    setFilteredOffer(filtered);
+  };
 
   return (
     <SafeAreaView style={tw`flex-1`}>
@@ -149,7 +182,7 @@ const ChooseOffer = ({ navigation }) => {
         </View>
       </Modal>
 
-      <View style={tw`flex-1`}>
+      <View style={tw`flex-2`}>
         <View style={tw`flex-1 items-center justify-center`}>
           <MapView
             style={tw`w-full h-full`}
@@ -172,11 +205,21 @@ const ChooseOffer = ({ navigation }) => {
                 description={`ราคา : ${item.price} บาท`}
               />
             ))}
+
+            <Circle 
+              center={{
+                latitude: 13.855879586027092, 
+                longitude: 100.58552751063581
+              }}
+              radius={5000}
+              strokeColor="rgba(0, 0, 0, 0.2)"
+              fillColor="rgba(0, 0, 0, 0.2)"
+            />
           </MapView>
         </View>
       </View>
       <View style={tw`flex-1 p-4`}>
-        <View style={tw`flex-1 flex-row items-center justify-between`}>
+        <View style={tw`flex-2 flex-row items-center justify-between`}>
           <TouchableOpacity
             style={tw`flex-1`}
             onPress={() => {
@@ -188,14 +231,14 @@ const ChooseOffer = ({ navigation }) => {
           <Text style={tw`flex-8 text-2xl font-bold text-center`}>Choose Offer</Text>
           <View style={tw`flex-1`}></View>
         </View>
-        <View style={tw`flex-9 items-center p-4`}>
+        <View style={tw`flex-8 items-center `}>
           <FlatList
             data={offer}
             renderItem={({ item, index }) => (
               <TouchableOpacity
                 key={index}
                 style={[
-                  tw`flex-row items-center p-4 my-2 rounded shadow w-full justify-between`,
+                  tw`flex-row items-center p-2 my-2 rounded shadow w-full justify-between`,
                   chooseDriver.id === item.id ? tw`bg-[#60B876]` : tw`bg-white`,
                 ]}
                 onPress={() => {
@@ -206,12 +249,15 @@ const ChooseOffer = ({ navigation }) => {
                   }
                 }}
               >
-                <Text style={tw`text-lg font-bold flex-2`}>{item.name}</Text>
-                <Text style={tw`text-lg font-bold flex-2 text-center`}><Text style={tw`text-red-700`}>{item.price}</Text> บาท</Text>
-                <Text style={tw`text-lg font-bold flex-1 text-center`}>
+                <Text style={tw` font-bold flex-2`}>{item.name}</Text>
+                <Text style={tw` font-bold flex-2 text-center`}><Text style={tw`text-red-700`}>{item.price}</Text> บาท</Text>
+                <View style={tw`flex-1 flex-row justify-center items-center` }>
+
                   <MaterialIcons name="star" size={24} color="yellow" />
+                <Text style={tw` font-bold flex-1 text-center`}>
                   {item.rating}
                 </Text>
+                </View>
               </TouchableOpacity>
             )}
           />
