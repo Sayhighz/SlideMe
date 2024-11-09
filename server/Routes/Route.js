@@ -7,42 +7,39 @@ import path from "path";
 const router = express.Router();
 
 
-// router.post("/add_request", (req, res) => {
-//     const sql = `
-//       INSERT INTO requests (
-//         customer_id,
-//         driver_id,
-//         request_time,
-//         pickup_location_lat,
-//         pickup_location_long,
-//         pickup_name,
-//         dropoff_location_lat,
-//         dropoff_location_long,
-//         dropoff_name,
-//         vehicle_type,
-//         status
-//       ) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
-//     `;
+router.post("/add_request", (req, res) => {
+  const sql = `
+  INSERT INTO servicerequests (
+    customer_id,
+    request_time,
+    pickup_lat,
+    pickup_long,
+    location_from,
+    dropoff_lat,
+    dropoff_long,
+    location_to,
+    vehicle_type,
+    status
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+`;
 
-//     const values = [
-//       req.body.customer_id,
-//       req.body.driver_id,
-//       req.body.request_time,
-//       req.body.pickup_location_lat,
-//       req.body.pickup_location_long,
-//       req.body.pickup_name,
-//       req.body.dropoff_location_lat,
-//       req.body.dropoff_location_long,
-//       req.body.dropoff_name,
-//       req.body.vehicle_type,
-//       req.body.status,
-//     ];
+const values = [
+  req.body.customer_id,
+  req.body.request_time,
+  req.body.pickup_lat,
+  req.body.pickup_long,
+  req.body.location_from,
+  req.body.dropoff_lat,
+  req.body.dropoff_long,
+  req.body.location_to,
+  req.body.vehicle_type
+];
   
-  //   con.query(sql, values, (err, result) => {
-  //     if (err) return res.json({ Status: false, Error: err.message });
-  //     return res.json({ Status: true, InsertId: result.insertId });
-  //   });
-  // });
+    con.query(sql, values, (err, result) => {
+      if (err) return res.json({ Status: false, Error: err.message });
+      return res.json({ Status: true, InsertId: result.insertId });
+    });
+  });
 
 
   router.get("/service_history_customer", (req, res) => {

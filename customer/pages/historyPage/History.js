@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Modal } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome5'; // Import FontAwesome5 for the car slide icon
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import tw from "twrnc";
 
 const HistoryPage = () => {
@@ -14,12 +14,14 @@ const HistoryPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://10.0.2.2:3000/auth/service_history_customer?customer_id=2');
+        const response = await fetch('http://192.168.1.108:3000/auth/service_history_customer?customer_id=2');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        setServiceHistoryData(data);
+        console.log("Data:", data); // Log the data for debugging
+        // Set data from the "Result" key if available
+        setServiceHistoryData(Array.isArray(data.Result) ? data.Result : []);
       } catch (error) {
         setError(error.message);
       } finally {
@@ -30,11 +32,11 @@ const HistoryPage = () => {
     fetchData();
   }, []);
 
-  const filteredData = serviceHistoryData.filter(item => {
-    if (filter === 'success') return item.service_status === 'สำเร็จ';
-    if (filter === 'canceled') return item.service_status === 'ยกเลิก';
+  const filteredData = Array.isArray(serviceHistoryData) ? serviceHistoryData.filter(item => {
+    if (filter === 'success') return item.service_status === 'completed';
+    if (filter === 'canceled') return item.service_status === 'canceled';
     return true;
-  });
+  }) : [];
 
   const openModal = (item) => {
     setSelectedItem(item);
@@ -62,7 +64,7 @@ const HistoryPage = () => {
           style={tw`mr-2`} 
         />
         <View>
-          <Text style={tw`text-lg font-semibold`}>{item.vehicle_type}</Text>
+          <Text style={tw`text-lg font-semibold`}>{item.vehicle_type || 'ไม่ระบุ'}</Text>
           <Text style={tw`text-gray-600`}>วันที่: {item.date}</Text>
           <Text style={tw`text-gray-600`}>สถานะ: {item.service_status}</Text>
           <Text style={tw`text-gray-600`}>ค่าบริการ: {item.service_charge}</Text>
@@ -104,7 +106,7 @@ const HistoryPage = () => {
       <FlatList
         data={filteredData}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => index.toString()} // Use index as key since data may lack unique IDs
       />
 
       {selectedItem && (
@@ -119,7 +121,7 @@ const HistoryPage = () => {
           <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
             <View style={tw`bg-white rounded-lg p-4 w-11/12`}>
               <Text style={tw`text-xl font-bold mb-2`}>รายละเอียดเพิ่มเติม</Text>
-              <Text style={tw`text-lg`}>บริการ: {selectedItem.vehicle_type}</Text>
+              <Text style={tw`text-lg`}>บริการ: {selectedItem.vehicle_type || 'ไม่ระบุ'}</Text>
               <Text style={tw`text-lg`}>วันที่: {selectedItem.date}</Text>
               <Text style={tw`text-lg`}>สถานะ: {selectedItem.service_status}</Text>
               <Text style={tw`text-lg`}>ค่าบริการ: {selectedItem.service_charge}</Text>
