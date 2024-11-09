@@ -32,7 +32,7 @@ const ChooseOffer = ({ navigation }) => {
   }
 
   useEffect(() => {
-    const offer = [
+    const offerData = [
       {
         id: 1,
         name: "นายสมชาย อิอิ",
@@ -112,14 +112,14 @@ const ChooseOffer = ({ navigation }) => {
         price: 500,
       },
     ];
-    setOffer(offer);
-    filterOffers(offer , radiusInMeters);
+    setOffer(offerData);
+    filterOffers(offerData , radiusInMeters);
 
   }, []);
 
   useEffect(() => {
     filterOffers(offer, radiusInMeters);
-  }, [radiusInMeters]);
+  }, [offer,radiusInMeters]);
 
   const dataDropdown = [
     { label: '1 km', value: '1000' },
@@ -144,7 +144,7 @@ const ChooseOffer = ({ navigation }) => {
     return R * c; // Distance in meters
   };
 
-  const filterOffers = (offers) => {
+  const filterOffers = (offers , radius) => {
     const filtered = offers.filter((item) => {
       const distance = calculateDistance(
         centerPoint.latitude,
@@ -152,7 +152,7 @@ const ChooseOffer = ({ navigation }) => {
         item.location.latitude,
         item.location.longitude
       );
-      return distance <= radiusInMeters;
+      return distance <= radius;
     });
     setFilteredOffer(filtered);
   };
@@ -259,18 +259,14 @@ const ChooseOffer = ({ navigation }) => {
           <View style={tw`flex-4`}>
             <Dropdown
                    style={tw`h-10 w-full border-gray-300 rounded-lg px-3 bg-white`}
-                  //  placeholderStyle={styles.placeholderStyle}
-                  //  selectedTextStyle={styles.selectedTextStyle}
-                  //  inputSearchStyle={styles.inputSearchStyle}
-                  //  iconStyle={styles.iconStyle}
                    data={dataDropdown}
                    maxHeight={300}
                    labelField="label"
                    valueField="value"
                    placeholder="Radius"
-                   value={radiusInMeters}
-                   onChange={item => {
-                     setRadiusInMeters(item.value , 10);
+                   value={radiusInMeters.toString()}
+                   onChange={(item) => {
+                     setRadiusInMeters(parseInt(item.value , 10));
                    }}
             />
           </View>
