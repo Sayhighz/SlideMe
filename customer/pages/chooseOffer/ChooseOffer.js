@@ -26,8 +26,15 @@ const ChooseOffer = ({ navigation }) => {
 
   const [radiusInMeters, setRadiusInMeters] = useState(5000);
 
-  const centerPoint = {
+  const originLocation = {
+    name: "Origin",
     latitude: 13.855879586027092, 
+    longitude: 100.58552751063581
+  }
+
+  const destinationLocation = {
+    name: "Destination",
+    latitude: 13.875879586027092, 
     longitude: 100.58552751063581
   }
 
@@ -111,6 +118,16 @@ const ChooseOffer = ({ navigation }) => {
         },
         price: 500,
       },
+      {
+        id: 9,
+        name: "นายมหาลัย เกษตร",
+        rating: 5.0,
+        location: {
+          latitude: 13.848145258391899,
+          longitude: 100.57219036460991,
+        },
+        price: 2500,
+      }
     ];
     setOffer(offerData);
     filterOffers(offerData , radiusInMeters);
@@ -147,8 +164,8 @@ const ChooseOffer = ({ navigation }) => {
   const filterOffers = (offers , radius) => {
     const filtered = offers.filter((item) => {
       const distance = calculateDistance(
-        centerPoint.latitude,
-        centerPoint.longitude,
+        originLocation.latitude,
+        originLocation.longitude,
         item.location.latitude,
         item.location.longitude
       );
@@ -199,7 +216,12 @@ const ChooseOffer = ({ navigation }) => {
                 style={tw`bg-[#60B876] p-3 rounded-lg`}
                 onPress={() => {
                   Alert.alert("เลือกคนนี้"),
-                  navigation.navigate("payment"),
+                  navigation.navigate("payment",
+                    {
+                      chooseDriver : chooseDriver,
+                      originLocation : originLocation,
+                      destinationLocation : destinationLocation
+                    }),
                   setOpenModal(false);
                 }}
               >
@@ -236,8 +258,20 @@ const ChooseOffer = ({ navigation }) => {
               />
             ))}
 
+            <Marker
+              coordinate={originLocation}
+              title="ต้นทาง"
+              pinColor="blue"
+            />
+
+            <Marker
+              coordinate={destinationLocation}
+              title="ปลายทาง"
+              pinColor="blue"
+            />
+
             <Circle 
-              center={centerPoint}
+              center={originLocation}
               radius={radiusInMeters}
               strokeColor="rgba(0, 0, 0, 0.2)"
               fillColor="rgba(0, 0, 0, 0.2)"

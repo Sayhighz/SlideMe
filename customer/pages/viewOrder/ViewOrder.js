@@ -6,33 +6,46 @@ import { TouchableOpacity } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { openURL } from "expo-linking";
 import { rating } from "@material-tailwind/react";
+import { useRoute } from "@react-navigation/native";
+import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
+import MapViewDirections from "react-native-maps-directions";
 
 export default function ViewOrder({ navigation }) {
+  const route = useRoute();
+
   const [origin, setOrigin] = useState({});
   const [destination, setDestination] = useState({});
 
   const [driverInformation, setDriverInformation] = useState({});
 
+  const driverProfile = route.params?.driverProfile.chooseDriver || "ไม่ระบุ";
+  const originLocation = route.params?.originLocation || "ไม่ระบุ";
+  const destinationLocation = route.params?.destinationLocation || "ไม่ระบุ";
+
   useEffect(() => {
     setOrigin({
-      name: "ศรีปทุม",
-      latitude: 13.855827502824274,
-      longitude: 100.58551678180032,
+      name: originLocation.name,
+      latitude: originLocation.latitude,
+      longitude: originLocation.longitude,
     });
     setDestination({
-      name: "เกษตร",
-      latitude: 13.843811760571077,
-      longitude: 100.57726985068038,
+      name: destinationLocation.name,
+      latitude: destinationLocation.latitude,
+      longitude: destinationLocation.longitude,
     });
 
     setDriverInformation({
-      name: "นายคุณาธิป อู่ทอง",
-      latitude: 13.875827502824274,
-      longitude: 100.58551678180032,
+      name: driverProfile.name,
+      latitude: driverProfile.location.latitude,
+      longitude: driverProfile.location.longitude,
       phone: "0808341035",
-      rating: 4.5,
+      rating: driverProfile.rating,
     });
-  }, []);
+  }, [route.params]);
+
+  // useEffect(() => {
+  //   console.log(route.params);
+  // }, [route.params]);
 
   return (
     <SafeAreaView style={tw`flex-1 relative `}>
@@ -97,21 +110,37 @@ export default function ViewOrder({ navigation }) {
                   description="driverLocation"
                   pinColor="blue"
                 />
+
+                <MapViewDirections
+                  strokeColor="blue"
+                  strokeWidth={3}
+                  origin={{
+                    latitude: driverInformation.latitude,
+                    longitude: driverInformation.longitude,
+                  }}
+                  destination={{
+                    latitude: originLocation.latitude,
+                    longitude: originLocation.longitude,
+                  }}
+                  apikey={GOOGLE_MAPS_API_KEY}
+                  // onError={(errorMessage) => {
+                  //   console.log("Error fetching directions: ", errorMessage);
+                  //   alert("ไม่พบเส้นทางระหว่างจุดต้นทางและปลายทางที่ระบุ");
+                  // }}
+                />
               </MapView>
             </View>
           </View>
         </View>
         <View style={tw`flex-1`}>
           <Pressable
-            style={tw`flex-1 flex-row bg-gray-300 m-4 rounded-lg items-center`}
+            style={tw`flex-1 flex-row bg-gray-300 m-4 rounded-lg items-center px-4`}
           >
-            <View style={tw`flex-1 items-center`}>
-              <Text style={tw`text-2xl text-center `}>
-                {driverInformation.name}
-              </Text>
+            <View style={tw`flex-9`}>
+              <Text style={tw`text-xl`}>{driverInformation.name}</Text>
             </View>
             <View style={tw`flex-1 flex-row items-center justify-end`}>
-              <Text style={tw`text-2xl text-center`}>
+              <Text style={tw`text-xl text-center`}>
                 {driverInformation.rating}
               </Text>
               <MaterialIcons name="star" size={24} color="yellow" />
