@@ -13,6 +13,7 @@ import tw from "twrnc";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
+import { Dropdown } from 'react-native-element-dropdown';
 
 const ChooseOffer = ({ navigation }) => {
   const [offer, setOffer] = useState([]);
@@ -23,8 +24,15 @@ const ChooseOffer = ({ navigation }) => {
 
   const [filteredOffer, setFilteredOffer] = useState([]);
 
+  const [radiusInMeters, setRadiusInMeters] = useState(5000);
+
+  const centerPoint = {
+    latitude: 13.855879586027092, 
+    longitude: 100.58552751063581
+  }
+
   useEffect(() => {
-    setOffer([
+    const offer = [
       {
         id: 1,
         name: "นายสมชาย อิอิ",
@@ -93,10 +101,32 @@ const ChooseOffer = ({ navigation }) => {
         },
         price: 1450,
       },
-    ]);
-
+      {
+        id: 8,
+        name: "นายตรงข้ามมอ มอม้อ",
+        rating: 4.9,
+        location: {
+          latitude: 13.856491621732623,
+          longitude: 100.58429296991496,
+        },
+        price: 500,
+      },
+    ];
+    setOffer(offer);
+    filterOffers(offer , radiusInMeters);
 
   }, []);
+
+  useEffect(() => {
+    filterOffers(offer, radiusInMeters);
+  }, [radiusInMeters]);
+
+  const dataDropdown = [
+    { label: '1 km', value: '1000' },
+    { label: '5 km', value: '5000' },
+    { label: '10 km', value: '10000' },
+    { label: '20 km', value: '20000' },
+  ];
 
   const toRadians = (degrees) => (degrees * Math.PI) / 180;
 
@@ -193,7 +223,7 @@ const ChooseOffer = ({ navigation }) => {
               longitudeDelta: 0.0421,
             }}
           >
-            {offer.map((item, index) => (
+            {filteredOffer.map((item, index) => (
               <Marker
                 key={index}
                 coordinate={{
@@ -207,11 +237,8 @@ const ChooseOffer = ({ navigation }) => {
             ))}
 
             <Circle 
-              center={{
-                latitude: 13.855879586027092, 
-                longitude: 100.58552751063581
-              }}
-              radius={5000}
+              center={centerPoint}
+              radius={radiusInMeters}
               strokeColor="rgba(0, 0, 0, 0.2)"
               fillColor="rgba(0, 0, 0, 0.2)"
             />
@@ -228,12 +255,29 @@ const ChooseOffer = ({ navigation }) => {
           >
             <MaterialIcons name="arrow-back" size={24} color="black" />
           </TouchableOpacity>
-          <Text style={tw`flex-8 text-2xl font-bold text-center`}>Choose Offer</Text>
-          <View style={tw`flex-1`}></View>
+          <Text style={tw`flex-9 text-2xl font-bold text-center`}>Choose Offer</Text>
+          <View style={tw`flex-4`}>
+            <Dropdown
+                   style={tw`h-10 w-full border-gray-300 rounded-lg px-3 bg-white`}
+                  //  placeholderStyle={styles.placeholderStyle}
+                  //  selectedTextStyle={styles.selectedTextStyle}
+                  //  inputSearchStyle={styles.inputSearchStyle}
+                  //  iconStyle={styles.iconStyle}
+                   data={dataDropdown}
+                   maxHeight={300}
+                   labelField="label"
+                   valueField="value"
+                   placeholder="Radius"
+                   value={radiusInMeters}
+                   onChange={item => {
+                     setRadiusInMeters(item.value , 10);
+                   }}
+            />
+          </View>
         </View>
         <View style={tw`flex-8 items-center `}>
           <FlatList
-            data={offer}
+            data={filteredOffer}
             renderItem={({ item, index }) => (
               <TouchableOpacity
                 key={index}
