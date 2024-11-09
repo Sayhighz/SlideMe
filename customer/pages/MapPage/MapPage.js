@@ -8,12 +8,11 @@ import Map from "../../components/maps/Map";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
 import { TouchableOpacity } from "react-native";
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { MaterialIcons} from '@expo/vector-icons';
+import Icon from "react-native-vector-icons/FontAwesome";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 
 const MapPage = ({ navigation }) => {
-
   const route = useRoute();
 
   const [origin, setOrigin] = useState([]);
@@ -22,16 +21,16 @@ const MapPage = ({ navigation }) => {
   const [originAddress, setOriginAddress] = useState("");
   const [destinationAddress, setDestinationAddress] = useState("");
 
-  const [confirmOrigin,setConfirmOrigin] = useState([])
-  const [confirmDestination,setConfirmDestination] = useState([])
+  const [confirmOrigin, setConfirmOrigin] = useState([]);
+  const [confirmDestination, setConfirmDestination] = useState([]);
 
   const [tab, setTab] = useState(0);
   const [address, setAddress] = useState(null);
   const [storeAddress, setStoreAddress] = useState([]); // State สำหรับที่อยู่ของร้านค้า
 
-  const [openModal,setOpenModal] = useState(false)
+  const [openModal, setOpenModal] = useState(false);
 
-// 13.855827502824274, 100.58551678180032
+  // 13.855827502824274, 100.58551678180032
 
   //ร้านค้า
   const [store, setStore] = useState([
@@ -81,14 +80,12 @@ const MapPage = ({ navigation }) => {
         }${place.city !== null ? place.city + "," : ""}${
           place.region !== null ? place.region + "," : ""
         }${place.country !== null ? place.country : ""}`;
-        
-        if(!confirmOrigin.length){
-          setOriginAddress(address)
-        }
-        else if(!confirmDestination.length){
-          setDestinationAddress(address)
-        }
-        else{
+
+        if (!confirmOrigin.length) {
+          setOriginAddress(address);
+        } else if (!confirmDestination.length) {
+          setDestinationAddress(address);
+        } else {
           //ร้านค้า or คนขับ
         }
       }
@@ -121,41 +118,38 @@ const MapPage = ({ navigation }) => {
   //   });
   // }, [store]);
 
-  useEffect(()=>{
-    getAddressFromCoords(origin.latitude,origin.longitude)
-  },[origin])
+  useEffect(() => {
+    getAddressFromCoords(origin.latitude, origin.longitude);
+  }, [origin]);
 
-  useEffect(()=>{
-    getAddressFromCoords(destination.latitude,destination.longitude)
-  },[destination])
+  useEffect(() => {
+    getAddressFromCoords(destination.latitude, destination.longitude);
+  }, [destination]);
 
   // useEffect(()=>{
   //   console.log("confirm Origin = ",confirmOrigin)
   // },[confirmOrigin])
 
-  useEffect(()=>{
-    if(confirmDestination.length > 0){
-      handleConfirm()
+  useEffect(() => {
+    if (confirmDestination.length > 0) {
+      handleConfirm();
     }
-  }),[confirmDestination]
+  }),
+    [confirmDestination];
 
   const handleConfirm = () => {
-    navigation.navigate('Mapdetail', {
+    navigation.navigate("Mapdetail", {
       origin,
       destination,
       confirmOrigin,
       confirmDestination,
-    });    
+    });
     setOpenModal(false);
   };
-  
 
   return (
     <SafeAreaView style={tw`flex-1 relative`}>
-      <Modal
-        transparent={true}
-        visible={openModal}
-      >
+      <Modal transparent={true} visible={openModal}>
         <View style={tw`flex-1 justify-center items-center`}>
           <View style={tw`bg-[#FDFFFD] w-4/5 h-1/3 flex rounded-lg p-3`}>
             <View style={tw`flex-1 justify-center`}>
@@ -165,27 +159,27 @@ const MapPage = ({ navigation }) => {
             </View>
             <View style={tw`flex-1`}>
               <Text>
-                {confirmOrigin.length ? "สถานที่ปลายทาง : " + destinationAddress : "สถานที่ต้นทาง :" + originAddress}
+                {confirmOrigin.length
+                  ? "สถานที่ปลายทาง : " + destinationAddress
+                  : "สถานที่ต้นทาง :" + originAddress}
               </Text>
             </View>
             <View style={tw`flex-1 flex-row justify-around items-center`}>
-              <Pressable style={tw`bg-red-500 p-3 rounded-lg`} onPress={()=>{setOpenModal(false)}}>
-                <Text style={tw`text-lg font-bold text-[#FDFFFD]`}>
-                  Cancel
-                </Text>
+              <Pressable
+                style={tw`bg-red-500 p-3 rounded-lg`}
+                onPress={() => {
+                  setOpenModal(false);
+                }}
+              >
+                <Text style={tw`text-lg font-bold text-[#FDFFFD]`}>Cancel</Text>
               </Pressable>
-              <Pressable style={tw`bg-[#60B876] p-3 rounded-lg`}
-                onPress={()=>{
-                  confirmOrigin.length ? 
-                    (
-                      setConfirmDestination(destinationAddress)
-                      // handleConfirm()
-                    ) 
-                    : 
-                    (
-                      setConfirmOrigin(originAddress),
-                      setOpenModal(false)
-                    )
+              <Pressable
+                style={tw`bg-[#60B876] p-3 rounded-lg`}
+                onPress={() => {
+                  confirmOrigin.length
+                    ? setConfirmDestination(destinationAddress)
+                    : // handleConfirm()
+                      (setConfirmOrigin(originAddress), setOpenModal(false));
                 }}
               >
                 <Text style={tw`text-lg font-bold text-[#FDFFFD]`}>
@@ -196,25 +190,22 @@ const MapPage = ({ navigation }) => {
           </View>
         </View>
       </Modal>
-      <View
-        style={tw`flex-row z-10 absolute bg-[#FDFFFD] top-5`}
-      >
-        
-          <View style={tw`flex-1 justify-center items-center`}>
-            <TouchableOpacity onPress={() => {
-              if(confirmOrigin.length){
-                setConfirmOrigin([]) 
-                setConfirmDestination([])
-                setDestination([])
-              } 
-              else{
-                navigation.goBack()}
+      <View style={tw`flex-1 flex-row z-10 absolute bg-[#FDFFFD] top-5`}>
+        <View style={tw`flex-1 justify-center items-center`}>
+          <TouchableOpacity
+            onPress={() => {
+              if (confirmOrigin.length) {
+                setConfirmOrigin([]);
+                setConfirmDestination([]);
+                setDestination([]);
+              } else {
+                navigation.goBack();
               }
-            }
-            >
+            }}
+          >
             <MaterialIcons name="arrow-back" size={24} color="black" />
-            </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
+        </View>
         <View style={tw`flex-9`}>
           <GooglePlacesAutocomplete
             //ต้องขอ api
@@ -224,14 +215,13 @@ const MapPage = ({ navigation }) => {
             minLength={2}
             debounce={400}
             onPress={(data, details = null) => {
-             if(confirmOrigin.length ){
-               let destinationCordinates = {
-                 latitude: details?.geometry?.location.lat,
-                 longitude: details?.geometry?.location.lng,
-               };
-               setDestination(destinationCordinates);
-              }
-              else {
+              if (confirmOrigin.length) {
+                let destinationCordinates = {
+                  latitude: details?.geometry?.location.lat,
+                  longitude: details?.geometry?.location.lng,
+                };
+                setDestination(destinationCordinates);
+              } else {
                 let originCordinates = {
                   latitude: details?.geometry?.location.lat,
                   longitude: details?.geometry?.location.lng,
@@ -261,15 +251,23 @@ const MapPage = ({ navigation }) => {
         />
       </View>
 
-      <View style={tw`flex-1 bg-[#FDFFFD] p-3 border border-[#FDFFFD] rounded-t-3xl`}>
-        <View style={tw`flex-1 justify-center`}>
-          <Text style={tw`text-xl font-bold mb-1`}>{confirmOrigin.length ? "Destination" : "Origin"}</Text>
-          <Text>{confirmOrigin.length ? destinationAddress : originAddress}</Text>
+      <View
+        style={tw`flex-1 bg-[#FDFFFD] p-3 border border-[#FDFFFD] rounded-t-3xl`}
+      >
+        <View style={tw`flex-1 justify-around`}>
+          <Text style={tw`text-xl font-bold mb-1`}>
+            {confirmOrigin.length ? "Destination" : "Origin"}
+          </Text>
+          <Text>
+            {confirmOrigin.length ? destinationAddress : originAddress}
+          </Text>
         </View>
         <View style={tw`flex-1 justify-end items-center `}>
           <Pressable
             style={tw`border border-[#60B876] rounded-lg w-9/10 h-3/5 justify-center items-center bg-[#60B876]`}
-            onPress={()=>{setOpenModal(true)}}
+            onPress={() => {
+              setOpenModal(true);
+            }}
           >
             <Text style={tw`text-[#FDFFFD] text-xl font-bold`}>
               Confirm {confirmOrigin.length ? "destination" : "origin"}
