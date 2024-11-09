@@ -3,6 +3,38 @@ import { View, Text, FlatList, TouchableOpacity, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import tw from "twrnc";
 
+// Utility function to format date to Thai format
+const formatThaiDate = (dateString) => {
+  const monthsThai = [
+    'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 
+    'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+  ];
+
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const month = monthsThai[date.getMonth()];
+  const year = date.getFullYear() + 543 - 2500; // Convert to BE (พ.ศ.) and simplify format
+
+  return `${day} ${month} ${year}`;
+};
+
+// Function to map service status to Thai labels
+const mapServiceStatus = (status) => {
+  switch (status) {
+    case 'completed':
+      return 'สำเร็จ';
+    case 'canceled':
+      return 'ยกเลิก';
+    default:
+      return status;
+  }
+};
+
+// Function to format number with commas
+const formatNumberWithCommas = (number) => {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
 const HistoryPage = () => {
   const [filter, setFilter] = useState('all');
   const [modalVisible, setModalVisible] = useState(false);
@@ -19,8 +51,7 @@ const HistoryPage = () => {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        console.log("Data:", data); // Log the data for debugging
-        // Set data from the "Result" key if available
+        // console.log("Data:", data); // Log the data for debugging
         setServiceHistoryData(Array.isArray(data.Result) ? data.Result : []);
       } catch (error) {
         setError(error.message);
@@ -33,7 +64,7 @@ const HistoryPage = () => {
   }, []);
 
   const filteredData = Array.isArray(serviceHistoryData) ? serviceHistoryData.filter(item => {
-    if (filter === 'success') return item.service_status === 'completed';
+    if (filter === 'completed') return item.service_status === 'completed';
     if (filter === 'canceled') return item.service_status === 'canceled';
     return true;
   }) : [];
@@ -45,8 +76,8 @@ const HistoryPage = () => {
 
   const getTextColor = (currentFilter) => {
     if (currentFilter === filter) {
-      return currentFilter === 'success'
-        ? tw`text-blue-500`
+      return currentFilter === 'completed'
+        ? tw`text-green-500`
         : currentFilter === 'canceled'
         ? tw`text-red-500`
         : tw`text-black`;
@@ -60,14 +91,14 @@ const HistoryPage = () => {
         <Icon 
           name="truck-moving"
           size={24} 
-          color="blue" 
+          color="green" 
           style={tw`mr-2`} 
         />
         <View>
           <Text style={tw`text-lg font-semibold`}>{item.vehicle_type || 'ไม่ระบุ'}</Text>
-          <Text style={tw`text-gray-600`}>วันที่: {item.date}</Text>
-          <Text style={tw`text-gray-600`}>สถานะ: {item.service_status}</Text>
-          <Text style={tw`text-gray-600`}>ค่าบริการ: {item.service_charge}</Text>
+          <Text style={tw`text-gray-600`}>วันที่: {formatThaiDate(item.date)}</Text>
+          <Text style={tw`text-gray-600`}>สถานะ: {mapServiceStatus(item.service_status)}</Text>
+          <Text style={tw`text-gray-600`}>ค่าบริการ: {formatNumberWithCommas(item.service_charge)} บาท</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -87,9 +118,9 @@ const HistoryPage = () => {
       
       {/* Navbar filter */}
       <View style={tw`flex-row justify-around bg-white p-4 shadow`}>
-        <TouchableOpacity onPress={() => setFilter('success')} style={tw`items-center`}>
-          <Icon name="check-circle" size={24} color={filter === 'success' ? 'blue' : 'gray'} />
-          <Text style={getTextColor('success')}>สำเร็จ</Text>
+        <TouchableOpacity onPress={() => setFilter('completed')} style={tw`items-center`}>
+          <Icon name="check-circle" size={24} color={filter === 'completed' ? 'green' : 'gray'} />
+          <Text style={getTextColor('completed')}>สำเร็จ</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => setFilter('canceled')} style={tw`items-center`}>
@@ -122,9 +153,9 @@ const HistoryPage = () => {
             <View style={tw`bg-white rounded-lg p-4 w-11/12`}>
               <Text style={tw`text-xl font-bold mb-2`}>รายละเอียดเพิ่มเติม</Text>
               <Text style={tw`text-lg`}>บริการ: {selectedItem.vehicle_type || 'ไม่ระบุ'}</Text>
-              <Text style={tw`text-lg`}>วันที่: {selectedItem.date}</Text>
-              <Text style={tw`text-lg`}>สถานะ: {selectedItem.service_status}</Text>
-              <Text style={tw`text-lg`}>ค่าบริการ: {selectedItem.service_charge}</Text>
+              <Text style={tw`text-lg`}>วันที่: {formatThaiDate(selectedItem.date)}</Text>
+              <Text style={tw`text-lg`}>สถานะ: {mapServiceStatus(selectedItem.service_status)}</Text>
+              <Text style={tw`text-lg`}>ค่าบริการ: {formatNumberWithCommas(selectedItem.service_charge)} บาท</Text>
               <Text style={tw`text-lg`}>ต้นทาง: {selectedItem.origin}</Text>
               <Text style={tw`text-lg`}>ปลายทาง: {selectedItem.destination}</Text>
               <TouchableOpacity

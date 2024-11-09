@@ -74,7 +74,8 @@ const values = [
         discount_code,
         discount_percentage,
         discount_message,
-        expiration_date
+        expiration_date,
+        type
       FROM
         slideme.discounts
     `;

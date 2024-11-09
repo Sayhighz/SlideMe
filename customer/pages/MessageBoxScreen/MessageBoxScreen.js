@@ -1,23 +1,40 @@
-// MessageBoxScreen.js
-import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Modal, Button } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Modal, Button, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from 'twrnc';
 
 const MessageBoxScreen = () => {
-  // ตัวอย่างข้อมูลกล่องข้อความ
-  const [messages, setMessages] = useState([
-    { id: '1', type: 'coupon', title: 'ลดราคา 50%', content: 'ใช้โค๊ต DISCOUNT50 เพื่อลดราคา 50%.' },
-    { id: '2', type: 'news', title: 'NETA Night ต้องการลากด่วน', content: 'ต้องการลากด่วน' },
-    { id: '3', type: 'coupon', title: 'ส่งฟรี', content: 'ใช้โค๊ต FREEDELIVERY เพื่อส่งฟรี' },
-    { id: '4', type: 'news', title: 'NETA Night ยางรั่ว', content: 'ยางรั่วปะด่วน' },
-  ]);
-
+  const [messages, setMessages] = useState([]);
   const [filter, setFilter] = useState('all'); // 'all' or 'coupon'
-  const [selectedMessage, setSelectedMessage] = useState(null); // เก็บข้อความที่เลือก
-  const [modalVisible, setModalVisible] = useState(false); // ควบคุมการแสดงผล Modal
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true); // Loading state for the API call
 
-  // ฟังก์ชันสำหรับฟิลเตอร์ข้อมูล
+  // Fetch messages from an API endpoint
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await fetch('http://192.168.1.108:3000/auth/getAllDiscounts'); // Replace with your API endpoint
+        const data = await response.json();
+        console.log('Fetched data:', data); // Debugging output
+
+        if (data && Array.isArray(data.Result)) {
+          setMessages(data.Result); // Access the array inside the "Result" key
+        } else {
+          console.error('Expected array in data.Result but received:', data);
+          setMessages([]); // Fallback to an empty array if data is not as expected
+        }
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+        setMessages([]); // Fallback to an empty array on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMessages();
+  }, []);
+
   const filteredMessages = messages.filter((message) => {
     if (filter === 'all') return true;
     return message.type === filter;
@@ -43,8 +60,8 @@ const MessageBoxScreen = () => {
           style={tw`mr-3`}
         />
         <View>
-          <Text style={tw`text-lg font-bold`}>{item.title}</Text>
-          <Text style={tw`text-sm mt-2`}>{item.content}</Text>
+          <Text style={tw`text-lg font-bold`}>{item.discount_code}</Text>
+          <Text style={tw`text-sm mt-2`}>{item.discount_message}</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -68,11 +85,15 @@ const MessageBoxScreen = () => {
       </View>
 
       <View style={tw`p-5`}>
-        <FlatList
-          data={filteredMessages}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-        />
+        {loading ? (
+          <ActivityIndicator size="large" color="#3b82f6" />
+        ) : (
+          <FlatList
+            data={filteredMessages}
+            keyExtractor={(item) => item.discount_code}
+            renderItem={renderItem}
+          />
+        )}
       </View>
 
       <Modal
@@ -85,8 +106,8 @@ const MessageBoxScreen = () => {
           <View style={tw`w-11/12 bg-white p-5 rounded`}>
             {selectedMessage && (
               <>
-                <Text style={tw`text-2xl font-bold mb-3`}>{selectedMessage.title}</Text>
-                <Text style={tw`text-lg mb-5`}>{selectedMessage.content}</Text>
+                <Text style={tw`text-2xl font-bold mb-3`}>{selectedMessage.discount_code}</Text>
+                <Text style={tw`text-lg mb-5`}>{selectedMessage.discount_message}</Text>
                 <Button title="Close" color={'#60B876'} onPress={closeModal} />
               </>
             )}
