@@ -67,6 +67,23 @@ const values = [
     });
   });
 
+  router.get("/getAllDiscounts", (req, res) => {
+    const customerId = req.query.customer_id || 1;
+    const sql = `
+      SELECT
+        discount_code,
+        discount_percentage,
+        discount_message,
+        expiration_date
+      FROM
+        slideme.discounts
+    `;
+    con.query(sql, [customerId], (err, result) => {
+      if (err) return res.json({ Status: false, Error: err.message });
+      return res.json({ Status: true, Result: result });
+    });
+  });
+
 
 
 export { router as adminRouter };
