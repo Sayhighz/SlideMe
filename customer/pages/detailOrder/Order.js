@@ -37,6 +37,7 @@ export default function Order({ navigation }) {
   const [menuVisible, setMenuVisible] = useState(false); // แสดงตัวเลือกรถ
   const [prepareData , setPrepareData] = useState([]);
 
+ 
   const toggleDatePicker = () => {
     setShowPicker(!showPicker);
   };
@@ -233,7 +234,7 @@ export default function Order({ navigation }) {
 
   const categoryOptions = [
     { label: "Mini Slide Car", value: "mini" },
-    { label: "Standard Slide Car", value: "standard" },
+    { label: "Standard Slide Car", value: "standard" , },
     { label: "Heavy Duty Slide Car", value: "heavy" },
     { label: "Special Slide Car", value: "special" },
   ];
@@ -402,14 +403,16 @@ export default function Order({ navigation }) {
                 destinationAddress: confirmDestination,
                 destinationLocation: destination,
                 category: category,
-                date: date,
-              }), 
-            //   navigation.navigate("ChooseOffer",prepareData) 
+                date: `${formattedDate}`
+              })
+              navigation.navigate("ChooseOffer",prepareData) 
+              console.log(prepareData)
               
-              console.log(prepareData);
             }}>
             <Text style={tw`text-white text-lg font-semibold`}>Next</Text>
+        
             </TouchableOpacity>
+        
           </View>
         </View>
       </View>
