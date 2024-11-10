@@ -39,7 +39,7 @@ const InfoCustomer = ({ onLogin }) => {
                 >
                     <Text style={tw`text-gray-800 font-bold w-3/4`}>ชื่อ:<Text style={tw`text-gray-600 text-sm ml-2`}></Text> </Text>
                     <TextInput
-                        style={tw`border bg-gray-100 rounded-lg w-3/4 p-1 mb-4 text-md pl-2`}
+                        style={tw`border bg-gray-100 rounded-lg w-3/4 p-1 mb-4 text-base pl-2`}
                         placeholder="กรอกชื่อจริง"
                         value={name}
                         onChangeText={setName}
@@ -47,14 +47,14 @@ const InfoCustomer = ({ onLogin }) => {
                     />
                     <Text style={tw`text-gray-800 font-bold w-3/4`}>นามสกุล:<Text style={tw`text-gray-600 text-sm ml-2`}></Text></Text>
                     <TextInput
-                        style={tw`border rounded-lg bg-gray-100 w-3/4 p-1 mb-4 text-md pl-2`}
+                        style={tw`border rounded-lg bg-gray-100 w-3/4 p-1 mb-4 text-base pl-2`}
                         placeholder="กรอกนามสกุล"
                         value={lastname}
                         onChangeText={setLastName}
                     />
                     <Text style={tw`text-gray-800 font-bold w-3/4`}>ชื่อผู้ใช้:<Text style={tw`text-gray-600 text-sm ml-2`}></Text></Text>
                     <TextInput
-                        style={tw`border rounded-lg bg-gray-100 w-3/4 p-1 mb-4 text-md pl-2`}
+                        style={tw`border rounded-lg bg-gray-100 w-3/4 p-1 mb-4 text-base pl-2`}
                         placeholder="กรอกชื่อผู้ใช้"
                         value={username}
                         onChangeText={setUserName}
@@ -62,7 +62,7 @@ const InfoCustomer = ({ onLogin }) => {
                     />
                     <Text style={tw`text-gray-800 font-bold w-3/4`}>อีเมลล์:<Text style={tw`text-gray-600 text-sm ml-2`}></Text></Text>
                     <TextInput
-                        style={tw`border bg-gray-100 rounded-lg w-3/4 p-1 mb-4 text-md pl-2`}
+                        style={tw`border bg-gray-100 rounded-lg w-3/4 p-1 mb-4 text-base pl-2`}
                         placeholder="กรอกอีเมลล์"
                         value={email}
                         onChangeText={setEmail}

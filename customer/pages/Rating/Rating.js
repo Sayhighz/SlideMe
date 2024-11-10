@@ -6,7 +6,7 @@ import tw from 'twrnc';
 const Rating = () => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false); // New state to track submission status
+  const [isSubmitting, setIsSubmitting] = useState(false); // State to track submission status
 
   const handleSubmitReview = () => {
     if (!review.trim() || rating === 0) {
@@ -34,11 +34,8 @@ const Rating = () => {
 
   return (
     <View style={tw`flex-1 p-4 items-center`}>
-
       <Text style={tw`text-2xl mb-2 mt-2 text-center`}>Rate and Review</Text>
-        <View style={tw`flex-col bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-90 h-25`}>
-
-        </View>
+      <View style={tw`flex-col bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-90 h-25`} />
       <AirbnbRating
         count={5}
         reviews={["ควรปรับปรุง", "ไม่ดี", "พอใช้", "ดี", "ยอดเยี่ยม"]}
@@ -54,7 +51,6 @@ const Rating = () => {
         editable={!isSubmitting} // Disable input while submitting
         multiline={true}
         textAlignVertical="top"
-
       />
       <View style={tw`w-full mb-4`}>
         <TouchableOpacity

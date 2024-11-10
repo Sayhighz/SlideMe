@@ -69,7 +69,7 @@ function UserProfileStack() {
     <Stack.Navigator>
       <Stack.Screen name="UserProfile" component={UserProfile} options={{ title: 'โปรไฟล์ผู้ใช้' }} />
       <Stack.Screen name="PaymentMethodsStack" component={PaymentMethodsStack} options={{ headerShown: false }} />
-      <Stack.Screen name="HistoryPage" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }} />
+      <Stack.Screen name="userHistoryPage" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }} />
       <Stack.Screen name="editProfile" component={EditProfile} options={{ title: 'แก้ไขข้อมูลผู้ใช้' }} />
       <Stack.Screen name="addressPage" component={AddressPage} options={{ title: 'แก้ไขข้อมูลที่อยู่' }} />
     </Stack.Navigator>
@@ -106,7 +106,7 @@ const App = () => {
               let iconName;
 
               switch (route.name) {
-                case 'Homepage':
+                case 'Home':
                   iconName = 'home';
                   break;
                 case 'Map':
@@ -135,10 +135,8 @@ const App = () => {
           
           <Tab.Screen name="ประวัติการใช้บริการ" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }} />
           <Tab.Screen name="การแจ้งเตือน" component={MessageBoxScreen} options={{ title: 'การแจ้งเตือน' }} />
-          <Tab.Screen name="Homepage" component={HomeStack} options={{ headerShown: false }} />
+          
           {/* <Tab.Screen name="Map" component={Map} options={{ headerShown: false }} /> */}
-          <Tab.Screen name="ประวัติการใช้บริการ" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }}/>
-          <Tab.Screen name="การแจ้งเตือน" component={MessageBoxScreen} options={{ title: 'การแจ้งเตือน' }}/>
           <Tab.Screen name="โปรไฟล์ผู้ใช้" component={UserProfileStack} options={{ headerShown: false }} />
         </Tab.Navigator>
       ) : (
