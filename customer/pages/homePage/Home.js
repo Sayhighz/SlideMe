@@ -12,7 +12,7 @@ function Home({ navigation }) {
     <View style={tw`flex items-center`}>
       
 
-      <TouchableOpacity  style={tw`mt-4`} onPress={() => navigation.navigate(Order)}>
+      <TouchableOpacity  style={tw`mt-4`} onPress={() => navigation.navigate("Order")}>
       <Card style={tw`bg-white rounded-lg w-80 h-40 flex items-center justify-center border`}>
       <Text style={tw`text-3xl font-bold `}> Search </Text>
         </Card>

@@ -11,18 +11,25 @@ import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
 
 // 13.855827502824274, 100.58551678180032
 
-function Map({ setDestination, setOrigin, origin, destination, store }) {
-  const [myLocation, setMyLocation] = useState({});
+function Map({
+  setDestination,
+  setOrigin,
+  origin,
+  destination,
+  store,
+  confirmOrigin,
+  confirmDestination
+}) {
   const [region, setRegion] = useState(null);
 
-  const [spuAddress,setSpuAddress] = useState({
-    latitude:13.855827502824274,
-    longitude:100.58551678180032
-  })
+  const [spuAddress, setSpuAddress] = useState({
+    latitude: 13.855827502824274,
+    longitude: 100.58551678180032,
+  });
 
   useEffect(() => {
     _getLocation();
-    setDestination(spuAddress)
+    // setOrigin(spuAddress);
   }, []);
 
   const _getLocation = async () => {
@@ -49,8 +56,8 @@ function Map({ setDestination, setOrigin, origin, destination, store }) {
           };
 
           // Set user's current location
-          // setOrigin(location.coords);
-          setMyLocation(location.coords);
+          setOrigin(location.coords);
+          // setMyLocation(location.coords);
           setRegion(newRegion); // Set the initial region to zoom in
         }
       );
@@ -67,66 +74,35 @@ function Map({ setDestination, setOrigin, origin, destination, store }) {
           region={region}
           onRegionChangeComplete={setRegion}
         >
-          {/* Render current location marker if coordinates are available */}
-          {myLocation.latitude && myLocation.longitude && (
+          {confirmOrigin.length ? (
             <Marker
               coordinate={{
-                latitude: myLocation.latitude,
-                longitude: myLocation.longitude,
-              }}
-              pinColor="green"
-              title="ตําแหน่งของฉัน"
-              description="อยู่นี่จ้า"
-            />
-          )}
-
-          <Marker
-            draggable
-            coordinate={{
-              latitude: destination.latitude,
-              longitude: destination.longitude,
-            }}
-            pinColor="red"
-            title="ต้นทาง"
-            description="ศรีปทุม"
-            onDragEnd={(e) => {
-              const newLocation = e.nativeEvent.coordinate;
-              setDestination(newLocation);
-            }}
-          />
-
-          {/* <Marker
-              draggable
-              coordinate={{
-                latitude: 13.854543008326594,
-                longitude: 100.6155871693916,
+                latitude: origin.latitude,
+                longitude: origin.longitude,
               }}
               pinColor="red"
-              title="ลองลากดู"
-              description="ตำแหน่งใหม่ของคุณ"
-              onDragEnd={(e) => {
-                const newLocation = e.nativeEvent.coordinate;
-                setDestination(newLocation);
-              }}
+              title="confirm"
+              description="ต้นทาง"
             />
-                        <Marker
+          ) : (
+            <Marker
               draggable
               coordinate={{
-                latitude: 13.754543008326594, 
-                longitude: 100.6155871693916
+                latitude: origin.latitude,
+                longitude: origin.longitude,
               }}
               pinColor="red"
-              title="ลองลากดู"
-              description="ตำแหน่งใหม่ของคุณ"
+              title="กรุณาเลือกต้นทาง"
+              description="ตำแหน่งต้นทาง"
               onDragEnd={(e) => {
                 const newLocation = e.nativeEvent.coordinate;
                 setOrigin(newLocation);
               }}
-            /> */}
+            />
+          )}
 
-          {/* {
-            (destination == null || destination.length === 0) && (
-              store.map((item, index) => (
+          {confirmOrigin.length && confirmDestination.length
+            ? store.map((item, index) => (
                 <Marker
                   key={index}
                   coordinate={{
@@ -138,46 +114,41 @@ function Map({ setDestination, setOrigin, origin, destination, store }) {
                   description={item.price}
                 />
               ))
-            )
-          } */}
-
-          {/* Marker Origin */}
-          {/* {
-            origin ?
-            <Marker 
-              coordinate={{
-                latitude:origin.latitude,
-                longitude:origin.longitude
-              }}
-              pinColor="green"
-              title="ต้นทาง"
-              description="ตำแหน่งต้นทางจ้า"
-            />
-            : null
-          } */}
-
-          {/* Marker destination */}
-          {/* {
-            destination ? 
-            <Marker 
-              coordinate={{
-                latitude: destination.latitude,
-                longitude: destination.longitude,
-              }}
-              pinColor="red"
-              title="ปลายทาง"
-              description="ตำแหน่งปลายทางจ้า"
-            /> 
-            : null
-          } */}
+            : null}
 
           {/* ระยะรอบตัว */}
-          {/* <Circle
-            center={myLocation}
-            radius={5000}
-            fillColor="rgba(255, 0, 0, 0.1)"
-            strokeColor="rgba(255, 0, 0, 0.1)"
-          /> */}
+          {confirmOrigin.length && confirmDestination.length ? (
+            <Circle
+              center={origin}
+              radius={5000}
+              fillColor="rgba(255, 0, 0, 0.1)"
+              strokeColor="rgba(255, 0, 0, 0.1)"
+            />
+          ) : null}
+
+          {confirmOrigin.length ? (
+            <Marker
+              draggable
+              coordinate={
+                destination.latitude && destination.longitude
+                  ? {
+                      latitude: destination.latitude,
+                      longitude: destination.longitude,
+                    }
+                  : {
+                      latitude: origin.latitude,
+                      longitude: origin.longitude + 0.005,
+                    }
+              }
+              pinColor="green"
+              title="กรุณาเลือกปลายทาง"
+              description="ตำแหน่งที่อยากให้ไปส่ง"
+              onDragEnd={(e) => {
+                const newLocation = e.nativeEvent.coordinate;
+                setDestination(newLocation);
+              }}
+            />
+          ) : null }
 
           {/* เส้นทาง */}
           {origin && destination && origin.latitude && destination.latitude ? (

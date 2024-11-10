@@ -36,6 +36,7 @@ const SignupPage = ({ onLogin }) => {
                             เข้าสู่ระบบด้วย โทรศัพท์
                         </Text>
 
+                        {/* Phone Number Input with Country Code */}
                         <View style={tw`flex-row items-center w-full h-12 border border-gray-300 rounded-lg px-3 bg-white`}>
                             <Text style={tw`text-lg`}>🇹🇭 +66</Text>
                             <TextInput
@@ -88,33 +89,10 @@ const SignupPage = ({ onLogin }) => {
                         </Text>
                     </View>
                 </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={tw`flex-row items-center justify-center w-full bg-red-700 rounded-lg py-3 mb-5`}
-                    onPress={() => Alert.alert("Login with Google")}
-                >
-                    <View style={tw`flex-row items-center w-full justify-center`}>
-                        <Icon name="google" size={20} color="#fff" style={tw`mr-2`} />
-                        <Text style={tw`text-white text-lg font-bold text-center`}>
-                            เข้าสู่ระบบด้วย Google
-                        </Text>
-                    </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={tw`flex-row items-center justify-center w-full bg-black rounded-lg py-3 mb-5`}
-                    onPress={() => Alert.alert("Login with Apple")}
-                >
-                    <View style={tw`flex-row items-center w-full justify-center`}>
-                        <Icon name="apple" size={20} color="#fff" style={tw`mr-2`} />
-                        <Text style={tw`text-white text-lg font-bold text-center`}>
-                            เข้าสู่ระบบด้วย Apple
-                        </Text>
-                    </View>
-                </TouchableOpacity>
+                </View>
             </View>
         </View>
-    </View>
+    
 </TouchableWithoutFeedback>
     );
 };
