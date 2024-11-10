@@ -19,9 +19,10 @@ router.post("/add_request", (req, res) => {
     dropoff_long,
     location_to,
     vehicle_type,
+    booking_time,
     customer_message,
     status
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,'pending')
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,'pending')
 `;
 
 const values = [
@@ -33,7 +34,9 @@ const values = [
   req.body.dropoff_lat,
   req.body.dropoff_long,
   req.body.location_to,
-  req.body.vehicle_type
+  req.body.vehicle_type,
+  req.body.booking_time,
+  req.body.customer_message
 ];
   
     con.query(sql, values, (err, result) => {
