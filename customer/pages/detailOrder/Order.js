@@ -228,64 +228,89 @@ export default function Order({ navigation }) {
     setMenuVisible(false); // Close the menu after selecting a category
   };
 
-  const handleSubmitRequest = async () => {
-    // Example data structure with lat/long as objects
-    const requestData = {
-      customer_id: 1, // Replace with appropriate customer ID
-      request_time: new Date().toISOString(), // Replace with actual selection
-      pickupLocation: origin, // Example values
-      location_from: confirmOrigin,
-      dropoffLocation: destination, // Example values
-      location_to: confirmDestination,
-      vehicle_type: category,
-      booking_time: formattedDate || new Date().toISOString(), // Default to now if not provided
-      customer_message: moreDetail || null // Optional field
-    };
 
+  const formatDateToMySQL = (date) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const seconds = String(d.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+  const handleSubmitRequest = async () => {
+    // Validation logic
+    if (!confirmOrigin || !confirmDestination || !category) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+  
+    // if (!isValidLatitude(pickup_lat) || !isValidLongitude(pickup_long) || 
+    //     !isValidLatitude(dropoff_lat) || !isValidLongitude(dropoff_long)) {
+    //   alert("Invalid latitude or longitude values. Please check your input.");
+    //   return;
+    // }
     if (
-        !requestData.pickupLocation?.lat ||
-        !requestData.pickupLocation?.long ||
-        !requestData.dropoffLocation?.lat ||
-        !requestData.dropoffLocation?.long ||
-        !requestData.vehicle_type
+        !origin || !destination || !category
       ) {
         alert("Please fill in all mandatory fields: Pickup Location, Dropoff Location, and Vehicle Type.");
         return;
       }
-
-    const transformedData = {
-        customer_id: requestData.customer_id,
-        request_time: requestData.request_time,
-        pickup_lat: requestData.pickupLocation.lat,
-        pickup_long: requestData.pickupLocation.long,
-        location_from: requestData.location_from,
-        dropoff_lat: requestData.dropoffLocation.lat,
-        dropoff_long: requestData.dropoffLocation.long,
-        location_to: requestData.location_to,
-        vehicle_type: requestData.vehicle_type,
-        booking_time: requestData.booking_time,
-        customer_message: requestData.customer_message
-      };
-      try {
-        const response = await fetch("/add_request", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(transformedData),
-        });
-    
-        if (!response.ok) {
-          throw new Error(`Server error: ${response.status}`);
-        }
-    
-        const responseData = await response.json();
-        alert("Request submitted successfully!");
-      } catch (error) {
-        console.error("Error submitting request:", error);
-        alert("Failed to submit the request. Please try again.");
-      }
+  
+    // Construct the request data object
+    const requestData = {
+      customer_id: 1, // Replace with the appropriate customer ID
+      request_time: formatDateToMySQL(new Date()), // Replace with actual selection
+      pickup_lat: origin.latitude, // Replace with actual latitude
+      pickup_long: origin.longitude, // Replace with actual longitude
+      location_from: confirmOrigin,
+      dropoff_lat: destination.latitude, // Replace with actual latitude
+      dropoff_long: destination.longitude, // Replace with actual longitude
+      location_to: confirmDestination,
+      vehicle_type: category,
+      booking_time: formattedDate ? formatDateToMySQL(formattedDate) : formatDateToMySQL(new Date()) , // Assuming formattedDate is used for booking time
+      customer_message: moreDetail || null, // Include the optional field if provided
     };
+  
+    // Preparing the values for the SQL insertion query
+    const sqlValues = [
+      requestData.customer_id,
+      requestData.request_time,
+      requestData.pickup_lat,
+      requestData.pickup_long,
+      requestData.location_from,
+      requestData.dropoff_lat,
+      requestData.dropoff_long,
+      requestData.location_to,
+      requestData.vehicle_type,
+      requestData.booking_time,
+      requestData.customer_message
+    ];
+  
+    try {
+      const response = await fetch("http://192.168.1.104:3000/auth/add_request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+  
+      const responseData = await response.json();
+      console.log("Response data:", responseData);
+      alert("Request submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting request:", error);
+      alert("Failed to submit the request. Please try again.");
+    }
+  };
+  
+  
 
   return (
     <PaperProvider>
