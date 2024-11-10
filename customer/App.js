@@ -106,7 +106,7 @@ const App = () => {
               let iconName;
 
               switch (route.name) {
-                case 'Home':
+                case 'HomePage':
                   iconName = 'home';
                   break;
                 case 'Map':
@@ -131,7 +131,7 @@ const App = () => {
             tabBarInactiveTintColor: 'gray',
           })}
         >
-          <Tab.Screen name="Home" component={HomeStack} options={{ headerShown: false }} />
+          <Tab.Screen name="HomePage" component={HomeStack} options={{ headerShown: false }} />
           
           <Tab.Screen name="ประวัติการใช้บริการ" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }} />
           <Tab.Screen name="การแจ้งเตือน" component={MessageBoxScreen} options={{ title: 'การแจ้งเตือน' }} />

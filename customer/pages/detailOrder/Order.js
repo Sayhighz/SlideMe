@@ -391,7 +391,7 @@ export default function Order({ navigation }) {
                     category: category,
                     date: `${formattedDate}`,
                   });
-                  navigation.navigate("ChooseOffer", prepareData);
+                //   navigation.navigate("ChooseOffer", prepareData);
                   console.log(prepareData);
                 }}
               >
