@@ -5,28 +5,28 @@ import tw from 'twrnc';
 
 const MessageBoxScreen = () => {
   const [messages, setMessages] = useState([]);
-  const [filter, setFilter] = useState('all'); // 'all' or 'coupon'
+  const [filter, setFilter] = useState('all');
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [loading, setLoading] = useState(true); // Loading state for the API call
+  const [loading, setLoading] = useState(true);
 
-  // Fetch messages from an API endpoint
+
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch('http://192.168.1.108:3000/auth/getAllDiscounts'); // Replace with your API endpoint
+        const response = await fetch('http://192.168.1.108:3000/auth/getAllDiscounts');
         const data = await response.json();
-        console.log('Fetched data:', data); // Debugging output
+        console.log('Fetched data:', data);
 
         if (data && Array.isArray(data.Result)) {
-          setMessages(data.Result); // Access the array inside the "Result" key
+          setMessages(data.Result);
         } else {
           console.error('Expected array in data.Result but received:', data);
-          setMessages([]); // Fallback to an empty array if data is not as expected
+          setMessages([]);
         }
       } catch (error) {
         console.error('Error fetching messages:', error);
-        setMessages([]); // Fallback to an empty array on error
+        setMessages([]);
       } finally {
         setLoading(false);
       }

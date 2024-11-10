@@ -19,8 +19,9 @@ router.post("/add_request", (req, res) => {
     dropoff_long,
     location_to,
     vehicle_type,
+    customer_message,
     status
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,'pending')
 `;
 
 const values = [
