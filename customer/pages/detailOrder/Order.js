@@ -6,9 +6,8 @@ import {
   StyleSheet,
   Modal,
   Platform,
-  FlatList,
-  Pressable,
   Alert,
+  
 } from "react-native";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import dayjs from "dayjs";
@@ -19,7 +18,7 @@ import { useRoute } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { TextInput, Menu, Provider } from "react-native-paper";
 import { Provider as PaperProvider } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
+
 
 dayjs.locale("th");
 export default function Order({ navigation }) {
@@ -33,7 +32,7 @@ export default function Order({ navigation }) {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showModal2, setShowModal2] = useState(false);
   const [moreDetail, setMoreDetail] = useState("");
-  const [category, setCategory] = useState("Category");
+  const [category, setCategory] = useState("");
   const [menuVisible, setMenuVisible] = useState(false); // แสดงตัวเลือกรถ
   const [prepareData, setPrepareData] = useState([]);
 
@@ -229,6 +228,65 @@ export default function Order({ navigation }) {
     setMenuVisible(false); // Close the menu after selecting a category
   };
 
+  const handleSubmitRequest = async () => {
+    // Example data structure with lat/long as objects
+    const requestData = {
+      customer_id: 1, // Replace with appropriate customer ID
+      request_time: new Date().toISOString(), // Replace with actual selection
+      pickupLocation: origin, // Example values
+      location_from: confirmOrigin,
+      dropoffLocation: destination, // Example values
+      location_to: confirmDestination,
+      vehicle_type: category,
+      booking_time: formattedDate || new Date().toISOString(), // Default to now if not provided
+      customer_message: moreDetail || null // Optional field
+    };
+
+    if (
+        !requestData.pickupLocation?.lat ||
+        !requestData.pickupLocation?.long ||
+        !requestData.dropoffLocation?.lat ||
+        !requestData.dropoffLocation?.long ||
+        !requestData.vehicle_type
+      ) {
+        alert("Please fill in all mandatory fields: Pickup Location, Dropoff Location, and Vehicle Type.");
+        return;
+      }
+
+    const transformedData = {
+        customer_id: requestData.customer_id,
+        request_time: requestData.request_time,
+        pickup_lat: requestData.pickupLocation.lat,
+        pickup_long: requestData.pickupLocation.long,
+        location_from: requestData.location_from,
+        dropoff_lat: requestData.dropoffLocation.lat,
+        dropoff_long: requestData.dropoffLocation.long,
+        location_to: requestData.location_to,
+        vehicle_type: requestData.vehicle_type,
+        booking_time: requestData.booking_time,
+        customer_message: requestData.customer_message
+      };
+      try {
+        const response = await fetch("/add_request", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(transformedData),
+        });
+    
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+    
+        const responseData = await response.json();
+        alert("Request submitted successfully!");
+      } catch (error) {
+        console.error("Error submitting request:", error);
+        alert("Failed to submit the request. Please try again.");
+      }
+    };
+
   return (
     <PaperProvider>
       <View style={tw`flex-1`}>
@@ -304,7 +362,7 @@ export default function Order({ navigation }) {
                     color="black"
                     style={tw`mb-2`}
                   />
-                  <Text style={tw`text-xl`}>{category}</Text>
+                  <Text style={tw`text-xl`}>{category ? category : "Select Category"}</Text>
                 </TouchableOpacity>
               }
               style={tw`w-70 rounded items-center`}
@@ -382,20 +440,20 @@ export default function Order({ navigation }) {
             <View>
               <TouchableOpacity
                 style={tw`items-center justify-center mt-4 w-70 h-12 bg-[#60B876] rounded-lg`}
-                onPress={() => {
-                  setPrepareData({
-                    originAddress: confirmOrigin,
-                    originLocation: origin,
-                    destinationAddress: confirmDestination,
-                    destinationLocation: destination,
-                    category: category,
-                    date: `${formattedDate}`,
-                  });
+                onPress={handleSubmitRequest}    
+                  
+                    // originAddress: confirmOrigin,
+                    // originLocation: origin,
+                    // destinationAddress: confirmDestination,
+                    // destinationLocation: destination,
+                    // category: category,
+                    // date: `${formattedDate}`,
+                  
                 //   navigation.navigate("ChooseOffer", prepareData);
-                  console.log(prepareData);
-                }}
+                  
+                
               >
-                <Text style={tw`text-white text-lg font-semibold`}>Next</Text>
+                <Text style={tw`text-white text-lg font-semibold`}>Confirm</Text>
               </TouchableOpacity>
             </View>
           </View>
