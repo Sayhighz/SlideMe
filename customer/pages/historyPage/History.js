@@ -1,74 +1,143 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Modal, Button } from 'react-native';
-import tw from "twrnc"; // import twrnc
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Modal } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import tw from "twrnc";
+
+// Utility function to format date to Thai format
+const formatThaiDate = (dateString) => {
+  const monthsThai = [
+    'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 
+    'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+  ];
+
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const month = monthsThai[date.getMonth()];
+  const year = date.getFullYear() + 543 - 2500; // Convert to BE (พ.ศ.) and simplify format
+
+  return `${day} ${month} ${year}`;
+};
+
+// Function to map service status to Thai labels
+const mapServiceStatus = (status) => {
+  switch (status) {
+    case 'completed':
+      return 'สำเร็จ';
+    case 'canceled':
+      return 'ยกเลิก';
+    default:
+      return status;
+  }
+};
+
+// Function to format number with commas
+const formatNumberWithCommas = (number) => {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
 
 const HistoryPage = () => {
   const [filter, setFilter] = useState('all');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [serviceHistoryData, setServiceHistoryData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const serviceHistoryData = [
-    { id: '1', date: '2024-10-20', serviceType: 'รถกระบะ', status: 'สำเร็จ', amount: '200฿', origin: 'ถนนสุขุมวิท', destination: 'ห้างสรรพสินค้า' },
-    { id: '2', date: '2024-10-19', serviceType: 'มอไซ', status: 'ยกเลิก', amount: '0฿', origin: 'โกดังสินค้า', destination: 'บ้านลูกค้า' },
-    { id: '3', date: '2024-10-18', serviceType: 'NETA NIGHT', status: 'สำเร็จ', amount: '300฿', origin: 'บ้านลูกค้า', destination: 'สำนักงาน' },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://192.168.1.108:3000/auth/service_history_customer?customer_id=2');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        // console.log("Data:", data); // Log the data for debugging
+        setServiceHistoryData(Array.isArray(data.Result) ? data.Result : []);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // filter fuction
-  const filteredData = serviceHistoryData.filter(item => {
-    if (filter === 'success') return item.status === 'สำเร็จ';
-    if (filter === 'canceled') return item.status === 'ยกเลิก';
+    fetchData();
+  }, []);
+
+  const filteredData = Array.isArray(serviceHistoryData) ? serviceHistoryData.filter(item => {
+    if (filter === 'completed') return item.service_status === 'completed';
+    if (filter === 'canceled') return item.service_status === 'canceled';
     return true;
-  });
+  }) : [];
 
-  // modal
   const openModal = (item) => {
     setSelectedItem(item);
     setModalVisible(true);
   };
 
+  const getTextColor = (currentFilter) => {
+    if (currentFilter === filter) {
+      return currentFilter === 'completed'
+        ? tw`text-green-500`
+        : currentFilter === 'canceled'
+        ? tw`text-red-500`
+        : tw`text-black`;
+    }
+    return tw`text-gray-500`;
+  };
+
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => openModal(item)}>
-      <View style={tw`bg-white rounded-lg p-4 mb-4 shadow`}>
-        <Text style={tw`text-lg font-semibold`}>{item.serviceType}</Text>
-        <Text style={tw`text-gray-600`}>วันที่: {item.date}</Text>
-        <Text style={tw`text-gray-600`}>สถานะ: {item.status}</Text>
-        <Text style={tw`text-gray-600`}>ค่าบริการ: {item.amount}</Text>
+      <View style={tw`bg-white rounded-lg p-4 mb-4 shadow flex-row items-center`}>
+        <Icon 
+          name="truck-moving"
+          size={24} 
+          color="green" 
+          style={tw`mr-2`} 
+        />
+        <View>
+          <Text style={tw`text-lg font-semibold`}>{item.vehicle_type || 'ไม่ระบุ'}</Text>
+          <Text style={tw`text-gray-600`}>วันที่: {formatThaiDate(item.date)}</Text>
+          <Text style={tw`text-gray-600`}>สถานะ: {mapServiceStatus(item.service_status)}</Text>
+          <Text style={tw`text-gray-600`}>ค่าบริการ: {formatNumberWithCommas(item.service_charge)} บาท</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
 
+  if (loading) {
+    return <View style={tw`flex-1 justify-center items-center`}><Text>Loading...</Text></View>;
+  }
+
+  if (error) {
+    return <View style={tw`flex-1 justify-center items-center`}><Text>Error: {error}</Text></View>;
+  }
+
   return (
-    <View style={tw`flex-1 p-4 bg-gray-100`}>
-      <Text style={tw`text-2xl font-bold mb-4`}>ประวัติการเรียกใช้บริการ</Text>
+    <View style={tw`flex-1 bg-gray-100`}>
+      <Text style={tw`text-2xl font-bold text-center my-4`}>ประวัติการเรียกใช้บริการ</Text>
       
-      {/* filter button */}
-      <View style={tw`flex-row mb-4`}>
-        <TouchableOpacity 
-          style={tw`bg-blue-500 rounded-full px-4 py-2 mr-2`}
-          onPress={() => setFilter('success')}
-        >
-          <Text style={tw`text-white`}>สำเร็จ</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={tw`bg-red-500 rounded-full px-4 py-2 mr-2`}
-          onPress={() => setFilter('canceled')}
-        >
-          <Text style={tw`text-white`}>ยกเลิก</Text>
+      {/* Navbar filter */}
+      <View style={tw`flex-row justify-around bg-white p-4 shadow`}>
+        <TouchableOpacity onPress={() => setFilter('completed')} style={tw`items-center`}>
+          <Icon name="check-circle" size={24} color={filter === 'completed' ? 'green' : 'gray'} />
+          <Text style={getTextColor('completed')}>สำเร็จ</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={tw`bg-gray-300 rounded-full px-4 py-2`}
-          onPress={() => setFilter('all')}
-        >
-          <Text>ทั้งหมด</Text>
+        <TouchableOpacity onPress={() => setFilter('canceled')} style={tw`items-center`}>
+          <Icon name="times-circle" size={24} color={filter === 'canceled' ? 'red' : 'gray'} />
+          <Text style={getTextColor('canceled')}>ยกเลิก</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => setFilter('all')} style={tw`items-center`}>
+          <Icon name="list" size={24} color={filter === 'all' ? 'black' : 'gray'} />
+          <Text style={getTextColor('all')}>ทั้งหมด</Text>
         </TouchableOpacity>
       </View>
 
       <FlatList
         data={filteredData}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => index.toString()} // Use index as key since data may lack unique IDs
       />
 
       {selectedItem && (
@@ -83,10 +152,10 @@ const HistoryPage = () => {
           <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
             <View style={tw`bg-white rounded-lg p-4 w-11/12`}>
               <Text style={tw`text-xl font-bold mb-2`}>รายละเอียดเพิ่มเติม</Text>
-              <Text style={tw`text-lg`}>บริการ: {selectedItem.serviceType}</Text>
-              <Text style={tw`text-lg`}>วันที่: {selectedItem.date}</Text>
-              <Text style={tw`text-lg`}>สถานะ: {selectedItem.status}</Text>
-              <Text style={tw`text-lg`}>ค่าบริการ: {selectedItem.amount}</Text>
+              <Text style={tw`text-lg`}>บริการ: {selectedItem.vehicle_type || 'ไม่ระบุ'}</Text>
+              <Text style={tw`text-lg`}>วันที่: {formatThaiDate(selectedItem.date)}</Text>
+              <Text style={tw`text-lg`}>สถานะ: {mapServiceStatus(selectedItem.service_status)}</Text>
+              <Text style={tw`text-lg`}>ค่าบริการ: {formatNumberWithCommas(selectedItem.service_charge)} บาท</Text>
               <Text style={tw`text-lg`}>ต้นทาง: {selectedItem.origin}</Text>
               <Text style={tw`text-lg`}>ปลายทาง: {selectedItem.destination}</Text>
               <TouchableOpacity

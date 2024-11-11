@@ -75,7 +75,7 @@ export default function Mapdetail({ navigation }) {
     
     <SafeAreaView style={tw`bg-white relative flex-1`}>
       <View style={tw`p-4 flex-1`}>
-        <View style={tw`flex-row`}>
+        {/* <View style={tw`flex-row`}>
           <TouchableOpacity
             onPress={() => {
               navigation.goBack();
@@ -84,7 +84,7 @@ export default function Mapdetail({ navigation }) {
             <MaterialIcons name="arrow-back" size={24} color="black" />
           </TouchableOpacity>
           <Text style={tw`ml-3 text-lg font-bold`}>Map Details</Text>
-        </View>
+        </View> */}
 
         {/* Pickup Location Input */}
         <View style={tw`flex-row items-center mt-4 bg-gray-200 rounded-lg`}>

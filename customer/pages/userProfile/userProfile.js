@@ -1,21 +1,65 @@
-import React from 'react';
-import { View, Text, Button } from 'react-native';
-import tw from 'twrnc';
+import React from 'react'
+import { View, Text, TouchableOpacity } from 'react-native'
+import tw from 'twrnc'
+import { Ionicons } from '@expo/vector-icons'
 
 const UserProfile = ({ navigation }) => {
   return (
-    <View style={tw`flex-1 p-5 bg-gray-100`}>
-      <Text style={tw`text-2xl font-bold mb-5`}>โปรไฟล์ผู้ใช้</Text>
-      <Text style={tw`text-lg mb-3`}>Kunatip</Text>
-      <Text style={tw`text-lg mb-3`}>Email: sagagrohacker@gmail.com</Text>
+    <View style={tw`flex-1 p-5 bg-gray-100 justify-center items-center`}>
+      <TouchableOpacity
+        style={tw`items-center justify-center w-32 h-32 rounded-full bg-gray-200 mb-3`}
+        onPress={() => {
+          // ใส่ฟังก์ชันแก้ไขรูปภาพ
+        }}
+      >
+        <Ionicons name='camera' size={30} color='gray' />
+      </TouchableOpacity>
+      <Text style={tw`text-center text-gray-500 font-bold mb-8`}>
+        แก้ไขโปรไฟล์
+      </Text>
 
+      <TouchableOpacity
+        style={tw`bg-green-500 py-3 px-6 rounded-lg mb-3 w-50`}
+        onPress={() => navigation.navigate('editProfile')}
+      >
+        <Text style={tw`text-white text-center font-bold`}>
+          แก้ไขข้อมูลผู้ใช้
+        </Text>
+      </TouchableOpacity>
 
-      <Button color={'#60B876'}
-        title="ช่องทางการชำระเงิน"
+      <TouchableOpacity
+        style={tw`bg-green-500 py-3 px-6 rounded-lg mb-3 w-50`}
+        onPress={() => navigation.navigate('addressPage')}
+      >
+        <Text style={tw`text-white text-center font-bold`}>ข้อมูลที่อยู่</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={tw`bg-green-500 py-3 px-6 rounded-lg mb-3 w-50`}
         onPress={() => navigation.navigate('PaymentMethodsStack')}
-      />
-    </View>
-  );
-};
+      >
+        <Text style={tw`text-white text-center font-bold`}>
+          ช่องทางการชำระเงิน
+        </Text>
+      </TouchableOpacity>
 
-export default UserProfile;
+      <TouchableOpacity
+        style={tw`bg-green-500 py-3 px-6 rounded-lg mb-30 w-50`}
+        onPress={() => navigation.navigate('HistoryPage')}
+      >
+        <Text style={tw`text-white text-center font-bold`}>
+          ประวัติการใช้บริการ
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={tw`bg-red-500 py-3 px-6 rounded-lg w-50`}
+        onPress={() => navigation.navigate('HistoryPage')}
+      >
+        <Text style={tw`text-white text-center font-bold`}>ลงชื่อออก</Text>
+      </TouchableOpacity>
+    </View>
+  )
+}
+
+export default UserProfile

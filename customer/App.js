@@ -18,9 +18,13 @@ import UserProfile from './pages/userProfile/userProfile';
 import MapPage from './pages/MapPage/MapPage';
 import PaymentPage from './pages/paymentPage/PaymentPage';
 import ViewOrder from './pages/viewOrder/ViewOrder';
+import Rating from './pages/Rating/Rating';
 
 
 import PhoneVerify from './pages/PhoneVerify/PhoneVerify';
+import InfoCustomer from './pages/InfoCustomer/InfoCustomer';
+import EditProfile from './pages/editProfile/editProfile';
+import AddressPage from './pages/addressPage/addressPage';
 import ChooseOffer from './pages/chooseOffer/ChooseOffer';
 
 const Stack = createStackNavigator();
@@ -31,12 +35,13 @@ function HomeStack() {
    
     <Stack.Navigator>
       <Stack.Screen name="Home" component={Home} />
-      <Stack.Screen name="Mapdetail" component={MapDetail} options={{ headerShown: false }}/>
-      <Stack.Screen name="MapPage" component={MapPage} options={{ headerShown: false }} />
-      <Stack.Screen name="Order" component={Order}  />
-      <Stack.Screen name="ChooseOffer" component={ChooseOffer} options={{ headerShown: false }}/>
-      <Stack.Screen name="payment" component={PaymentPage} options={{ headerShown: false }}/>
-      <Stack.Screen name="viewOrder" component={ViewOrder} options={{ headerShown: false }}/>
+      <Stack.Screen name="Mapdetail" component={MapDetail} />
+      <Stack.Screen name="MapPage" component={MapPage}  />
+      <Stack.Screen name="Order" component={Order} />
+      <Stack.Screen name="ChooseOffer" component={ChooseOffer} />
+      <Stack.Screen name="payment" component={PaymentPage} />
+      <Stack.Screen name="viewOrder" component={ViewOrder} />
+      <Stack.Screen name="Rating" component={Rating} />
     </Stack.Navigator>
     
   );
@@ -64,20 +69,27 @@ function UserProfileStack() {
     <Stack.Navigator>
       <Stack.Screen name="UserProfile" component={UserProfile} options={{ title: 'โปรไฟล์ผู้ใช้' }} />
       <Stack.Screen name="PaymentMethodsStack" component={PaymentMethodsStack} options={{ headerShown: false }} />
+      <Stack.Screen name="userHistoryPage" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }} />
+      <Stack.Screen name="editProfile" component={EditProfile} options={{ title: 'แก้ไขข้อมูลผู้ใช้' }} />
+      <Stack.Screen name="addressPage" component={AddressPage} options={{ title: 'แก้ไขข้อมูลที่อยู่' }} />
     </Stack.Navigator>
   );
 }
+
+// App.js
 
 function AuthStack({ onLogin }) {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Login" component={Loginpage} options={{ headerShown: false }} />
-      <Stack.Screen name="PhoneVerify" options={{ headerShown: false }}>
-        {() => <PhoneVerify onLogin={onLogin} />}
+      <Stack.Screen name="PhoneVerify" component={PhoneVerify} options={{ headerShown: false }} />
+      <Stack.Screen name="InfoCustomer" options={{ headerShown: false }}>
+        {() => <InfoCustomer onLogin={onLogin} />}
       </Stack.Screen>
     </Stack.Navigator>
   );
 }
+
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -94,7 +106,7 @@ const App = () => {
               let iconName;
 
               switch (route.name) {
-                case 'Homepage':
+                case 'HomePage':
                   iconName = 'home';
                   break;
                 case 'Map':
@@ -119,10 +131,12 @@ const App = () => {
             tabBarInactiveTintColor: 'gray',
           })}
         >
-          <Tab.Screen name="Homepage" component={HomeStack} options={{ headerShown: false }} />
+          <Tab.Screen name="HomePage" component={HomeStack} options={{ headerShown: false }} />
+          
+          <Tab.Screen name="ประวัติการใช้บริการ" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }} />
+          <Tab.Screen name="การแจ้งเตือน" component={MessageBoxScreen} options={{ title: 'การแจ้งเตือน' }} />
+          
           {/* <Tab.Screen name="Map" component={Map} options={{ headerShown: false }} /> */}
-          <Tab.Screen name="ประวัติการใช้บริการ" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }}/>
-          <Tab.Screen name="การแจ้งเตือน" component={MessageBoxScreen} options={{ title: 'การแจ้งเตือน' }}/>
           <Tab.Screen name="โปรไฟล์ผู้ใช้" component={UserProfileStack} options={{ headerShown: false }} />
         </Tab.Navigator>
       ) : (

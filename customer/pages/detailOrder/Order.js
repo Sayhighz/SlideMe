@@ -1,4 +1,4 @@
-import React, { useState , useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,9 +6,8 @@ import {
   StyleSheet,
   Modal,
   Platform,
-  FlatList,
-  Pressable,
   Alert,
+  
 } from "react-native";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import dayjs from "dayjs";
@@ -17,55 +16,180 @@ import "dayjs/locale/th";
 import tw, { style } from "twrnc";
 import { useRoute } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { TextInput , Menu, Provider} from "react-native-paper";
+import { TextInput, Menu, Provider } from "react-native-paper";
 import { Provider as PaperProvider } from "react-native-paper";
+
 
 dayjs.locale("th");
 export default function Order({ navigation }) {
   const [date, setDate] = useState(new Date());
+  const [time, setTime] = useState(new Date());
+  const [formattedDate, setFormattedDate] = useState("");
+  const [formattedTime, setFormattedTime] = useState("");
   const [showPicker, setShowPicker] = useState(false); // แสดงหน้าตัวเลือกวันที่
-  const [category, setCategory] = useState("Category");
+  const [showModal, setShowModal] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showModal2, setShowModal2] = useState(false);
+  const [moreDetail, setMoreDetail] = useState("");
+  const [category, setCategory] = useState("");
   const [menuVisible, setMenuVisible] = useState(false); // แสดงตัวเลือกรถ
-  const [prepareData, setPrepareData] = useState([]);
+  
 
   const toggleDatePicker = () => {
     setShowPicker(!showPicker);
   };
-  
 
-  const onChange = ({ type }, selectedDate) => {
-    if (type == "set") {
-      const currentDate = selectedDate;
-      setDate(currentDate);
-
-      if (Platform.OS === "android") {
-        toggleDatePicker();
-        setDate(currentDate);
-      }
-    } else {
-      toggleDatePicker();
+  const onChange = (event, selectedDate) => {
+    if (selectedDate) {
+      setDate(selectedDate);
+      setFormattedDate(dayjs(selectedDate).format("DD/MM/YYYY HH:mm"));
     }
-    // setShowPicker(Platform.OS === "ios");
-    // if (date) {
-    //     setSelectedDate(date);
-    // }
-    // setShowPicker(false);
-    // if (Platform.OS === "ios") {
-    //     closeCalendar();
-    // }
   };
-  const confirmDate = () => {
-      setDate(date);
-      toggleDatePicker();
-  }
 
-  
-  
-  // const currentDate = date || selectedDate;
-  // if (Platform.OS === "android");
-  // setShowPicker(false);
-  // setSelectedDate(currentDate);
-  // closeCalendar();
+  const handlePress = () => {
+    setShowModal2(true);
+  };
+
+  const handleRequestSubmit = () => {
+    setMoreDetail(moreDetail);
+    setShowModal2(false);
+    console.log(moreDetail);
+  };
+
+  const confirmDate = () => {
+    setShowPicker(false);
+    setFormattedDate(dayjs(date).format("DD/MM/YYYY HH:mm"));
+  };
+
+  const renderIOSDatePicker = () => {
+    return (
+      <View>
+        {showPicker && (
+          <DateTimePicker
+            mode="datetime"
+            display="calendar"
+            value={date}
+            onChange={onChange}
+            locale="th"
+            style={tw`flex-1 text-center text-lg`}
+            minimumDate={new Date()}
+            maximumDate={new Date("2024-12-31")}
+          />
+        )}
+
+        {showPicker && Platform.OS === "ios" && (
+          <View style={[tw`flex-1 relative items-center`]}>
+            <View style={[tw`flex-row gap-4`]}>
+              <TouchableOpacity
+                onPress={() => setDate(new Date())}
+                style={[
+                  tw` border border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-full shadow-sm hover:bg-blue-50 active:bg-blue-100 focus:outline-none focus:ring focus:ring-blue-300 `,
+                ]}
+              >
+                <Text style={tw`text-blue-500 text-lg font-medium text-center`}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={confirmDate}
+                style={[
+                  tw`bg-blue-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-blue-600 active:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300  `,
+                ]}
+              >
+                <Text style={tw`text-white text-lg font-semibold text-center`}>
+                  OK
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  const renderAndroidDatePicker = () => {
+    return (
+      <Modal visible={showModal} transparent={true} animationType="slide">
+        <View
+          style={tw`flex-1 justify-center items-center bg-[rgba(0,0,0,0.5)]`}
+        >
+          <View style={tw`w-75 p-5 bg-white rounded-lg`}>
+            <Text style={tw`text-center text-lg font-semibold mb-4`}>
+              Select Date and Time
+            </Text>
+
+            {/* Button to Open Date Picker */}
+            <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+              <TextInput
+                onPressIn={() => setShowDatePicker(true)}
+                style={tw`p-2 mb-4 bg-blue-500 rounded-lg text-center`}
+                placeholder="Select Date"
+                value={formattedDate}
+                onChangeText={date}
+                editable={false}
+                underlineColor="transparent"
+              />
+            </TouchableOpacity>
+
+            {/* Date Picker */}
+            {showDatePicker && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display="calendar"
+                onChange={handleDateChange}
+                minimumDate={new Date()} // Restricts selection to dates after this
+                maximumDate={new Date("2024-12-31")} // Restricts selection to dates before this
+              />
+            )}
+
+            {/* Button to Open Time Picker */}
+            <TouchableOpacity onPress={() => setShowTimePicker(true)}>
+              <TextInput
+                onPressIn={() => setShowTimePicker(true)}
+                style={tw`p-2 mb-4 bg-green-500 rounded-lg text-center`}
+                placeholder="Select Time"
+                value={formattedTime}
+                onChangeText={time}
+                editable={false}
+                underlineColor="transparent"
+              />
+            </TouchableOpacity>
+
+            {/* Time Picker */}
+            {showTimePicker && (
+              <DateTimePicker
+                value={date}
+                mode="time"
+                display="clock"
+                onChange={handleDateChange}
+              />
+            )}
+
+            {/* Button to Close Modal */}
+            <TouchableOpacity
+              onPress={() => setShowModal(false)}
+              style={tw`mt-4 p-2 bg-red-500 rounded-lg`}
+            >
+              <Text style={tw`text-white text-center`}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+
+  const handleDateChange = (event, selectedDate) => {
+    if (selectedDate) {
+      setDate(selectedDate);
+      setFormattedDate(formatDate(selectedDate));
+      setFormattedTime(formatTime(selectedDate));
+      console.log(date);
+    }
+    setShowDatePicker(false);
+    setShowTimePicker(false);
+  };
 
   const route = useRoute();
   const origin = route.params?.origin || "ไม่ระบุ";
@@ -74,202 +198,315 @@ export default function Order({ navigation }) {
   const confirmDestination = route.params?.confirmDestination || "ไม่ระบุ";
 
   const formatDate = (rawDate) => {
-//     let date = new Date(rawDate);
-    
-//     let year = date.getFullYear();
-//     let month = date.getMonth() + 1;
-//     let day = date.getDate();
+    //     let date = new Date(rawDate);
 
-//     month = month < 10 ? "0" + month : month;
-//     day = day < 10 ? "0" + day : day;
-//     return `${day}-${month}-${year}`;
+    //     let year = date.getFullYear();
+    //     let month = date.getMonth() + 1;
+    //     let day = date.getDate();
+
+    //     month = month < 10 ? "0" + month : month;
+    //     day = day < 10 ? "0" + day : day;
+    //     return `${day}-${month}-${year}`;
     let date = dayjs(rawDate);
     let thaiYear = date.year() + 543;
-    return date.format(`D MMMM ${thaiYear}`)}
+    return date.format(`D MMMM ${thaiYear}`);
+  };
 
-    const categoryOptions = [
-        { label: "Mini Slide Car", value: "mini" },
-        { label: "Standard Slide Car", value: "standard" },
-        { label: "Heavy Duty Slide Car", value: "heavy" },
-        { label: "Special Slide Car", value: "special" },
-      ];
-    
-      const selectCategory = (label) => {
-        setCategory(label);
-        setMenuVisible(false); // Close the menu after selecting a category
-      };
+  const formatTime = (rawDate) => {
+    return dayjs(rawDate).format("HH:mm"); // Format with 24 hour o-clock :>> 21.30
+  };
+
+  const categoryOptions = [
+    { label: "Mini Slide Car", value: "mini" },
+    { label: "Standard Slide Car", value: "standard" },
+    { label: "Heavy Duty Slide Car", value: "heavy" },
+    { label: "Special Slide Car", value: "special" },
+  ];
+
+  const selectCategory = (label) => {
+    setCategory(label);
+    setMenuVisible(false); // Close the menu after selecting a category
+  };
+
+
+  const formatDateToMySQL = (date) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const seconds = String(d.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+  const handleSubmitRequest = async () => {
+    // Validation logic
+    if (!confirmOrigin || !confirmDestination || !category) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+  
+    // if (!isValidLatitude(pickup_lat) || !isValidLongitude(pickup_long) || 
+    //     !isValidLatitude(dropoff_lat) || !isValidLongitude(dropoff_long)) {
+    //   alert("Invalid latitude or longitude values. Please check your input.");
+    //   return;
+    // }
+    if (
+        !origin || !destination || !category
+      ) {
+        alert("Please fill in all mandatory fields: Pickup Location, Dropoff Location, and Vehicle Type.");
+        return;
+      }
+  
+    // Construct the request data object
+    const requestData = {
+      customer_id: 1, // Replace with the appropriate customer ID
+      request_time: formatDateToMySQL(new Date()), // Replace with actual selection
+      pickup_lat: origin.latitude, // Replace with actual latitude
+      pickup_long: origin.longitude, // Replace with actual longitude
+      location_from: confirmOrigin,
+      dropoff_lat: destination.latitude, // Replace with actual latitude
+      dropoff_long: destination.longitude, // Replace with actual longitude
+      location_to: confirmDestination,
+      vehicle_type: category,
+      booking_time: formattedDate ? formatDateToMySQL(formattedDate) : formatDateToMySQL(new Date()) , // Assuming formattedDate is used for booking time
+      customer_message: moreDetail || null, // Include the optional field if provided
+    };
+  
+    // Preparing the values for the SQL insertion query
+    const sqlValues = [
+      requestData.customer_id,
+      requestData.request_time,
+      requestData.pickup_lat,
+      requestData.pickup_long,
+      requestData.location_from,
+      requestData.dropoff_lat,
+      requestData.dropoff_long,
+      requestData.location_to,
+      requestData.vehicle_type,
+      requestData.booking_time,
+      requestData.customer_message
+    ];
+  
+    try {
+      const response = await fetch("http://192.168.1.104:3000/auth/add_request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+  
+      const responseData = await response.json();
+      console.log("Response data:", responseData);
+      Alert.alert(
+        "Request submitted successfully!", // ชื่อข้อความแจ้งเตือน
+        "", // เนื้อหาของข้อความแจ้งเตือน (เว้นว่างได้)
+        [
+          {
+            text: "OK", // ปุ่ม OK
+            onPress: () => {
+              navigation.navigate("ChooseOffer"); // นำทางไปหน้า ChooseOffer เมื่อกดปุ่ม OK
+            },
+          },
+        ],
+        { cancelable: false } // ไม่อนุญาตให้ปิดโดยการกดที่พื้นที่ว่าง
+      );
+    } catch (error) {
+      console.error("Error submitting request:", error);
+      alert("Failed to submit the request. Please try again.");
+    }
+  };
 
   return (
-
-    <Provider>
-
-    <View style={tw`flex-1 `}>
-{/*       
-      <View style={tw`flex-row items-center `}>
-        <Text style={styles.headerTitle}></Text>
-      </View> */}
-
-      {/* Location Search */}
-      {/* <TouchableOpacity onPress={() => navigation.navigate("Mapdetail")}>
-        <View style={styles.searchBar}>
-          <MaterialIcons name="place" size={24} color="red" />
-          <Text style={styles.nowText}>Now</Text>
-          <MaterialIcons name="arrow-drop-down" size={20} color="black" />
-        </View>
-      </TouchableOpacity> */}
-
-      <View style={tw`flex-1 items-center`}>
-              {/* Subtitle */}
-        <Text style={styles.subtitle}>
-          Where do you want to take the Slide Car
-        </Text>
-        <TouchableOpacity 
-          style={tw` mb-4 mt-1 justify-around bg-white rounded-lg border border-gray-300 shadow-md w-70 h-25`}
-          onPress={() => navigation.navigate("Mapdetail")}
-        >
-          <View style={tw`flex-row px-4`}>
-            <MaterialIcons name="place" size={24} color="red" />
-            <Text>ต้นทาง : {confirmOrigin.length > 25 ? confirmOrigin.slice(0, 25) + "..." : confirmOrigin}</Text>
-          </View>
-          <View style={tw`flex-row px-4`}>
-            <MaterialIcons name="place" size={24} color="green" />
-            <Text>ปลายทาง : {confirmDestination.length > 25 ? confirmDestination.slice(0, 25) + "..." : confirmDestination}</Text>
-          </View>
-        </TouchableOpacity>
-
-        <View>
-         
-          {showPicker && (
-              <DateTimePicker
-              mode="datetime"
-            //   display={Platform.OS === "ios" ? "spinner" : "calendar"}
-            
-              display="calendar"
-              value={date}
-              onChange={onChange}
-              locale="th"
-              style={styles.datePicker}
-              minimumDate={new Date()}
-              maximumDate={new Date('2024-12-31')}
-              />
-            )}
-          {showPicker && Platform.OS === "ios" && (
-              <View
-              style={[styles.datePicker , tw`flex-row items-start justify-center gap-4`] }
-              >
-              <TouchableOpacity onPress={toggleDatePicker} style={[tw`border border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-full shadow-sm hover:bg-blue-50 active:bg-blue-100 focus:outline-none focus:ring focus:ring-blue-300 `]}>
-                <Text style={tw`text-blue-500 text-lg font-medium text-center`}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={confirmDate} style={[tw`bg-blue-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-blue-600 active:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300  `]}>
-                <Text style={tw`text-white text-lg font-semibold text-center`}>OK</Text>
-              </TouchableOpacity>
-              
+    <PaperProvider>
+      <View style={tw`flex-1`}>
+        <View style={tw`flex-1 items-center mt-2`}>
+          {/* Subtitle */}
+          <Text style={styles.subtitle}>
+            Where do you want to take the Slide Car
+          </Text>
+          <TouchableOpacity
+            style={tw` mb-4 mt-1 justify-around bg-white rounded-lg border border-gray-300 shadow-md w-80 h-25`}
+            onPress={() => navigation.navigate("Mapdetail")}
+          >
+            <View style={tw`flex-row px-4`}>
+              <MaterialIcons name="place" size={24} color="red" />
+              <Text>
+                ต้นทาง :{" "}
+                {confirmOrigin.length > 25
+                  ? confirmOrigin.slice(0, 25) + "..."
+                  : confirmOrigin}
+              </Text>
             </View>
-          )}
+            <View style={tw`flex-row px-4`}>
+              <MaterialIcons name="place" size={24} color="green" />
+              <Text>
+                ปลายทาง :{" "}
+                {confirmDestination.length > 25
+                  ? confirmDestination.slice(0, 25) + "..."
+                  : confirmDestination}
+              </Text>
+            </View>
+          </TouchableOpacity>
 
-          {!showPicker && (
-              <TouchableOpacity
-              onPress={toggleDatePicker}
-              style={tw`flex-col items-center justify-center bg-white  rounded-lg border border-gray-300 w-11/12 shadow-md w-70`}
-              >
-            <MaterialIcons name="date-range" size={25} color="black" style={tw`mt-2`}/>
+          <View>
+            <TouchableOpacity
+              onPress={() =>
+                Platform.OS === "ios" ? setShowPicker(true) : setShowModal(true)
+              }
+              style={tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-80 h-25`}
+            >
+              <MaterialIcons name="date-range" size={30} color="red" />
               <TextInput
-                style={tw`flex-col items-center justify-center bg-white rounded-lg border border-gray-300 w-11/12  w-65 border-transparent text-xl`}
-                placeholder="BOOKING  Date"
-                value={formatDate(date)}
-                onChangeText={setDate}
+                style={tw`flex-col items-center justify-center bg-white rounded-lg border border-gray-300 w-79  border-transparent text-xl`}
+                placeholder="Booking"
+                value={
+                  formattedDate === ""
+                    ? "Select Date"
+                    : `${formattedDate} ${formattedTime}`
+                }
+                onPressIn={
+                  Platform.OS === "ios" ? toggleDatePicker : handleDateChange
+                }
                 editable={false}
-                onPressIn={toggleDatePicker}
                 underlineColor="transparent"
-                >
-                
-              </TextInput>
-                
-               
+              />
             </TouchableOpacity>
-          )}
-        </View>
-        <View style={tw`w-full items-center mt-4`}>
-          <Menu
-            visible={menuVisible}
-            onDismiss={() => setMenuVisible(false)}
-            mode="elevated"
-            anchor={
-                <TouchableOpacity
-                onPress={() => setMenuVisible(true)}
-                style={tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-70 h-25`}
-                >
-                <FontAwesome5 name="car" size={25} color="black" style={tw`mb-2`} />
-                <Text style={tw`text-xl`}>{category}</Text>
-              </TouchableOpacity>
-            }
-            style={tw`w-70 rounded items-center`}>
-            {categoryOptions.map((option) => (
-                <Menu.Item
-                key={option.value}
-                onPress={() => selectCategory(option.label)}
-                title={option.label}
-                style={tw`bg-white`}
-                />
-            ))}
-          </Menu>
-        </View>
+          </View>
+          {Platform.OS === "ios" && showPicker && renderIOSDatePicker()}
+          {Platform.OS === "android" && renderAndroidDatePicker()}
 
-        <View>
-          <TouchableOpacity
-            style={tw`items-center justify-center mt-4 w-70 h-20 bg-[white]`}
-          >
-            <Text>More Detail ... </Text>
-          </TouchableOpacity>
-        </View>
-        <View>
-          <TouchableOpacity
-            style={tw`items-center justify-center mt-4 w-70 h-12 bg-[#60B876] rounded-lg`}
-            onPress={() => {
-              setPrepareData({
-                originAddress: confirmOrigin,
-                originLocation: origin,
-                destinationAddress: confirmDestination,
-                destinationLocation: destination,
-                category: category,
-                date: date,
-              })
-              // Alert.alert(
-              //   "Confirm Order", // Title ของ alert
-              //   `Origin: ${confirmOrigin}
-              //   \n${origin.latitude}
-              //   \n${origin.longitude}
-              //   \nDestination: ${confirmDestination}
-              //   \n${destination.latitude}
-              //   \n${destination.longitude}
-              //   \nCategory: ${category}
-              //   \nDate: ${date}
-              //   \nMore Detail: ...`,
-              //   [
-              //     { text: "OK", onPress: () => console.log("OK Pressed") }
-              //   ]
-              // ),
-              navigation.navigate("ChooseOffer");
-            }}
-          >
-            <Text>Confirm Order</Text>
-          </TouchableOpacity>
+          <View style={tw`w-full items-center mt-4`}>
+            <Menu
+              visible={menuVisible}
+              onDismiss={() => setMenuVisible(false)}
+              mode="elevated"
+              anchor={
+                <TouchableOpacity
+                  onPress={() => setMenuVisible(true)}
+                  style={tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-80 h-25 mb-4`}
+                >
+                  <FontAwesome5
+                    name="car"
+                    size={25}
+                    color="black"
+                    style={tw`mb-2`}
+                  />
+                  <Text style={tw`text-xl`}>{category ? category : "Select Category"}</Text>
+                </TouchableOpacity>
+              }
+              style={tw`w-70 rounded items-center`}
+            >
+              {categoryOptions.map((option) => (
+                <Menu.Item
+                  key={option.value}
+                  onPress={() => selectCategory(option.label)}
+                  title={option.label}
+                  style={tw`bg-white`}
+                />
+              ))}
+            </Menu>
+          </View>
+
+          <View>
+            <TouchableOpacity
+              style={tw` justify-around bg-white rounded-lg border border-gray-300 shadow-md w-80 h-25`}
+              onPress={handlePress}
+            >
+              <TextInput
+                style={tw`flex-col items-center justify-center bg-white rounded-lg border border-gray-300 w-79  border-transparent text-xl`}
+                placeholder="More Details"
+                underlineColor="transparent"
+                value={moreDetail}
+                editable={false}
+              ></TextInput>
+            </TouchableOpacity>
+
+            <Modal
+              transparent={true}
+              visible={showModal2}
+              animationType="slide"
+              onRequestClose={() => setShowModal2(false)}
+            >
+              <View
+                style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}
+              >
+                <View style={tw`w-80 p-4 bg-white rounded-lg `}>
+                  <TextInput
+                    style={tw`border p-2 mb-4 bg-white rounded-lg`}
+                    placeholder="Enter details about the request..."
+                    mode="outlined"
+                    value={moreDetail}
+                    onChangeText={setMoreDetail}
+                    underlineColor="transparent"
+                    multiline={true}
+                    textAlignVertical="top"
+                    maxLength={100}
+                  />
+                  <View style={tw`flex-row justify-center gap-5`}>
+                    <TouchableOpacity
+                      title="Close"
+                      onPress={() =>
+                        moreDetail ? setMoreDetail("") : setShowModal2(false)
+                      }
+                      style={tw`bg-red-500 rounded-lg px-4 py-2`}
+                    >
+                      <Text>Close</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      title="Submit"
+                      onPress={handleRequestSubmit}
+                      style={tw`bg-[#60B876] rounded-lg px-4 py-2`}
+                    >
+                      <Text>Submit</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
+          </View>
+          <View>
+            <View>
+              <TouchableOpacity
+                style={tw`items-center justify-center mt-4 w-70 h-12 bg-[#60B876] rounded-lg`}
+                onPress={handleSubmitRequest}    
+                  
+                    // originAddress: confirmOrigin,
+                    // originLocation: origin,
+                    // destinationAddress: confirmDestination,
+                    // destinationLocation: destination,
+                    // category: category,
+                    // date: `${formattedDate}`,
+                  
+                //   navigation.navigate("ChooseOffer", prepareData);
+                  
+                
+              >
+                <Text style={tw`text-white text-lg font-semibold`}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       </View>
-    </View>
-</Provider>
+    </PaperProvider>
   );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 4, backgroundColor: "#F2FFF3" },
-    header: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
-    headerTitle: { fontSize: 24, fontWeight: "bold", marginLeft: 10 },
-    subtitle: { fontSize: 14, color: "gray" },
-    searchBar: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#fff",
+  container: { flex: 1, padding: 4, backgroundColor: "#F2FFF3" },
+  header: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
+  headerTitle: { fontSize: 24, fontWeight: "bold", marginLeft: 10 },
+  subtitle: { fontSize: 14, color: "gray" },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
     borderRadius: 10,
     padding: 10,
     shadowColor: "#000",
