@@ -142,7 +142,6 @@ const ChooseOffer = ({ navigation }) => {
     { label: '1 km', value: '1000' },
     { label: '5 km', value: '5000' },
     { label: '10 km', value: '10000' },
-    { label: '20 km', value: '20000' },
   ];
 
   const toRadians = (degrees) => (degrees * Math.PI) / 180;
@@ -234,65 +233,11 @@ const ChooseOffer = ({ navigation }) => {
         </View>
       </Modal>
 
-      <View style={tw`flex-2`}>
-        <View style={tw`flex-1 items-center justify-center`}>
-          <MapView
-            style={tw`w-full h-full`}
-            initialRegion={{
-              latitude: 13.855879586027092,
-              longitude: 100.58545240878745,
-              latitudeDelta: 0.1922,
-              longitudeDelta: 0.0421,
-            }}
-          >
-            {filteredOffer.map((item, index) => (
-              <Marker
-                key={index}
-                coordinate={{
-                  latitude: item.location.latitude,
-                  longitude: item.location.longitude,
-                }}
-                title={item.name}
-                pinColor={chooseDriver.id === item.id ? "green" : "red"}
-                description={`ราคา : ${item.price} บาท`}
-              />
-            ))}
-
-            <Marker
-              coordinate={originLocation}
-              title="ต้นทาง"
-              pinColor="blue"
-            />
-
-            <Marker
-              coordinate={destinationLocation}
-              title="ปลายทาง"
-              pinColor="blue"
-            />
-
-            <Circle 
-              center={originLocation}
-              radius={radiusInMeters}
-              strokeColor="rgba(0, 0, 0, 0.2)"
-              fillColor="rgba(0, 0, 0, 0.2)"
-            />
-          </MapView>
-        </View>
-      </View>
       <View style={tw`flex-1 p-4`}>
-        <View style={tw`flex-2 flex-row items-center justify-between`}>
-          <TouchableOpacity
-            style={tw`flex-1`}
-            onPress={() => {
-              navigation.goBack();
-            }}
-          >
-            <MaterialIcons name="arrow-back" size={24} color="black" />
-          </TouchableOpacity>
-          <Text style={tw`flex-9 text-2xl font-bold text-center`}>Choose Offer</Text>
-          <View style={tw`flex-4`}>
+        <View style={tw`flex-1`}>
+          <View style={tw`flex-4 justify-center items-end`}>
             <Dropdown
-                   style={tw`h-10 w-full border-gray-300 rounded-lg px-3 bg-white`}
+                   style={tw`h-3/4 w-2/4 border-gray-300 rounded-lg px-3 bg-white `}
                    data={dataDropdown}
                    maxHeight={300}
                    labelField="label"   //ตามdata
@@ -312,7 +257,7 @@ const ChooseOffer = ({ navigation }) => {
               <TouchableOpacity
                 key={index}
                 style={[
-                  tw`flex-row items-center p-2 my-2 rounded shadow w-full justify-between`,
+                  tw`flex-row items-center p-2 my-2 rounded shadow w-full justify-between h-20`,
                   chooseDriver.id === item.id ? tw`bg-[#60B876]` : tw`bg-white`,
                 ]}
                 onPress={() => {
@@ -323,12 +268,11 @@ const ChooseOffer = ({ navigation }) => {
                   }
                 }}
               >
-                <Text style={tw` font-bold flex-2`}>{item.name}</Text>
-                <Text style={tw` font-bold flex-2 text-center`}><Text style={tw`text-red-700`}>{item.price}</Text> บาท</Text>
-                <View style={tw`flex-1 flex-row justify-center items-center` }>
-
+                <Text style={tw` font-bold flex-5`}>{item.name}</Text>
+                <Text style={tw` font-bold flex-3 text-center`}><Text style={tw`text-red-700`}>{item.price}</Text> บาท</Text>
+                <View style={tw`flex-2 flex-row justify-center items-center` }>
                   <MaterialIcons name="star" size={24} color="yellow" />
-                <Text style={tw` font-bold flex-1 text-center`}>
+                  <Text style={tw` font-bold flex-1 text-center`}>
                   {item.rating}
                 </Text>
                 </View>

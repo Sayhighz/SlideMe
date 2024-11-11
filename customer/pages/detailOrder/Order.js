@@ -289,7 +289,7 @@ export default function Order({ navigation }) {
     ];
   
     try {
-      const response = await fetch("http://192.168.1.104:3000/auth/add_request", {
+      const response = await fetch("http://172.20.10.14:3000/auth/add_request", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

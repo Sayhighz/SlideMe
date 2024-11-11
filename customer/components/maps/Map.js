@@ -73,6 +73,13 @@ function Map({
           style={tw`w-full h-full`}
           region={region}
           onRegionChangeComplete={setRegion}
+          onPress={(e) => {
+            const { latitude, longitude } = e.nativeEvent.coordinate;
+            {confirmOrigin.length ? 
+            setDestination({ latitude, longitude }) :
+            setOrigin({ latitude, longitude })
+            }
+          }}
         >
           {confirmOrigin.length ? (
             <Marker
@@ -94,10 +101,6 @@ function Map({
               pinColor="red"
               title="กรุณาเลือกต้นทาง"
               description="ตำแหน่งต้นทาง"
-              onDragEnd={(e) => {
-                const newLocation = e.nativeEvent.coordinate;
-                setOrigin(newLocation);
-              }}
             />
           )}
 
@@ -117,14 +120,14 @@ function Map({
             : null}
 
           {/* ระยะรอบตัว */}
-          {confirmOrigin.length && confirmDestination.length ? (
+          {/* {confirmOrigin.length && confirmDestination.length ? (
             <Circle
               center={origin}
               radius={5000}
               fillColor="rgba(255, 0, 0, 0.1)"
               strokeColor="rgba(255, 0, 0, 0.1)"
             />
-          ) : null}
+          ) : null} */}
 
           {confirmOrigin.length ? (
             <Marker
@@ -143,10 +146,6 @@ function Map({
               pinColor="green"
               title="กรุณาเลือกปลายทาง"
               description="ตำแหน่งที่อยากให้ไปส่ง"
-              onDragEnd={(e) => {
-                const newLocation = e.nativeEvent.coordinate;
-                setDestination(newLocation);
-              }}
             />
           ) : null }
 

@@ -49,16 +49,7 @@ export default function ViewOrder({ navigation }) {
 
   return (
     <SafeAreaView style={tw`flex-1 relative `}>
-      <View style={tw`flex-3`}>
-        <View style={tw`z-10 flex-1 left-4 top-4 absolute`}>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.goBack();
-            }}
-          >
-            <MaterialIcons name="arrow-back" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
+      <View style={tw`flex-1`}>
         <View style={tw`flex-2`}>
           <View style={tw`flex-1`}>
             <View style={tw`flex-1 flex-row justify-between px-4 items-end`}>
@@ -80,7 +71,7 @@ export default function ViewOrder({ navigation }) {
               </View>
             </View>
           </View>
-          <View style={tw`flex-2`}>
+          <View style={tw`flex-3`}>
             <View style={tw`flex-1 bg-black justify-center`}>
               <MapView
                 style={tw`flex-1`}

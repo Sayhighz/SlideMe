@@ -46,21 +46,7 @@ export default function PaymentPage({ navigation }) {
 
   return (
     <SafeAreaView style={tw`flex-1 relative`}>
-      <View style={tw`z-10`}>
-        <View style={tw`flex-1 left-4 top-4 absolute`}>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.goBack();
-            }}
-          >
-            <MaterialIcons name="arrow-back" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
-      </View>
       <View style={tw`flex-9`}>
-        <View style={tw`flex-1 items-center justify-center mt-4`}>
-          <Text style={tw`text-2xl font-bold`}>ช่องทางการชำระเงิน</Text>
-        </View>
         <View style={tw`flex-1 flex-row justify-around my-4`}>
           <Pressable
             style={tw`w-1/3 bg-[#60B876] border-[#60B876] border-2 rounded-lg items-center h-full justify-center`}
