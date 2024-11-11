@@ -34,7 +34,7 @@ export default function Order({ navigation }) {
   const [moreDetail, setMoreDetail] = useState("");
   const [category, setCategory] = useState("");
   const [menuVisible, setMenuVisible] = useState(false); // แสดงตัวเลือกรถ
-  const [prepareData, setPrepareData] = useState([]);
+  
 
   const toggleDatePicker = () => {
     setShowPicker(!showPicker);
