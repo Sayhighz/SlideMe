@@ -303,14 +303,24 @@ export default function Order({ navigation }) {
   
       const responseData = await response.json();
       console.log("Response data:", responseData);
-      alert("Request submitted successfully!");
+      Alert.alert(
+        "Request submitted successfully!", // ชื่อข้อความแจ้งเตือน
+        "", // เนื้อหาของข้อความแจ้งเตือน (เว้นว่างได้)
+        [
+          {
+            text: "OK", // ปุ่ม OK
+            onPress: () => {
+              navigation.navigate("ChooseOffer"); // นำทางไปหน้า ChooseOffer เมื่อกดปุ่ม OK
+            },
+          },
+        ],
+        { cancelable: false } // ไม่อนุญาตให้ปิดโดยการกดที่พื้นที่ว่าง
+      );
     } catch (error) {
       console.error("Error submitting request:", error);
       alert("Failed to submit the request. Please try again.");
     }
   };
-  
-  
 
   return (
     <PaperProvider>
