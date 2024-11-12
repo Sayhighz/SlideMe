@@ -22,14 +22,13 @@ function Map({
 }) {
   const [region, setRegion] = useState(null);
 
-  const [spuAddress, setSpuAddress] = useState({
+  const spuLocation = {
     latitude: 13.855827502824274,
     longitude: 100.58551678180032,
-  });
+  }
 
   useEffect(() => {
     _getLocation();
-    // setOrigin(spuAddress);
   }, []);
 
   const _getLocation = async () => {
@@ -55,10 +54,8 @@ function Map({
             longitudeDelta: 0.0421,
           };
 
-          // Set user's current location
           setOrigin(location.coords);
-          // setMyLocation(location.coords);
-          setRegion(newRegion); // Set the initial region to zoom in
+          setRegion(newRegion); 
         }
       );
     } catch (error) {
