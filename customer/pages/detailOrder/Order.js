@@ -475,7 +475,10 @@ export default function Order({ navigation }) {
             <View>
               <TouchableOpacity
                 style={tw`items-center justify-center mt-4 w-70 h-12 bg-[#60B876] rounded-lg`}
-                onPress={handleSubmitRequest}    
+                onPress={()=>{
+                  // handleSubmitRequest
+                  navigation.navigate("ChooseOffer")
+                }}
                   
                     // originAddress: confirmOrigin,
                     // originLocation: origin,
