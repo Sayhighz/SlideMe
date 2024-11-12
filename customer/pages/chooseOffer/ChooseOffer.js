@@ -313,7 +313,7 @@ const ChooseOffer = ({ navigation }) => {
     <SafeAreaView style={tw`flex-1`}>
       <Modal transparent={true} visible={openModal}>
         <View style={tw`flex-1 justify-center items-center`}>
-          <View style={tw`bg-[#FDFFFD] w-4/5 h-1/3 flex rounded-lg p-3`}>
+          <View style={tw`bg-gray-200 w-4/5 h-1/3 flex rounded-lg p-3`}>
             <View style={tw`flex-2`}>
               <View style={tw`flex-1 justify-between`}>
                 <Text style={tw`text-lg font-bold`}>ข้อมูลคนขับ : </Text>
