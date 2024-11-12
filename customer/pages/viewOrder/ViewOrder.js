@@ -9,6 +9,7 @@ import { rating } from "@material-tailwind/react";
 import { useRoute } from "@react-navigation/native";
 import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
 import MapViewDirections from "react-native-maps-directions";
+import * as Location from "expo-location";
 
 export default function ViewOrder({ navigation }) {
   const route = useRoute();
@@ -17,6 +18,10 @@ export default function ViewOrder({ navigation }) {
   const [destination, setDestination] = useState({});
 
   const [driverInformation, setDriverInformation] = useState({});
+
+  const [confirmFromDriver, setConfirmFromDriver] = useState(true);
+
+  const [myLocation, setMyLocation] = useState({});
 
   const driverProfile = route.params?.driverProfile.chooseDriver || "ไม่ระบุ";
   const originLocation = route.params?.originLocation || "ไม่ระบุ";
@@ -43,13 +48,52 @@ export default function ViewOrder({ navigation }) {
     });
   }, [route.params]);
 
+  
+
   // useEffect(() => {
   //   console.log(route.params);
   // }, [route.params]);
 
+  useEffect(() => {
+    _getLocation();
+  }, []);
+
+  const _getLocation = async () => {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.warn("Permission to access location was denied");
+        return;
+      }
+
+      // เฝ้าดูตำแหน่งของผู้ใช้แบบเรียลไทม์
+      await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 600000, // Update every 10 minutes
+          distanceInterval: 500,
+        },
+        (location) => {
+          const { latitude, longitude } = location.coords;
+          const newRegion = {
+            latitude,
+            longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          };
+
+          setMyLocation(location.coords);
+
+        }
+      );
+    } catch (error) {
+      console.warn("Error fetching location", error);
+    }
+  };
+
   return (
     <SafeAreaView style={tw`flex-1 relative `}>
-      <View style={tw`flex-1`}>
+      <View style={tw`flex-2`}>
         <View style={tw`flex-2`}>
           <View style={tw`flex-1`}>
             <View style={tw`flex-1 flex-row justify-between px-4 items-end`}>
@@ -57,8 +101,14 @@ export default function ViewOrder({ navigation }) {
               <Text style={tw``}>xxxxxxxxxxxxxx</Text>
             </View>
             <View
-              style={tw`flex-1 justify-around mx-4 px-4 bg-gray-200 rounded-lg`}
+              style={tw`flex-4 justify-around mx-4 px-4 bg-gray-200 rounded-lg`}
             >
+              <View style={tw`flex-1 flex-row items-center`}>
+                <MaterialIcons name="place" size={24} color="blue" />
+                <Text style={tw`items-center`}>
+                  คนขับ : {driverInformation.name}
+                </Text>
+              </View>
               <View style={tw`flex-1 flex-row items-center`}>
                 <MaterialIcons name="place" size={24} color="red" />
                 <Text style={tw`items-center`}>ต้นทาง : {origin.name}</Text>
@@ -71,7 +121,7 @@ export default function ViewOrder({ navigation }) {
               </View>
             </View>
           </View>
-          <View style={tw`flex-3`}>
+          <View style={tw`flex-2`}>
             <View style={tw`flex-1 bg-black justify-center`}>
               <MapView
                 style={tw`flex-1`}
@@ -102,23 +152,46 @@ export default function ViewOrder({ navigation }) {
                   pinColor="blue"
                 />
 
-                <MapViewDirections
-                  strokeColor="blue"
-                  strokeWidth={3}
-                  origin={{
-                    latitude: driverInformation.latitude,
-                    longitude: driverInformation.longitude,
-                  }}
-                  destination={{
-                    latitude: originLocation.latitude,
-                    longitude: originLocation.longitude,
-                  }}
-                  apikey={GOOGLE_MAPS_API_KEY}
-                  // onError={(errorMessage) => {
-                  //   console.log("Error fetching directions: ", errorMessage);
-                  //   alert("ไม่พบเส้นทางระหว่างจุดต้นทางและปลายทางที่ระบุ");
-                  // }}
+                <Marker
+                  coordinate={myLocation}
+                  title="myLocation"
+                  description="myLocation"
+                  pinColor="red"
                 />
+
+                {origin.latitude &&
+                  origin.longitude &&
+                  myLocation.latitude &&
+                  myLocation.longitude &&
+                  destination.latitude &&
+                  destination.longitude &&
+                  driverInformation.latitude &&
+                  driverInformation.longitude && (
+                    <MapViewDirections
+                      strokeColor="blue"
+                      strokeWidth={3}
+                      apikey={GOOGLE_MAPS_API_KEY}
+                      origin={{
+                        latitude: myLocation.latitude,
+                        longitude: myLocation.longitude,
+                      }}
+                      destination={
+                        confirmFromDriver
+                          ? {
+                              latitude: destinationLocation.latitude,
+                              longitude: destinationLocation.longitude,
+                            }
+                          : {
+                              latitude: originLocation.latitude,
+                              longitude: originLocation.longitude,
+                            }
+                      }
+                      // onError={(errorMessage) => {
+                      //   console.log("Error fetching directions: ", errorMessage);
+                      //   alert("ไม่พบเส้นทางระหว่างจุดต้นทางและปลายทางที่ระบุ");
+                      // }}
+                    />
+                  )}
               </MapView>
             </View>
           </View>

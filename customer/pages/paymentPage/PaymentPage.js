@@ -8,6 +8,9 @@ import { Icon } from "react-native-paper";
 import { useRoute } from "@react-navigation/native";
 
 export default function PaymentPage({ navigation }) {
+
+  const feePrice = 200
+
   const [paymentMethods, setPaymentMethods] = useState();
 
   const [choosePaymentMethod, setChoosePaymentMethod] = useState();
@@ -134,17 +137,17 @@ export default function PaymentPage({ navigation }) {
             </View>
             <View style={tw`flex-row justify-between`}>
               <Text>FEE</Text>
-              <Text>xxx.xx THB</Text>
+              <Text><Text style={tw`font-bold text-[#E33F3F]`}>{feePrice}</Text> THB</Text>
             </View>
             <View style={tw`flex-row justify-between`}>
               <Text>DISCOUNT</Text>
-              <Text>xxx.xx THB</Text>
+              <Text><Text style={tw`font-bold text-[#60B876]`}>XXX.XX</Text> THB</Text>
             </View>
           </View>
           <View style={tw`flex-2 justify-center`}>
             <View style={tw`flex-row justify-between`}>
               <Text style={tw`text-xl font-bold`}>TOTAL</Text>
-              <Text style={tw`text-xl font-bold`}>xxx.xx THB</Text>
+              <Text style={tw`text-xl font-bold`}><Text style={tw`font-bold text-[#E33F3F]`}>XXX.XX</Text> THB</Text>
             </View>
           </View>
         </View>
