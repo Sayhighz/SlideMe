@@ -289,7 +289,7 @@ export default function Order({ navigation }) {
     ];
   
     try {
-      const response = await fetch("http://172.20.10.14:3000/auth/add_request", {
+      const response = await fetch("http://192.168.1.104:3000/auth/add_request", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -475,19 +475,8 @@ export default function Order({ navigation }) {
             <View>
               <TouchableOpacity
                 style={tw`items-center justify-center mt-4 w-70 h-12 bg-[#60B876] rounded-lg`}
-                onPress={()=>{
-                  // handleSubmitRequest
-                  navigation.navigate("ChooseOffer")
-                }}
-                  
-                    // originAddress: confirmOrigin,
-                    // originLocation: origin,
-                    // destinationAddress: confirmDestination,
-                    // destinationLocation: destination,
-                    // category: category,
-                    // date: `${formattedDate}`,
-                  
-                //   navigation.navigate("ChooseOffer", prepareData);
+                onPress={handleSubmitRequest}
+
                   
                 
               >
