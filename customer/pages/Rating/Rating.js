@@ -3,14 +3,15 @@ import { View, Text, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { AirbnbRating } from 'react-native-ratings';
 import tw from 'twrnc';
 
-const Rating = () => {
+const Rating = ({ navigation }) => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false); // State to track submission status
 
   const handleSubmitReview = () => {
     if (!review.trim() || rating === 0) {
-      Alert.alert('Error', 'Please provide a rating and a review');
+      Alert.alert('Error', 'Please provide a rating and a review')
+      
       return;
     }
 
@@ -24,7 +25,9 @@ const Rating = () => {
 
     // Simulate sending review to database
     console.log('Submitted Review:', newReview); // Replace this with your database call
-    Alert.alert('Success', 'Thank you for your review!');
+    Alert.alert('Success', 'Thank you for your review!', [
+        {text: 'OK', onPress: () => navigation.navigate("Home")},
+      ] , {cancelable: false});
 
     // Reset form fields after submission
     setReview('');
