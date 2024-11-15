@@ -22,7 +22,7 @@ function Home({ navigation }) {
           onPress={() => navigation.navigate("Order")}
         >
           <Card
-            style={tw`flex-row bg-white rounded-lg w-80 h-30 flex items-center justify-center border`}
+            style={tw`flex-row bg-white rounded-lg w-80 h-40 items-center justify-center border`}
           >
             <View style={tw`items-center justify-center`}>
               <Text style={tw`text-3xl font-bold`}>SLIDE ME</Text>
@@ -48,9 +48,18 @@ function Home({ navigation }) {
             </Card>
           </TouchableOpacity>
         </View>
+
+        <Card
+            style={tw`flex-row bg-white rounded-lg w-80 h-30  items-center justify-center border mt-5`}
+          >
+            <View style={tw`items-center justify-center`}>
+              <Text style={tw`text-2xl font-bold`}>Order Status</Text>
+              
+            </View>
+          </Card>
         
         {/* Swiper for Ads Banner */}
-        <View style={tw`mt-4 w-80 h-40 absolute top-110`}>
+        <View style={tw`mt-4 w-80 h-40 absolute top-118`}>
           <Swiper
             autoplay
             showsPagination

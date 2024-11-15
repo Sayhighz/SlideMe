@@ -324,8 +324,8 @@ export default function Order({ navigation }) {
 
   return (
     <PaperProvider>
-      <View style={tw`flex-1`}>
-        <View style={tw`flex-1 items-center mt-2`}>
+      <View style={tw`flex items-center `}>
+        <View style={tw`flex mt-2 relative`}>
           {/* Subtitle */}
           <Text style={styles.subtitle}>
             Where do you want to take the Slide Car
@@ -471,16 +471,13 @@ export default function Order({ navigation }) {
               </View>
             </Modal>
           </View>
-          <View>
-            <View>
+          <View style={tw``}>
+            <View style={tw`absolute top-27 right-15 `}>
               <TouchableOpacity
-                style={tw`items-center justify-center mt-4 w-70 h-12 bg-[#60B876] rounded-lg`}
+                style={tw`items-center justify-center mt-4 w-50 h-12 bg-[#60B876] rounded-full `}
                 onPress={handleSubmitRequest}
-
-                  
-                
               >
-                <Text style={tw`text-white text-lg font-semibold`}>Confirm</Text>
+                <Text style={tw`text-white text-xl font-semibold `}>Confirm</Text>
               </TouchableOpacity>
             </View>
           </View>
