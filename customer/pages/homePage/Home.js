@@ -16,67 +16,68 @@ function Home({ navigation }) {
     <>
       <View style={tw`flex items-center `}>
         <View style={tw`flex relative`}>
-        {/* Existing UI Elements */}
-        <TouchableOpacity
-          style={tw`mt-5`}
-          onPress={() => navigation.navigate("Order")}
-        >
-          <Card
-            style={tw`flex-row bg-white rounded-lg w-80 h-40 items-center justify-center border`}
+          {/* Existing UI Elements */}
+          <TouchableOpacity
+            style={tw`mt-5`}
+            onPress={() => navigation.navigate("Order")}
           >
-            <View style={tw`items-center justify-center`}>
-              <Text style={tw`text-3xl font-bold`}>SLIDE ME</Text>
-              <Text style={tw`text-lg`}>Service</Text>
-            </View>
-          </Card>
-        </TouchableOpacity>
-
-        <View style={tw`flex-row justify-between w-80`}>
-          <TouchableOpacity>
             <Card
-              style={tw`bg-white rounded-lg w-38 h-20 mt-4 flex items-center justify-center border`}
+              style={tw`flex-row bg-white rounded-lg w-80 h-40 items-center justify-center border`}
             >
-              <Text style={tw`text-lg font-bold`}>ตำแหน่ง 1</Text>
-            </Card>
-          </TouchableOpacity>
-
-          <TouchableOpacity>
-            <Card
-              style={tw`bg-white rounded-lg w-38 h-20 mt-4 flex items-center justify-center border`}
-            >
-              <Text style={tw`text-lg font-bold`}>ตำแหน่ง 2</Text>
-            </Card>
-          </TouchableOpacity>
-        </View>
-
-        <Card
-            style={tw`flex-row bg-white rounded-lg w-80 h-30  items-center justify-center border mt-5`}
-          >
-            <View style={tw`items-center justify-center`}>
-              <Text style={tw`text-2xl font-bold`}>Order Status</Text>
-              
-            </View>
-          </Card>
-        
-        {/* Swiper for Ads Banner */}
-        <View style={tw`mt-4 w-80 h-40 absolute top-118`}>
-          <Swiper
-            autoplay
-            showsPagination
-            loop
-            style={tw`rounded-lg`}
-            activeDotColor="blue"
-          >
-            {ads.map((ad) => (
-              <View
-                key={ad.id}
-                style={tw`flex items-center justify-center w-full h-full`}
-              >
-                <Image source={{ uri: ad.image }} style={tw`w-80 h-40`} />
+              <View style={tw`items-center justify-center`}>
+                <Text style={tw`text-3xl font-bold`}>SLIDE ME</Text>
+                <Text style={tw`text-lg`}>Service</Text>
               </View>
-            ))}
-          </Swiper>
-        </View>
+            </Card>
+          </TouchableOpacity>
+
+          <View style={tw`flex-row justify-between w-80`}>
+            <TouchableOpacity>
+              <Card
+                style={tw`bg-white rounded-lg w-38 h-20 mt-4 flex items-center justify-center border`}
+              >
+                <Text style={tw`text-lg font-bold`}>ตำแหน่ง 1</Text>
+              </Card>
+            </TouchableOpacity>
+
+            <TouchableOpacity>
+              <Card
+                style={tw`bg-white rounded-lg w-38 h-20 mt-4 flex items-center justify-center border`}
+              >
+                <Text style={tw`text-lg font-bold`}>ตำแหน่ง 2</Text>
+              </Card>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity>
+            <Card
+              style={tw`flex-row bg-white rounded-lg w-80 h-30  items-center justify-center border mt-5`}
+            >
+              <View style={tw`items-center justify-center`}>
+                <Text style={tw`text-2xl font-bold`}>Order Status</Text>
+              </View>
+            </Card>
+          </TouchableOpacity>
+
+          {/* Swiper for Ads Banner */}
+          <View style={tw`mt-4 w-80 h-40 absolute top-118`}>
+            <Swiper
+              autoplay
+              showsPagination
+              loop
+              style={tw`rounded-lg`}
+              activeDotColor="blue"
+            >
+              {ads.map((ad) => (
+                <View
+                  key={ad.id}
+                  style={tw`flex items-center justify-center w-full h-full`}
+                >
+                  <Image source={{ uri: ad.image }} style={tw`w-80 h-40`} />
+                </View>
+              ))}
+            </Swiper>
+          </View>
         </View>
       </View>
     </>

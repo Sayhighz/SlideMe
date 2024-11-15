@@ -64,7 +64,7 @@ export default function Order({ navigation }) {
 
   const renderIOSDatePicker = () => {
     return (
-      <View>
+      <View >
         {showPicker && (
           <DateTimePicker
             mode="datetime"
@@ -72,19 +72,19 @@ export default function Order({ navigation }) {
             value={date}
             onChange={onChange}
             locale="th"
-            style={tw`flex-1 text-center text-lg`}
+            style={tw`flex-1 items-center text-lg bottom-70 right-18`}
             minimumDate={new Date()}
             maximumDate={new Date("2024-12-31")}
           />
         )}
 
         {showPicker && Platform.OS === "ios" && (
-          <View style={[tw`flex-1 relative items-center`]}>
-            <View style={[tw`flex-row gap-4`]}>
+          <View style={[tw`flex-1 items-center justify-center `]}>
+            <View style={[tw`flex-row gap-4 `]}>
               <TouchableOpacity
                 onPress={() => setDate(new Date())}
                 style={[
-                  tw` border border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-full shadow-sm hover:bg-blue-50 active:bg-blue-100 focus:outline-none focus:ring focus:ring-blue-300 `,
+                  tw`items-center bottom-250  border border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-full shadow-sm hover:bg-blue-50 active:bg-blue-100 focus:outline-none focus:ring focus:ring-blue-300 `,
                 ]}
               >
                 <Text style={tw`text-blue-500 text-lg font-medium text-center`}>
@@ -94,7 +94,7 @@ export default function Order({ navigation }) {
               <TouchableOpacity
                 onPress={confirmDate}
                 style={[
-                  tw`bg-blue-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-blue-600 active:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300  `,
+                  tw`items-center bottom-250 bg-blue-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-blue-600 active:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300  `,
                 ]}
               >
                 <Text style={tw`text-white text-lg font-semibold text-center`}>
@@ -325,7 +325,7 @@ export default function Order({ navigation }) {
   return (
     <PaperProvider>
       <View style={tw`flex items-center `}>
-        <View style={tw`flex mt-2 relative`}>
+        <View style={tw`flex mt-2 `}>
           {/* Subtitle */}
           <Text style={styles.subtitle}>
             Where do you want to take the Slide Car
