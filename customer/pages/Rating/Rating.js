@@ -1,35 +1,54 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { AirbnbRating } from 'react-native-ratings';
+
 import tw from 'twrnc';
 
 const Rating = () => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false); // State to track submission status
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmitReview = () => {
+  const handleSubmitReview = async () => {
     if (!review.trim() || rating === 0) {
       Alert.alert('Error', 'Please provide a rating and a review');
       return;
     }
 
-    setIsSubmitting(true); // Set submitting state to true
+    setIsSubmitting(true);
 
     const newReview = {
-      id: Date.now().toString(),
-      rating,
-      text: review.trim(),
+    //   request_id: '12345', // Replace with actual request_id as needed
+    //   customer_id: '67890', // Replace with actual customer_id as needed
+    //   driver_id: '54321', // Replace with actual driver_id as needed
+      rating: rating,
+      review_text: review.trim(),
     };
 
-    // Simulate sending review to database
-    console.log('Submitted Review:', newReview); // Replace this with your database call
-    Alert.alert('Success', 'Thank you for your review!');
+    try {
+      const response = await fetch('http://192.168.1.104:3000/auth/add_reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newReview),
+      });
 
-    // Reset form fields after submission
-    setReview('');
-    setRating(0);
-    setIsSubmitting(false); // Reset submitting state
+      const result = await response.json();
+
+      if (result.Status) {
+        Alert.alert('Success', 'Thank you for your review!');
+        // Reset form fields
+        setReview('');
+        setRating(0);
+      } else {
+        Alert.alert('Error', `Failed to submit review: ${result.Error}`);
+      }
+    } catch (error) {
+      Alert.alert('Error', `Something went wrong: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -38,7 +57,7 @@ const Rating = () => {
       <View style={tw`flex-col bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-90 h-25`} />
       <AirbnbRating
         count={5}
-        reviews={["ควรปรับปรุง", "ไม่ดี", "พอใช้", "ดี", "ยอดเยี่ยม"]}
+        reviews={["Terrible", "Bad", "Meh", "Good", "Very Good"]}
         defaultRating={rating}
         size={30}
         onFinishRating={setRating}
@@ -48,14 +67,14 @@ const Rating = () => {
         placeholder="Write your review here..."
         value={review}
         onChangeText={setReview}
-        editable={!isSubmitting} // Disable input while submitting
+        editable={!isSubmitting}
         multiline={true}
         textAlignVertical="top"
       />
       <View style={tw`w-full mb-4`}>
         <TouchableOpacity
           onPress={handleSubmitReview}
-          disabled={isSubmitting} // Disable button while submitting
+          disabled={isSubmitting}
           style={tw`bg-${isSubmitting ? 'gray-400' : 'green-600'} text-white rounded-full p-2`}
         >
           <Text style={tw`text-center text-white`}>

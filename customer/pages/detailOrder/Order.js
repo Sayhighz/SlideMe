@@ -269,7 +269,7 @@ export default function Order({ navigation }) {
       dropoff_long: destination.longitude, // Replace with actual longitude
       location_to: confirmDestination,
       vehicle_type: category,
-      booking_time: formattedDate ? formatDateToMySQL(formattedDate) : formatDateToMySQL(new Date()) , // Assuming formattedDate is used for booking time
+      booking_time: formattedDate ? formatDateToMySQL(date) : formatDateToMySQL(new Date()) , // Assuming formattedDate is used for booking time
       customer_message: moreDetail || null, // Include the optional field if provided
     };
   
