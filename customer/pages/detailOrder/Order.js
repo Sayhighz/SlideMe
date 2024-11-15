@@ -289,7 +289,7 @@ export default function Order({ navigation }) {
     ];
   
     try {
-      const response = await fetch("http://192.168.1.104:3000/auth/add_request", {
+      const response = await fetch("http://172.20.10.14:3000/auth/add_request", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -303,14 +303,24 @@ export default function Order({ navigation }) {
   
       const responseData = await response.json();
       console.log("Response data:", responseData);
-      alert("Request submitted successfully!");
+      Alert.alert(
+        "Request submitted successfully!", // ชื่อข้อความแจ้งเตือน
+        "", // เนื้อหาของข้อความแจ้งเตือน (เว้นว่างได้)
+        [
+          {
+            text: "OK", // ปุ่ม OK
+            onPress: () => {
+              navigation.navigate("ChooseOffer"); // นำทางไปหน้า ChooseOffer เมื่อกดปุ่ม OK
+            },
+          },
+        ],
+        { cancelable: false } // ไม่อนุญาตให้ปิดโดยการกดที่พื้นที่ว่าง
+      );
     } catch (error) {
       console.error("Error submitting request:", error);
       alert("Failed to submit the request. Please try again.");
     }
   };
-  
-  
 
   return (
     <PaperProvider>
@@ -465,7 +475,10 @@ export default function Order({ navigation }) {
             <View>
               <TouchableOpacity
                 style={tw`items-center justify-center mt-4 w-70 h-12 bg-[#60B876] rounded-lg`}
-                onPress={handleSubmitRequest}    
+                onPress={()=>{
+                  // handleSubmitRequest
+                  navigation.navigate("ChooseOffer")
+                }}
                   
                     // originAddress: confirmOrigin,
                     // originLocation: origin,

@@ -36,7 +36,7 @@ function HomeStack() {
     <Stack.Navigator>
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="Mapdetail" component={MapDetail} />
-      <Stack.Screen name="MapPage" component={MapPage}  />
+      <Stack.Screen name="MapPage" component={MapPage} options={{ headerShown: false }} />
       <Stack.Screen name="Order" component={Order} />
       <Stack.Screen name="ChooseOffer" component={ChooseOffer} />
       <Stack.Screen name="payment" component={PaymentPage} />

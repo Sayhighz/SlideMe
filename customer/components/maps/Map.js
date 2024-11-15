@@ -22,14 +22,13 @@ function Map({
 }) {
   const [region, setRegion] = useState(null);
 
-  const [spuAddress, setSpuAddress] = useState({
+  const spuLocation = {
     latitude: 13.855827502824274,
     longitude: 100.58551678180032,
-  });
+  }
 
   useEffect(() => {
     _getLocation();
-    // setOrigin(spuAddress);
   }, []);
 
   const _getLocation = async () => {
@@ -55,10 +54,8 @@ function Map({
             longitudeDelta: 0.0421,
           };
 
-          // Set user's current location
           setOrigin(location.coords);
-          // setMyLocation(location.coords);
-          setRegion(newRegion); // Set the initial region to zoom in
+          setRegion(newRegion); 
         }
       );
     } catch (error) {
@@ -73,6 +70,13 @@ function Map({
           style={tw`w-full h-full`}
           region={region}
           onRegionChangeComplete={setRegion}
+          onPress={(e) => {
+            const { latitude, longitude } = e.nativeEvent.coordinate;
+            {confirmOrigin.length ? 
+            setDestination({ latitude, longitude }) :
+            setOrigin({ latitude, longitude })
+            }
+          }}
         >
           {confirmOrigin.length ? (
             <Marker
@@ -94,10 +98,6 @@ function Map({
               pinColor="red"
               title="กรุณาเลือกต้นทาง"
               description="ตำแหน่งต้นทาง"
-              onDragEnd={(e) => {
-                const newLocation = e.nativeEvent.coordinate;
-                setOrigin(newLocation);
-              }}
             />
           )}
 
@@ -117,14 +117,14 @@ function Map({
             : null}
 
           {/* ระยะรอบตัว */}
-          {confirmOrigin.length && confirmDestination.length ? (
+          {/* {confirmOrigin.length && confirmDestination.length ? (
             <Circle
               center={origin}
               radius={5000}
               fillColor="rgba(255, 0, 0, 0.1)"
               strokeColor="rgba(255, 0, 0, 0.1)"
             />
-          ) : null}
+          ) : null} */}
 
           {confirmOrigin.length ? (
             <Marker
@@ -143,10 +143,6 @@ function Map({
               pinColor="green"
               title="กรุณาเลือกปลายทาง"
               description="ตำแหน่งที่อยากให้ไปส่ง"
-              onDragEnd={(e) => {
-                const newLocation = e.nativeEvent.coordinate;
-                setDestination(newLocation);
-              }}
             />
           ) : null }
 
