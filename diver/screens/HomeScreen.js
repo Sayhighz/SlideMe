@@ -71,7 +71,7 @@ export default function HomeScreen() {
         style={tw`w-11/12 bg-green-500 rounded-full p-4 mt-6 items-center`}
         onPress={() => navigation.navigate('JobsScreen')}
       >
-        <Text style={tw`text-white font-bold text-lg`}>พร้อมเริ่มงาน</Text>
+        <Text style={tw`text-white font-bold text-lg`}>ค้นหางาน</Text>
       </TouchableOpacity>
     </View>
   );
