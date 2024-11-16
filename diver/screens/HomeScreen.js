@@ -14,8 +14,6 @@ export default function HomeScreen() {
     { id : 1 , title : 'แจ้งเตือนที่ 1' , description : 'โปรดอ่าน' },
     { id : 2 , title : 'แจ้งเตือนที่ 2' , description : 'ข่าวสาร' },
     { id : 3 , title : 'แจ้งเตือนที่ 3' , description : 'แจ้งเตือน' },
-
-    
   ]
 
   return (
