@@ -162,5 +162,117 @@ const values = [
       });
 
 
+      router.post("/update_address", (req, res) => {
+        const sql = `
+          UPDATE addresses 
+          SET 
+            address_name = ?, 
+            address_detail = ?, 
+            latitude = ?, 
+            longitude = ?
+          WHERE address_id = ?
+        `;
+      
+        const values = [
+          req.body.address_name,
+          req.body.address_detail,
+          req.body.latitude,
+          req.body.longitude,
+          req.body.address_id
+        ];
+        
+        con.query(sql, values, (err, result) => {
+          if (err) return res.json({ Status: false, Error: err.message });
+          return res.json({ 
+            Status: true, 
+            AffectedRows: result.affectedRows 
+          });
+        });
+      });
+
+      router.post("/edit_profile", (req, res) => {
+        const sql = `
+          UPDATE users 
+          SET 
+            email = ?, 
+            first_name = ?, 
+            last_name = ?
+          WHERE user_id = ?
+        `;
+      
+        const values = [
+          req.body.email,
+          req.body.first_name,
+          req.body.last_name,
+          req.body.user_id
+        ];
+        
+        con.query(sql, values, (err, result) => {
+          if (err) return res.json({ Status: false, Error: err.message });
+          return res.json({ 
+            Status: true, 
+            AffectedRows: result.affectedRows 
+          });
+        });
+      });
+
+      router.post("/add_payment_method", (req, res) => {
+        const sql = `
+        INSERT INTO paymentmethods (
+          user_id,
+          payment_type,
+          card_number,
+          account_name,
+          expiration_date,
+          status
+      ) VALUES (?, ?, ?, ?, ?, 'active')
+      `;
+  
+      const values = [
+        req.body.user_id,
+        req.body.payment_type,
+        req.body.card_number,
+        req.body.account_name,
+        req.body.expiration_date
+      ];
+        
+          con.query(sql, values, (err, result) => {
+            if (err) return res.json({ Status: false, Error: err.message });
+            return res.json({ Status: true, InsertId: result.insertId });
+          });
+        });
+      
+
+        router.post("/update_payment_method", (req, res) => {
+          const sql = `
+            UPDATE paymentmethods 
+            SET 
+              payment_type = ?,
+              card_number = ?,
+              account_name = ?,
+              expiration_date = ?,
+              status = 'active'
+            WHERE payment_method_id = ?
+          `;
+        
+          const values = [
+            req.body.payment_type,
+            req.body.card_number,
+            req.body.account_name,
+            req.body.expiration_date,
+            req.body.payment_method_id
+          ];
+          
+          con.query(sql, values, (err, result) => {
+            if (err) return res.json({ Status: false, Error: err.message });
+            return res.json({ 
+              Status: true, 
+              AffectedRows: result.affectedRows 
+            });
+          });
+        });
+        
+
+
 
 export { router as adminRouter };
