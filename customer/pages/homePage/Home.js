@@ -1,30 +1,92 @@
-import React from 'react'
-import { Text , View , TouchableOpacity} from 'react-native'
-import { Card } from 'react-native-paper'
-import Order from '../detailOrder/Order'
-import tw from 'twrnc'
-
-
+import React from "react";
+import { Text, View, TouchableOpacity, Image , StyleSheet } from "react-native";
+import { Card } from "react-native-paper";
+import Swiper from "react-native-swiper"; // Import Swiper
+import tw, { style } from "twrnc";
 
 function Home({ navigation }) {
+  // Sample ads data (URLs for images or placeholders)
+  const ads = [
+    { id: 1, image: "https://via.placeholder.com/300x150.png?text=Ad+1" },
+    { id: 2, image: "https://via.placeholder.com/300x150.png?text=Ad+2" },
+    { id: 3, image: "https://via.placeholder.com/300x150.png?text=Ad+3" },
+  ];
+
   return (
     <>
-    <View style={tw`flex items-center`}>
-      
+      <View style={tw`flex items-center `}>
+        <View style={tw`flex relative`}>
+          {/* Existing UI Elements */}
+          <TouchableOpacity
+            style={tw`mt-5`}
+            onPress={() => navigation.navigate("Order")}
+          >
+            <Card
+              style={tw`flex-row bg-white rounded-lg w-80 h-40 items-center justify-center border`}
+            >
+              <View style={tw`items-center justify-center`}>
+                <Text style={[styles.globalText , tw`text-4xl font-bold`]}>SLIDE ME</Text>
+                <Text style={[styles.globalText ,tw`text-xl`]}>Service</Text>
+              </View>
+            </Card>
+          </TouchableOpacity>
 
-      <TouchableOpacity  style={tw`mt-4`} onPress={() => navigation.navigate("Order")}>
-      <Card style={tw`bg-white rounded-lg w-80 h-40 flex items-center justify-center border`}>
-      <Text style={tw`text-3xl font-bold `}> Search </Text>
-        </Card>
-        </TouchableOpacity>
-      
-      <Card style={tw`bg-white rounded-lg w-80 h-40 mt-4 flex items-center justify-center border`}>
-      <Text style={tw`text-3xl font-bold `}></Text>
-        </Card>
-      
-    </View>
+          <View style={tw`flex-row justify-between w-80`}>
+            <TouchableOpacity>
+              <Card
+                style={tw`bg-white rounded-lg w-38 h-20 mt-4 flex items-center justify-center border`}
+              >
+                <Text style={[styles.globalText , tw`text-lg font-bold`]}>ตำแหน่ง 1</Text>
+              </Card>
+            </TouchableOpacity>
+
+            <TouchableOpacity>
+              <Card
+                style={tw`bg-white rounded-lg w-38 h-20 mt-4 flex items-center justify-center border`}
+              >
+                <Text style={[styles.globalText ,tw`text-lg font-bold`]}>ตำแหน่ง 2</Text>
+              </Card>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity>
+            <Card
+              style={tw`flex-row bg-white rounded-lg w-80 h-30  items-center justify-center border mt-5`}
+            >
+              <View style={tw`items-center justify-center`}>
+                <Text style={[styles.globalText , tw`text-3xl font-bold`]}>Order Status</Text>
+              </View>
+            </Card>
+          </TouchableOpacity>
+
+          {/* Swiper for Ads Banner */}
+          <View style={tw`mt-4 w-80 h-40 absolute top-118`}>
+            <Swiper
+              autoplay
+              showsPagination
+              loop
+              style={tw`rounded-lg`}
+              activeDotColor="blue"
+            >
+              {ads.map((ad) => (
+                <View
+                  key={ad.id}
+                  style={tw`flex items-center justify-center w-full h-full`}
+                >
+                  <Image source={{ uri: ad.image }} style={tw`w-80 h-40`} />
+                </View>
+              ))}
+            </Swiper>
+          </View>
+        </View>
+      </View>
     </>
-  )
+  );
 }
+const styles = StyleSheet.create({
+  globalText: {
+    fontFamily: 'Mitr-Regular', // กำหนดฟอนต์ที่คุณต้องการ
+  },
+});
 
-export default Home
+export default Home;

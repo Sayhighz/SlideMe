@@ -31,7 +31,7 @@ export default function NotificationRequest() {
     // ตั้ง interval เพื่อตรวจสอบ request ใหม่ทุกๆ 10 วินาที
     const interval = setInterval(() => {
       checkForNewRequest();
-    }, 10000);
+    }, 10000000);
 
     return () => clearInterval(interval); // ล้าง interval เมื่อ component ถูก unmount
   }, []);

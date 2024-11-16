@@ -1,7 +1,7 @@
 // InfoCustomer.js
-import { View, Text, TextInput, TouchableOpacity, Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, Keyboard, TouchableWithoutFeedback , StyleSheet} from 'react-native';
 import React, { useState } from 'react';
-import tw from 'twrnc';
+import tw, { style } from 'twrnc';
 import { useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -37,40 +37,40 @@ const InfoCustomer = ({ onLogin }) => {
                 </View>
                 <View style={tw`flex-2 border-2 border-[#60B876] pt-3 items-center rounded-10 bg-[#F5F5F5]`}
                 >
-                    <Text style={tw`text-gray-800 font-bold w-3/4`}>ชื่อ:<Text style={tw`text-gray-600 text-sm ml-2`}></Text> </Text>
+                    <Text style={[styles.globalText , tw`text-gray-800 font-bold w-3/4`]}>ชื่อ:<Text style={tw`text-gray-600 text-sm ml-2`}></Text> </Text>
                     <TextInput
-                        style={tw`border bg-gray-100 rounded-lg w-3/4 p-1 mb-4 text-base pl-2`}
+                        style={[ styles.globalText,tw`border bg-gray-100 rounded-lg w-3/4 p-1 mb-4 text-base pl-2`]}
                         placeholder="กรอกชื่อจริง"
                         value={name}
                         onChangeText={setName}
                         required
                     />
-                    <Text style={tw`text-gray-800 font-bold w-3/4`}>นามสกุล:<Text style={tw`text-gray-600 text-sm ml-2`}></Text></Text>
+                    <Text style={[styles.globalText , tw`text-gray-800 font-bold w-3/4`]}>นามสกุล:<Text style={[styles.globalText ,tw`text-gray-600 text-sm ml-2`]}></Text></Text>
                     <TextInput
-                        style={tw`border rounded-lg bg-gray-100 w-3/4 p-1 mb-4 text-base pl-2`}
+                        style={[styles.globalText ,tw`border rounded-lg bg-gray-100 w-3/4 p-1 mb-4 text-base pl-2`]}
                         placeholder="กรอกนามสกุล"
                         value={lastname}
                         onChangeText={setLastName}
                     />
-                    <Text style={tw`text-gray-800 font-bold w-3/4`}>ชื่อผู้ใช้:<Text style={tw`text-gray-600 text-sm ml-2`}></Text></Text>
+                    <Text style={[styles.globalText , tw`text-gray-800 font-bold w-3/4`]}>ชื่อผู้ใช้:<Text style={tw`text-gray-600 text-sm ml-2`}></Text></Text>
                     <TextInput
-                        style={tw`border rounded-lg bg-gray-100 w-3/4 p-1 mb-4 text-base pl-2`}
+                        style={[styles.globalText ,tw`border rounded-lg bg-gray-100 w-3/4 p-1 mb-4 text-base pl-2`]}
                         placeholder="กรอกชื่อผู้ใช้"
                         value={username}
                         onChangeText={setUserName}
                         keyboardType='default'
                     />
-                    <Text style={tw`text-gray-800 font-bold w-3/4`}>อีเมลล์:<Text style={tw`text-gray-600 text-sm ml-2`}></Text></Text>
+                    <Text style={[styles.globalText ,tw`text-gray-800 font-bold w-3/4`]}>อีเมลล์:<Text style={tw`text-gray-600 text-sm ml-2`}></Text></Text>
                     <TextInput
-                        style={tw`border bg-gray-100 rounded-lg w-3/4 p-1 mb-4 text-base pl-2`}
+                        style={[styles.globalText ,tw`border bg-gray-100 rounded-lg w-3/4 p-1 mb-4 text-base pl-2`]}
                         placeholder="กรอกอีเมลล์"
                         value={email}
                         onChangeText={setEmail}
                         keyboardType="email-address"
                     />
-                    <Text style={tw`text-gray-800 font-bold w-3/4`}>เบอร์โทร:</Text>
+                    <Text style={[styles.globalText,tw`text-gray-800 font-bold w-3/4`]}>เบอร์โทร:</Text>
                     <TextInput
-                        style={tw`border rounded-lg bg-gray-200 w-3/4 p-1 pl-2 mb-5 text-lg`}
+                        style={[styles.globalText ,tw`border rounded-lg bg-gray-200 w-3/4 p-1 pl-2 mb-5 text-lg text-[grey]`]}
                         value={phoneNumber}
                         editable={false}
                         keyboardType="phone-pad"
@@ -80,13 +80,13 @@ const InfoCustomer = ({ onLogin }) => {
                             style={tw`bg-gray-400 rounded-lg p-4 w-1/3`}
                             onPress={handleSkip}
                         >
-                            <Text style={tw`text-center font-bold text-white`}>ข้าม</Text>
+                            <Text style={[styles.globalText,tw`text-center font-bold text-white text-lg`]}>ข้าม</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={tw`bg-[#60B876] rounded-lg p-4 w-1/3`}
                             onPress={handleConfirm}
                         >
-                            <Text style={tw`text-white font-bold text-center`}>ยืนยัน</Text>
+                            <Text style={[styles.globalText,tw`text-white font-bold text-center text-lg`]}>ยืนยัน</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -94,5 +94,11 @@ const InfoCustomer = ({ onLogin }) => {
         </TouchableWithoutFeedback>
     );
 };
+
+const styles = StyleSheet.create({
+    globalText: {
+      fontFamily: 'Mitr-Regular', 
+    },
+  });
 
 export default InfoCustomer;

@@ -4,14 +4,15 @@ import { AirbnbRating } from 'react-native-ratings';
 
 import tw from 'twrnc';
 
-const Rating = () => {
+const Rating = ({ navigation }) => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmitReview = async () => {
     if (!review.trim() || rating === 0) {
-      Alert.alert('Error', 'Please provide a rating and a review');
+      Alert.alert('Error', 'Please provide a rating and a review')
+      
       return;
     }
 
@@ -33,6 +34,11 @@ const Rating = () => {
         },
         body: JSON.stringify(newReview),
       });
+    // Simulate sending review to database
+    console.log('Submitted Review:', newReview); // Replace this with your database call
+    Alert.alert('Success', 'Thank you for your review!', [
+        {text: 'OK', onPress: () => navigation.navigate("Home")},
+      ] , {cancelable: false});
 
       const result = await response.json();
 
