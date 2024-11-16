@@ -61,7 +61,7 @@ const values = [
       LEFT JOIN
           DriverOffers do ON sr.request_id = do.request_id AND do.offer_status = 'accepted'
       WHERE
-          sr.customer_id = ?
+          sr.customer_id = ? 
       ORDER BY
           sr.request_time DESC;
     `;
@@ -94,6 +94,7 @@ const values = [
     const userId = req.query.user_id || 1;
     const sql = `
       SELECT
+        payment_method_id,
         payment_type,
         card_number,
         account_name,
@@ -102,7 +103,7 @@ const values = [
         slideme.paymentmethods
       WHERE
         user_id = ?
-        and status = 1;
+        and status = 'active';
     `;
     con.query(sql, [userId], (err, result) => {
       if (err) return res.json({ Status: false, Error: err.message });
@@ -260,6 +261,27 @@ const values = [
             req.body.card_number,
             req.body.account_name,
             req.body.expiration_date,
+            req.body.payment_method_id
+          ];
+          
+          con.query(sql, values, (err, result) => {
+            if (err) return res.json({ Status: false, Error: err.message });
+            return res.json({ 
+              Status: true, 
+              AffectedRows: result.affectedRows 
+            });
+          });
+        });
+
+        router.post("/disable_payment_method", (req, res) => {
+          const sql = `
+            UPDATE paymentmethods 
+            SET 
+              status = 'inactive'
+            WHERE payment_method_id = ?
+          `;
+        
+          const values = [
             req.body.payment_method_id
           ];
           

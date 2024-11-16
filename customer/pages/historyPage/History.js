@@ -46,12 +46,12 @@ const HistoryPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://192.168.1.108:3000/auth/service_history_customer?customer_id=2');
+        const response = await fetch('http://192.168.1.106:3000/auth/service_history_customer?customer_id=2');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        // console.log("Data:", data); // Log the data for debugging
+        console.log("Data:", data); // Log the data for debugging
         setServiceHistoryData(Array.isArray(data.Result) ? data.Result : []);
       } catch (error) {
         setError(error.message);

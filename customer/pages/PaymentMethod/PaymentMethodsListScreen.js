@@ -1,8 +1,8 @@
-// PaymentMethodsListScreen.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import tw from 'twrnc';
 import EditPaymentMethodModal from './EditPaymentMethodModal';
+import { useIsFocused } from '@react-navigation/native';
 
 const PaymentMethodsListScreen = ({ navigation }) => {
   const [paymentMethods, setPaymentMethods] = useState([]);
@@ -13,8 +13,13 @@ const PaymentMethodsListScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [editAccountName, setEditAccountName] = useState('');
   const [editAccountNumber, setEditAccountNumber] = useState('');
+  const [editPaymentType, setEditPaymentType] = useState('');
+  const [editExpirationDate, setEditExpirationDate] = useState('');
 
-  // Mapping function for payment type translations
+  // Hook to detect when the screen is focused
+  const isFocused = useIsFocused();
+
+  // Define the translatePaymentType function
   const translatePaymentType = (type) => {
     const typeMap = {
       credit_card: 'บัตรเครดิต',
@@ -26,33 +31,40 @@ const PaymentMethodsListScreen = ({ navigation }) => {
     return typeMap[type] || type;
   };
 
-  useEffect(() => {
-    const fetchPaymentMethods = async () => {
-      try {
-        const response = await fetch('http://192.168.1.108:3000/auth/getAllUserPaymentMethods?user_id=1');
-        if (!response.ok) {
-          throw new Error('Failed to fetch payment methods');
-        }
-        const data = await response.json();
-        if (data.Status) {
-          setPaymentMethods(data.Result);
-        } else {
-          throw new Error('Unexpected response format');
-        }
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
+  // Function to fetch payment methods
+  const fetchPaymentMethods = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://192.168.1.106:3000/auth/getAllUserPaymentMethods?user_id=2');
+      if (!response.ok) {
+        throw new Error('Failed to fetch payment methods');
       }
-    };
+      const data = await response.json();
+      if (data.Status) {
+        setPaymentMethods(data.Result);
+      } else {
+        throw new Error('Unexpected response format');
+      }
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchPaymentMethods();
-  }, []);
+  // Fetch payment methods when the screen is focused
+  useEffect(() => {
+    if (isFocused) {
+      fetchPaymentMethods();
+    }
+  }, [isFocused]);
 
   const openModal = (method) => {
     setSelectedMethod(method);
     setEditAccountName(method.account_name);
     setEditAccountNumber(method.card_number);
+    setEditPaymentType(method.payment_type);
+    setEditExpirationDate(method.expiration_date);
     setModalVisible(true);
   };
 
@@ -65,11 +77,18 @@ const PaymentMethodsListScreen = ({ navigation }) => {
     setPaymentMethods((prevMethods) =>
       prevMethods.map((method) =>
         method === selectedMethod
-          ? { ...method, account_name: editAccountName, card_number: editAccountNumber }
+          ? {
+              ...method,
+              account_name: editAccountName,
+              card_number: editAccountNumber,
+              payment_type: editPaymentType,
+              expiration_date: editExpirationDate,
+            }
           : method
       )
     );
     closeModal();
+    fetchPaymentMethods(); // Refresh data after editing a payment method
   };
 
   const renderItem = ({ item }) => (
@@ -81,7 +100,7 @@ const PaymentMethodsListScreen = ({ navigation }) => {
           บัญชี: {item.card_number ? `**** ${item.card_number}` : item.account_name || 'ไม่พบข้อมูล'}
         </Text>
         {item.expiration_date && (
-          <Text style={tw`text-sm`}>วันหมดอายุ: {new Date(item.expiration_date).toLocaleDateString()}</Text>
+          <Text style={tw`text-sm`}>วันหมดอายุ: {item.expiration_date}</Text>
         )}
       </View>
     </TouchableOpacity>
@@ -127,6 +146,11 @@ const PaymentMethodsListScreen = ({ navigation }) => {
         setAccountName={setEditAccountName}
         accountNumber={editAccountNumber}
         setAccountNumber={setEditAccountNumber}
+        paymentType={editPaymentType}
+        setPaymentType={setEditPaymentType}
+        expirationDate={editExpirationDate}
+        setExpirationDate={setEditExpirationDate}
+        paymentMethodId={selectedMethod ? selectedMethod.payment_method_id : ''}
       />
     </View>
   );

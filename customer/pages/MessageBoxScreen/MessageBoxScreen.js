@@ -14,7 +14,7 @@ const MessageBoxScreen = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch('http://192.168.1.108:3000/auth/getAllDiscounts');
+        const response = await fetch('http://192.168.1.106:3000/auth/getAllDiscounts');
         const data = await response.json();
         console.log('Fetched data:', data);
 
