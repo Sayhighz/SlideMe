@@ -1,10 +1,10 @@
 // LoginPage.js
 import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Animated, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Animated, Dimensions , StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import SignupPage from '../SignupPage/SignupPage';
 import tw from 'twrnc';
-import { SafeAreaView } from 'react-native-safe-area-context'; // ใช้ SafeAreaView จาก react-native-safe-area-context
+import { SafeAreaView } from 'react-native-safe-area-context'; // ใช้ SafeAreaView จาก react-native-safe-area-contex
 
 function LoginPage({ onLogin }) {
     const [showSignupContent, setshowSignupContent] = useState(true);
@@ -57,7 +57,7 @@ function LoginPage({ onLogin }) {
                     >
                         {showSignupContent ? (
                             <View style={tw`flex justify-center items-center mt-5 w-full `}>
-                                <Text style={tw`text-xl font-bold text-white text-center `}>
+                                <Text style={[styles.globalText, tw`text-xl font-bold text-white text-center `]}>
                                     เรียกรถสไลด์ได้ง่าย ๆ ในไม่กี่คลิก!
                                 </Text>
                                 <TouchableOpacity
@@ -66,10 +66,10 @@ function LoginPage({ onLogin }) {
                                     // accessible={true}
                                     // accessibilityLabel="Start Using"
                                 >
-                                    <Text style={tw`font-bold text-white text-lg text-center`}>เริ่มต้นใช้งาน</Text>
+                                    <Text style={[styles.globalText ,tw`font-bold text-white text-lg text-center`]}>เริ่มต้นใช้งาน</Text>
                                 </TouchableOpacity>
 
-                                <Text style={tw`mt-2 text-xs font-bold text-white`}>
+                                <Text style={[styles.globalText, tw`mt-2 text-xs font-bold text-white`]}>
                                     ข้อมูลติดต่อ/ช่วยเหลือ
                                 </Text>
                             </View>
@@ -83,5 +83,12 @@ function LoginPage({ onLogin }) {
         </SafeAreaView>
     );
 }
+
+const styles = StyleSheet.create({
+
+    globalText: {
+      fontFamily: 'Mitr-Regular', // กำหนดฟอนต์ที่คุณต้องการ
+    },
+  });
 
 export default LoginPage;

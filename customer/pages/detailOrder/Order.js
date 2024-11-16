@@ -32,6 +32,7 @@ export default function Order({ navigation }) {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showModal2, setShowModal2] = useState(false);
   const [moreDetail, setMoreDetail] = useState("");
+  const [preMoreDetail, setPreMoreDetail] = useState("");
   const [category, setCategory] = useState("");
   const [menuVisible, setMenuVisible] = useState(false); // แสดงตัวเลือกรถ
   
@@ -52,7 +53,7 @@ export default function Order({ navigation }) {
   };
 
   const handleRequestSubmit = () => {
-    setMoreDetail(moreDetail);
+    setMoreDetail(preMoreDetail);
     setShowModal2(false);
     console.log(moreDetail);
   };
@@ -72,7 +73,7 @@ export default function Order({ navigation }) {
             value={date}
             onChange={onChange}
             locale="th"
-            style={tw`flex-1 items-center text-lg bottom-70 right-18`}
+            style={[ styles.globalText ,tw`flex-1 items-center text-lg bottom-70 right-18`]}
             minimumDate={new Date()}
             maximumDate={new Date("2024-12-31")}
           />
@@ -327,7 +328,7 @@ export default function Order({ navigation }) {
       <View style={tw`flex items-center `}>
         <View style={tw`flex mt-2 `}>
           {/* Subtitle */}
-          <Text style={styles.subtitle}>
+          <Text style={[styles.globalText, tw`text-[grey]`]}>
             Where do you want to take the Slide Car
           </Text>
           <TouchableOpacity
@@ -336,7 +337,7 @@ export default function Order({ navigation }) {
           >
             <View style={tw`flex-row px-4`}>
               <MaterialIcons name="place" size={24} color="red" />
-              <Text>
+              <Text style={styles.globalText}>
                 ต้นทาง :{" "}
                 {confirmOrigin.length > 25
                   ? confirmOrigin.slice(0, 25) + "..."
@@ -345,7 +346,7 @@ export default function Order({ navigation }) {
             </View>
             <View style={tw`flex-row px-4`}>
               <MaterialIcons name="place" size={24} color="green" />
-              <Text>
+              <Text style={styles.globalText}>
                 ปลายทาง :{" "}
                 {confirmDestination.length > 25
                   ? confirmDestination.slice(0, 25) + "..."
@@ -354,28 +355,23 @@ export default function Order({ navigation }) {
             </View>
           </TouchableOpacity>
 
-          <View>
+          <View style={tw`flex items-center justify-center`}>
             <TouchableOpacity
               onPress={() =>
                 Platform.OS === "ios" ? setShowPicker(true) : setShowModal(true)
               }
-              style={tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-80 h-25`}
+              style={tw`flex items-center justify-center bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-80 h-25`}
             >
               <MaterialIcons name="date-range" size={30} color="red" />
-              <TextInput
-                style={tw`flex-col items-center justify-center bg-white rounded-lg border border-gray-300 w-79  border-transparent text-xl`}
-                placeholder="Booking"
-                value={
-                  formattedDate === ""
-                    ? "Select Date"
-                    : `${formattedDate} ${formattedTime}`
-                }
-                onPressIn={
-                  Platform.OS === "ios" ? toggleDatePicker : handleDateChange
-                }
-                editable={false}
-                underlineColor="transparent"
-              />
+              <Text
+                style={[styles.globalText , tw`flex text-center bg-white p-2 border-gray-300 w-79  text-lg`]}
+                // onPressIn={
+                //   Platform.OS === "ios" ? toggleDatePicker : handleDateChange
+                // }
+              >{formattedDate === ""
+                ? "เลือกวันเวลาที่ต้องการ"
+                : `${formattedDate} ${formattedTime}`}
+                </Text>
             </TouchableOpacity>
           </View>
           {Platform.OS === "ios" && showPicker && renderIOSDatePicker()}
@@ -397,7 +393,7 @@ export default function Order({ navigation }) {
                     color="black"
                     style={tw`mb-2`}
                   />
-                  <Text style={tw`text-xl`}>{category ? category : "Select Category"}</Text>
+                  <Text style={[styles.globalText ,tw`text-xl`]}>{category ? category : "Select Category"}</Text>
                 </TouchableOpacity>
               }
               style={tw`w-70 rounded items-center`}
@@ -418,13 +414,12 @@ export default function Order({ navigation }) {
               style={tw` justify-around bg-white rounded-lg border border-gray-300 shadow-md w-80 h-25`}
               onPress={handlePress}
             >
-              <TextInput
-                style={tw`flex-col items-center justify-center bg-white rounded-lg border border-gray-300 w-79  border-transparent text-xl`}
-                placeholder="More Details"
-                underlineColor="transparent"
-                value={moreDetail}
-                editable={false}
-              ></TextInput>
+              <Text
+                style={[ styles.globalText ,tw` bg-white text-center w-79 text-xl`]}
+                
+              >
+                {moreDetail ? moreDetail : "Enter more details..."}
+              </Text>
             </TouchableOpacity>
 
             <Modal
@@ -438,25 +433,25 @@ export default function Order({ navigation }) {
               >
                 <View style={tw`w-80 p-4 bg-white rounded-lg `}>
                   <TextInput
-                    style={tw`border p-2 mb-4 bg-white rounded-lg`}
+                    style={[styles.globalText ,tw`border p-2 mb-4 bg-white rounded-lg`]}
                     placeholder="Enter details about the request..."
                     mode="outlined"
-                    value={moreDetail}
-                    onChangeText={setMoreDetail}
+                    value={preMoreDetail}
+                    onChangeText={setPreMoreDetail}
                     underlineColor="transparent"
                     multiline={true}
                     textAlignVertical="top"
-                    maxLength={100}
+                    maxLength={255}
                   />
                   <View style={tw`flex-row justify-center gap-5`}>
                     <TouchableOpacity
                       title="Close"
                       onPress={() =>
-                        moreDetail ? setMoreDetail("") : setShowModal2(false)
+                        preMoreDetail ? setPreMoreDetail("") : setShowModal2(false)
                       }
                       style={tw`bg-red-500 rounded-lg px-4 py-2`}
                     >
-                      <Text>Close</Text>
+                      <Text>{preMoreDetail ? "Clear" : "Close"}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -477,7 +472,7 @@ export default function Order({ navigation }) {
                 style={tw`items-center justify-center mt-4 w-50 h-12 bg-[#60B876] rounded-full `}
                 onPress={handleSubmitRequest}
               >
-                <Text style={tw`text-white text-xl font-semibold `}>Confirm</Text>
+                <Text style={[styles.globalText , tw`text-white text-xl font-semibold `]}>Confirm</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -507,6 +502,10 @@ const styles = StyleSheet.create({
   datePicker: {
     height: 40,
     flex: 1,
+  },
+  globalText: {
+    fontFamily: "Mitr-Regular",
+  
   },
 
   optionText: { marginLeft: 10, fontSize: 16 },

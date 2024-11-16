@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Text, View, Pressable, Modal } from "react-native";
+import { Text, View, Pressable, Modal , StyleSheet} from "react-native";
 
 import * as Location from "expo-location";
 import tw from "twrnc"; // import twrnc
@@ -153,12 +153,12 @@ const MapPage = ({ navigation }) => {
         <View style={tw`flex-1 justify-center items-center`}>
           <View style={tw`bg-[#FDFFFD] w-4/5 h-1/3 flex rounded-lg p-3`}>
             <View style={tw`flex-1 justify-center`}>
-              <Text style={tw`font-bold text-lg`}>
+              <Text style={[styles.globalText , tw`font-bold text-lg`]}>
                 ยืนยันสถานที่ {confirmOrigin.length ? "ปลายทาง" : "ต้นทาง"}
               </Text>
             </View>
             <View style={tw`flex-1`}>
-              <Text>
+              <Text style={styles.globalText}>
                 {confirmOrigin.length
                   ? "สถานที่ปลายทาง : " + destinationAddress
                   : "สถานที่ต้นทาง :" + originAddress}
@@ -171,7 +171,7 @@ const MapPage = ({ navigation }) => {
                   setOpenModal(false);
                 }}
               >
-                <Text style={tw`text-lg font-bold text-[#FDFFFD]`}>Cancel</Text>
+                <Text style={[styles.globalText , tw`text-lg font-bold text-[#FDFFFD]`]}>Cancel</Text>
               </Pressable>
               <Pressable
                 style={tw`bg-[#60B876] p-3 rounded-lg`}
@@ -255,10 +255,10 @@ const MapPage = ({ navigation }) => {
         style={tw`flex-1 bg-[#FDFFFD] p-3 border border-[#FDFFFD] rounded-t-3xl`}
       >
         <View style={tw`flex-1 justify-around`}>
-          <Text style={tw`text-xl font-bold mb-1`}>
+          <Text style={[styles.globalText , tw`text-xl font-bold mb-1`]}>
             {confirmOrigin.length ? "Destination" : "Origin"}
           </Text>
-          <Text>
+          <Text style={styles.globalText}>
             {confirmOrigin.length ? destinationAddress : originAddress}
           </Text>
         </View>
@@ -269,7 +269,7 @@ const MapPage = ({ navigation }) => {
               setOpenModal(true);
             }}
           >
-            <Text style={tw`text-[#FDFFFD] text-xl font-bold`}>
+            <Text style={[styles.globalText ,tw`text-[#FDFFFD] text-xl font-bold`]}>
               Confirm {confirmOrigin.length ? "destination" : "origin"}
             </Text>
           </Pressable>
@@ -278,5 +278,11 @@ const MapPage = ({ navigation }) => {
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  globalText: {
+    fontFamily: 'Mitr-Regular', // กำหนดฟอนต์ที่คุณต้องการ
+  },
+});
 
 export default MapPage;

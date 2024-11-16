@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   SafeAreaView,
+  StyleSheet
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
@@ -64,10 +65,10 @@ export default function Mapdetail({ navigation }) {
 
   const route = useRoute();
   
-  const origin = route.params?.origin || "ไม่ระบุ";
-  const destination = route.params?.destination || "ไม่ระบุ";
-  const confirmOrigin = route.params?.confirmOrigin || "ไม่ระบุ";
-  const confirmDestination = route.params?.confirmDestination || "ไม่ระบุ";
+  const origin = route.params?.origin || <Text style={styles.globalText}>ไม่ระบุ</Text>;
+  const destination = route.params?.destination || <Text style={styles.globalText}>ไม่ระบุ</Text>;
+  const confirmOrigin = route.params?.confirmOrigin || <Text style={styles.globalText}>ไม่ระบุ</Text>;
+  const confirmDestination = route.params?.confirmDestination || <Text style={styles.globalText}>ไม่ระบุ</Text>;
 
   return (
 
@@ -95,9 +96,9 @@ export default function Mapdetail({ navigation }) {
             style={tw`ml-2`}
           />
           <TextInput
-            style={tw`flex-1 p-2 text-gray-700`}
+            style={[styles.globalText , tw`flex-1 p-2 text-gray-700`]}
             placeholder="Enter pickup location"
-            value={confirmOrigin.length ? confirmOrigin : "Enter Pickup Location"} 
+            value={confirmOrigin.length ? confirmOrigin : "สถานที่รับรถ"} 
          />
              
         </View>
@@ -111,9 +112,9 @@ export default function Mapdetail({ navigation }) {
             style={tw`ml-2`}
           />
           <TextInput
-            style={tw`flex-row p-2 text-gray-700`}
+            style={[styles.globalText , tw`flex-row p-2 text-gray-700`]}
             placeholder="Enter destination"
-            value={confirmDestination.length ? confirmDestination : "Enter Destination Location"}
+            value={confirmDestination.length ? confirmDestination : "สถานที่ปลายทาง"}
           />
         </View>
         <View >
@@ -125,8 +126,8 @@ export default function Mapdetail({ navigation }) {
           >
             <View style={tw`flex-row items-center`}>
               <MaterialIcons name="map" size={24} color="black" />
-              <Text style={tw`ml-3 text-gray-800 text-lg`}>
-                Choose from map
+              <Text style={[styles.globalText , tw`ml-3 text-gray-800 text-lg`]}>
+                เลือกสถานที่
               </Text>
             </View>
             <MaterialIcons name="chevron-right" size={24} color="gray" />
@@ -145,19 +146,19 @@ export default function Mapdetail({ navigation }) {
             style={tw`flex-row justify-between items-center py-2 border-b border-gray-200`}
             >
                 <View>
-                  <Text style={tw`font-semibold text-gray-800`}>
+                  <Text style={[styles.globalText ,tw`font-semibold text-gray-800`]}>
                     {item.title}
                   </Text>
-                  <Text style={tw`text-sm text-gray-500`}>{item.address}</Text>
+                  <Text style={[styles.globalText , tw`text-sm text-gray-500`]}>{item.address}</Text>
                 </View>
-                <Text style={tw`text-gray-700`}>{item.distance}</Text>
+                <Text style={[styles.globalText , tw`text-gray-700`]}>{item.distance}</Text>
               </TouchableOpacity>
             )}
             />
           </View>
         
         <TouchableOpacity 
-          style={tw`absolute bottom-4 self-center bg-white border-2 border-gray-300 p-4 rounded-full`}
+          style={tw`absolute bottom-4 self-center bg-white border-2 border-blue-500 p-4 rounded-full bg-blue-500`}
             onPress={() => {
               navigation.navigate("Order",{
                 origin,
@@ -167,8 +168,8 @@ export default function Mapdetail({ navigation }) {
               });
             }}
         >
-          <Text style={tw`text-lg font-bold text-blue-600`}>
-            Confirm
+          <Text style={[ styles.globalText, tw`text-lg font-bold text-white`]}>
+            ยืนยัน
           </Text>
         </TouchableOpacity>
         
@@ -188,5 +189,11 @@ export default function Mapdetail({ navigation }) {
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  globalText: {
+    fontFamily: 'Mitr-Regular', 
+  },
+});
 
 

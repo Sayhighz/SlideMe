@@ -1,8 +1,8 @@
 import React from "react";
-import { Text, View, TouchableOpacity, Image } from "react-native";
+import { Text, View, TouchableOpacity, Image , StyleSheet } from "react-native";
 import { Card } from "react-native-paper";
 import Swiper from "react-native-swiper"; // Import Swiper
-import tw from "twrnc";
+import tw, { style } from "twrnc";
 
 function Home({ navigation }) {
   // Sample ads data (URLs for images or placeholders)
@@ -25,8 +25,8 @@ function Home({ navigation }) {
               style={tw`flex-row bg-white rounded-lg w-80 h-40 items-center justify-center border`}
             >
               <View style={tw`items-center justify-center`}>
-                <Text style={tw`text-3xl font-bold`}>SLIDE ME</Text>
-                <Text style={tw`text-lg`}>Service</Text>
+                <Text style={[styles.globalText , tw`text-4xl font-bold`]}>SLIDE ME</Text>
+                <Text style={[styles.globalText ,tw`text-xl`]}>Service</Text>
               </View>
             </Card>
           </TouchableOpacity>
@@ -36,7 +36,7 @@ function Home({ navigation }) {
               <Card
                 style={tw`bg-white rounded-lg w-38 h-20 mt-4 flex items-center justify-center border`}
               >
-                <Text style={tw`text-lg font-bold`}>ตำแหน่ง 1</Text>
+                <Text style={[styles.globalText , tw`text-lg font-bold`]}>ตำแหน่ง 1</Text>
               </Card>
             </TouchableOpacity>
 
@@ -44,7 +44,7 @@ function Home({ navigation }) {
               <Card
                 style={tw`bg-white rounded-lg w-38 h-20 mt-4 flex items-center justify-center border`}
               >
-                <Text style={tw`text-lg font-bold`}>ตำแหน่ง 2</Text>
+                <Text style={[styles.globalText ,tw`text-lg font-bold`]}>ตำแหน่ง 2</Text>
               </Card>
             </TouchableOpacity>
           </View>
@@ -54,7 +54,7 @@ function Home({ navigation }) {
               style={tw`flex-row bg-white rounded-lg w-80 h-30  items-center justify-center border mt-5`}
             >
               <View style={tw`items-center justify-center`}>
-                <Text style={tw`text-2xl font-bold`}>Order Status</Text>
+                <Text style={[styles.globalText , tw`text-3xl font-bold`]}>Order Status</Text>
               </View>
             </Card>
           </TouchableOpacity>
@@ -83,5 +83,10 @@ function Home({ navigation }) {
     </>
   );
 }
+const styles = StyleSheet.create({
+  globalText: {
+    fontFamily: 'Mitr-Regular', // กำหนดฟอนต์ที่คุณต้องการ
+  },
+});
 
 export default Home;

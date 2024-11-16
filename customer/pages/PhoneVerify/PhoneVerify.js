@@ -1,6 +1,6 @@
 // PhoneVerify.js
 import React, { useState, useRef, useEffect } from 'react';
-import { Text, View, TouchableOpacity, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback, Alert } from 'react-native';
+import { Text, View, TouchableOpacity, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback, Alert , StyleSheet} from 'react-native';
 import tw from 'twrnc';
 import { useRoute, useNavigation } from '@react-navigation/native';
 
@@ -58,13 +58,13 @@ function PhoneVerify({ onLogin }) {
             <SafeAreaView style={tw`flex-1 bg-white`}>
                 <View style={tw`flex-1 justify-center items-center mt-5`}>
                     <View style={tw`p-4 items-center justify-center`}>
-                        <Text style={tw`text-6xl text-[#60B876] font-bold text-center`}>SLIDE</Text>
-                        <Text style={tw`text-8xl text-[#60B876] font-bold text-center leading-none z-10`}>ME</Text>
+                        <Text style={[ tw`text-6xl text-[#60B876] font-bold text-center`]}>SLIDE</Text>
+                        <Text style={[ tw`text-8xl text-[#60B876] font-bold text-center leading-none z-10`]}>ME</Text>
                     </View>
                 </View>
 
                 <View style={tw`flex-2 items-center p-5`}>
-                    <Text style={tw`mb-4 font-bold text-lg`}>กรอกรหัส OTP CODE</Text>
+                    <Text style={[styles.globalText ,tw`mb-4 font-bold text-lg`]}>กรอกรหัส OTP CODE</Text>
                     <View style={tw`flex-row justify-center mb-4`}>
                         {otp.map((code, index) => (
                             <TextInput
@@ -79,9 +79,9 @@ function PhoneVerify({ onLogin }) {
                         ))}
                     </View>
                     <View style={tw`flex-row justify-between w-full px-10`}>
-                        <Text style={tw`text-blue-500`} onPress={navigation.goBack}>แก้ไขเบอร์โทร ?</Text>
+                        <Text style={[styles.globalText , tw`text-blue-500`]} onPress={navigation.goBack}>แก้ไขเบอร์โทร ?</Text>
                         <Text
-                            style={tw`${cooldown > 0 ? 'text-gray-400' : 'text-blue-500'}`}
+                            style={[tw`${cooldown > 0 ? 'text-gray-400' : 'text-blue-500'}`, styles.globalText]}
                             onPress={handleResendClick}
                         >
                             {cooldown > 0 ? `ส่งรหัสอีกครั้งใน ${cooldown} วินาที` : "ส่งรหัสอีกครั้ง"}
@@ -92,12 +92,19 @@ function PhoneVerify({ onLogin }) {
                         onPress={handleLoginClick}
                         disabled={!isOtpComplete}
                     >
-                        <Text style={tw`text-white text-center font-bold`}>ยืนยัน</Text>
+                        <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>ยืนยัน</Text>
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
         </TouchableWithoutFeedback>
     );
 }
+
+const styles = StyleSheet.create({
+    globalText: {
+      fontFamily: 'Mitr-Regular', // กำหนดฟอนต์ที่คุณต้องการ
+      fontSize: 16,
+    },
+  });
 
 export default PhoneVerify;

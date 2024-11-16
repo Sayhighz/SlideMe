@@ -1,6 +1,6 @@
 // File path: /mnt/data/SignupPage.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, Keyboard, TouchableWithoutFeedback , StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import tw from 'twrnc';
 import { useNavigation } from '@react-navigation/native';
@@ -27,20 +27,20 @@ const SignupPage = ({ onLogin }) => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View style={tw`flex-1 w-full justify-start items-center`}>
                 <View style={tw`w-full p-4 items-center h-full`}>
-                    <Text style={tw`text-2xl font-bold text-white text-center mb-5`}>
+                    <Text style={[ styles.globalText,tw`text-2xl font-bold text-white text-center mb-5`]}>
                         ยินดีต้อนรับสู่ SLIDE ME!
                     </Text>
 
                     <View style={tw`w-full items-center justify-center p-4 border-white rounded-lg`}>
-                        <Text style={tw`text-white text-lg font-bold text-center mb-2`}>
+                        <Text style={[styles.globalText ,tw`text-white text-lg font-bold text-center mb-2`]}>
                             เข้าสู่ระบบด้วย โทรศัพท์
                         </Text>
 
                         {/* Phone Number Input with Country Code */}
                         <View style={tw`flex-row items-center w-full h-12 border border-gray-300 rounded-lg px-3 bg-white`}>
-                            <Text style={tw`text-lg`}>🇹🇭 +66</Text>
+                            <Text style={[styles.globalText ,tw`text-lg`]}>🇹🇭 +66</Text>
                             <TextInput
-                                style={tw`flex-1 ml-2 text-black`}
+                                style={[styles.globalText,tw`flex-1 ml-2 text-black`]}
                                 keyboardType="phone-pad"
                                 placeholder="กรอกเบอร์โทรศัพท์ 9 ตัว"
                                 placeholderTextColor="#999"
@@ -71,7 +71,7 @@ const SignupPage = ({ onLogin }) => {
                             style={tw`mt-4 w-full bg-green-700 rounded-lg py-2`}
                             onPress={handlePhoneLogin} onLogin={onLogin}
                         >
-                            <Text style={tw`text-white text-lg font-bold text-center`}>
+                            <Text style={[styles.globalText ,tw`text-white text-lg font-bold text-center`]}>
                                 รับรหัสยืนยัน
                             </Text>
                         </TouchableOpacity>
@@ -84,7 +84,7 @@ const SignupPage = ({ onLogin }) => {
                 >
                     <View style={tw`flex-row items-center w-full justify-center`}>
                         <Icon name="facebook" size={20} color="#fff" />
-                        <Text style={tw`text-white text-lg font-bold text-center ml-2`}>
+                        <Text style={[styles.globalText ,tw`text-white text-lg font-bold text-center ml-2`]}>
                             เข้าสู่ระบบด้วย Facebook
                         </Text>
                     </View>
@@ -96,5 +96,11 @@ const SignupPage = ({ onLogin }) => {
 </TouchableWithoutFeedback>
     );
 };
+const styles = StyleSheet.create({
+    globalText: {
+      fontFamily: 'Mitr-Regular', // กำหนดฟอนต์ที่คุณต้องการ
+      
+    },
+  });
 
 export default SignupPage;
