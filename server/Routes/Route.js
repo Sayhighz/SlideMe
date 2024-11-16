@@ -136,6 +136,31 @@ const values = [
       });
     });
 
+    router.post("/add_address", (req, res) => {
+      const sql = `
+      INSERT INTO addresses (
+        user_id,
+        address_name,
+        address_detail,
+        latitude,
+        longitude
+    ) VALUES (?, ?, ?, ?, ?)
+    `;
+
+    const values = [
+      req.body.user_id,
+      req.body.address_name,
+      req.body.address_detail,
+      req.body.latitude,
+      req.body.longitude
+    ];
+      
+        con.query(sql, values, (err, result) => {
+          if (err) return res.json({ Status: false, Error: err.message });
+          return res.json({ Status: true, InsertId: result.insertId });
+        });
+      });
+
 
 
 export { router as adminRouter };
