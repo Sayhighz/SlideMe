@@ -17,6 +17,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import axios from "axios";
 import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
 
+
 const ChooseOffer = ({ navigation }) => {
   const [offer, setOffer] = useState([]);
 
@@ -316,21 +317,21 @@ const ChooseOffer = ({ navigation }) => {
           <View style={tw`bg-gray-200 w-4/5 h-1/3 flex rounded-lg p-3`}>
             <View style={tw`flex-2`}>
               <View style={tw`flex-1 justify-between`}>
-                <Text style={tw`text-lg font-bold`}>ข้อมูลคนขับ : </Text>
-                <Text style={tw`text-lg font-bold`}>
+                <Text style={[styles.globalText , tw`text-lg font-bold`]}>ข้อมูลคนขับ : </Text>
+                <Text style={[styles.globalText , tw`text-lg font-bold`]}>
                   ชื่อ :{" "}
                   <Text style={tw`text-lg text-green-700`}>
                     {chooseDriver.name}
                   </Text>
                 </Text>
-                <Text style={tw`text-lg font-bold`}>
+                <Text style={[styles.globalText , tw`text-lg font-bold`]}>
                   ราคา :{" "}
                   <Text style={tw`text-lg text-red-700`}>
                     {chooseDriver.price}{" "}
                   </Text>
                   บาท
                 </Text>
-                <Text style={tw`text-lg font-bold`}>
+                <Text style={[styles.globalText , tw`text-lg font-bold`]}>
                   คะแนน :{" "}
                   <Text style={tw`text-lg text-green-700`}>
                     {chooseDriver.rating}
@@ -345,7 +346,7 @@ const ChooseOffer = ({ navigation }) => {
                   setOpenModal(false);
                 }}
               >
-                <Text style={tw`text-lg font-bold text-[#FDFFFD]`}>Cancel</Text>
+                <Text style={tw`text-lg font-bold text-[#FDFFFD]`}>ยกเลิก</Text>
               </Pressable>
               <Pressable
                 style={tw`bg-[#60B876] p-3 rounded-lg`}
@@ -360,7 +361,7 @@ const ChooseOffer = ({ navigation }) => {
                 }}
               >
                 <Text style={tw`text-lg font-bold text-[#FDFFFD]`}>
-                  Confirm
+                  ยืนยัน
                 </Text>
               </Pressable>
             </View>
@@ -466,12 +467,12 @@ const ChooseOffer = ({ navigation }) => {
                   }
                 }}
               >
-                <Text style={tw` font-bold flex-5`}>{item.name}</Text>
-                <Text style={tw` font-bold flex-3 text-center`}>
+                <Text style={[styles.globalText , tw` font-bold flex-5`]}>{item.name}</Text>
+                <Text style={[styles.globalText , tw` font-bold flex-3 text-center`]}>
                   <Text style={tw`text-red-700`}>{item.price}</Text> บาท
                 </Text>
                 <View style={tw`flex-3 justify-around items-center h-full`}>
-                  <Text style={tw`font-bold`}>
+                  <Text style={[styles.globalText ,tw`font-bold`]}>
                     <Text style={tw`text-red-700`}>
                       {(item.distance / 1000).toFixed(2)}{" "}
                     </Text> 
@@ -486,7 +487,7 @@ const ChooseOffer = ({ navigation }) => {
                 </View>
                 <View style={tw`flex-2 flex-row justify-center items-center`}>
                   <MaterialIcons name="star" size={24} color="yellow" />
-                  <Text style={tw` font-bold text-center`}>
+                  <Text style={[styles.globalText , tw` font-bold text-center`]}>
                     {item.rating}
                   </Text>
                 </View>
@@ -498,5 +499,11 @@ const ChooseOffer = ({ navigation }) => {
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  globalText: {
+    fontFamily: 'Mitr-Regular'
+  },
+});
 
 export default ChooseOffer;

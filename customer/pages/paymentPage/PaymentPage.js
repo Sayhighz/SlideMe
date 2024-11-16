@@ -1,4 +1,4 @@
-import { FlatList, SafeAreaView, ScrollView, Text, View } from "react-native";
+import { FlatList, SafeAreaView, ScrollView, Text, View , StyleSheet} from "react-native";
 import React, { useEffect, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
@@ -54,7 +54,7 @@ export default function PaymentPage({ navigation }) {
           <Pressable
             style={tw`w-1/3 bg-[#60B876] border-[#60B876] border-2 rounded-lg items-center h-full justify-center`}
           >
-            <Text>บัตรเครดิต/บัตรเดบิต</Text>
+            <Text style={styles.globalText}>บัตรเครดิต/บัตรเดบิต</Text>
           </Pressable>
           <Pressable
             style={tw`w-1/3 bg-gray-300 border-gray-300 border-2 rounded-lg items-center h-full justify-center`}
@@ -95,8 +95,8 @@ export default function PaymentPage({ navigation }) {
                 )}
               </View>
               <View style={tw`flex-5`}>
-                <Text style={tw`text-lg font-bold`}>{item.accountName}</Text>
-                <Text style={tw`text-sm mt-2`}>{item.accountNumber}</Text>
+                <Text style={[styles.globalText , tw`text-lg font-bold`]}>{item.accountName}</Text>
+                <Text style={[styles.globalText , tw`text-sm mt-2`]}>{item.accountNumber}</Text>
               </View>
             </Pressable>
           )}
@@ -115,7 +115,7 @@ export default function PaymentPage({ navigation }) {
             ]);
           }}
         >
-          <Text>เพิ่มช่องทางการชำระเงิน</Text>
+          <Text style={styles.globalText}>เพิ่มช่องทางการชำระเงิน</Text>
         </Pressable>
       </View>
       <View style={tw`flex-9 mx-4 mt-4`}>
@@ -123,10 +123,10 @@ export default function PaymentPage({ navigation }) {
         <View style={tw`flex-2 bg-gray-200 p-4 mt-4 rounded-lg`}>
           <View style={tw`flex-4 justify-between`}>
             <View style={tw`flex-row justify-between`}>
-              <Text style={tw`flex-1 text-lg font-bold`}>{driverName}</Text>
+              <Text style={[styles.globalText , tw`flex-1 text-lg font-bold`]}>{driverName}</Text>
               <View style={tw`flex-1 flex-row justify-end items-center`}>
                 <MaterialIcons name="star" size={24} color="yellow" />
-                <Text style={tw` font-bold text-center`}>
+                <Text style={[styles.globalText , tw` font-bold text-center`]}>
                   {driverRating}
                 </Text>
               </View>
@@ -136,18 +136,18 @@ export default function PaymentPage({ navigation }) {
               <Text><Text style={tw`font-bold text-[#E33F3F]`}>{driverPrice}</Text> THB</Text>
             </View>
             <View style={tw`flex-row justify-between`}>
-              <Text>FEE</Text>
-              <Text><Text style={tw`font-bold text-[#E33F3F]`}>{feePrice}</Text> THB</Text>
+              <Text style={styles.globalText}>FEE</Text>
+              <Text style={styles.globalText}><Text style={tw`font-bold text-[#E33F3F]`}>{feePrice}</Text> THB</Text>
             </View>
             <View style={tw`flex-row justify-between`}>
-              <Text>DISCOUNT</Text>
-              <Text><Text style={tw`font-bold text-[#60B876]`}>XXX.XX</Text> THB</Text>
+              <Text style={styles.globalText}>DISCOUNT</Text>
+              <Text style={styles.globalText}><Text style={tw`font-bold text-[#60B876]`}>XXX.XX</Text> THB</Text>
             </View>
           </View>
           <View style={tw`flex-2 justify-center`}>
             <View style={tw`flex-row justify-between`}>
-              <Text style={tw`text-xl font-bold`}>TOTAL</Text>
-              <Text style={tw`text-xl font-bold`}><Text style={tw`font-bold text-[#E33F3F]`}>XXX.XX</Text> THB</Text>
+              <Text style={[styles.globalText , tw`text-xl font-bold`]}>TOTAL</Text>
+              <Text style={[styles.globalText , tw`text-xl font-bold`]}><Text style={tw`font-bold text-[#E33F3F]`}>XXX.XX</Text> THB</Text>
             </View>
           </View>
         </View>
@@ -168,3 +168,10 @@ export default function PaymentPage({ navigation }) {
     </SafeAreaView>
   );
 }
+
+
+const styles = StyleSheet.create({
+  globalText: {
+    fontFamily: 'Mitr-Regular'
+  },
+});

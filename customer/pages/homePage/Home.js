@@ -85,7 +85,7 @@ function Home({ navigation }) {
 }
 const styles = StyleSheet.create({
   globalText: {
-    fontFamily: 'Mitr-Regular', // กำหนดฟอนต์ที่คุณต้องการ
+    fontFamily: 'Mitr-Regular'
   },
 });
 

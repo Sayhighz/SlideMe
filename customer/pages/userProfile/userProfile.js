@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity , StyleSheet } from 'react-native'
 import tw from 'twrnc'
 import { Ionicons } from '@expo/vector-icons'
 
@@ -14,7 +14,7 @@ const UserProfile = ({ navigation }) => {
       >
         <Ionicons name='camera' size={30} color='gray' />
       </TouchableOpacity>
-      <Text style={tw`text-center text-gray-500 font-bold mb-8`}>
+      <Text style={[styles.globalText , tw`text-center text-gray-500 font-bold mb-8`]}>
         แก้ไขโปรไฟล์
       </Text>
 
@@ -22,7 +22,7 @@ const UserProfile = ({ navigation }) => {
         style={tw`bg-green-500 py-3 px-6 rounded-lg mb-3 w-50`}
         onPress={() => navigation.navigate('editProfile')}
       >
-        <Text style={tw`text-white text-center font-bold`}>
+        <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>
           แก้ไขข้อมูลผู้ใช้
         </Text>
       </TouchableOpacity>
@@ -31,14 +31,14 @@ const UserProfile = ({ navigation }) => {
         style={tw`bg-green-500 py-3 px-6 rounded-lg mb-3 w-50`}
         onPress={() => navigation.navigate('addressPage')}
       >
-        <Text style={tw`text-white text-center font-bold`}>ข้อมูลที่อยู่</Text>
+        <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>ข้อมูลที่อยู่</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={tw`bg-green-500 py-3 px-6 rounded-lg mb-3 w-50`}
         onPress={() => navigation.navigate('PaymentMethodsStack')}
       >
-        <Text style={tw`text-white text-center font-bold`}>
+        <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>
           ช่องทางการชำระเงิน
         </Text>
       </TouchableOpacity>
@@ -47,7 +47,7 @@ const UserProfile = ({ navigation }) => {
         style={tw`bg-green-500 py-3 px-6 rounded-lg mb-30 w-50`}
         onPress={() => navigation.navigate('HistoryPage')}
       >
-        <Text style={tw`text-white text-center font-bold`}>
+        <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>
           ประวัติการใช้บริการ
         </Text>
       </TouchableOpacity>
@@ -56,10 +56,16 @@ const UserProfile = ({ navigation }) => {
         style={tw`bg-red-500 py-3 px-6 rounded-lg w-50`}
         onPress={() => navigation.navigate('HistoryPage')}
       >
-        <Text style={tw`text-white text-center font-bold`}>ลงชื่อออก</Text>
+        <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>ลงชื่อออก</Text>
       </TouchableOpacity>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  globalText: {
+    fontFamily: 'Mitr-Regular'
+  },
+});
 
 export default UserProfile
