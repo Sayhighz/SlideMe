@@ -34,7 +34,7 @@ function HomeStackNavigator() {
 export default function App() {
   return (
     <NavigationContainer>
-      <NotificationRequest />
+      {/* <NotificationRequest /> */}
       <Tab.Navigator
         screenOptions={({ route }) => ({
           headerShown: false,
