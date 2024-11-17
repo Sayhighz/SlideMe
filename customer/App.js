@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { ActivityIndicator , View } from 'react-native';
 import { useFonts } from 'expo-font';
-import CustomText from './customText';
+
 
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
