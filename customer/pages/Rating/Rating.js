@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Alert, TouchableOpacity , StyleSheet } from 'react-native';
 import StarRating from 'react-native-star-rating-widget';
+import { IP_ADDRESS } from "../../config";
 
 
 import tw from 'twrnc';
@@ -48,7 +49,7 @@ const Rating = ({ navigation }) => {
     };
 
     try {
-      const response = await fetch('http://192.168.1.104:3000/auth/add_reviews', {
+      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/add_reviews`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, Alert, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import tw from 'twrnc';
+import { IP_ADDRESS } from "../../config";
 
 const EditPaymentMethodModal = ({
   visible,
@@ -43,7 +44,7 @@ const EditPaymentMethodModal = ({
     };
 
     try {
-      const response = await fetch('http://192.168.1.106:3000/auth/update_payment_method', {
+      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/update_payment_method`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

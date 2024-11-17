@@ -3,6 +3,7 @@ import { View, Text, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import tw from 'twrnc';
+import { IP_ADDRESS } from "../../config";
 
 const AddPaymentMethod = ({ route }) => {
   const navigation = useNavigation();
@@ -36,7 +37,7 @@ const AddPaymentMethod = ({ route }) => {
     };
 
     try {
-      const response = await fetch('http://192.168.1.106:3000/auth/add_payment_method', {
+      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/add_payment_method`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

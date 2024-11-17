@@ -3,6 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react
 import tw from 'twrnc';
 import EditPaymentMethodModal from './EditPaymentMethodModal';
 import { useIsFocused } from '@react-navigation/native';
+import { IP_ADDRESS } from "../../config";
 
 const PaymentMethodsListScreen = ({ navigation }) => {
   const [paymentMethods, setPaymentMethods] = useState([]);
@@ -31,11 +32,10 @@ const PaymentMethodsListScreen = ({ navigation }) => {
     return typeMap[type] || type;
   };
 
-  // Function to fetch payment methods
   const fetchPaymentMethods = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://192.168.1.106:3000/auth/getAllUserPaymentMethods?user_id=2');
+      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/getAllUserPaymentMethods?user_id=2`);
       if (!response.ok) {
         throw new Error('Failed to fetch payment methods');
       }
@@ -52,7 +52,6 @@ const PaymentMethodsListScreen = ({ navigation }) => {
     }
   };
 
-  // Fetch payment methods when the screen is focused
   useEffect(() => {
     if (isFocused) {
       fetchPaymentMethods();

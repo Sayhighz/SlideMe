@@ -18,6 +18,7 @@ import { useRoute } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { TextInput, Menu, Provider } from "react-native-paper";
 import { Provider as PaperProvider } from "react-native-paper";
+import { IP_ADDRESS } from "../../config";
 
 
 dayjs.locale("th");
@@ -290,7 +291,7 @@ export default function Order({ navigation }) {
     ];
   
     try {
-      const response = await fetch("http://192.168.1.104:3000/auth/add_request", {
+      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/add_request`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
