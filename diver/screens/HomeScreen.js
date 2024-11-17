@@ -47,18 +47,19 @@ export default function HomeScreen() {
         </View>
 
         {/* Offer List Section with Vertical Scrolling */}
-        <View style={tw`w-full bg-white mt-4 rounded-lg p-4 border border-gray-200 h-64`}>
+        {/* <View style={tw`w-full bg-white mt-4 rounded-lg p-4 border border-gray-200 h-64`}>
           <Text style={tw`text-gray-600 text-xl mb-2`}>รายการเสนอราคา</Text>
-          <ScrollView>
+          
             <FlatList
             data={mockData}
             keyExtractor={(item) => item.id}
             renderItem={({item}) => ( 
-            
-            <Text>{item.source}</Text>)}
-            
-            // {mockData.map((item) => (
-            //   <View key={item.id} style={tw`flex-row justify-between p-2 bg-gray-100 rounded-lg mb-2`}>
+            <View>
+            <Text>{item.source}</Text>
+            </View>
+            )} */}
+            {/* // {mockData.map((item) => ( */}
+            {/* //   <View key={item.id} style={tw`flex-row justify-between p-2 bg-gray-100 rounded-lg mb-2`}>
             //     <View style={tw`flex-1`}>
             //       <Text>{item.source}</Text>
             //       <Text>{item.destination}</Text>
@@ -74,9 +75,9 @@ export default function HomeScreen() {
                 
             //   </View>
             // ))}
-            />
-          </ScrollView>
-        </View>
+        //     /> */}
+{/*           
+        // </View> */}
 
         {/* Notice/Swiper Section */}
         <View style={tw`w-full h-40 bg-gray-200 mt-4 mb-20 rounded-lg`}>
