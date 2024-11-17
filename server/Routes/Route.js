@@ -89,6 +89,7 @@ const values = [
     });
   });
 
+  
 
   router.get("/getAllUserPaymentMethods", (req, res) => {
     const userId = req.query.user_id || 1;
@@ -293,6 +294,41 @@ const values = [
             });
           });
         });
+
+        router.post("/add_user_info", (req, res) => {
+          const { phone_number, email, username, first_name, last_name } = req.body;
+      
+          // Validate required fields
+          if (!phone_number) {
+              return res.json({ Status: false, Error: "Phone number is required" });
+          }
+      
+          const sql = `
+          INSERT INTO users (
+              phone_number,
+              email,
+              username,
+              first_name,
+              last_name,
+              role,
+              created_at
+          ) VALUES (?, ?, ?, ?, ?, 'customer', NOW())
+          `;
+      
+          const values = [
+              phone_number,
+              email || null,
+              username || null,
+              first_name || null,
+              last_name || null
+          ];
+      
+          con.query(sql, values, (err, result) => {
+              if (err) return res.json({ Status: false, Error: err.message });
+              return res.json({ Status: true, InsertId: result.insertId });
+          });
+      });
+      
         
 
 
