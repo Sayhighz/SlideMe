@@ -5,6 +5,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from 'twrnc';
+import {useFonts } from 'expo-font';
+import AppLoading from 'expo-app-loading';
 
 // นำเข้าหน้าแต่ละหน้า
 import HomeScreen from './screens/HomeScreen';
@@ -32,6 +34,16 @@ function HomeStackNavigator() {
 }
 
 export default function App() {
+
+  const [fontsLoaded] = useFonts({
+    'Mitr-Regular': require('./assets/fonts/Mitr-Regular.ttf'), // Adjust path as needed
+  });
+
+  // Show loading screen until fonts are loaded
+  if (!fontsLoaded) {
+    return <AppLoading />;
+  }
+  
   return (
     <NavigationContainer>
       {/* <NotificationRequest /> */}
