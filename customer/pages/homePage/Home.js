@@ -58,7 +58,7 @@ function Home({ navigation }) {
         <TouchableOpacity style={{ marginTop: 20 }}>
           <Card
             style={[
-              tw`flex-row rounded-lg items-center justify-center border `, ,
+              tw`flex-row rounded-lg items-center justify-center border bg-white`, ,
               { width: responsiveWidth, height: height * 0.17 } // 10% of screen height
             ]}
           >
