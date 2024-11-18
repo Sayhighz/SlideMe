@@ -9,6 +9,10 @@ const SignupPage = ({ onLogin }) => {
     const navigation = useNavigation();
     const [phoneNumber, setPhoneNumber] = useState('');
 
+    const skipLogin = () => {
+        onLogin();
+    };
+
 // Updated handlePhoneLogin function in SignupPage.js
 const handlePhoneLogin = async () => {
     if (phoneNumber.length === 9) {
@@ -109,6 +113,7 @@ const handlePhoneLogin = async () => {
             <View style={tw`w-full flex-1`}>
                 <TouchableOpacity
                     style={tw`w-full items-center justify-center bg-blue-700 rounded-lg px-5 py-3 mb-5`}
+                    onPress={skipLogin}
                 >
                     <View style={tw`flex-row items-center w-full justify-center`}>
                         <Icon name="facebook" size={20} color="#fff" />
