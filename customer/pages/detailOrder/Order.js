@@ -471,7 +471,8 @@ export default function Order({ navigation }) {
             <View style={tw`absolute top-27 right-15 `}>
               <TouchableOpacity
                 style={tw`items-center justify-center mt-4 w-50 h-12 bg-[#60B876] rounded-full `}
-                onPress={handleSubmitRequest}
+                // onPress={handleSubmitRequest}
+                onPress={()=>{navigation.navigate("ChooseOffer")}}
               >
                 <Text style={[styles.globalText , tw`text-white text-xl font-semibold `]}>Confirm</Text>
               </TouchableOpacity>

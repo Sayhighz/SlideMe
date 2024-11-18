@@ -368,7 +368,7 @@ const ChooseOffer = ({ navigation }) => {
         </View>
       </Modal>
 
-      {/* <View style={tw`flex-1`}>
+      <View style={tw`flex-1`}>
         <MapView
           style={tw`flex-1`} // ปรับขนาดตามที่ต้องการ
           initialRegion={{
@@ -415,12 +415,11 @@ const ChooseOffer = ({ navigation }) => {
           <Circle
             center={originLocation}
             radius={radiusInMeters}
-            fillColor="rgba(255, 0, 0, 0.2)"
-            strokeWidth={2}
-            strokeColor="blue"
+            fillColor="rgba(255, 0, 0, 0.1)"
+            strokeColor="transparent"
           />
         </MapView>
-      </View> */}
+      </View>
       <View style={tw`flex-1 p-4`}>
         <View style={tw`flex-1 flex-row`}>
           <View style={tw`flex-1 justify-center`}>

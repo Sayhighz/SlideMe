@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import tw from 'twrnc';
 import { useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { IP_ADDRESS } from '../../config';
 
 const InfoCustomer = ({ onLogin }) => {
     const route = useRoute();
@@ -20,7 +21,7 @@ const InfoCustomer = ({ onLogin }) => {
             Alert.alert("ข้อมูลไม่ครบ", "กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน");
         } else {
             try {
-                const response = await fetch('http://192.168.1.130:3000/auth/add_user_info', {
+                const response = await fetch(`http://${IP_ADDRESS}:3000/auth/add_user_info`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

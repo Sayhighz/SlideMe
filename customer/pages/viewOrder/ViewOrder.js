@@ -82,7 +82,8 @@ export default function ViewOrder({ navigation }) {
             longitudeDelta: 0.0421,
           };
 
-          setMyLocation(location.coords);
+          setMyLocation(newRegion);
+          console.log(myLocation)
 
         }
       );
