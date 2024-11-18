@@ -20,7 +20,7 @@ export default function JobDetailScreen({ route, navigation }) {
 
   const handleOfferSubmit = async () => {
     if (!offeredPrice) {
-      Alert.alert("Error", "Please enter an offer price.");
+      Alert.alert("Error", "โปรดกรอกราคาที่ต้องการ");
       return;
     }
 
@@ -86,12 +86,16 @@ export default function JobDetailScreen({ route, navigation }) {
         {/* Job Information */}
         <View style={tw`p-4 bg-gray-100 mt-4 rounded-lg`}>
           <View style={tw`mb-2`}>
-            <Icon name="map-marker" size={20} color="gray" />
-            <Text style={tw`text-gray-800`}>{origin}</Text>
+            <Text style={tw`text-gray-800`}>
+              <Icon name="map-marker" size={20} color="gray" />
+              {origin}
+            </Text>
           </View>
           <View style={tw`mt-4`}>
-            <Icon name="map-marker" size={20} color="gray" />
-            <Text style={tw`text-gray-800`}>{destination}</Text>
+            <Text style={tw`text-gray-800`}>
+              <Icon name="map-marker" size={20} color="gray" />
+              {destination}
+            </Text>
           </View>
           <Text style={tw`text-gray-800`}>ข้อความลูกค้า: {message}</Text>
         </View>

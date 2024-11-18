@@ -376,6 +376,58 @@ const values = [
           });
         });
       });
+
+      router.get("/getOffersFromDriver", (req, res) => {
+        const driver_id = req.query.driver_id || 0;
+      
+        const sql = `
+          SELECT
+            s.request_id,
+            d.offer_id,
+            s.location_from,
+            s.location_to,
+            s.vehicle_type,
+            d.offered_price,
+            d.offer_status
+          FROM
+            driveroffers d
+          LEFT JOIN servicerequests s
+          ON
+            d.request_id = s.request_id
+          WHERE
+            d.driver_id = ? and d.offer_status != 'rejected';
+        `;
+      
+        con.query(sql, [driver_id], (err, result) => {
+          if (err) return res.json({ Status: false, Error: err.message });
+          return res.json({ Status: true, Result: result });
+        });
+      });
+
+
+      router.post("/cancle_offer", (req, res) => {
+        const sql = `
+          update
+            driveroffers
+          set
+            offer_status = 'rejected'
+          where
+            offer_id = ?
+        `;
+      
+        const values = [
+          req.body.offer_id
+        ];
+        
+        con.query(sql, values, (err, result) => {
+          if (err) return res.json({ Status: false, Error: err.message });
+          return res.json({ 
+            Status: true, 
+            AffectedRows: result.affectedRows 
+          });
+        });
+      });
+      
       
         
 
