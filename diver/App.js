@@ -1,5 +1,5 @@
 // App.js
-import React from 'react';
+import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -8,7 +8,7 @@ import tw from 'twrnc';
 import {useFonts } from 'expo-font';
 import { ActivityIndicator , View } from 'react-native';
 
-// นำเข้าหน้าแต่ละหน้า
+// Import screens
 import HomeScreen from './screens/HomeScreen';
 import HistoryScreen from './screens/History/HistoryScreen';
 import ProfileScreen from './screens/ProfileScreen';
@@ -19,11 +19,12 @@ import JobWorking_Dropoff_Screen from './screens/JobWorking_Dropoff_Screen';
 import NotificationRequest from './screens/NotificationRequest';
 import CarUploadPickUpConfirmation from './screens/Job/CarUploadPickUpConfirmation';
 import CarUploadDropOffConfirmation from './screens/Job/CarUploadDropOffConfirmation';
+import HomeLogin from './screens/LoginDriver/HomeLogin';
+import FirstRegister from './screens/LoginDriver/FirstRegister';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// สร้าง HomeStackNavigator สำหรับหน้า Home และ Jobs
 function HomeStackNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -38,13 +39,24 @@ function HomeStackNavigator() {
   );
 }
 
+function AuthNavigator({ handleLogin }) {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="HomeLogin">
+        {(props) => <HomeLogin {...props} onLogin={handleLogin} />}
+      </Stack.Screen>
+      <Stack.Screen name="FirstRegister" component={FirstRegister} />
+    </Stack.Navigator>
+  );
+}
+
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [fontsLoaded] = useFonts({
-    'Mitr-Regular': require('./assets/fonts/Mitr-Regular.ttf'), // Adjust path as needed
+    'Mitr-Regular': require('./assets/fonts/Mitr-Regular.ttf'),
   });
 
-  // Show loading screen until fonts are loaded
   if (!fontsLoaded) {
     return (
       <View>
@@ -52,10 +64,21 @@ export default function App() {
       </View>
     );
   }
-  
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <NavigationContainer>
+        <AuthNavigator handleLogin={handleLogin} />
+      </NavigationContainer>
+    );
+  }
+
   return (
     <NavigationContainer>
-      {/* <NotificationRequest /> */}
       <Tab.Navigator
         screenOptions={({ route }) => ({
           headerShown: false,
@@ -75,10 +98,10 @@ export default function App() {
           tabBarInactiveTintColor: 'gray',
         })}
       >
-        <Tab.Screen 
-          name="HomeTab" 
-          component={HomeStackNavigator} 
-          options={{ title: 'หน้าหลัก' }} 
+        <Tab.Screen
+          name="HomeTab"
+          component={HomeStackNavigator}
+          options={{ title: 'หน้าหลัก' }}
         />
         <Tab.Screen name="History" component={HistoryScreen} options={{ title: 'ประวัติการทำงาน' }} />
         <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'โปรไฟล์' }} />
