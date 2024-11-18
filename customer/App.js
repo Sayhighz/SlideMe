@@ -92,7 +92,9 @@ function AuthStack({ onLogin }) {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Login" component={Loginpage} options={{ headerShown: false }} />
-      <Stack.Screen name="PhoneVerify" component={PhoneVerify} options={{ headerShown: false }} />
+      <Stack.Screen name="PhoneVerify" options={{ headerShown: false }} >
+      {() => <PhoneVerify onLogin={onLogin} />}
+      </Stack.Screen>
       <Stack.Screen name="InfoCustomer" options={{ headerShown: false }}>
         {() => <InfoCustomer onLogin={onLogin} />}
       </Stack.Screen>

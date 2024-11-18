@@ -329,6 +329,24 @@ const values = [
           });
       });
 
+      // Add this endpoint to your server-side (e.g., in Route.js)
+router.post("/check_user_phone", (req, res) => {
+  const { phone_number } = req.body;
+  const sql = `SELECT * FROM users WHERE phone_number = ?`;
+  con.query(sql, [phone_number], (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    if (result.length > 0) {
+      // Phone number exists
+      return res.json({ Status: true, Exists: true, Message: "Phone number exists" });
+    } else {
+      // Phone number does not exist
+      return res.json({ Status: true, Exists: false, Message: "Phone number does not exist" });
+    }
+  });
+});
+
+    
+
       router.get("/getRequests", (req, res) => {
         const sql = `
           select

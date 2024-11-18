@@ -1,6 +1,6 @@
 // LoginPage.js
 import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Animated, Dimensions , StyleSheet} from 'react-native';
+import { View, Text, TouchableOpacity, Animated, Dimensions, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import SignupPage from '../SignupPage/SignupPage';
 import tw from 'twrnc';
@@ -32,7 +32,7 @@ function LoginPage({ onLogin }) {
     return (
         <SafeAreaView style={tw`flex-1 bg-white relative`} edges={['top']}>
             <View style={tw`flex-1 justify-center items-center`}>
-                <View style={[tw`rounded-lg items-center w-full h-full` ]}>
+                <View style={[tw`rounded-lg items-center w-full h-full`]}>
                     {!showSignupContent && (
                         <TouchableOpacity
                             style={tw`absolute top-4 left-4 p-2 z-10`}
@@ -51,10 +51,18 @@ function LoginPage({ onLogin }) {
 
                     <Animated.View
                         style={[
-                            tw`border-2 border-[#60B876] rounded-3xl w-full flex-8 justify-start bg-[#60B876] items-center shadow-md shadow-black`,
-                            { opacity: fadeAnim, height: screenWidth < 400 ? '80%' : '80%' }
-                        ]} 
+                            tw`border-2 border-[#60B876] w-full flex-8 justify-start bg-[#60B876] items-center shadow-md shadow-black`,
+                            {
+                                opacity: fadeAnim,
+                                height: screenWidth < 400 ? '80%' : '80%',
+                                borderTopLeftRadius: 30, // Adjust the value as per your requirement
+                                borderTopRightRadius: 30,
+                                borderBottomLeftRadius: 0, // Ensure bottom corners are not rounded
+                                borderBottomRightRadius: 0
+                            }
+                        ]}
                     >
+
                         {showSignupContent ? (
                             <View style={tw`flex justify-center items-center mt-5 w-full `}>
                                 <Text style={[styles.globalText, tw`text-xl font-bold text-white text-center `]}>
@@ -63,10 +71,10 @@ function LoginPage({ onLogin }) {
                                 <TouchableOpacity
                                     style={tw`w-[50%] bg-transparent border-2 border-white py-3 rounded-lg mt-50`}
                                     onPress={handleNext}
-                                    // accessible={true}
-                                    // accessibilityLabel="Start Using"
+                                // accessible={true}
+                                // accessibilityLabel="Start Using"
                                 >
-                                    <Text style={[styles.globalText ,tw`font-bold text-white text-lg text-center`]}>เริ่มต้นใช้งาน</Text>
+                                    <Text style={[styles.globalText, tw`font-bold text-white text-lg text-center`]}>เริ่มต้นใช้งาน</Text>
                                 </TouchableOpacity>
 
                                 <Text style={[styles.globalText, tw`mt-2 text-xs font-bold text-white`]}>
@@ -87,8 +95,8 @@ function LoginPage({ onLogin }) {
 const styles = StyleSheet.create({
 
     globalText: {
-      fontFamily: 'Mitr-Regular', // กำหนดฟอนต์ที่คุณต้องการ
+        fontFamily: 'Mitr-Regular', // กำหนดฟอนต์ที่คุณต้องการ
     },
-  });
+});
 
 export default LoginPage;

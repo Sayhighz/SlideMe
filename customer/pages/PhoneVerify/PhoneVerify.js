@@ -34,14 +34,18 @@ function PhoneVerify({ onLogin }) {
     const handleLoginClick = () => {
         const enteredOtp = otp.join('');
         if (enteredOtp === generatedOtp.toString()) {
-            // ส่ง phoneNumber ไปยัง InfoCustomer screen
-            navigation.navigate('InfoCustomer', { phoneNumber });
+            // ถ้าเบอร์มีอยู่แล้วในระบบ ให้เรียกฟังก์ชัน onLogin() หรือเข้าสู่ระบบโดยตรง
+            if (route.params?.isExistingUser) {
+                onLogin(); // หรือเรียกฟังก์ชันสำหรับเข้าสู่ระบบ
+            } else {
+                // ถ้าเบอร์ไม่มีในระบบ ให้ไปยังหน้า InfoCustomer เพื่อกรอกข้อมูลเพิ่มเติม
+                navigation.navigate('InfoCustomer', { phoneNumber });
+            }
         } else {
             Alert.alert("OTP ไม่ถูกต้อง", "กรุณาตรวจสอบ OTP อีกครั้ง");
         }
     };
     
-
     const handleResendClick = () => {
         if (cooldown === 0) {
             const newOtp = Math.floor(1000 + Math.random() * 9000);
