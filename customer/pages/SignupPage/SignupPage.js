@@ -4,6 +4,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert, Keyboard, TouchableWith
 import Icon from 'react-native-vector-icons/FontAwesome';
 import tw from 'twrnc';
 import { useNavigation } from '@react-navigation/native';
+import { IP_ADDRESS } from '../../config';
 
 const SignupPage = ({ onLogin }) => {
     const navigation = useNavigation();
@@ -18,7 +19,7 @@ const handlePhoneLogin = async () => {
     if (phoneNumber.length === 9) {
         const formattedPhoneNumber = `0${phoneNumber}`;
         try {
-            const response = await fetch("http://192.168.1.123:3000/auth/check_user_phone", {
+            const response = await fetch(`http://${IP_ADDRESS}:3000/auth/check_user_phone`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
