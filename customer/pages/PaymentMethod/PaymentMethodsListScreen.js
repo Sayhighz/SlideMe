@@ -90,7 +90,7 @@ const PaymentMethodsListScreen = ({ navigation }) => {
   if (loading) {
     return (
       <View style={tw`flex-1 justify-center items-center`}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator  color="#0000ff" />
       </View>
     );
   }

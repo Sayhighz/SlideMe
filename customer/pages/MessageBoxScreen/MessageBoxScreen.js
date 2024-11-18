@@ -86,7 +86,7 @@ const MessageBoxScreen = () => {
 
       <View style={tw`p-5`}>
         {loading ? (
-          <ActivityIndicator size="large" color="#3b82f6" />
+          <ActivityIndicator color="#3b82f6" />
         ) : (
           <FlatList
             data={filteredMessages}

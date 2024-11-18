@@ -27,41 +27,53 @@ function Map({
     longitude: 100.58551678180032,
   }
 
-  useEffect(() => {
-    _getLocation();
-  }, []);
+  const locationWatcher = useRef(null);
 
-  const _getLocation = async () => {
-    try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        console.warn("Permission to access location was denied");
-        return;
+const _getLocation = async () => {
+  try {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      console.warn("Permission to access location was denied");
+      return;
+    }
+
+    // เฝ้าดูตำแหน่งของผู้ใช้แบบเรียลไทม์และเก็บ watcher ไว้ใน ref
+    locationWatcher.current = await Location.watchPositionAsync(
+      {
+        accuracy: Location.Accuracy.High,
+        timeInterval: 1000, // ตรวจสอบตำแหน่งใหม่ทุก 1 วินาที
+        distanceInterval: 1, // อัปเดตเมื่อมีการเคลื่อนที่อย่างน้อย 1 เมตร
+      },
+      (location) => {
+        const { latitude, longitude } = location.coords;
+        const newRegion = {
+          latitude,
+          longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        };
+
+        setOrigin(location.coords);
+        setRegion(newRegion);
+        console.log(newRegion);
       }
+    );
+  } catch (error) {
+    console.warn("Error fetching location", error);
+  }
+};
 
-      // เฝ้าดูตำแหน่งของผู้ใช้แบบเรียลไทม์
-      await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.High,
-          timeInterval: 600000, // Update every 10 minutes
-        },
-        (location) => {
-          const { latitude, longitude } = location.coords;
-          const newRegion = {
-            latitude,
-            longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          };
+// ยกเลิกการติดตามตำแหน่งเมื่อ component ถูก unmounted
+useEffect(() => {
+  _getLocation();
 
-          setOrigin(location.coords);
-          setRegion(newRegion); 
-        }
-      );
-    } catch (error) {
-      console.warn("Error fetching location", error);
+  return () => {
+    if (locationWatcher.current) {
+      locationWatcher.current.remove(); // ยกเลิกการติดตามเมื่อ component ถูก unmounted
     }
   };
+}, []);
+
 
   return (
     <SafeAreaView style={tw`flex-1 relative`}>
@@ -70,6 +82,12 @@ function Map({
           style={tw`w-full h-full`}
           region={region}
           onRegionChangeComplete={setRegion}
+          // initialRegion={{
+          //   latitude: 13.7563, // ตัวอย่างค่า latitude ของกรุงเทพฯ
+          //   longitude: 100.5018, // ตัวอย่างค่า longitude ของกรุงเทพฯ
+          //   latitudeDelta: 0.0922,
+          //   longitudeDelta: 0.0421,
+          // }}
           onPress={(e) => {
             const { latitude, longitude } = e.nativeEvent.coordinate;
             {confirmOrigin.length ? 

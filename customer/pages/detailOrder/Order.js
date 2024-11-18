@@ -87,7 +87,7 @@ export default function Order({ navigation }) {
                   tw` border border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-full shadow-sm hover:bg-blue-50 active:bg-blue-100 focus:outline-none focus:ring focus:ring-blue-300 `,
                 ]}
               >
-                <Text style={tw`text-blue-500 text-lg font-medium text-center`}>
+                <Text style={tw`text-blue-500 text-lg  text-center`}>
                   Cancel
                 </Text>
               </TouchableOpacity>

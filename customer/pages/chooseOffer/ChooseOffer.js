@@ -350,7 +350,6 @@ const ChooseOffer = ({ navigation }) => {
               <Pressable
                 style={tw`bg-[#60B876] p-3 rounded-lg`}
                 onPress={() => {
-                  Alert.alert("เลือกคนนี้"),
                     navigation.navigate("payment", {
                       chooseDriver: chooseDriver,
                       originLocation: originLocation,
