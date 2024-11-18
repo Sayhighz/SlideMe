@@ -332,7 +332,7 @@ const values = [
       // Add this endpoint to your server-side (e.g., in Route.js)
 router.post("/check_user_phone", (req, res) => {
   const { phone_number } = req.body;
-  const sql = `SELECT * FROM users WHERE phone_number = ?`;
+  const sql = `SELECT phoene_number FROM users WHERE phone_number = ?`;
   con.query(sql, [phone_number], (err, result) => {
     if (err) return res.json({ Status: false, Error: err.message });
     if (result.length > 0) {
