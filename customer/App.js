@@ -6,7 +6,7 @@ import { ActivityIndicator , View } from 'react-native';
 import { useFonts } from 'expo-font';
 
 
-import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
+import { BorderlessButton, gestureHandlerRootHOC } from 'react-native-gesture-handler';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -23,6 +23,7 @@ import MapPage from './pages/MapPage/MapPage';
 import PaymentPage from './pages/paymentPage/PaymentPage';
 import ViewOrder from './pages/viewOrder/ViewOrder';
 import Rating from './pages/Rating/rating';
+import tw from 'twrnc';
 
 
 
@@ -43,7 +44,7 @@ const Tab = createBottomTabNavigator();
 function HomeStack() {
   return (
    
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{ headerStyle: { backgroundColor: '#60B876' }, headerTintColor: 'black' , borderBottomWidth: 0 , shadowOpacity: 0}}>
       <Stack.Screen name="HomePage" component={Home} />
       <Stack.Screen name="Mapdetail" component={MapDetail} />
       <Stack.Screen name="MapPage" component={MapPage} options={{ headerShown: false }} />
@@ -91,7 +92,9 @@ function UserProfileStack() {
 function AuthStack({ onLogin }) {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Login" component={Loginpage} options={{ headerShown: false }} />
+      <Stack.Screen name="Login" options={{ headerShown: false }} >
+      {() => <Loginpage onLogin={onLogin} />}
+      </Stack.Screen>
       <Stack.Screen name="PhoneVerify" options={{ headerShown: false }} >
       {() => <PhoneVerify onLogin={onLogin} />}
       </Stack.Screen>
@@ -154,7 +157,7 @@ const App = () => {
                         return <Icon name={iconName} size={size} color={color} />;
                       },
                       tabBarActiveTintColor: '#60B876',
-                      tabBarInactiveTintColor: 'gray',
+                      tabBarInactiveTintColor: '#555D65',
                     })}
                     >
                       
