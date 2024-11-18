@@ -1,4 +1,3 @@
-// screens/HomeScreen.js
 import React from "react";
 import {
   View,

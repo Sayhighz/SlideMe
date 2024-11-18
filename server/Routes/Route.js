@@ -328,6 +328,54 @@ const values = [
               return res.json({ Status: true, InsertId: result.insertId });
           });
       });
+
+      router.get("/getRequests", (req, res) => {
+        const sql = `
+          select
+            s.request_id,
+              s.pickup_lat,
+              s.pickup_long,
+              s.location_from,
+              s.dropoff_lat,
+              s.dropoff_long,
+              s.location_to,
+              s.booking_time,
+              s.vehicle_type,
+              s.customer_message
+          FROM servicerequests s
+          WHERE s.status = 'pending';
+        `;
+        con.query(sql, (err, result) => {
+          if (err) return res.json({ Status: false, Error: err.message });
+          return res.json({ Status: true, Result: result });
+        });
+      });
+
+
+      router.post("/offer_price", (req, res) => {
+        const sql = `
+              INSERT INTO driveroffers (
+              request_id,
+              driver_id,
+              offered_price,
+              offer_status
+          ) VALUES (?, ?, ?, 'pending')
+          `;
+      
+        const values = [
+          req.body.request_id,
+          req.body.driver_id,
+          req.body.offered_price
+        ];
+        
+        con.query(sql, values, (err, result) => {
+          if (err) return res.json({ Status: false, Error: err.message });
+          return res.json({ 
+            Status: true, 
+            AffectedRows: result.affectedRows 
+          });
+        });
+      });
       
         
 

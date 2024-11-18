@@ -57,8 +57,6 @@ export default function App() {
               iconName = 'home';
             } else if (route.name === 'History') {
               iconName = 'history';
-            } else if (route.name === 'Wallet') {
-              iconName = 'wallet';
             } else if (route.name === 'Profile') {
               iconName = 'account';
             }
@@ -74,7 +72,6 @@ export default function App() {
           options={{ title: 'หน้าหลัก' }} 
         />
         <Tab.Screen name="History" component={HistoryScreen} options={{ title: 'ประวัติการทำงาน' }} />
-        <Tab.Screen name="Wallet" component={WalletScreen} options={{ title: 'การเงิน' }} />
         <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'โปรไฟล์' }} />
       </Tab.Navigator>
     </NavigationContainer>
