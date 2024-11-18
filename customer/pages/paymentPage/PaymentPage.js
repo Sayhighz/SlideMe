@@ -1,4 +1,4 @@
-import { FlatList, SafeAreaView, ScrollView, Text, View } from "react-native";
+import { FlatList, SafeAreaView, ScrollView, Text, View , StyleSheet} from "react-native";
 import React, { useEffect, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
@@ -233,3 +233,10 @@ export default function PaymentPage({ navigation }) {
     </SafeAreaView>
   );
 }
+
+
+const styles = StyleSheet.create({
+  globalText: {
+    fontFamily: 'Mitr-Regular'
+  },
+});

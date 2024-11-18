@@ -18,6 +18,7 @@ import { useRoute } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { TextInput, Menu, Provider } from "react-native-paper";
 import { Provider as PaperProvider } from "react-native-paper";
+import { IP_ADDRESS } from "../../config";
 
 
 dayjs.locale("th");
@@ -32,6 +33,7 @@ export default function Order({ navigation }) {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showModal2, setShowModal2] = useState(false);
   const [moreDetail, setMoreDetail] = useState("");
+  const [preMoreDetail, setPreMoreDetail] = useState("");
   const [category, setCategory] = useState("");
   const [menuVisible, setMenuVisible] = useState(false); // แสดงตัวเลือกรถ
   
@@ -52,7 +54,7 @@ export default function Order({ navigation }) {
   };
 
   const handleRequestSubmit = () => {
-    setMoreDetail(moreDetail);
+    setMoreDetail(preMoreDetail);
     setShowModal2(false);
     console.log(moreDetail);
   };
@@ -64,7 +66,7 @@ export default function Order({ navigation }) {
 
   const renderIOSDatePicker = () => {
     return (
-      <View>
+      <View >
         {showPicker && (
           <DateTimePicker
             mode="datetime"
@@ -72,19 +74,19 @@ export default function Order({ navigation }) {
             value={date}
             onChange={onChange}
             locale="th"
-            style={tw`flex-1 text-center text-lg`}
+            style={[ styles.globalText ,tw`flex-1 items-center text-lg bottom-70 right-18`]}
             minimumDate={new Date()}
             maximumDate={new Date("2024-12-31")}
           />
         )}
 
         {showPicker && Platform.OS === "ios" && (
-          <View style={[tw`flex-1 relative items-center`]}>
-            <View style={[tw`flex-row gap-4`]}>
+          <View style={[tw`flex-1 items-center justify-center `]}>
+            <View style={[tw`flex-row gap-4 `]}>
               <TouchableOpacity
                 onPress={() => setDate(new Date())}
                 style={[
-                  tw` border border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-full shadow-sm hover:bg-blue-50 active:bg-blue-100 focus:outline-none focus:ring focus:ring-blue-300 `,
+                  tw`items-center bottom-250  border border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-full shadow-sm hover:bg-blue-50 active:bg-blue-100 focus:outline-none focus:ring focus:ring-blue-300 `,
                 ]}
               >
                 <Text style={tw`text-blue-500 text-lg  text-center`}>
@@ -94,7 +96,7 @@ export default function Order({ navigation }) {
               <TouchableOpacity
                 onPress={confirmDate}
                 style={[
-                  tw`bg-blue-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-blue-600 active:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300  `,
+                  tw`items-center bottom-250 bg-blue-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-blue-600 active:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300  `,
                 ]}
               >
                 <Text style={tw`text-white text-lg font-semibold text-center`}>
@@ -269,7 +271,7 @@ export default function Order({ navigation }) {
       dropoff_long: destination.longitude, // Replace with actual longitude
       location_to: confirmDestination,
       vehicle_type: category,
-      booking_time: formattedDate ? formatDateToMySQL(formattedDate) : formatDateToMySQL(new Date()) , // Assuming formattedDate is used for booking time
+      booking_time: formattedDate ? formatDateToMySQL(date) : formatDateToMySQL(new Date()) , // Assuming formattedDate is used for booking time
       customer_message: moreDetail || null, // Include the optional field if provided
     };
   
@@ -289,7 +291,7 @@ export default function Order({ navigation }) {
     ];
   
     try {
-      const response = await fetch("http://172.20.10.14:3000/auth/add_request", {
+      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/add_request`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -324,10 +326,10 @@ export default function Order({ navigation }) {
 
   return (
     <PaperProvider>
-      <View style={tw`flex-1`}>
-        <View style={tw`flex-1 items-center mt-2`}>
+      <View style={tw`flex items-center `}>
+        <View style={tw`flex mt-2 `}>
           {/* Subtitle */}
-          <Text style={styles.subtitle}>
+          <Text style={[styles.globalText, tw`text-[grey]`]}>
             Where do you want to take the Slide Car
           </Text>
           <TouchableOpacity
@@ -336,7 +338,7 @@ export default function Order({ navigation }) {
           >
             <View style={tw`flex-row px-4`}>
               <MaterialIcons name="place" size={24} color="red" />
-              <Text>
+              <Text style={styles.globalText}>
                 ต้นทาง :{" "}
                 {confirmOrigin.length > 25
                   ? confirmOrigin.slice(0, 25) + "..."
@@ -345,7 +347,7 @@ export default function Order({ navigation }) {
             </View>
             <View style={tw`flex-row px-4`}>
               <MaterialIcons name="place" size={24} color="green" />
-              <Text>
+              <Text style={styles.globalText}>
                 ปลายทาง :{" "}
                 {confirmDestination.length > 25
                   ? confirmDestination.slice(0, 25) + "..."
@@ -354,28 +356,23 @@ export default function Order({ navigation }) {
             </View>
           </TouchableOpacity>
 
-          <View>
+          <View style={tw`flex items-center justify-center`}>
             <TouchableOpacity
               onPress={() =>
                 Platform.OS === "ios" ? setShowPicker(true) : setShowModal(true)
               }
-              style={tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-80 h-25`}
+              style={tw`flex items-center justify-center bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-80 h-25`}
             >
               <MaterialIcons name="date-range" size={30} color="red" />
-              <TextInput
-                style={tw`flex-col items-center justify-center bg-white rounded-lg border border-gray-300 w-79  border-transparent text-xl`}
-                placeholder="Booking"
-                value={
-                  formattedDate === ""
-                    ? "Select Date"
-                    : `${formattedDate} ${formattedTime}`
-                }
-                onPressIn={
-                  Platform.OS === "ios" ? toggleDatePicker : handleDateChange
-                }
-                editable={false}
-                underlineColor="transparent"
-              />
+              <Text
+                style={[styles.globalText , tw`flex text-center bg-white p-2 border-gray-300 w-79  text-lg`]}
+                // onPressIn={
+                //   Platform.OS === "ios" ? toggleDatePicker : handleDateChange
+                // }
+              >{formattedDate === ""
+                ? "เลือกวันเวลาที่ต้องการ"
+                : `${formattedDate} ${formattedTime}`}
+                </Text>
             </TouchableOpacity>
           </View>
           {Platform.OS === "ios" && showPicker && renderIOSDatePicker()}
@@ -397,7 +394,7 @@ export default function Order({ navigation }) {
                     color="black"
                     style={tw`mb-2`}
                   />
-                  <Text style={tw`text-xl`}>{category ? category : "Select Category"}</Text>
+                  <Text style={[styles.globalText ,tw`text-xl`]}>{category ? category : "Select Category"}</Text>
                 </TouchableOpacity>
               }
               style={tw`w-70 rounded items-center`}
@@ -418,13 +415,12 @@ export default function Order({ navigation }) {
               style={tw` justify-around bg-white rounded-lg border border-gray-300 shadow-md w-80 h-25`}
               onPress={handlePress}
             >
-              <TextInput
-                style={tw`flex-col items-center justify-center bg-white rounded-lg border border-gray-300 w-79  border-transparent text-xl`}
-                placeholder="More Details"
-                underlineColor="transparent"
-                value={moreDetail}
-                editable={false}
-              ></TextInput>
+              <Text
+                style={[ styles.globalText ,tw` bg-white text-center w-79 text-xl`]}
+                
+              >
+                {moreDetail ? moreDetail : "Enter more details..."}
+              </Text>
             </TouchableOpacity>
 
             <Modal
@@ -438,25 +434,25 @@ export default function Order({ navigation }) {
               >
                 <View style={tw`w-80 p-4 bg-white rounded-lg `}>
                   <TextInput
-                    style={tw`border p-2 mb-4 bg-white rounded-lg`}
+                    style={[styles.globalText ,tw`border p-2 mb-4 bg-white rounded-lg`]}
                     placeholder="Enter details about the request..."
                     mode="outlined"
-                    value={moreDetail}
-                    onChangeText={setMoreDetail}
+                    value={preMoreDetail}
+                    onChangeText={setPreMoreDetail}
                     underlineColor="transparent"
                     multiline={true}
                     textAlignVertical="top"
-                    maxLength={100}
+                    maxLength={255}
                   />
                   <View style={tw`flex-row justify-center gap-5`}>
                     <TouchableOpacity
                       title="Close"
                       onPress={() =>
-                        moreDetail ? setMoreDetail("") : setShowModal2(false)
+                        preMoreDetail ? setPreMoreDetail("") : setShowModal2(false)
                       }
                       style={tw`bg-red-500 rounded-lg px-4 py-2`}
                     >
-                      <Text>Close</Text>
+                      <Text>{preMoreDetail ? "Clear" : "Close"}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -471,27 +467,13 @@ export default function Order({ navigation }) {
               </View>
             </Modal>
           </View>
-          <View>
-            <View>
+          <View style={tw``}>
+            <View style={tw`absolute top-27 right-15 `}>
               <TouchableOpacity
-                style={tw`items-center justify-center mt-4 w-70 h-12 bg-[#60B876] rounded-lg`}
-                onPress={()=>{
-                  // handleSubmitRequest
-                  navigation.navigate("ChooseOffer")
-                }}
-                  
-                    // originAddress: confirmOrigin,
-                    // originLocation: origin,
-                    // destinationAddress: confirmDestination,
-                    // destinationLocation: destination,
-                    // category: category,
-                    // date: `${formattedDate}`,
-                  
-                //   navigation.navigate("ChooseOffer", prepareData);
-                  
-                
+                style={tw`items-center justify-center mt-4 w-50 h-12 bg-[#60B876] rounded-full `}
+                onPress={handleSubmitRequest}
               >
-                <Text style={tw`text-white text-lg font-semibold`}>Confirm</Text>
+                <Text style={[styles.globalText , tw`text-white text-xl font-semibold `]}>Confirm</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -521,6 +503,10 @@ const styles = StyleSheet.create({
   datePicker: {
     height: 40,
     flex: 1,
+  },
+  globalText: {
+    fontFamily: "Mitr-Regular",
+  
   },
 
   optionText: { marginLeft: 10, fontSize: 16 },

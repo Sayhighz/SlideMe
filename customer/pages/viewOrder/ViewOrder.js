@@ -1,4 +1,4 @@
-import { Pressable, SafeAreaView, Text, View } from "react-native";
+import { Pressable, SafeAreaView, Text, View , StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
@@ -97,25 +97,25 @@ export default function ViewOrder({ navigation }) {
         <View style={tw`flex-2`}>
           <View style={tw`flex-1`}>
             <View style={tw`flex-1 flex-row justify-between px-4 items-end`}>
-              <Text style={tw``}>10:12 AM 15 ม.ค. 2567</Text>
-              <Text style={tw``}>xxxxxxxxxxxxxx</Text>
+              <Text style={styles.globalText}>10:12 AM 15 ม.ค. 2567</Text>
+              <Text style={styles.globalText}>xxxxxxxxxxxxxx</Text>
             </View>
             <View
               style={tw`flex-4 justify-around mx-4 px-4 bg-gray-200 rounded-lg`}
             >
               <View style={tw`flex-1 flex-row items-center`}>
                 <MaterialIcons name="place" size={24} color="blue" />
-                <Text style={tw`items-center`}>
+                <Text style={[styles.globalText , tw`items-center`]}>
                   คนขับ : {driverInformation.name}
                 </Text>
               </View>
               <View style={tw`flex-1 flex-row items-center`}>
                 <MaterialIcons name="place" size={24} color="red" />
-                <Text style={tw`items-center`}>ต้นทาง : {origin.name}</Text>
+                <Text style={[styles.globalText , tw`items-center`]}>ต้นทาง : {origin.name}</Text>
               </View>
               <View style={tw`flex-1 flex-row items-center`}>
                 <MaterialIcons name="place" size={24} color="green" />
-                <Text style={tw`items-center`}>
+                <Text style={[styles.globalText , tw`items-center`]}>
                   ปลายทาง : {destination.name}
                 </Text>
               </View>
@@ -201,10 +201,10 @@ export default function ViewOrder({ navigation }) {
             style={tw`flex-1 flex-row bg-gray-300 m-4 rounded-lg items-center px-4`}
           >
             <View style={tw`flex-9`}>
-              <Text style={tw`text-xl`}>{driverInformation.name}</Text>
+              <Text style={[styles.globalText , tw`text-xl`]}>{driverInformation.name}</Text>
             </View>
             <View style={tw`flex-1 flex-row items-center justify-end`}>
-              <Text style={tw`text-xl text-center`}>
+              <Text style={[styles.globalText , tw`text-xl text-center`]}>
                 {driverInformation.rating}
               </Text>
               <MaterialIcons name="star" size={24} color="yellow" />
@@ -219,13 +219,13 @@ export default function ViewOrder({ navigation }) {
                 }}
               >
                 <MaterialIcons name="call" size={24} color="green" />
-                <Text>โทร</Text>
+                <Text styles={styles.globalText}>โทร</Text>
               </Pressable>
               <Pressable
                 style={tw`flex-1 bg-gray-300 justify-center rounded-lg items-center w-1/3 mx-4`}
               >
                 <MaterialIcons name="chat" size={24} color="black" />
-                <Text>ข้อความ</Text>
+                <Text styles={[styles.globalText , tw`text-xl`]}>ข้อความ</Text>
               </Pressable>
             </View>
             <View style={tw`flex-1 justify-center items-center`}>
@@ -236,7 +236,7 @@ export default function ViewOrder({ navigation }) {
                 }}
               >
                 <MaterialIcons name="close" size={24} color="red" />
-                <Text>ยกเลิก</Text>
+                <Text styles={[styles.globalText , tw`text-xl`]}>ยกเลิก</Text>
               </Pressable>
             </View>
           </View>
@@ -245,3 +245,10 @@ export default function ViewOrder({ navigation }) {
     </SafeAreaView>
   );
 }
+
+
+const styles = StyleSheet.create({
+  globalText: {
+    fontFamily: 'Mitr-Regular'
+  },
+});

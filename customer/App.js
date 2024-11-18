@@ -2,6 +2,10 @@
 
 import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import { ActivityIndicator , View } from 'react-native';
+import { useFonts } from 'expo-font';
+
+
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -18,7 +22,9 @@ import UserProfile from './pages/userProfile/userProfile';
 import MapPage from './pages/MapPage/MapPage';
 import PaymentPage from './pages/paymentPage/PaymentPage';
 import ViewOrder from './pages/viewOrder/ViewOrder';
-import Rating from './pages/Rating/Rating';
+import Rating from './pages/Rating/rating';
+
+
 
 
 import PhoneVerify from './pages/PhoneVerify/PhoneVerify';
@@ -27,14 +33,18 @@ import EditProfile from './pages/editProfile/editProfile';
 import AddressPage from './pages/addressPage/addressPage';
 import ChooseOffer from './pages/chooseOffer/ChooseOffer';
 
+
+
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+
+
 
 function HomeStack() {
   return (
    
     <Stack.Navigator>
-      <Stack.Screen name="Home" component={Home} />
+      <Stack.Screen name="HomePage" component={Home} />
       <Stack.Screen name="Mapdetail" component={MapDetail} />
       <Stack.Screen name="MapPage" component={MapPage} options={{ headerShown: false }} />
       <Stack.Screen name="Order" component={Order} />
@@ -76,7 +86,7 @@ function UserProfileStack() {
   );
 }
 
-// App.js
+
 
 function AuthStack({ onLogin }) {
   return (
@@ -93,55 +103,72 @@ function AuthStack({ onLogin }) {
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  const [fontsLoaded] = useFonts({
+    'Mitr-Regular': require('./assets/fonts/Mitr-Regular.ttf'), // Ensure you have the font file
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View>
+        <ActivityIndicator size="large" color="#60B876" />
+      </View>
+    );
+  }
+
   const handleLogin = () => {
     setIsLoggedIn(true);
   };
 
   return (
     <NavigationContainer>
+
+
       {isLoggedIn ? (
         <Tab.Navigator
-          screenOptions={({ route }) => ({
-            tabBarIcon: ({ color, size }) => {
-              let iconName;
-
-              switch (route.name) {
-                case 'HomePage':
-                  iconName = 'home';
-                  break;
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ color, size }) => {
+            let iconName;
+            
+            switch (route.name) {
+              case 'Home':
+                iconName = 'home';
+                break;
                 case 'Map':
                   iconName = 'map';
                   break;
-                case 'ประวัติการใช้บริการ':
-                  iconName = 'history';
-                  break;
-                case 'การแจ้งเตือน':
-                  iconName = 'bell';
-                  break;
-                case 'โปรไฟล์ผู้ใช้':
-                  iconName = 'account';
-                  break;
-                default:
-                  iconName = 'circle';
-              }
-
-              return <Icon name={iconName} size={size} color={color} />;
-            },
-            tabBarActiveTintColor: '#60B876',
-            tabBarInactiveTintColor: 'gray',
-          })}
-        >
-          <Tab.Screen name="HomePage" component={HomeStack} options={{ headerShown: false }} />
+                  case 'ประวัติการใช้บริการ':
+                    iconName = 'history';
+                    break;
+                    case 'การแจ้งเตือน':
+                      iconName = 'bell';
+                      break;
+                      case 'โปรไฟล์ผู้ใช้':
+                        iconName = 'account';
+                        break;
+                        default:
+                          iconName = 'circle';
+                        }
+                        
+                        return <Icon name={iconName} size={size} color={color} />;
+                      },
+                      tabBarActiveTintColor: '#60B876',
+                      tabBarInactiveTintColor: 'gray',
+                    })}
+                    >
+                      
+          <Tab.Screen name="Home" component={HomeStack} options={{ headerShown: false }} />
           
           <Tab.Screen name="ประวัติการใช้บริการ" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }} />
           <Tab.Screen name="การแจ้งเตือน" component={MessageBoxScreen} options={{ title: 'การแจ้งเตือน' }} />
           
           {/* <Tab.Screen name="Map" component={Map} options={{ headerShown: false }} /> */}
           <Tab.Screen name="โปรไฟล์ผู้ใช้" component={UserProfileStack} options={{ headerShown: false }} />
+          
         </Tab.Navigator>
       ) : (
         <AuthStack onLogin={handleLogin} />
       )}
+      
     </NavigationContainer>
   );
 };

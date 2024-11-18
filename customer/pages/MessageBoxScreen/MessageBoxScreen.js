@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Modal, Button, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Modal, Button, ActivityIndicator , StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from 'twrnc';
+import { IP_ADDRESS } from "../../config";
 
 const MessageBoxScreen = () => {
   const [messages, setMessages] = useState([]);
@@ -14,7 +15,7 @@ const MessageBoxScreen = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch('http://192.168.1.108:3000/auth/getAllDiscounts');
+        const response = await fetch(`http://${IP_ADDRESS}:3000/auth/getAllDiscounts`);
         const data = await response.json();
         console.log('Fetched data:', data);
 
@@ -74,13 +75,13 @@ const MessageBoxScreen = () => {
           style={filter === 'all' ? tw`border-b-2 border-white` : tw`opacity-70`}
           onPress={() => setFilter('all')}
         >
-          <Text style={tw`text-white text-lg`}>ทั้งหมด</Text>
+          <Text style={[styles.globalText , tw`text-white text-lg`]}>ทั้งหมด</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={filter === 'coupon' ? tw`border-b-2 border-white` : tw`opacity-70`}
           onPress={() => setFilter('coupon')}
         >
-          <Text style={tw`text-white text-lg`}>คูปองส่วนลด</Text>
+          <Text style={[styles.globalText , tw`text-white text-lg`]}>คูปองส่วนลด</Text>
         </TouchableOpacity>
       </View>
 
@@ -106,8 +107,8 @@ const MessageBoxScreen = () => {
           <View style={tw`w-11/12 bg-white p-5 rounded`}>
             {selectedMessage && (
               <>
-                <Text style={tw`text-2xl font-bold mb-3`}>{selectedMessage.discount_code}</Text>
-                <Text style={tw`text-lg mb-5`}>{selectedMessage.discount_message}</Text>
+                <Text style={[styles.globalText , tw`text-2xl font-bold mb-3`]}>{selectedMessage.discount_code}</Text>
+                <Text style={[styles.globalText , tw`text-lg mb-5`]}>{selectedMessage.discount_message}</Text>
                 <Button title="Close" color={'#60B876'} onPress={closeModal} />
               </>
             )}
@@ -117,5 +118,11 @@ const MessageBoxScreen = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  globalText: {
+    fontFamily: 'Mitr-Regular'
+  },
+});
 
 export default MessageBoxScreen;

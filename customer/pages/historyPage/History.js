@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import tw from "twrnc";
+import { IP_ADDRESS } from "../../config";
 
 // Utility function to format date to Thai format
 const formatThaiDate = (dateString) => {
@@ -46,7 +47,7 @@ const HistoryPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://192.168.1.108:3000/auth/service_history_customer?customer_id=2');
+        const response = await fetch(`http://${IP_ADDRESS}:3000/auth/service_history_customer?customer_id=2`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }

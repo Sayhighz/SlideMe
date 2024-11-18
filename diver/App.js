@@ -5,6 +5,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from 'twrnc';
+import {useFonts } from 'expo-font';
+import AppLoading from 'expo-app-loading';
 
 // นำเข้าหน้าแต่ละหน้า
 import HomeScreen from './screens/HomeScreen';
@@ -32,9 +34,19 @@ function HomeStackNavigator() {
 }
 
 export default function App() {
+
+  const [fontsLoaded] = useFonts({
+    'Mitr-Regular': require('./assets/fonts/Mitr-Regular.ttf'), // Adjust path as needed
+  });
+
+  // Show loading screen until fonts are loaded
+  if (!fontsLoaded) {
+    return <AppLoading />;
+  }
+  
   return (
     <NavigationContainer>
-      <NotificationRequest />
+      {/* <NotificationRequest /> */}
       <Tab.Navigator
         screenOptions={({ route }) => ({
           headerShown: false,
@@ -45,8 +57,6 @@ export default function App() {
               iconName = 'home';
             } else if (route.name === 'History') {
               iconName = 'history';
-            } else if (route.name === 'Wallet') {
-              iconName = 'wallet';
             } else if (route.name === 'Profile') {
               iconName = 'account';
             }
@@ -62,7 +72,6 @@ export default function App() {
           options={{ title: 'หน้าหลัก' }} 
         />
         <Tab.Screen name="History" component={HistoryScreen} options={{ title: 'ประวัติการทำงาน' }} />
-        <Tab.Screen name="Wallet" component={WalletScreen} options={{ title: 'การเงิน' }} />
         <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'โปรไฟล์' }} />
       </Tab.Navigator>
     </NavigationContainer>

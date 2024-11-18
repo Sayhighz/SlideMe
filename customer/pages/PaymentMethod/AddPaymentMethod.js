@@ -1,20 +1,62 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native';
 import tw from 'twrnc';
+import { IP_ADDRESS } from "../../config";
 
-const AddPaymentMethod = () => {
+const AddPaymentMethod = ({ route }) => {
+  const navigation = useNavigation();
+  const { onRefresh } = route.params || {}; // Retrieve the onRefresh callback
+
   const [paymentType, setPaymentType] = useState('');
   const [accountName, setAccountName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
+  const [expirationDate, setExpirationDate] = useState('');
 
-  const handleSubmit = () => {
-    if (!paymentType || !accountName || !accountNumber) {
-      Alert.alert('Error', 'Please fill all the fields');
+  const handleExpirationDateChange = (input) => {
+    let formattedInput = input.replace(/\D/g, ''); // Remove non-numeric characters
+    if (formattedInput.length > 2) {
+      formattedInput = `${formattedInput.slice(0, 2)}/${formattedInput.slice(2)}`;
+    }
+    setExpirationDate(formattedInput);
+  };
+
+  const handleSubmit = async () => {
+    if (!paymentType || !accountName || !accountNumber || !expirationDate) {
+      Alert.alert('Error', 'โปรดกรอกข้อมูลให้ครบ');
       return;
     }
 
-    Alert.alert('Success', 'Payment method saved successfully');
+    const payload = {
+      user_id: 2,
+      payment_type: paymentType,
+      card_number: accountNumber,
+      account_name: accountName,
+      expiration_date: expirationDate,
+    };
+
+    try {
+      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/add_payment_method`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        Alert.alert('Success', 'บันทึกช่องทางการชำระเงินสําเร็จ');
+        if (onRefresh) {
+          onRefresh(); // Call the callback to refresh data
+        }
+        navigation.goBack();
+      } else {
+        Alert.alert('Error', 'บันทึกช่องทางการชำระเงินไม่สําเร็จ');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'An error occurred: ' + error.message);
+    }
   };
 
   return (
@@ -30,8 +72,10 @@ const AddPaymentMethod = () => {
         >
           <Picker.Item label="ประเภทการชำระเงิน" value="" />
           <Picker.Item label="บัตรเครดิต" value="credit_card" />
-          <Picker.Item label="พร้อมเพย์" value="promptpay" />
+          <Picker.Item label="บัตรเดบิต" value="debit_card" />
+          <Picker.Item label="PayPal" value="paypal" />
           <Picker.Item label="ธนาคาร" value="bank_transfer" />
+          <Picker.Item label="อื่นๆ" value="other" />
         </Picker>
       </View>
 
@@ -50,6 +94,16 @@ const AddPaymentMethod = () => {
         keyboardType="numeric"
         value={accountNumber}
         onChangeText={setAccountNumber}
+      />
+
+      <Text style={tw`text-lg mt-4`}>วันหมดอายุ</Text>
+      <TextInput
+        style={tw`border border-gray-300 p-2 rounded mt-1`}
+        placeholder="MM/YY"
+        value={expirationDate}
+        onChangeText={handleExpirationDateChange}
+        maxLength={5}
+        keyboardType="numeric"
       />
 
       <TouchableOpacity
