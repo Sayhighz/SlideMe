@@ -1,13 +1,21 @@
 import React from "react";
-import { Text, View, TouchableOpacity, Image, StyleSheet, Dimensions } from "react-native";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
 import { Card } from "react-native-paper";
-import Swiper from "react-native-swiper"; // Import Swiper
+import Swiper from "react-native-swiper";
 import tw from "twrnc";
+import { LinearGradient } from "expo-linear-gradient";
 
 function Home({ navigation }) {
   const { width, height } = Dimensions.get("window");
-  const responsiveWidth = width * 0.9; // 90% of screen width
-  const responsiveHeight = height * 0.2; // 20% of screen height for the Swiper banner
+  const responsiveWidth = width * 0.9;
+  const responsiveHeight = height * 0.2;
 
   // Sample ads data (URLs for images or placeholders)
   const ads = [
@@ -17,84 +25,122 @@ function Home({ navigation }) {
   ];
 
   return (
-    <View style={tw`flex-1 items-center justify-between`}>
-      {/* Main Content */}
-      <View style={tw`relative w-full items-center`}>
-        <TouchableOpacity
-          style={tw`mt-5`}
-          onPress={() => navigation.navigate("Order")}
-        >
-          <Card
+    <>
+      <View style={tw`flex-1 items-center justify-between `}>
+        {/* Main Content */}
+        <View style={tw`relative w-full items-center`}>
+          <TouchableOpacity
+            style={tw`mt-5`}
+            onPress={() => navigation.navigate("Order")}
+          >
+            <LinearGradient
+              colors={["#3DE183", "#60B876", "#6CA97C"]}
+              style={[
+                tw`rounded-lg items-center justify-center`,
+                { width: responsiveWidth, height: height * 0.18, padding: 10 },
+              ]}
+            >
+              <Text
+                style={[styles.globalText, tw`text-white text-4xl font-bold`]}
+              >
+                SLIDE ME
+              </Text>
+              <Text style={[styles.globalText, tw`text-white text-xl`]}>
+                Service
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+
+          <View
             style={[
-              tw`flex-row bg-white rounded-lg items-center justify-center border`,
-              { width: responsiveWidth, height: height * 0.19 } // 15% of screen height
+              tw`flex-row justify-between mt-4`,
+              { width: responsiveWidth },
             ]}
           >
-            <View style={tw`items-center justify-center`}>
-              <Text style={[styles.globalText, tw`text-4xl font-bold`]}>SLIDE ME</Text>
-              <Text style={[styles.globalText, tw`text-lg`]}>Service</Text>
-            </View>
-          </Card>
-        </TouchableOpacity>
-
-        <View style={[tw`flex-row justify-between mt-4`, { width: responsiveWidth }]}>
-          <TouchableOpacity style={{ flex: 0.48 }}>
-            <Card
-              style={tw`bg-white rounded-lg h-20 flex items-center justify-center border`}
+            <TouchableOpacity
+              style={[
+                { flex: 0.48 },
+                tw`rounded-lg h-20 flex items-center justify-center bg-[#5A8DEE]`,
+              ]}
             >
-              <Text style={[styles.globalText, tw`text-lg font-bold`]}>ตำแหน่ง 1</Text>
-            </Card>
-          </TouchableOpacity>
+              <Text
+                style={[styles.globalText, tw`text-white text-lg font-bold`]}
+              >
+                ตำแหน่ง 1
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={{ flex: 0.48 }}>
-            <Card
-              style={tw`bg-white rounded-lg h-20 flex items-center justify-center border`}
+            <TouchableOpacity
+              style={[
+                { flex: 0.48 },
+                tw`rounded-lg h-20 flex items-center justify-center bg-[#5A8DEE]`,
+              ]}
             >
-              <Text style={[styles.globalText, tw`text-lg font-bold`]}>ตำแหน่ง 2</Text>
-            </Card>
-          </TouchableOpacity>
+              <Text
+                style={[styles.globalText, tw`text-white text-lg font-bold`]}
+              >
+                ตำแหน่ง 2
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View>
+            <LinearGradient
+              colors={["#60B876", "#53A567"]}
+              style={[
+                { width: responsiveWidth, height: height * 0.18, padding: 10 },
+                tw`rounded-lg items-center justify-center mt-5`,
+              ]}
+            >
+              <TouchableOpacity>
+                <Text
+                  style={[styles.globalText, tw`text-3xl font-bold text-white`]}
+                >
+                  Order Status
+                </Text>
+              </TouchableOpacity>
+            </LinearGradient>
+          </View>
         </View>
 
-        <TouchableOpacity style={{ marginTop: 20 }}>
-          <Card
-            style={[
-              tw`flex-row rounded-lg items-center justify-center border bg-white`, ,
-              { width: responsiveWidth, height: height * 0.17 } // 10% of screen height
-            ]}
-          >
-            <View style={tw`items-center justify-center`}>
-              <Text style={[styles.globalText, tw`text-3xl font-bold`]}>Order Status</Text>
-            </View>
-          </Card>
-        </TouchableOpacity>
-      </View>
-
-      {/* Swiper for Ads Banner (placed above bottom navbar) */}
-      <View style={[tw`mb-4`, { width: responsiveWidth, height: responsiveHeight }]}>
-        <Swiper
-          autoplay
-          showsPagination
-          loop
-          style={tw`rounded-lg`}
-          activeDotColor="blue"
+        {/* Swiper for Ads Banner (placed above bottom navbar) */}
+        <View
+          style={[
+            tw`mb-4`,
+            { width: responsiveWidth, height: responsiveHeight },
+          ]}
         >
-          {ads.map((ad) => (
-            <View
-              key={ad.id}
-              style={tw`flex items-center justify-center w-full h-full`}
-            >
-              <Image source={{ uri: ad.image }} style={{ width: responsiveWidth, height: responsiveHeight, resizeMode: 'cover' }} />
-            </View>
-          ))}
-        </Swiper>
+          <Swiper
+            autoplay
+            showsPagination
+            loop
+            style={tw`rounded-lg`}
+            activeDotColor="#60B876"
+          >
+            {(ads || []).map((ad) => (
+              <View
+                key={ad.id}
+                style={tw`flex items-center justify-center w-full h-full`}
+              >
+                <Image
+                  source={{ uri: ad.image }}
+                  style={{
+                    width: responsiveWidth,
+                    height: responsiveHeight,
+                    resizeMode: "cover",
+                  }}
+                />
+              </View>
+            ))}
+          </Swiper>
+        </View>
       </View>
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   globalText: {
-    fontFamily: 'Mitr-Regular'
+    fontFamily: "Mitr-Regular",
   },
 });
 
