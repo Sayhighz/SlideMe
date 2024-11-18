@@ -446,6 +446,36 @@ router.post("/check_user_phone", (req, res) => {
         });
       });
       
+
+      router.get("/getRequestDetailForDriver", (req, res) => {
+        const request_id = req.query.request_id || 0;
+      
+        const sql = `
+SELECT DISTINCT
+    s.request_id,
+    s.pickup_lat,
+    s.pickup_long,
+    s.location_from,
+    s.dropoff_lat,
+    s.dropoff_long,
+    s.location_to,
+    u.first_name AS customer_name,
+    u.phone_number AS customer_phone
+FROM
+    servicerequests s
+LEFT JOIN users u
+    ON u.user_id = s.customer_id
+LEFT JOIN driveroffers d
+    ON d.request_id = s.request_id
+WHERE
+    s.request_id = ?;
+        `;
+      
+        con.query(sql, [request_id], (err, result) => {
+          if (err) return res.json({ Status: false, Error: err.message });
+          return res.json({ Status: true, Result: result });
+        });
+      });
       
         
 

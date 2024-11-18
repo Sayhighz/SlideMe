@@ -11,7 +11,6 @@ import AppLoading from 'expo-app-loading';
 // นำเข้าหน้าแต่ละหน้า
 import HomeScreen from './screens/HomeScreen';
 import HistoryScreen from './screens/History/HistoryScreen';
-import WalletScreen from './screens/WalletScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import JobsScreen from './screens/Job/JobsScreen';
 import JobDetail from './screens/Job/JobDetail';
