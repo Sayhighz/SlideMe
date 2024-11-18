@@ -36,12 +36,14 @@ const InfoCustomer = ({ onLogin }) => {
                 });
     
                 const result = await response.json();
+                console.log("Response:", result);
                 if (result.Status) {
                     Alert.alert("Success", "User data added successfully!");
                 } else {
                     Alert.alert("Error", result.Error);
                 }
             } catch (error) {
+                console.error("Fetch Error:", error); // Log the error
                 Alert.alert("Error", "Failed to add user data");
             }
     
@@ -51,10 +53,33 @@ const InfoCustomer = ({ onLogin }) => {
     };
     
     
-    const handleSkip = () => {
-        setModalVisible(false); // Optional: Close modal on skip
+    
+    const handleSkip = async () => {
+        try {
+            const response = await fetch(`http://${IP_ADDRESS}:3000/auth/add_user_info`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    phone_number: phoneNumber,
+                })
+            });
+    
+            const result = await response.json();
+            if (result.Status) {
+                Alert.alert("Success", "User data added successfully with phone number!");
+            } else {
+                Alert.alert("Error", result.Error);
+            }
+        } catch (error) {
+            Alert.alert("Error", "Failed to add user data");
+        }
+    
+        setModalVisible(false); // Close modal on skip
         onLogin();
     };
+    
     
     return (
         <SafeAreaView style={tw`flex-1 bg-white`} edges={['top']}>
@@ -120,6 +145,7 @@ const InfoCustomer = ({ onLogin }) => {
                                     >
                                         <Text style={[styles.globalText,tw`text-center font-bold text-white`]}>ข้าม</Text>
                                     </TouchableOpacity>
+
                                     <TouchableOpacity
                                         style={tw`bg-[#60B876] rounded-lg p-3 w-1/3`}
                                         onPress={handleConfirm}
