@@ -158,7 +158,7 @@ export default function Mapdetail({ navigation }) {
           </View>
         
         <TouchableOpacity 
-          style={tw`absolute bottom-4 self-center bg-white border-2 border-blue-500 p-4 rounded-full bg-blue-500`}
+          style={tw`absolute bottom-4 self-center bg-white border-2 border-[#60B876] p-4 rounded-full bg-[#60B876]`}
             onPress={() => {
               navigation.navigate("Order",{
                 origin,
@@ -168,24 +168,14 @@ export default function Mapdetail({ navigation }) {
               });
             }}
         >
-          <Text style={[ styles.globalText, tw`text-lg font-bold text-white`]}>
+          <Text style={[ styles.globalText, tw`text-xl font-bold text-white`]}>
             ยืนยัน
           </Text>
         </TouchableOpacity>
         
       </View>
 
-      {/* Floating Action Button */}
-      {/* <TouchableOpacity
-        style={tw`absolute bottom-10 left-10 right-10 bg-blue-600 p-4 rounded-full flex-row items-center justify-center`}
-        onPress={() => {
-          // Implement map navigation here
-          console.log("Navigating to map...");
-        }}
-      >
-        <MaterialIcons name="map" size={24} color="white" />
-        <Text style={tw`ml-2 text-white font-semibold`}>Choose from map</Text>
-      </TouchableOpacity> */}
+    
     </SafeAreaView>
   );
 };
