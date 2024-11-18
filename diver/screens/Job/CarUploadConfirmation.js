@@ -7,32 +7,40 @@ import * as ImagePicker from 'expo-image-picker'; // Import Expo's Image Picker
 
 const CarUploadConfirmation = () => {
   const navigation = useNavigation();
-  const [images, setImages] = useState({});
+  const [images, setImages] = useState ({});
 
   const handleImageSelection = async (label) => {
-      
-      // Request permission to access camera roll
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-          Alert.alert('Permission Denied', 'Camera roll permissions are required to select an image.');
-          return;
-        }
-        
-        // Launch the image library with updated MediaType usage
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: [ImagePicker.MediaType.IMAGE], // Updated MediaType usage
-            quality: 1,
-        });
-        
-        if (result.canceled) {
-        console.log(`Opening image picker for: ${label}`); // Log when button is pressed
-      console.log('Image selection was canceled by the user.');
-    } else {
-      console.log('Selected image:', result.assets ? result.assets[0] : result.uri); // Log selected image data
-      setImages((prevImages) => ({
-        ...prevImages,
-        [label]: result.assets ? result.assets[0].uri : result.uri, // Handle URI storage correctly
-      }));
+    console.log(`Opening image picker for: ${label}`); // Log when button is pressed
+
+    // Request permission to access camera roll
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    console.log(`Permission status: ${status}`); // Log permission status
+
+    if (status !== 'granted') {
+      Alert.alert('Permission Denied', 'Camera roll permissions are required to select an image.');
+      return;
+    }
+
+    try {
+      // Launch the image library
+      let result = await ImagePicker.launchImageLibraryAsync({
+         // Correct value for images
+        quality: 1,
+      });
+
+      console.log('Image picker result:', result); // Log the full result
+
+      if (result.canceled) {
+        console.log('Image selection was canceled by the user.');
+      } else {
+        console.log('Selected image URI:', result.assets ? result.assets[0].uri : result.uri); // Log selected image URI
+        setImages((prevImages) => ({
+          ...prevImages,
+          [label]: result.assets ? result.assets[0].uri : result.uri, // Handle URI storage correctly
+        }));
+      }
+    } catch (error) {
+      console.error('Error during image selection:', error); // Log any errors
     }
   };
 
@@ -83,3 +91,4 @@ const CarUploadConfirmation = () => {
 };
 
 export default CarUploadConfirmation;
+

@@ -5,8 +5,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from 'twrnc';
-import { useFonts } from 'expo-font';
-import AppLoading from 'expo-app-loading';
+import {useFonts } from 'expo-font';
+import { ActivityIndicator , View } from 'react-native';
 
 // Import screens
 import HomeScreen from './screens/HomeScreen';
@@ -54,7 +54,11 @@ export default function App() {
   });
 
   if (!fontsLoaded) {
-    return <AppLoading />;
+    return (
+      <View>
+        <ActivityIndicator size="large" color="#60B876" />
+      </View>
+    );
   }
 
   const handleLogin = () => {
