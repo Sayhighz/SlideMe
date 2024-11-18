@@ -460,7 +460,8 @@ SELECT DISTINCT
     s.dropoff_long,
     s.location_to,
     u.first_name AS customer_name,
-    u.phone_number AS customer_phone
+    u.phone_number AS customer_phone,
+    s.customer_message
 FROM
     servicerequests s
 LEFT JOIN users u

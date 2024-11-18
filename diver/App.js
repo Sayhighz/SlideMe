@@ -16,6 +16,7 @@ import JobsScreen from './screens/Job/JobsScreen';
 import JobDetail from './screens/Job/JobDetail';
 import JobWorkingScreen from './screens/JobWorkingScreen'; // เพิ่มการนำเข้า JobWorkingScreen
 import NotificationRequest from './screens/NotificationRequest';
+import CarUploadConfirmation from './screens/Job/CarUploadConfirmation';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -28,6 +29,7 @@ function HomeStackNavigator() {
       <Stack.Screen name="JobsScreen" component={JobsScreen} />
       <Stack.Screen name="JobDetail" component={JobDetail} />
       <Stack.Screen name="JobWorking" component={JobWorkingScreen} />
+      <Stack.Screen name="CarUploadConfirmation" component={CarUploadConfirmation} />
     </Stack.Navigator>
   );
 }
