@@ -6,7 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from 'twrnc';
 import {useFonts } from 'expo-font';
-import AppLoading from 'expo-app-loading';
+import { ActivityIndicator , View } from 'react-native';
 
 // นำเข้าหน้าแต่ละหน้า
 import HomeScreen from './screens/HomeScreen';
@@ -46,7 +46,11 @@ export default function App() {
 
   // Show loading screen until fonts are loaded
   if (!fontsLoaded) {
-    return <AppLoading />;
+    return (
+      <View>
+        <ActivityIndicator size="large" color="#60B876" />
+      </View>
+    );
   }
   
   return (

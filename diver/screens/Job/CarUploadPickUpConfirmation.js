@@ -11,27 +11,39 @@ const CarUploadPickUpConfirmation = () => {
   const { request_id } = route.params || {}; // Destructure request_id from params
   const [images, setImages] = useState({});
 
+
   const handleImageSelection = async (label) => {
+    console.log(`Opening image picker for: ${label}`); // Log when button is pressed
+
+    // Request permission to access camera roll
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    console.log(`Permission status: ${status}`); // Log permission status
+
     if (status !== 'granted') {
       Alert.alert('Permission Denied', 'Camera roll permissions are required to select an image.');
       return;
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-    });
+    try {
+      // Launch the image library
+      let result = await ImagePicker.launchImageLibraryAsync({
+         // Correct value for images
+        quality: 1,
+      });
 
-    if (result.canceled) {
-      console.log(`Opening image picker for: ${label}`);
-      console.log('Image selection was canceled by the user.');
-    } else {
-      console.log('Selected image:', result.assets ? result.assets[0] : result.uri);
-      setImages((prevImages) => ({
-        ...prevImages,
-        [label]: result.assets ? result.assets[0].uri : result.uri,
-      }));
+      console.log('Image picker result:', result); // Log the full result
+
+      if (result.canceled) {
+        console.log('Image selection was canceled by the user.');
+      } else {
+        console.log('Selected image URI:', result.assets ? result.assets[0].uri : result.uri); // Log selected image URI
+        setImages((prevImages) => ({
+          ...prevImages,
+          [label]: result.assets ? result.assets[0].uri : result.uri, // Handle URI storage correctly
+        }));
+      }
+    } catch (error) {
+      console.error('Error during image selection:', error); // Log any errors
     }
   };
 
