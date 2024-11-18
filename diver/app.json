@@ -13,7 +13,9 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.SlideMe-Diver"
+      "bundleIdentifier": "com.anonymous.SlideMe-Diver",
+      "infoPlist": { "NSPhotoLibraryUsageDescription": "This app needs access to your photos." }
+      
     },
     "android": {
       "adaptiveIcon": {
