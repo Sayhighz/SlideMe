@@ -413,7 +413,8 @@ router.post("/check_user_phone", (req, res) => {
           ON
             d.request_id = s.request_id
           WHERE
-            d.driver_id = ? and d.offer_status != 'rejected';
+            d.driver_id = ? AND d.offer_status != 'rejected' AND s.status != 'completed';
+
         `;
       
         con.query(sql, [driver_id], (err, result) => {
@@ -475,6 +476,27 @@ WHERE
         con.query(sql, [request_id], (err, result) => {
           if (err) return res.json({ Status: false, Error: err.message });
           return res.json({ Status: true, Result: result });
+        });
+      });
+
+      router.post("/complete_request", (req, res) => {
+        const sql = `
+          UPDATE servicerequests 
+          SET 
+            status = 'completed'
+          WHERE request_id = ?
+        `;
+      
+        const values = [
+          req.body.request_id
+        ];
+        
+        con.query(sql, values, (err, result) => {
+          if (err) return res.json({ Status: false, Error: err.message });
+          return res.json({ 
+            Status: true, 
+            AffectedRows: result.affectedRows 
+          });
         });
       });
       

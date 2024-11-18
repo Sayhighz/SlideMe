@@ -6,7 +6,7 @@ import MapView, { Marker } from 'react-native-maps';
 import { Linking } from 'react-native';
 import { IP_ADDRESS } from '../config';
 
-export default function JobWorkingScreen() {
+export default function JobWorking_Dropoff_Screen() {
   const route = useRoute();
   const navigation = useNavigation(); // Access navigation
   const { request_id } = route.params || {};
@@ -52,7 +52,7 @@ export default function JobWorkingScreen() {
 
   const handleConfirmation = () => {
     // Navigate to the CarUploadConfirmation screen
-    navigation.navigate('CarUploadConfirmation');
+    navigation.navigate('CarUploadDropOffConfirmation', {request_id});
   };
 
   if (loading) {
@@ -95,22 +95,22 @@ export default function JobWorkingScreen() {
         )}
 
         {/* Map with Marker (Touchable for navigation) */}
-        {offer && offer.pickup_lat && offer.pickup_long && (
-          <TouchableOpacity onPress={() => openGoogleMaps(offer.pickup_lat, offer.pickup_long)}>
+        {offer && offer.dropoff_lat && offer.dropoff_long && (
+          <TouchableOpacity onPress={() => openGoogleMaps(offer.dropoff_lat, offer.dropoff_long)}>
             <View style={tw`flex bg-gray-300 items-center justify-center mb-4 rounded-lg h-70`}>
               <MapView
                 style={{ width: '100%', height: '100%' }}
                 initialRegion={{
-                  latitude: parseFloat(offer.pickup_lat),
-                  longitude: parseFloat(offer.pickup_long),
+                  latitude: parseFloat(offer.dropoff_lat),
+                  longitude: parseFloat(offer.dropoff_long),
                   latitudeDelta: 0.01,
                   longitudeDelta: 0.01,
                 }}
               >
                 <Marker
                   coordinate={{
-                    latitude: parseFloat(offer.pickup_lat),
-                    longitude: parseFloat(offer.pickup_long),
+                    latitude: parseFloat(offer.dropoff_lat),
+                    longitude: parseFloat(offer.dropoff_long),
                   }}
                   title="จุดรับ"
                   description="ตำแหน่งที่ตั้งของการรับ"
@@ -125,7 +125,7 @@ export default function JobWorkingScreen() {
           <View>
             <Text style={tw`text-gray-700`}>รายละเอียดที่อยู่</Text>
             <Text style={tw`text-gray-700 mb-4`}>
-              {offer.location_from || 'ไม่มีข้อมูลเพิ่มเติม'}
+              {offer.location_to || 'ไม่มีข้อมูลเพิ่มเติม'}
             </Text>
             <Text style={tw`text-gray-700`}>รายละเอียดเพิ่มเติม</Text>
             <Text style={tw`text-gray-700 mb-4`}>

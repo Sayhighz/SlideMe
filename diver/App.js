@@ -14,9 +14,11 @@ import HistoryScreen from './screens/History/HistoryScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import JobsScreen from './screens/Job/JobsScreen';
 import JobDetail from './screens/Job/JobDetail';
-import JobWorkingScreen from './screens/JobWorkingScreen'; // เพิ่มการนำเข้า JobWorkingScreen
+import JobWorking_Pickup_Screen from './screens/JobWorking_Pickup_Screen';
+import JobWorking_Dropoff_Screen from './screens/JobWorking_Dropoff_Screen';
 import NotificationRequest from './screens/NotificationRequest';
-import CarUploadConfirmation from './screens/Job/CarUploadConfirmation';
+import CarUploadPickUpConfirmation from './screens/Job/CarUploadPickUpConfirmation';
+import CarUploadDropOffConfirmation from './screens/Job/CarUploadDropOffConfirmation';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -28,8 +30,10 @@ function HomeStackNavigator() {
       <Stack.Screen name="HomeMain" component={HomeScreen} />
       <Stack.Screen name="JobsScreen" component={JobsScreen} />
       <Stack.Screen name="JobDetail" component={JobDetail} />
-      <Stack.Screen name="JobWorking" component={JobWorkingScreen} />
-      <Stack.Screen name="CarUploadConfirmation" component={CarUploadConfirmation} />
+      <Stack.Screen name="JobWorking_Pickup" component={JobWorking_Pickup_Screen} />
+      <Stack.Screen name="CarUploadPickUpConfirmation" component={CarUploadPickUpConfirmation} />
+      <Stack.Screen name="JobWorking_Dropoff" component={JobWorking_Dropoff_Screen} />
+      <Stack.Screen name="CarUploadDropOffConfirmation" component={CarUploadDropOffConfirmation} />
     </Stack.Navigator>
   );
 }

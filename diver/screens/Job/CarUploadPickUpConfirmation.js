@@ -1,37 +1,36 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, Image, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native'; // Import useRoute
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from 'twrnc';
-import * as ImagePicker from 'expo-image-picker'; // Import Expo's Image Picker
+import * as ImagePicker from 'expo-image-picker';
 
-const CarUploadConfirmation = () => {
+const CarUploadPickUpConfirmation = () => {
   const navigation = useNavigation();
+  const route = useRoute(); // Access route
+  const { request_id } = route.params || {}; // Destructure request_id from params
   const [images, setImages] = useState({});
 
   const handleImageSelection = async (label) => {
-      
-      // Request permission to access camera roll
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-          Alert.alert('Permission Denied', 'Camera roll permissions are required to select an image.');
-          return;
-        }
-        
-        // Launch the image library with updated MediaType usage
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: [ImagePicker.MediaType.IMAGE], // Updated MediaType usage
-            quality: 1,
-        });
-        
-        if (result.canceled) {
-        console.log(`Opening image picker for: ${label}`); // Log when button is pressed
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Denied', 'Camera roll permissions are required to select an image.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+
+    if (result.canceled) {
+      console.log(`Opening image picker for: ${label}`);
       console.log('Image selection was canceled by the user.');
     } else {
-      console.log('Selected image:', result.assets ? result.assets[0] : result.uri); // Log selected image data
+      console.log('Selected image:', result.assets ? result.assets[0] : result.uri);
       setImages((prevImages) => ({
         ...prevImages,
-        [label]: result.assets ? result.assets[0].uri : result.uri, // Handle URI storage correctly
+        [label]: result.assets ? result.assets[0].uri : result.uri,
       }));
     }
   };
@@ -57,6 +56,11 @@ const CarUploadConfirmation = () => {
     </TouchableOpacity>
   );
 
+  const handleConfirmation = () => {
+    // Navigate or handle confirmation with request_id
+    navigation.navigate('JobWorking_Dropoff', { request_id }); // Replace 'NextScreen' with the intended screen
+  };
+
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
       <View style={tw`p-4 flex-1`}>
@@ -74,12 +78,15 @@ const CarUploadConfirmation = () => {
             {renderUploadBox('ด้านข้างรถ (ขวา)')}
           </View>
         </View>
-        <TouchableOpacity style={tw`bg-green-500 p-4 rounded-lg mt-4 items-center`}>
-          <Text style={tw`text-white text-base font-bold`}>ยืนยันการส่งรถ</Text>
+        <TouchableOpacity
+          onPress={handleConfirmation}
+          style={tw`bg-green-500 p-4 rounded-lg mt-4 items-center`}
+        >
+          <Text style={tw`text-white text-base font-bold`}>ยืนยันการรับรถ</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 };
 
-export default CarUploadConfirmation;
+export default CarUploadPickUpConfirmation;

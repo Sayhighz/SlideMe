@@ -59,10 +59,10 @@ export default function HomeScreen() {
     }, [])
   );
 
-  // Handle offer press to navigate to JobWorking screen with request_id
+
   const handleOfferPress = (offer) => {
     if (offer.offer_status === 'accepted') {
-      navigation.navigate('JobWorking', { request_id: offer.request_id });
+      navigation.navigate('JobWorking_Pickup', { request_id: offer.request_id });
     } else {
       setSelectedOffer(offer);
       setModalVisible(true);
