@@ -22,7 +22,7 @@ import UserProfile from './pages/userProfile/userProfile';
 import MapPage from './pages/MapPage/MapPage';
 import PaymentPage from './pages/paymentPage/PaymentPage';
 import ViewOrder from './pages/viewOrder/ViewOrder';
-import Rating from './pages/Rating/rating';
+import Rating from './pages/Rating/Rating';
 import tw from 'twrnc';
 
 

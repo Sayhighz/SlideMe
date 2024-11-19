@@ -58,15 +58,17 @@ const Rating = ({ navigation }) => {
       });
     // Simulate sending review to database
     console.log('Submitted Review:', newReview); // Replace this with your database call
-    Alert.alert('Success', 'Thank you for your review!', [
-        {text: 'OK', onPress: () => navigation.navigate("Home")},
-      ] , {cancelable: false});
+    // Alert.alert('Success', 'Thank you for your review!', [
+    //     {text: 'OK', onPress: () => navigation.navigate("HomePage")},
+    //   ] , {cancelable: false});
 
       const result = await response.json();
 
       if (result.Status) {
-        Alert.alert('Success', 'Thank you for your review!');
-        // Reset form fields
+        Alert.alert('Success', 'Thank you for your review!'
+        , [
+          {text: 'OK', onPress: () => navigation.navigate("HomePage")},
+        ] , {cancelable: false});
         setReview('');
         setRating(0);
       } else {

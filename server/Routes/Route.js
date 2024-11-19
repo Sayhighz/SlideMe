@@ -1,11 +1,11 @@
+
 import express from "express";
 import con from "../utils/db.js";
+import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
-import fs from "fs";
 
 const router = express.Router();
-
 
 router.post("/add_request", (req, res) => {
   const sql = `
@@ -306,20 +306,47 @@ router.post("/add_user_info", (req, res) => {
               created_at
           ) VALUES (?, ?, ?, ?, ?, 'customer', NOW())
           `;
-      
-          const values = [
-              phone_number,
-              email || null,
-              username || null,
-              first_name || null,
-              last_name || null
-          ];
-      
-          con.query(sql, values, (err, result) => {
-              if (err) return res.json({ Status: false, Error: err.message });
-              return res.json({ Status: true, InsertId: result.insertId });
-          });
-      });
+
+  const values = [phone_number, email || null, username || null, first_name || null, last_name || null];
+
+  con.query(sql, values, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, InsertId: result.insertId });
+  });
+})
+      // Add this endpoint to your server-side (e.g., in Route.js)
+router.post("/check_user_phone", (req, res) => {
+  const { phone_number } = req.body;
+  const sql = `SELECT * FROM users WHERE phone_number = ?`;
+  con.query(sql, [phone_number], (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    if (result.length > 0) {
+      // Phone number exists
+      return res.json({ Status: true, Exists: true, Message: "Phone number exists" });
+    } else {
+      // Phone number does not exist
+      return res.json({ Status: true, Exists: false, Message: "Phone number does not exist" });
+    }
+  });
+});
+
+    
+
+      router.get("/getRequests", (req, res) => {
+        const sql = `
+  const values = [
+    phone_number,
+    email || null,
+    username || null,
+    first_name || null,
+    last_name || null,
+  ]`;
+
+  con.query(sql, values, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, InsertId: result.insertId });
+  });
+});
 
 router.get("/getRequests", (req, res) => {
   const sql = `
@@ -367,8 +394,225 @@ router.post("/offer_price", (req, res) => {
           });
         });
       });
+
+      router.get("/getOffersFromDriver", (req, res) => {
+        const driver_id = req.query.driver_id || 0;
+      
+        const sql = `
+          SELECT
+            s.request_id,
+            d.offer_id,
+            s.location_from,
+            s.location_to,
+            s.vehicle_type,
+            d.offered_price,
+            d.offer_status
+          FROM
+            driveroffers d
+          LEFT JOIN servicerequests s
+          ON
+            d.request_id = s.request_id
+          WHERE
+            d.driver_id = ? and d.offer_status != 'rejected';
+        `;
+      
+        con.query(sql, [driver_id], (err, result) => {
+          if (err) return res.json({ Status: false, Error: err.message });
+          return res.json({ Status: true, Result: result });
+        });
+      });
+
+
+      router.post("/cancle_offer", (req, res) => {
+        const sql = `
+          update
+            driveroffers
+          set
+            offer_status = 'rejected'
+          where
+            offer_id = ?
+        `;
+      
+        const values = [
+          req.body.offer_id
+        ];
+        
+        con.query(sql, values, (err, result) => {
+          if (err) return res.json({ Status: false, Error: err.message });
+          return res.json({ 
+            Status: true, 
+            AffectedRows: result.affectedRows 
+          });
+        });
+      });
+      
+
+      router.get("/getRequestDetailForDriver", (req, res) => {
+        const request_id = req.query.request_id || 0;
+      
+        const sql = `
+SELECT DISTINCT
+    s.request_id,
+    s.pickup_lat,
+    s.pickup_long,
+    s.location_from,
+    s.dropoff_lat,
+    s.dropoff_long,
+    s.location_to,
+    u.first_name AS customer_name,
+    u.phone_number AS customer_phone
+FROM
+    servicerequests s
+LEFT JOIN users u
+    ON u.user_id = s.customer_id
+LEFT JOIN driveroffers d
+    ON d.request_id = s.request_id
+WHERE
+    s.request_id = ?;
+        `;
+      
+        con.query(sql, [request_id], (err, result) => {
+          if (err) return res.json({ Status: false, Error: err.message });
+          return res.json({ Status: true, Result: result });
+        });
+      });
       
         
+
+  // const values = [
+  //   req.body.request_id,
+  //   req.body.driver_id,
+  //   req.body.offered_price,
+  // ];
+
+  // con.query(sql, values, (err, result) => {
+  //   if (err) return res.json({ Status: false, Error: err.message });
+  //   return res.json({
+  //     Status: true,
+  //     AffectedRows: result.affectedRows,
+  //   });
+  // });
+
+
+router.get("/drivers", (req, res) => {
+  const sql = `SELECT * FROM driverdetails;`;
+  con.query(sql, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
+
+// ดึงข้อมูลของ driver ตาม ID ที่ระบุ
+router.get("/drivers/chooseoffer", (req, res) => {
+  const requestId = req.query.request_id || 24; 
+
+  const sql = `
+    SELECT 
+      d.driver_id,
+      d.current_latitude,
+      d.current_longitude,
+      u.user_id,
+      u.username,
+      u.first_name,
+      u.last_name,
+      AVG(r.rating) AS average_rating,
+      do.offered_price,
+     @
+      sr.pickup_long,
+      sr.location_from,
+      sr.dropoff_lat,
+      sr.dropoff_long,
+      sr.location_to
+    FROM driverdetails d
+    INNER JOIN users u ON d.driver_id = u.user_id
+    LEFT JOIN reviews r ON u.user_id = r.driver_id
+    INNER JOIN driveroffers do ON d.driver_id = do.driver_id
+    LEFT JOIN servicerequests sr ON do.request_id = sr.request_id
+    WHERE sr.request_id = ? -- Filter by request_id
+    GROUP BY d.driver_id, d.current_latitude, d.current_longitude, u.user_id, u.username, u.first_name, u.last_name, do.offered_price, sr.pickup_lat, sr.pickup_long, sr.location_from, sr.dropoff_lat, sr.dropoff_long, sr.location_to;
+  `;
+
+  con.query(sql, [requestId], (err, result) => {
+    if (err) {
+      console.error("Error fetching drivers:", err);
+      return res.status(500).json({ Status: false, Error: err.message });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({ Status: false, Message: "No drivers found" });
+    }
+
+    return res.status(200).json({ Status: true, Result: result });
+  });
+});
+
+router.get("/get_payments_method", (req, res) => {
+  const sql = `SELECT payment_type, card_number, account_name FROM paymentmethods`;
+  con.query(sql, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
+
+router.get("/validate_customer", (req, res) => {
+  const customerId = 10; // Hardcoded value, you can adjust this as needed
+  const sql = `SELECT * FROM servicerequests WHERE customer_id = ?`;
+
+  con.query(sql, [customerId], (err, result) => {
+    if (err) {
+      return res.status(500).json({ Status: false, Error: err.message });
+    }
+
+    if (result.length === 0) {
+      // No matching record found for customer_id = 10
+      return res.status(404).json({ Status: false, Message: "No records found for customer_id 10" });
+    }
+
+    // Matching record(s) found
+    return res.status(200).json({ Status: true, Result: result });
+  });
+});
+
+router.get("/fetch_driver_info", (req, res) => {
+  const sql = `
+    SELECT 
+      sr.request_id,
+      sr.pickup_lat,
+      sr.pickup_long,
+      sr.location_from,
+      sr.dropoff_lat,
+      sr.dropoff_long,
+      sr.location_to,
+      sr.booking_time,
+      sr.request_time,
+      u.username AS driver_name,
+      u.phone_number AS driver_phone,
+      AVG(r.rating) AS average_rating,
+      d.current_latitude AS driver_latitude,
+      d.current_longitude AS driver_longitude
+    FROM servicerequests sr
+    INNER JOIN driveroffers do ON sr.request_id = do.request_id
+    INNER JOIN users u ON do.driver_id = u.user_id
+    LEFT JOIN reviews r ON u.user_id = r.driver_id
+    INNER JOIN driverdetails d ON do.driver_id = d.driver_id
+    WHERE sr.customer_id = 10 AND do.driver_id = 6
+    GROUP BY 
+      sr.request_id, sr.pickup_lat, sr.pickup_long, sr.location_from, 
+      sr.dropoff_lat, sr.dropoff_long, sr.location_to, 
+      sr.booking_time, sr.request_time, u.username, u.phone_number, 
+      d.current_latitude, d.current_longitude;
+  `;
+
+  con.query(sql, (err, result) => {
+    if (err) {
+      return res.status(500).json({ Status: false, Error: err.message });
+    }
+    if (result.length === 0) {
+      return res.status(404).json({ Status: false, Message: "No records found" });
+    }
+    return res.status(200).json({ Status: true, Result: result });
+  });
+});
 
 
 
