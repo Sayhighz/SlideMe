@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
   Modal,
@@ -170,6 +171,7 @@ const ChooseOffer = ({ navigation, route }) => {
 
     const refreshPage = async () => {
       try {
+        console.log("Refresh Page")
         const response = await fetch(`http://${IP_ADDRESS}:3000/auth/drivers/chooseoffer?request_id=${request_id}`);
         const data = await response.json();
         if (data.Status) {
@@ -185,6 +187,10 @@ const ChooseOffer = ({ navigation, route }) => {
               longitude: parseFloat(data.PickupDropoffInfo.dropoff_long),
             });
           }
+
+          if(data.Result == ""){
+            setOfferLoading(true);
+          }
   
           if (data.Result && data.Result.length > 0) {
             // Handle driver data if available
@@ -199,9 +205,9 @@ const ChooseOffer = ({ navigation, route }) => {
               price: driver.offered_price,
             }));
             setOffer(drivers);
+            setOfferLoading(false);
           }
   
-          setOfferLoading(false);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -303,7 +309,6 @@ const ChooseOffer = ({ navigation, route }) => {
       </Modal>
 
       <View style={tw`flex-1`}>
-        {console.log("asdasd",originLocation,destinationLocation)}
         {originLocation.latitude && destinationLocation.latitude ? (
           <MapView
             style={tw`flex-1`} // ปรับขนาดตามที่ต้องการ
@@ -380,6 +385,7 @@ const ChooseOffer = ({ navigation, route }) => {
             </Pressable>
           </View>
           <View style={tw`flex-1 justify-center items-end`}>
+            {!offerLoading ? (
             <Dropdown
               style={tw`h-3/4 w-2/4 border-gray-300 rounded-lg px-3 bg-white `}
               data={dataDropdown}
@@ -398,6 +404,9 @@ const ChooseOffer = ({ navigation, route }) => {
                 });
               }}
             />
+            ) : (
+              null
+            )}
           </View>
         </View>
         <View style={tw`flex-8 items-center `}>
@@ -455,7 +464,8 @@ const ChooseOffer = ({ navigation, route }) => {
           />
           ) : (
             <View style={tw`flex-1 justify-center items-center`}>
-              <Text style={tw`text-lg font-bold`}>กําลังโหลดข้อมูล...</Text>
+              <ActivityIndicator size="large" color={"#000000"} />
+              <Text style={tw`text-lg font-bold mt-5`}>กําลังรอคนขับ...</Text>
             </View>
           )}
         </View>
