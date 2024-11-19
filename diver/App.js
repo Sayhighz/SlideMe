@@ -21,6 +21,11 @@ import CarUploadPickUpConfirmation from './screens/Job/CarUploadPickUpConfirmati
 import CarUploadDropOffConfirmation from './screens/Job/CarUploadDropOffConfirmation';
 import HomeLogin from './screens/LoginDriver/HomeLogin';
 import FirstRegister from './screens/LoginDriver/FirstRegister';
+import SecondRegister from './screens/LoginDriver/SecondRegister';
+import ThirdRegister from './screens/LoginDriver/ThirdRegister';
+import FourthRegister from './screens/LoginDriver/FourthRegister';
+import FifthRegister from './screens/LoginDriver/FifthRegister';
+import SixRegister from './screens/LoginDriver/SixRegister';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -46,6 +51,11 @@ function AuthNavigator({ handleLogin }) {
         {(props) => <HomeLogin {...props} onLogin={handleLogin} />}
       </Stack.Screen>
       <Stack.Screen name="FirstRegister" component={FirstRegister} />
+      <Stack.Screen name="SecondRegister" component={SecondRegister} />
+      <Stack.Screen name="ThirdRegister" component={ThirdRegister} />
+      <Stack.Screen name="FourthRegister" component={FourthRegister} />
+      <Stack.Screen name="FifthRegister" component={FifthRegister} />
+      <Stack.Screen name="SixRegister" component={SixRegister} />
     </Stack.Navigator>
   );
 }

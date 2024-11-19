@@ -22,7 +22,8 @@ export default function HomeLogin({ onLogin, navigation }) {
                 <View style={tw`flex-1 justify-center items-center`}>
                     <Text style={tw`text-6xl text-[#60B876] font-bold text-center`}>SLIDE</Text>
                     <Text style={tw`text-8xl text-[#60B876] font-bold text-center leading-none z-10`}>ME</Text>
-                    <Text style={tw`text-lg font-bold leading-none text-[#60B876]`}>Drivers</Text>
+                    <Text style={tw`text-lg font-bold leading-none text-[#60B876]`}>Drive & Earn</Text>
+
                 </View>
                 <View style={tw`flex-1 w-11/12 mx-auto mt-6`}>
                     <Text style={tw`text-lg font-bold mb-2`}>เบอร์โทรศัพท์</Text>
@@ -31,8 +32,8 @@ export default function HomeLogin({ onLogin, navigation }) {
                         style={tw`border-2 border-gray-300 rounded-lg p-2 mb-4`}
                         keyboardType="phone-pad"
                     />
-                    <Text style={tw`text-lg font-bold mb-2`}>รหัสผ่าน</Text>
-                    <View style={tw`border-2 border-gray-300 rounded-lg flex-row items-center p-2 mb-4`}>
+                    <Text style={tw`text-lg font-bold `}>รหัสผ่าน</Text>
+                    <View style={tw`border-2 border-gray-300 rounded-lg flex-row items-center p-2 `}>
                         <TextInput
                             placeholder="รหัสผ่าน"
                             style={tw`flex-1`}
@@ -46,7 +47,7 @@ export default function HomeLogin({ onLogin, navigation }) {
                             />
                         </TouchableOpacity>
                     </View>
-                    <Text style={tw`text-sm ml-2`}>ลืมรหัสผ่าน</Text>
+                    <Text style={tw`text-sm ml-2`} onPress={handleLoginPress}>ลืมรหัสผ่าน</Text>
                     <TouchableOpacity style={tw`w-full bg-[#60B876] rounded-full p-4 mt-4`} onPress={handleLoginPress}>
                         <Text style={tw`text-center text-lg font-bold text-white`}>เข้าสู่ระบบ</Text>
                     </TouchableOpacity>
