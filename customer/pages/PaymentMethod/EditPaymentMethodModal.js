@@ -76,7 +76,7 @@ const EditPaymentMethodModal = ({
           text: 'ใช่',
           onPress: async () => {
             try {
-              const response = await fetch('http://192.168.1.106:3000/auth/disable_payment_method', {
+              const response = await fetch(`http://${IP_ADDRESS}:3000/auth/disable_payment_method`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',

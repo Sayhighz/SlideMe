@@ -10,6 +10,8 @@ import { useRoute } from "@react-navigation/native";
 import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
 import MapViewDirections from "react-native-maps-directions";
 import * as Location from "expo-location";
+import axios from 'axios';
+import { IP_ADDRESS } from "../../config";
 
 export default function ViewOrder({ navigation }) {
   const route = useRoute();
@@ -19,34 +21,41 @@ export default function ViewOrder({ navigation }) {
 
   const [driverInformation, setDriverInformation] = useState({});
 
-  const [confirmFromDriver, setConfirmFromDriver] = useState(true);
+  const [confirmFromDriver, setConfirmFromDriver] = useState(false);
 
   const [myLocation, setMyLocation] = useState({});
+
+  const [request, setRequest] = useState("");
+
+  const [time, setTime] = useState("");
 
   const driverProfile = route.params?.driverProfile.chooseDriver || "ไม่ระบุ";
   const originLocation = route.params?.originLocation || "ไม่ระบุ";
   const destinationLocation = route.params?.destinationLocation || "ไม่ระบุ";
 
-  useEffect(() => {
-    setOrigin({
-      name: originLocation.name,
-      latitude: originLocation.latitude,
-      longitude: originLocation.longitude,
-    });
-    setDestination({
-      name: destinationLocation.name,
-      latitude: destinationLocation.latitude,
-      longitude: destinationLocation.longitude,
-    });
+  // useEffect(() => {
+  //   setOrigin({
+  //     name: originLocation.name,
+  //     latitude: originLocation.latitude,
+  //     longitude: originLocation.longitude,
+  //   });
 
-    setDriverInformation({
-      name: driverProfile.name,
-      latitude: driverProfile.location.latitude,
-      longitude: driverProfile.location.longitude,
-      phone: "0808341035",
-      rating: driverProfile.rating,
-    });
-  }, [route.params]);
+  //   setDestination({
+  //     name: destinationLocation.name,
+  //     latitude: destinationLocation.latitude,
+  //     longitude: destinationLocation.longitude,
+  //   });
+
+  //   setDriverInformation({
+  //     name: driverProfile.name,
+  //     latitude: driverProfile.location.latitude,
+  //     longitude: driverProfile.location.longitude,
+  //     phone: "0808341035",
+  //     rating: driverProfile.rating,
+  //   });
+
+  //   console.log(driverInformation)
+  // }, [route.params]);
 
   
 
@@ -54,42 +63,111 @@ export default function ViewOrder({ navigation }) {
   //   console.log(route.params);
   // }, [route.params]);
 
-  useEffect(() => {
-    _getLocation();
-  }, []);
+  // useEffect(() => {
+  //   _getLocation();
+  // }, []);
 
-  const _getLocation = async () => {
-    try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        console.warn("Permission to access location was denied");
-        return;
-      }
+  // const _getLocation = async () => {
+  //   try {
+  //     let { status } = await Location.requestForegroundPermissionsAsync();
+  //     if (status !== "granted") {
+  //       console.warn("Permission to access location was denied");
+  //       return;
+  //     }
 
-      // เฝ้าดูตำแหน่งของผู้ใช้แบบเรียลไทม์
-      await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.High,
-          timeInterval: 600000, // Update every 10 minutes
-          distanceInterval: 500,
-        },
-        (location) => {
-          const { latitude, longitude } = location.coords;
-          const newRegion = {
-            latitude,
-            longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          };
+  //     // เฝ้าดูตำแหน่งของผู้ใช้แบบเรียลไทม์
+  //     await Location.watchPositionAsync(
+  //       {
+  //         accuracy: Location.Accuracy.High,
+  //         timeInterval: 600000, // Update every 10 minutes
+  //         distanceInterval: 500,
+  //       },
+  //       (location) => {
+  //         const { latitude, longitude } = location.coords;
+  //         const newRegion = {
+  //           latitude,
+  //           longitude,
+  //           latitudeDelta: 0.0922,
+  //           longitudeDelta: 0.0421,
+  //         };
 
-          setMyLocation(location.coords);
+  //         setMyLocation(newRegion);
+  //         // console.log(myLocation)
 
-        }
-      );
-    } catch (error) {
-      console.warn("Error fetching location", error);
-    }
+  //       }
+  //     );
+  //   } catch (error) {
+  //     console.warn("Error fetching location", error);
+  //   }
+  // };
+
+
+  const formatDateToThaiTimezone = (dateString) => {
+    const date = new Date(dateString);
+    const options = { 
+      timeZone: 'Asia/Bangkok', 
+      year: 'numeric', 
+      month: '2-digit', 
+      day: '2-digit', 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit' 
+    };
+    return new Intl.DateTimeFormat('th-TH', options).format(date);
   };
+  
+  const padNumber = (number, length) => {
+    return number.toString().padStart(length, '0');
+  };
+
+  useEffect(() => {
+    // Define an async function to fetch data
+    const fetchOrderDetails = async () => {
+      try {
+        const response = await axios.get(`http://${IP_ADDRESS}:3000/auth/fetch_driver_info`, {
+          params: {
+            customer_id: 10,
+            driver_id: 6
+          }
+        });
+  
+        if (response.data.Status && response.data.Result.length > 0) {
+          const data = response.data.Result[0]; // Assuming you want the first result
+  
+          // Set the state with fetched data
+          setOrigin({
+            name: data.location_from,
+            latitude: parseFloat(data.pickup_lat),
+            longitude: parseFloat(data.pickup_long),
+          });
+  
+          setDestination({
+            name: data.location_to,
+            latitude: parseFloat(data.dropoff_lat),
+            longitude: parseFloat(data.dropoff_long),
+          });
+  
+          setDriverInformation({
+            name: data.driver_name,
+            latitude: data.driver_latitude,
+            longitude: data.driver_longitude,
+            phone: data.driver_phone,
+            rating: (data.average_rating).toFixed(1),
+          });
+
+          setTime(formatDateToThaiTimezone(data.booking_time));
+          setRequest(padNumber(data.request_id, 10));
+
+        } else {
+          console.error('No matching data found');
+        }
+      } catch (error) {
+        console.error('Error fetching order details:', error);
+      }
+    };
+  
+    fetchOrderDetails(); // Call the function
+  }, []);
 
   return (
     <SafeAreaView style={tw`flex-1 relative `}>
@@ -97,8 +175,8 @@ export default function ViewOrder({ navigation }) {
         <View style={tw`flex-2`}>
           <View style={tw`flex-1`}>
             <View style={tw`flex-1 flex-row justify-between px-4 items-end`}>
-              <Text style={styles.globalText}>10:12 AM 15 ม.ค. 2567</Text>
-              <Text style={styles.globalText}>xxxxxxxxxxxxxx</Text>
+              <Text style={styles.globalText}>{time}</Text>
+              <Text style={styles.globalText}>{request}</Text>
             </View>
             <View
               style={tw`flex-4 justify-around mx-4 px-4 bg-gray-200 rounded-lg`}
@@ -128,8 +206,8 @@ export default function ViewOrder({ navigation }) {
                 initialRegion={{
                   latitude: 13.855890002666245,
                   longitude: 100.58553823947129,
-                  latitudeDelta: 0.0922,
-                  longitudeDelta: 0.0421,
+                  latitudeDelta: 0.0522,
+                  longitudeDelta: 0.0521,
                 }}
               >
                 <Marker
@@ -161,19 +239,17 @@ export default function ViewOrder({ navigation }) {
 
                 {origin.latitude &&
                   origin.longitude &&
-                  myLocation.latitude &&
-                  myLocation.longitude &&
                   destination.latitude &&
                   destination.longitude &&
                   driverInformation.latitude &&
                   driverInformation.longitude && (
                     <MapViewDirections
                       strokeColor="blue"
-                      strokeWidth={3}
+                      strokeWidth={2}
                       apikey={GOOGLE_MAPS_API_KEY}
                       origin={{
-                        latitude: myLocation.latitude,
-                        longitude: myLocation.longitude,
+                        latitude: driverInformation.latitude,
+                        longitude: driverInformation.longitude,
                       }}
                       destination={
                         confirmFromDriver
@@ -204,10 +280,10 @@ export default function ViewOrder({ navigation }) {
               <Text style={[styles.globalText , tw`text-xl`]}>{driverInformation.name}</Text>
             </View>
             <View style={tw`flex-1 flex-row items-center justify-end`}>
+              <MaterialIcons name="star" size={24} color="yellow" />
               <Text style={[styles.globalText , tw`text-xl text-center`]}>
                 {driverInformation.rating}
               </Text>
-              <MaterialIcons name="star" size={24} color="yellow" />
             </View>
           </Pressable>
           <View style={tw`flex-2`}>
@@ -216,6 +292,7 @@ export default function ViewOrder({ navigation }) {
                 style={tw`flex-1 bg-gray-300 justify-center rounded-lg items-center w-1/3 mx-4`}
                 onPress={() => {
                   openURL(`tel:${driverInformation.phone}`);
+                  console.log(driverInformation.phone);
                 }}
               >
                 <MaterialIcons name="call" size={24} color="green" />

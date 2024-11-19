@@ -6,54 +6,6 @@ import fs from "fs";
 
 const router = express.Router();
 
-// Configure multer storage settings
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = "uploads/"; // Directory where images are saved
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
-    }
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
-  },
-});
-
-const upload = multer({ storage });
-
-// API to handle multiple image uploads
-router.post("/upload_multiple_images", upload.array("photos", 5), (req, res) => {
-  if (!req.files || req.files.length === 0) {
-    return res.status(400).json({ Status: false, Error: "No files uploaded" });
-  }
-
-  const { request_id, driver_id } = req.body;
-
-  // Extract file paths of the uploaded images
-  const photoPaths = req.files.map(file => file.path);
-
-  // Insert the data into the database as a batch
-  const sql = `
-    INSERT INTO driverlogs (
-      request_id,
-      driver_id,
-      photo_before_service
-    ) VALUES ?
-  `;
-
-  // Prepare values for batch insertion
-  const values = photoPaths.map(path => [request_id, driver_id, path]);
-
-  con.query(sql, [values], (err, result) => {
-    if (err) {
-      return res.status(500).json({ Status: false, Error: err.message });
-    }
-    res.json({ Status: true, InsertId: result.insertId, FilePaths: photoPaths });
-  });
-});
-
 
 router.post("/add_request", (req, res) => {
   const sql = `
@@ -73,30 +25,29 @@ router.post("/add_request", (req, res) => {
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,'pending')
 `;
 
-const values = [
-  req.body.customer_id,
-  req.body.request_time,
-  req.body.pickup_lat,
-  req.body.pickup_long,
-  req.body.location_from,
-  req.body.dropoff_lat,
-  req.body.dropoff_long,
-  req.body.location_to,
-  req.body.vehicle_type,
-  req.body.booking_time,
-  req.body.customer_message
-];
-  
-    con.query(sql, values, (err, result) => {
-      if (err) return res.json({ Status: false, Error: err.message });
-      return res.json({ Status: true, InsertId: result.insertId });
-    });
+  const values = [
+    req.body.customer_id,
+    req.body.request_time,
+    req.body.pickup_lat,
+    req.body.pickup_long,
+    req.body.location_from,
+    req.body.dropoff_lat,
+    req.body.dropoff_long,
+    req.body.location_to,
+    req.body.vehicle_type,
+    req.body.booking_time,
+    req.body.customer_message,
+  ];
+
+  con.query(sql, values, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, InsertId: result.insertId });
   });
+});
 
-
-  router.get("/service_history_customer", (req, res) => {
-    const customerId = req.query.customer_id || 1;
-    const sql = `
+router.get("/service_history_customer", (req, res) => {
+  const customerId = req.query.customer_id || 1;
+  const sql = `
       SELECT
       sr.vehicle_type,
       sr.request_time AS date,
@@ -113,15 +64,15 @@ const values = [
       ORDER BY
           sr.request_time DESC;
     `;
-    con.query(sql, [customerId], (err, result) => {
-      if (err) return res.json({ Status: false, Error: err.message });
-      return res.json({ Status: true, Result: result });
-    });
+  con.query(sql, [customerId], (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
   });
+});
 
-  router.get("/getAllDiscounts", (req, res) => {
-    const customerId = req.query.customer_id || 1;
-    const sql = `
+router.get("/getAllDiscounts", (req, res) => {
+  const customerId = req.query.customer_id || 1;
+  const sql = `
       SELECT
         discount_code,
         discount_percentage,
@@ -131,17 +82,15 @@ const values = [
       FROM
         slideme.discounts
     `;
-    con.query(sql, [customerId], (err, result) => {
-      if (err) return res.json({ Status: false, Error: err.message });
-      return res.json({ Status: true, Result: result });
-    });
+  con.query(sql, [customerId], (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
   });
+});
 
-  
-
-  router.get("/getAllUserPaymentMethods", (req, res) => {
-    const userId = req.query.user_id || 1;
-    const sql = `
+router.get("/getAllUserPaymentMethods", (req, res) => {
+  const userId = req.query.user_id || 1;
+  const sql = `
       SELECT
         payment_method_id,
         payment_type,
@@ -154,15 +103,14 @@ const values = [
         user_id = ?
         and status = 'active';
     `;
-    con.query(sql, [userId], (err, result) => {
-      if (err) return res.json({ Status: false, Error: err.message });
-      return res.json({ Status: true, Result: result });
-    });
+  con.query(sql, [userId], (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
   });
+});
 
-
-  router.post("/add_reviews", (req, res) => {
-    const sql = `
+router.post("/add_reviews", (req, res) => {
+  const sql = `
     INSERT INTO reviews (
       request_id,
       customer_id,
@@ -171,23 +119,23 @@ const values = [
       review_text
   ) VALUES (?, ?, ?, ?, ?)
   `;
-  
+
   const values = [
     req.body.request_id,
     req.body.customer_id,
     req.body.driver_id,
     req.body.rating,
-    req.body.review_text
+    req.body.review_text,
   ];
-    
-      con.query(sql, values, (err, result) => {
-        if (err) return res.json({ Status: false, Error: err.message });
-        return res.json({ Status: true, InsertId: result.insertId });
-      });
-    });
 
-    router.post("/add_address", (req, res) => {
-      const sql = `
+  con.query(sql, values, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, InsertId: result.insertId });
+  });
+});
+
+router.post("/add_address", (req, res) => {
+  const sql = `
       INSERT INTO addresses (
         user_id,
         address_name,
@@ -197,23 +145,22 @@ const values = [
     ) VALUES (?, ?, ?, ?, ?)
     `;
 
-    const values = [
-      req.body.user_id,
-      req.body.address_name,
-      req.body.address_detail,
-      req.body.latitude,
-      req.body.longitude
-    ];
-      
-        con.query(sql, values, (err, result) => {
-          if (err) return res.json({ Status: false, Error: err.message });
-          return res.json({ Status: true, InsertId: result.insertId });
-        });
-      });
+  const values = [
+    req.body.user_id,
+    req.body.address_name,
+    req.body.address_detail,
+    req.body.latitude,
+    req.body.longitude,
+  ];
 
+  con.query(sql, values, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, InsertId: result.insertId });
+  });
+});
 
-      router.post("/update_address", (req, res) => {
-        const sql = `
+router.post("/update_address", (req, res) => {
+  const sql = `
           UPDATE addresses 
           SET 
             address_name = ?, 
@@ -222,26 +169,26 @@ const values = [
             longitude = ?
           WHERE address_id = ?
         `;
-      
-        const values = [
-          req.body.address_name,
-          req.body.address_detail,
-          req.body.latitude,
-          req.body.longitude,
-          req.body.address_id
-        ];
-        
-        con.query(sql, values, (err, result) => {
-          if (err) return res.json({ Status: false, Error: err.message });
-          return res.json({ 
-            Status: true, 
-            AffectedRows: result.affectedRows 
-          });
-        });
-      });
 
-      router.post("/edit_profile", (req, res) => {
-        const sql = `
+  const values = [
+    req.body.address_name,
+    req.body.address_detail,
+    req.body.latitude,
+    req.body.longitude,
+    req.body.address_id,
+  ];
+
+  con.query(sql, values, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({
+      Status: true,
+      AffectedRows: result.affectedRows,
+    });
+  });
+});
+
+router.post("/edit_profile", (req, res) => {
+  const sql = `
           UPDATE users 
           SET 
             email = ?, 
@@ -249,25 +196,25 @@ const values = [
             last_name = ?
           WHERE user_id = ?
         `;
-      
-        const values = [
-          req.body.email,
-          req.body.first_name,
-          req.body.last_name,
-          req.body.user_id
-        ];
-        
-        con.query(sql, values, (err, result) => {
-          if (err) return res.json({ Status: false, Error: err.message });
-          return res.json({ 
-            Status: true, 
-            AffectedRows: result.affectedRows 
-          });
-        });
-      });
 
-      router.post("/add_payment_method", (req, res) => {
-        const sql = `
+  const values = [
+    req.body.email,
+    req.body.first_name,
+    req.body.last_name,
+    req.body.user_id,
+  ];
+
+  con.query(sql, values, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({
+      Status: true,
+      AffectedRows: result.affectedRows,
+    });
+  });
+});
+
+router.post("/add_payment_method", (req, res) => {
+  const sql = `
         INSERT INTO paymentmethods (
           user_id,
           payment_type,
@@ -277,24 +224,23 @@ const values = [
           status
       ) VALUES (?, ?, ?, ?, ?, 'active')
       `;
-  
-      const values = [
-        req.body.user_id,
-        req.body.payment_type,
-        req.body.card_number,
-        req.body.account_name,
-        req.body.expiration_date
-      ];
-        
-          con.query(sql, values, (err, result) => {
-            if (err) return res.json({ Status: false, Error: err.message });
-            return res.json({ Status: true, InsertId: result.insertId });
-          });
-        });
-      
 
-        router.post("/update_payment_method", (req, res) => {
-          const sql = `
+  const values = [
+    req.body.user_id,
+    req.body.payment_type,
+    req.body.card_number,
+    req.body.account_name,
+    req.body.expiration_date,
+  ];
+
+  con.query(sql, values, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, InsertId: result.insertId });
+  });
+});
+
+router.post("/update_payment_method", (req, res) => {
+  const sql = `
             UPDATE paymentmethods 
             SET 
               payment_type = ?,
@@ -304,54 +250,52 @@ const values = [
               status = 'active'
             WHERE payment_method_id = ?
           `;
-        
-          const values = [
-            req.body.payment_type,
-            req.body.card_number,
-            req.body.account_name,
-            req.body.expiration_date,
-            req.body.payment_method_id
-          ];
-          
-          con.query(sql, values, (err, result) => {
-            if (err) return res.json({ Status: false, Error: err.message });
-            return res.json({ 
-              Status: true, 
-              AffectedRows: result.affectedRows 
-            });
-          });
-        });
 
-        router.post("/disable_payment_method", (req, res) => {
-          const sql = `
+  const values = [
+    req.body.payment_type,
+    req.body.card_number,
+    req.body.account_name,
+    req.body.expiration_date,
+    req.body.payment_method_id,
+  ];
+
+  con.query(sql, values, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({
+      Status: true,
+      AffectedRows: result.affectedRows,
+    });
+  });
+});
+
+router.post("/disable_payment_method", (req, res) => {
+  const sql = `
             UPDATE paymentmethods 
             SET 
               status = 'inactive'
             WHERE payment_method_id = ?
           `;
-        
-          const values = [
-            req.body.payment_method_id
-          ];
-          
-          con.query(sql, values, (err, result) => {
-            if (err) return res.json({ Status: false, Error: err.message });
-            return res.json({ 
-              Status: true, 
-              AffectedRows: result.affectedRows 
-            });
-          });
-        });
 
-        router.post("/add_user_info", (req, res) => {
-          const { phone_number, email, username, first_name, last_name } = req.body;
-      
-          // Validate required fields
-          if (!phone_number) {
-              return res.json({ Status: false, Error: "Phone number is required" });
-          }
-      
-          const sql = `
+  const values = [req.body.payment_method_id];
+
+  con.query(sql, values, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({
+      Status: true,
+      AffectedRows: result.affectedRows,
+    });
+  });
+});
+
+router.post("/add_user_info", (req, res) => {
+  const { phone_number, email, username, first_name, last_name } = req.body;
+
+  // Validate required fields
+  if (!phone_number) {
+    return res.json({ Status: false, Error: "Phone number is required" });
+  }
+
+  const sql = `
           INSERT INTO users (
               phone_number,
               email,
@@ -377,26 +321,8 @@ const values = [
           });
       });
 
-      // Add this endpoint to your server-side (e.g., in Route.js)
-router.post("/check_user_phone", (req, res) => {
-  const { phone_number } = req.body;
-  const sql = `SELECT phoene_number FROM users WHERE phone_number = ?`;
-  con.query(sql, [phone_number], (err, result) => {
-    if (err) return res.json({ Status: false, Error: err.message });
-    if (result.length > 0) {
-      // Phone number exists
-      return res.json({ Status: true, Exists: true, Message: "Phone number exists" });
-    } else {
-      // Phone number does not exist
-      return res.json({ Status: true, Exists: false, Message: "Phone number does not exist" });
-    }
-  });
-});
-
-    
-
-      router.get("/getRequests", (req, res) => {
-        const sql = `
+router.get("/getRequests", (req, res) => {
+  const sql = `
           select
             s.request_id,
               s.pickup_lat,
@@ -411,15 +337,14 @@ router.post("/check_user_phone", (req, res) => {
           FROM servicerequests s
           WHERE s.status = 'pending';
         `;
-        con.query(sql, (err, result) => {
-          if (err) return res.json({ Status: false, Error: err.message });
-          return res.json({ Status: true, Result: result });
-        });
-      });
+  con.query(sql, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
 
-
-      router.post("/offer_price", (req, res) => {
-        const sql = `
+router.post("/offer_price", (req, res) => {
+  const sql = `
               INSERT INTO driveroffers (
               request_id,
               driver_id,
@@ -432,111 +357,6 @@ router.post("/check_user_phone", (req, res) => {
           req.body.request_id,
           req.body.driver_id,
           req.body.offered_price
-        ];
-        
-        con.query(sql, values, (err, result) => {
-          if (err) return res.json({ Status: false, Error: err.message });
-          return res.json({ 
-            Status: true, 
-            AffectedRows: result.affectedRows 
-          });
-        });
-      });
-
-      router.get("/getOffersFromDriver", (req, res) => {
-        const driver_id = req.query.driver_id || 0;
-      
-        const sql = `
-          SELECT
-            s.request_id,
-            d.offer_id,
-            s.location_from,
-            s.location_to,
-            s.vehicle_type,
-            d.offered_price,
-            d.offer_status
-          FROM
-            driveroffers d
-          LEFT JOIN servicerequests s
-          ON
-            d.request_id = s.request_id
-          WHERE
-            d.driver_id = ? AND d.offer_status != 'rejected' AND s.status != 'completed';
-
-        `;
-      
-        con.query(sql, [driver_id], (err, result) => {
-          if (err) return res.json({ Status: false, Error: err.message });
-          return res.json({ Status: true, Result: result });
-        });
-      });
-
-
-      router.post("/cancle_offer", (req, res) => {
-        const sql = `
-          update
-            driveroffers
-          set
-            offer_status = 'rejected'
-          where
-            offer_id = ?
-        `;
-      
-        const values = [
-          req.body.offer_id
-        ];
-        
-        con.query(sql, values, (err, result) => {
-          if (err) return res.json({ Status: false, Error: err.message });
-          return res.json({ 
-            Status: true, 
-            AffectedRows: result.affectedRows 
-          });
-        });
-      });
-      
-
-      router.get("/getRequestDetailForDriver", (req, res) => {
-        const request_id = req.query.request_id || 0;
-      
-        const sql = `
-SELECT DISTINCT
-    s.request_id,
-    s.pickup_lat,
-    s.pickup_long,
-    s.location_from,
-    s.dropoff_lat,
-    s.dropoff_long,
-    s.location_to,
-    u.first_name AS customer_name,
-    u.phone_number AS customer_phone,
-    s.customer_message
-FROM
-    servicerequests s
-LEFT JOIN users u
-    ON u.user_id = s.customer_id
-LEFT JOIN driveroffers d
-    ON d.request_id = s.request_id
-WHERE
-    s.request_id = ?;
-        `;
-      
-        con.query(sql, [request_id], (err, result) => {
-          if (err) return res.json({ Status: false, Error: err.message });
-          return res.json({ Status: true, Result: result });
-        });
-      });
-
-      router.post("/complete_request", (req, res) => {
-        const sql = `
-          UPDATE servicerequests 
-          SET 
-            status = 'completed'
-          WHERE request_id = ?
-        `;
-      
-        const values = [
-          req.body.request_id
         ];
         
         con.query(sql, values, (err, result) => {
