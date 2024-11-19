@@ -1,11 +1,126 @@
-
 import express from "express";
 import con from "../utils/db.js";
 import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
+import fs from "fs"; // Added fs import
 
 const router = express.Router();
+
+// Configure multer storage settings
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = "uploads/"; // Directory where images are saved
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(
+      null,
+      `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`
+    );
+  },
+});
+
+const upload = multer({ storage });
+
+// API to handle multiple image uploads
+router.post("/upload_before_service", upload.array("photos", 4), (req, res) => {
+  console.log("Request Body:", req.body);
+  console.log("Uploaded Files:", req.files);
+
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ Status: false, Error: "No files uploaded" });
+  }
+
+  const { request_id, driver_id } = req.body;
+
+  if (!request_id || !driver_id) {
+    return res
+      .status(400)
+      .json({ Status: false, Error: "request_id and driver_id are required" });
+  }
+
+  // Extract file paths of the uploaded images
+  const photoPaths = req.files.map((file) => file.path);
+  console.log("Photo Paths:", photoPaths); // Log paths for debugging
+
+  // Convert the array of file paths to a JSON string for storage
+  const photoPathsJSON = JSON.stringify(photoPaths);
+
+  const sql = `
+    INSERT INTO driverlogs (
+      request_id,
+      driver_id,
+      photo_before_service
+    ) VALUES (?, ?, ?)
+  `;
+
+  con.query(sql, [request_id, driver_id, photoPathsJSON], (err, result) => {
+    if (err) {
+      console.error("Database Insert Error:", err); // Log detailed error
+      return res.status(500).json({ Status: false, Error: err.message });
+    }
+    res.json({
+      Status: true,
+      InsertId: result.insertId,
+      FilePaths: photoPaths,
+    });
+  });
+});
+
+router.post("/upload_after_service", upload.array("photos", 4), (req, res) => {
+  console.log("Request Body:", req.body);
+  console.log("Uploaded Files:", req.files);
+
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ Status: false, Error: "No files uploaded" });
+  }
+
+  const { request_id, driver_id } = req.body;
+
+  if (!request_id || !driver_id) {
+    return res
+      .status(400)
+      .json({ Status: false, Error: "request_id and driver_id are required" });
+  }
+
+  // Extract file paths of the uploaded images
+  const photoPaths = req.files.map((file) => file.path);
+  console.log("Photo Paths:", photoPaths); // Log paths for debugging
+
+  // Convert the array of file paths to a JSON string for storage
+  const photoPathsJSON = JSON.stringify(photoPaths);
+
+  const sql = `
+    UPDATE driverlogs 
+    SET photo_after_service = ?
+    WHERE request_id = ? AND driver_id = ?
+  `;
+
+  con.query(sql, [photoPathsJSON, request_id, driver_id], (err, result) => {
+    if (err) {
+      console.error("Database Update Error:", err); // Log detailed error
+      return res.status(500).json({ Status: false, Error: err.message });
+    }
+
+    if (result.affectedRows === 0) {
+      // No rows were updated, potentially indicating that no matching record exists
+      return res
+        .status(404)
+        .json({ Status: false, Error: "No matching record found to update" });
+    }
+
+    res.json({
+      Status: true,
+      AffectedRows: result.affectedRows,
+      FilePaths: photoPaths,
+    });
+  });
+});
 
 router.post("/add_request", (req, res) => {
   const sql = `
@@ -48,7 +163,6 @@ router.post("/add_request", (req, res) => {
     return res.json({ Status: true, request_id: result.insertId });
   });
 });
-
 
 router.get("/service_history_customer", (req, res) => {
   const customerId = req.query.customer_id || 1;
@@ -94,7 +208,7 @@ router.get("/getAllDiscounts", (req, res) => {
 });
 
 router.get("/getAllUserPaymentMethods", (req, res) => {
-  const userId = req.query.user_id || 1;
+  const userId = req.query.user_id || null;
   const sql = `
       SELECT
         payment_method_id,
@@ -312,14 +426,20 @@ router.post("/add_user_info", (req, res) => {
           ) VALUES (?, ?, ?, ?, ?, 'customer', NOW())
           `;
 
-  const values = [phone_number, email || null, username || null, first_name || null, last_name || null];
+  const values = [
+    phone_number,
+    email || null,
+    username || null,
+    first_name || null,
+    last_name || null,
+  ];
 
   con.query(sql, values, (err, result) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, InsertId: result.insertId });
   });
-})
-      // Add this endpoint to your server-side (e.g., in Route.js)
+});
+// Add this endpoint to your server-side (e.g., in Route.js)
 router.post("/check_user_phone", (req, res) => {
   const { phone_number } = req.body;
   const sql = `SELECT * FROM users WHERE phone_number = ?`;
@@ -327,31 +447,37 @@ router.post("/check_user_phone", (req, res) => {
     if (err) return res.json({ Status: false, Error: err.message });
     if (result.length > 0) {
       // Phone number exists
-      return res.json({ Status: true, Exists: true, Message: "Phone number exists" });
+      return res.json({
+        Status: true,
+        Exists: true,
+        Message: "Phone number exists",
+      });
     } else {
       // Phone number does not exist
-      return res.json({ Status: true, Exists: false, Message: "Phone number does not exist" });
+      return res.json({
+        Status: true,
+        Exists: false,
+        Message: "Phone number does not exist",
+      });
     }
   });
 });
 
-    
+// router.get("/getRequests", (req, res) => {
+//   const sql = `
+//   const values = [
+//     phone_number,
+//     email || null,
+//     username || null,
+//     first_name || null,
+//     last_name || null,
+//   ]`;
 
-      router.get("/getRequests", (req, res) => {
-        const sql = `
-  const values = [
-    phone_number,
-    email || null,
-    username || null,
-    first_name || null,
-    last_name || null,
-  ]`;
-
-  con.query(sql, values, (err, result) => {
-    if (err) return res.json({ Status: false, Error: err.message });
-    return res.json({ Status: true, InsertId: result.insertId });
-  });
-});
+//   con.query(sql, values, (err, result) => {
+//     if (err) return res.json({ Status: false, Error: err.message });
+//     return res.json({ Status: true, InsertId: result.insertId });
+//   });
+// });
 
 router.get("/getRequests", (req, res) => {
   const sql = `
@@ -384,26 +510,26 @@ router.post("/offer_price", (req, res) => {
               offer_status
           ) VALUES (?, ?, ?, 'pending')
           `;
-      
-        const values = [
-          req.body.request_id,
-          req.body.driver_id,
-          req.body.offered_price
-        ];
-        
-        con.query(sql, values, (err, result) => {
-          if (err) return res.json({ Status: false, Error: err.message });
-          return res.json({ 
-            Status: true, 
-            AffectedRows: result.affectedRows 
-          });
-        });
-      });
 
-      router.get("/getOffersFromDriver", (req, res) => {
-        const driver_id = req.query.driver_id || 0;
-      
-        const sql = `
+  const values = [
+    req.body.request_id,
+    req.body.driver_id,
+    req.body.offered_price,
+  ];
+
+  con.query(sql, values, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({
+      Status: true,
+      AffectedRows: result.affectedRows,
+    });
+  });
+});
+
+router.get("/getOffersFromDriver", (req, res) => {
+  const driver_id = req.query.driver_id || null;
+
+  const sql = `
           SELECT
             s.request_id,
             d.offer_id,
@@ -418,18 +544,17 @@ router.post("/offer_price", (req, res) => {
           ON
             d.request_id = s.request_id
           WHERE
-            d.driver_id = ? and d.offer_status != 'rejected';
+            d.driver_id = ? and d.offer_status != 'rejected' and s.status != 'completed';
         `;
-      
-        con.query(sql, [driver_id], (err, result) => {
-          if (err) return res.json({ Status: false, Error: err.message });
-          return res.json({ Status: true, Result: result });
-        });
-      });
 
+  con.query(sql, [driver_id], (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
 
-      router.post("/cancle_offer", (req, res) => {
-        const sql = `
+router.post("/cancle_offer", (req, res) => {
+  const sql = `
           update
             driveroffers
           set
@@ -437,25 +562,22 @@ router.post("/offer_price", (req, res) => {
           where
             offer_id = ?
         `;
-      
-        const values = [
-          req.body.offer_id
-        ];
-        
-        con.query(sql, values, (err, result) => {
-          if (err) return res.json({ Status: false, Error: err.message });
-          return res.json({ 
-            Status: true, 
-            AffectedRows: result.affectedRows 
-          });
-        });
-      });
-      
 
-      router.get("/getRequestDetailForDriver", (req, res) => {
-        const request_id = req.query.request_id || 0;
-      
-        const sql = `
+  const values = [req.body.offer_id];
+
+  con.query(sql, values, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({
+      Status: true,
+      AffectedRows: result.affectedRows,
+    });
+  });
+});
+
+router.get("/getRequestDetailForDriver", (req, res) => {
+  const request_id = req.query.request_id || 0;
+
+  const sql = `
 SELECT DISTINCT
     s.request_id,
     s.pickup_lat,
@@ -475,29 +597,26 @@ LEFT JOIN driveroffers d
 WHERE
     s.request_id = ?;
         `;
-      
-        con.query(sql, [request_id], (err, result) => {
-          if (err) return res.json({ Status: false, Error: err.message });
-          return res.json({ Status: true, Result: result });
-        });
-      });
-      
-        
 
-  // const values = [
-  //   req.body.request_id,
-  //   req.body.driver_id,
-  //   req.body.offered_price,
-  // ];
+  con.query(sql, [request_id], (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
 
-  // con.query(sql, values, (err, result) => {
-  //   if (err) return res.json({ Status: false, Error: err.message });
-  //   return res.json({
-  //     Status: true,
-  //     AffectedRows: result.affectedRows,
-  //   });
-  // });
+// const values = [
+//   req.body.request_id,
+//   req.body.driver_id,
+//   req.body.offered_price,
+// ];
 
+// con.query(sql, values, (err, result) => {
+//   if (err) return res.json({ Status: false, Error: err.message });
+//   return res.json({
+//     Status: true,
+//     AffectedRows: result.affectedRows,
+//   });
+// });
 
 router.get("/drivers", (req, res) => {
   const sql = `SELECT * FROM driverdetails;`;
@@ -509,7 +628,7 @@ router.get("/drivers", (req, res) => {
 
 // ดึงข้อมูลของ driver ตาม ID ที่ระบุ
 router.get("/drivers/chooseoffer", (req, res) => {
-  const request_id = req.query.request_id || null; 
+  const request_id = req.query.request_id || null;
 
   const sql = `
     SELECT 
@@ -544,7 +663,9 @@ router.get("/drivers/chooseoffer", (req, res) => {
     }
 
     if (result.length === 0) {
-      return res.status(404).json({ Status: false, Message: "No drivers found" });
+      return res
+        .status(404)
+        .json({ Status: false, Message: "No drivers found" });
     }
 
     return res.status(200).json({ Status: true, Result: result });
@@ -570,7 +691,12 @@ router.get("/validate_customer", (req, res) => {
 
     if (result.length === 0) {
       // No matching record found for customer_id = 10
-      return res.status(404).json({ Status: false, Message: "No records found for customer_id 10" });
+      return res
+        .status(404)
+        .json({
+          Status: false,
+          Message: "No records found for customer_id 10",
+        });
     }
 
     // Matching record(s) found
@@ -613,9 +739,30 @@ router.get("/fetch_driver_info", (req, res) => {
       return res.status(500).json({ Status: false, Error: err.message });
     }
     if (result.length === 0) {
-      return res.status(404).json({ Status: false, Message: "No records found" });
+      return res
+        .status(404)
+        .json({ Status: false, Message: "No records found" });
     }
     return res.status(200).json({ Status: true, Result: result });
+  });
+});
+
+router.post("/complete_request", (req, res) => {
+  const sql = `
+          UPDATE servicerequests
+          SET 
+            status = 'completed'
+          WHERE request_id = ?
+        `;
+
+  const request_id = req.body.request_id || null;
+
+  con.query(sql, request_id, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({
+      Status: true,
+      AffectedRows: result.affectedRows,
+    });
   });
 });
 

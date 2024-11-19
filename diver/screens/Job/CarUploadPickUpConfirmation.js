@@ -10,7 +10,12 @@ const CarUploadPickUpConfirmation = () => {
   const navigation = useNavigation();
   const route = useRoute(); 
   const { request_id, driver_id } = route.params || {}; 
-  const [images, setImages] = useState({});
+  const [images, setImages] = useState({
+    front: null,
+    back: null,
+    left: null,
+    right: null,
+  });
 
   const handleImageSelection = async (label) => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -20,7 +25,6 @@ const CarUploadPickUpConfirmation = () => {
     }
 
     try {
-      // Use the updated mediaTypes option
       let result = await ImagePicker.launchImageLibraryAsync({
         quality: 1,
       });
@@ -37,7 +41,7 @@ const CarUploadPickUpConfirmation = () => {
     }
   };
 
-  const renderUploadBox = (label) => (
+  const renderUploadBox = (label, displayName) => (
     <TouchableOpacity
       style={tw`flex-1 bg-gray-100 rounded-lg p-4 m-2 shadow`}
       onPress={() => handleImageSelection(label)}
@@ -53,37 +57,56 @@ const CarUploadPickUpConfirmation = () => {
           <Icon name="cloud-upload-outline" size={32} color="gray" style={tw`mb-2`} />
         )}
         <Text style={tw`text-gray-400`}>อัพโหลด</Text>
-        <Text style={tw`text-base text-center text-black font-bold`}>{label}</Text>
+        <Text style={tw`text-base text-center text-black font-bold`}>{displayName}</Text>
       </View>
     </TouchableOpacity>
   );
 
   const handleConfirmation = async () => {
+    // Ensure required parameters are available
+    const driver_id = 2;
+    if (!request_id || !driver_id) {
+      Alert.alert('Error', 'Missing required request or driver information');
+      return;
+    }
+  
+    const imageUris = Object.values(images).filter(uri => uri !== null);
+  
+    if (imageUris.length < 4) {
+      Alert.alert('Error', 'โปรดอัพโหลด 4 รูปภาพ');
+      return;
+    }
+    console.log(driver_id, request_id);
     const formData = new FormData();
     formData.append('request_id', request_id);
     formData.append('driver_id', driver_id);
-
-    Object.keys(images).forEach((label) => {
-      const uri = images[label];
-      const fileName = uri.split('/').pop();
-      const type = `image/${fileName.split('.').pop()}`;
+  
+    imageUris.forEach((uri, index) => {
+      const fileName = uri.split('/').pop(); // Extract the file name from the URI
+      const fileType = fileName.split('.').pop(); // Extract the file extension/type
+  
       formData.append('photos', {
         uri,
-        name: fileName,
-        type,
+        name: `photo-${index}.${fileType}`, // Ensure each file has a unique name
+        type: `image/${fileType}` // MIME type
       });
     });
-
+  
     try {
-      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/upload_multiple_images`, {
+      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/upload_before_service`, {
         method: 'POST',
+        body: formData,
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        body: formData,
       });
-
-      const result = await response.json();
+  
+      // Log response as text before parsing
+      const responseText = await response.text();
+      console.log('Response Text:', responseText);
+  
+      // Parse JSON if applicable
+      const result = JSON.parse(responseText);
       if (result.Status) {
         Alert.alert('Success', 'Images uploaded successfully');
         navigation.navigate('JobWorking_Dropoff', { request_id });
@@ -95,7 +118,8 @@ const CarUploadPickUpConfirmation = () => {
       Alert.alert('Error', 'An error occurred while uploading images');
     }
   };
-
+  
+  
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
       <View style={tw`p-4 flex-1`}>
@@ -106,11 +130,11 @@ const CarUploadPickUpConfirmation = () => {
           <Text style={tw`text-2xl font-bold ml-4`}>ยืนยันการรับรถ</Text>
         </View>
         <View style={tw`flex-1 justify-center`}>
-          {renderUploadBox('ด้านหน้ารถ')}
-          {renderUploadBox('ด้านหลังรถ')}
+          {renderUploadBox('front', 'ด้านหน้ารถ')}
+          {renderUploadBox('back', 'ด้านหลังรถ')}
           <View style={tw`flex-row justify-between mt-4`}>
-            {renderUploadBox('ด้านข้างรถ (ซ้าย)')}
-            {renderUploadBox('ด้านข้างรถ (ขวา)')}
+            {renderUploadBox('left', 'ด้านข้างรถ (ซ้าย)')}
+            {renderUploadBox('right', 'ด้านข้างรถ (ขวา)')}
           </View>
         </View>
         <TouchableOpacity
