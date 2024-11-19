@@ -509,7 +509,11 @@ router.get("/drivers", (req, res) => {
 
 // ดึงข้อมูลของ driver ตาม ID ที่ระบุ
 router.get("/drivers/chooseoffer", (req, res) => {
-  const request_id = req.query.request_id || null; 
+  const request_id = req.query.request_id || null;
+
+  if (!request_id) {
+    return res.status(400).json({ Status: false, Message: "Invalid request_id" });
+  }
 
   const sql = `
     SELECT 
@@ -532,8 +536,8 @@ router.get("/drivers/chooseoffer", (req, res) => {
     INNER JOIN users u ON d.driver_id = u.user_id
     LEFT JOIN reviews r ON u.user_id = r.driver_id
     INNER JOIN driveroffers do ON d.driver_id = do.driver_id
-    LEFT JOIN servicerequests sr ON do.request_id = sr.request_id
-    WHERE sr.request_id = ? AND do.offer_status = 'pending'
+    LEFT JOIN servicerequests sr ON sr.request_id = do.request_id
+    WHERE do.request_id = ? AND do.offer_status = 'pending'
     GROUP BY d.driver_id, d.current_latitude, d.current_longitude, u.user_id, u.username, u.first_name, u.last_name, do.offered_price, sr.pickup_lat, sr.pickup_long, sr.location_from, sr.dropoff_lat, sr.dropoff_long, sr.location_to;
   `;
 
@@ -544,12 +548,59 @@ router.get("/drivers/chooseoffer", (req, res) => {
     }
 
     if (result.length === 0) {
-      return res.status(404).json({ Status: false, Message: "No drivers found" });
+      // If no drivers are found, fetch pickup/drop-off data separately
+      const locationQuery = `
+        SELECT 
+          sr.pickup_lat,
+          sr.pickup_long,
+          sr.location_from,
+          sr.dropoff_lat,
+          sr.dropoff_long,
+          sr.location_to
+        FROM servicerequests sr
+        WHERE sr.request_id = ?
+      `;
+
+      con.query(locationQuery, [request_id], (err, locationResult) => {
+        if (err) {
+          console.error("Error fetching pickup/dropoff info:", err);
+          return res.status(500).json({ Status: false, Error: err.message });
+        }
+
+        if (locationResult.length > 0) {
+          // Return response with no drivers but including pickup/dropoff data
+          return res.status(200).json({ 
+            Status: true, 
+            Result: [], 
+            PickupDropoffInfo: locationResult[0] 
+          });
+        } else {
+          // If no pickup/dropoff data is found
+          return res.status(404).json({ Status: false, Message: "No drivers or location data found" });
+        }
+      });
+
+      return;
     }
 
-    return res.status(200).json({ Status: true, Result: result });
+    // If drivers are found, return the result with pickup/dropoff data from the first entry
+    const pickupDropoffInfo = {
+      pickup_lat: result[0].pickup_lat,
+      pickup_long: result[0].pickup_long,
+      location_from: result[0].location_from,
+      dropoff_lat: result[0].dropoff_lat,
+      dropoff_long: result[0].dropoff_long,
+      location_to: result[0].location_to,
+    };
+
+    return res.status(200).json({ 
+      Status: true, 
+      Result: result, 
+      PickupDropoffInfo: pickupDropoffInfo 
+    });
   });
 });
+
 
 router.get("/get_payments_method", (req, res) => {
   const sql = `SELECT payment_type, card_number, account_name FROM paymentmethods`;
@@ -579,6 +630,12 @@ router.get("/validate_customer", (req, res) => {
 });
 
 router.get("/fetch_driver_info", (req, res) => {
+  const { customer_id, driver_id } = req.query;
+
+  if (!customer_id || !driver_id) {
+    return res.status(400).json({ Status: false, Message: "Invalid parameters" });
+  }
+
   const sql = `
     SELECT 
       sr.request_id,
@@ -600,7 +657,7 @@ router.get("/fetch_driver_info", (req, res) => {
     INNER JOIN users u ON do.driver_id = u.user_id
     LEFT JOIN reviews r ON u.user_id = r.driver_id
     INNER JOIN driverdetails d ON do.driver_id = d.driver_id
-    WHERE sr.customer_id = 10 AND do.driver_id = 6
+    WHERE sr.customer_id = ? AND do.driver_id = ?
     GROUP BY 
       sr.request_id, sr.pickup_lat, sr.pickup_long, sr.location_from, 
       sr.dropoff_lat, sr.dropoff_long, sr.location_to, 
@@ -608,16 +665,20 @@ router.get("/fetch_driver_info", (req, res) => {
       d.current_latitude, d.current_longitude;
   `;
 
-  con.query(sql, (err, result) => {
+  con.query(sql, [customer_id, driver_id], (err, result) => {
     if (err) {
+      console.error("Error fetching driver info:", err);
       return res.status(500).json({ Status: false, Error: err.message });
     }
+
     if (result.length === 0) {
-      return res.status(404).json({ Status: false, Message: "No records found" });
+      return res.status(404).json({ Status: false, Message: "No matching data found" });
     }
+
     return res.status(200).json({ Status: true, Result: result });
   });
 });
+
 
 
 
