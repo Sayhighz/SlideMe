@@ -376,6 +376,81 @@ const values = [
           });
         });
       });
+
+
+// ดึงข้อมูลทั้งหมดของ drivers
+// router.get('/drivers', async (req, res) => {
+//   let connection;
+//   try {
+//     connection = await mysql.createConnection(dbConfig);
+//     const [rows] = await connection.execute('SELECT * FROM driverdetails;');
+//     res.status(200).json({ Status: true, Result: rows });
+//   } catch (error) {
+//     console.error('Error fetching drivers:', error);
+//     res.status(500).json({ Status: false, Error: error.message });
+//   } finally {
+//     if (connection) await connection.end();
+//   }
+// });
+
+router.get("/drivers", (req, res) => {
+  const sql = `SELECT * FROM driverdetails;`;
+  con.query(sql, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
+
+// ดึงข้อมูลของ driver ตาม ID ที่ระบุ
+router.get('/drivers/chooseoffer', (req, res) => {
+  const sql = `
+    SELECT 
+      d.driver_id,
+      d.current_latitude,
+      d.current_longitude,
+      u.user_id,
+      u.username,
+      u.first_name,
+      u.last_name,
+      r.rating,
+      do.offered_price,
+      sr.pickup_lat,
+      sr.pickup_long,
+      sr.location_from,
+      sr.dropoff_lat,
+      sr.dropoff_long,
+      sr.location_to
+    FROM driverdetails d
+    INNER JOIN users u ON d.driver_id = u.user_id
+    LEFT JOIN reviews r ON u.user_id = r.driver_id
+    LEFT JOIN driveroffers do ON d.driver_id = do.driver_id
+    LEFT JOIN servicerequests sr ON do.request_id = sr.request_id;
+  `;
+
+  con.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching drivers:', err);
+      return res.status(500).json({ Status: false, Error: err.message });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({ Status: false, Message: 'No drivers found' });
+    }
+
+    return res.status(200).json({ Status: true, Result: result });
+  });
+});
+
+
+router.get("/get_payments_method", (req, res) => {
+  const sql = `SELECT payment_type, card_number, account_name FROM paymentmethods`;
+  con.query(sql, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
+
+
       
         
 

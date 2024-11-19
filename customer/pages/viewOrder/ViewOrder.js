@@ -33,6 +33,7 @@ export default function ViewOrder({ navigation }) {
       latitude: originLocation.latitude,
       longitude: originLocation.longitude,
     });
+
     setDestination({
       name: destinationLocation.name,
       latitude: destinationLocation.latitude,
@@ -46,6 +47,8 @@ export default function ViewOrder({ navigation }) {
       phone: "0808341035",
       rating: driverProfile.rating,
     });
+
+    console.log(driverInformation)
   }, [route.params]);
 
   
@@ -54,43 +57,43 @@ export default function ViewOrder({ navigation }) {
   //   console.log(route.params);
   // }, [route.params]);
 
-  useEffect(() => {
-    _getLocation();
-  }, []);
+  // useEffect(() => {
+  //   _getLocation();
+  // }, []);
 
-  const _getLocation = async () => {
-    try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        console.warn("Permission to access location was denied");
-        return;
-      }
+  // const _getLocation = async () => {
+  //   try {
+  //     let { status } = await Location.requestForegroundPermissionsAsync();
+  //     if (status !== "granted") {
+  //       console.warn("Permission to access location was denied");
+  //       return;
+  //     }
 
-      // เฝ้าดูตำแหน่งของผู้ใช้แบบเรียลไทม์
-      await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.High,
-          timeInterval: 600000, // Update every 10 minutes
-          distanceInterval: 500,
-        },
-        (location) => {
-          const { latitude, longitude } = location.coords;
-          const newRegion = {
-            latitude,
-            longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          };
+  //     // เฝ้าดูตำแหน่งของผู้ใช้แบบเรียลไทม์
+  //     await Location.watchPositionAsync(
+  //       {
+  //         accuracy: Location.Accuracy.High,
+  //         timeInterval: 600000, // Update every 10 minutes
+  //         distanceInterval: 500,
+  //       },
+  //       (location) => {
+  //         const { latitude, longitude } = location.coords;
+  //         const newRegion = {
+  //           latitude,
+  //           longitude,
+  //           latitudeDelta: 0.0922,
+  //           longitudeDelta: 0.0421,
+  //         };
 
-          setMyLocation(newRegion);
-          console.log(myLocation)
+  //         setMyLocation(newRegion);
+  //         // console.log(myLocation)
 
-        }
-      );
-    } catch (error) {
-      console.warn("Error fetching location", error);
-    }
-  };
+  //       }
+  //     );
+  //   } catch (error) {
+  //     console.warn("Error fetching location", error);
+  //   }
+  // };
 
   return (
     <SafeAreaView style={tw`flex-1 relative `}>
@@ -170,11 +173,11 @@ export default function ViewOrder({ navigation }) {
                   driverInformation.longitude && (
                     <MapViewDirections
                       strokeColor="blue"
-                      strokeWidth={3}
+                      strokeWidth={2}
                       apikey={GOOGLE_MAPS_API_KEY}
                       origin={{
-                        latitude: myLocation.latitude,
-                        longitude: myLocation.longitude,
+                        latitude: driverInformation.latitude,
+                        longitude: driverInformation.longitude,
                       }}
                       destination={
                         confirmFromDriver
