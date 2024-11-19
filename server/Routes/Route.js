@@ -1,10 +1,58 @@
 import express from "express";
 import con from "../utils/db.js";
-import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 
 const router = express.Router();
+
+// Configure multer storage settings
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = "uploads/"; // Directory where images are saved
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
+  },
+});
+
+const upload = multer({ storage });
+
+// API to handle multiple image uploads
+router.post("/upload_multiple_images", upload.array("photos", 5), (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ Status: false, Error: "No files uploaded" });
+  }
+
+  const { request_id, driver_id } = req.body;
+
+  // Extract file paths of the uploaded images
+  const photoPaths = req.files.map(file => file.path);
+
+  // Insert the data into the database as a batch
+  const sql = `
+    INSERT INTO driverlogs (
+      request_id,
+      driver_id,
+      photo_before_service
+    ) VALUES ?
+  `;
+
+  // Prepare values for batch insertion
+  const values = photoPaths.map(path => [request_id, driver_id, path]);
+
+  con.query(sql, [values], (err, result) => {
+    if (err) {
+      return res.status(500).json({ Status: false, Error: err.message });
+    }
+    res.json({ Status: true, InsertId: result.insertId, FilePaths: photoPaths });
+  });
+});
 
 
 router.post("/add_request", (req, res) => {

@@ -1,49 +1,39 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, Image, Alert } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native'; // Import useRoute
+import { useNavigation, useRoute } from '@react-navigation/native'; 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from 'twrnc';
 import * as ImagePicker from 'expo-image-picker';
+import { IP_ADDRESS } from '../../config';
 
 const CarUploadPickUpConfirmation = () => {
   const navigation = useNavigation();
-  const route = useRoute(); // Access route
-  const { request_id } = route.params || {}; // Destructure request_id from params
+  const route = useRoute(); 
+  const { request_id, driver_id } = route.params || {}; 
   const [images, setImages] = useState({});
 
-
   const handleImageSelection = async (label) => {
-    console.log(`Opening image picker for: ${label}`); // Log when button is pressed
-
-    // Request permission to access camera roll
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    console.log(`Permission status: ${status}`); // Log permission status
-
     if (status !== 'granted') {
       Alert.alert('Permission Denied', 'Camera roll permissions are required to select an image.');
       return;
     }
 
     try {
-      // Launch the image library
+      // Use the updated mediaTypes option
       let result = await ImagePicker.launchImageLibraryAsync({
-         // Correct value for images
         quality: 1,
       });
 
-      console.log('Image picker result:', result); // Log the full result
-
-      if (result.canceled) {
-        console.log('Image selection was canceled by the user.');
-      } else {
-        console.log('Selected image URI:', result.assets ? result.assets[0].uri : result.uri); // Log selected image URI
+      if (!result.canceled) {
+        const uri = result.assets ? result.assets[0].uri : result.uri;
         setImages((prevImages) => ({
           ...prevImages,
-          [label]: result.assets ? result.assets[0].uri : result.uri, // Handle URI storage correctly
+          [label]: uri,
         }));
       }
     } catch (error) {
-      console.error('Error during image selection:', error); // Log any errors
+      console.error('Error during image selection:', error);
     }
   };
 
@@ -68,9 +58,42 @@ const CarUploadPickUpConfirmation = () => {
     </TouchableOpacity>
   );
 
-  const handleConfirmation = () => {
-    // Navigate or handle confirmation with request_id
-    navigation.navigate('JobWorking_Dropoff', { request_id }); // Replace 'NextScreen' with the intended screen
+  const handleConfirmation = async () => {
+    const formData = new FormData();
+    formData.append('request_id', request_id);
+    formData.append('driver_id', driver_id);
+
+    Object.keys(images).forEach((label) => {
+      const uri = images[label];
+      const fileName = uri.split('/').pop();
+      const type = `image/${fileName.split('.').pop()}`;
+      formData.append('photos', {
+        uri,
+        name: fileName,
+        type,
+      });
+    });
+
+    try {
+      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/upload_multiple_images`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.Status) {
+        Alert.alert('Success', 'Images uploaded successfully');
+        navigation.navigate('JobWorking_Dropoff', { request_id });
+      } else {
+        Alert.alert('Error', result.Error || 'Failed to upload images');
+      }
+    } catch (error) {
+      console.error('Error during API call:', error);
+      Alert.alert('Error', 'An error occurred while uploading images');
+    }
   };
 
   return (
