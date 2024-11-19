@@ -517,7 +517,7 @@ router.get("/drivers/chooseoffer", (req, res) => {
       u.last_name,
       AVG(r.rating) AS average_rating,
       do.offered_price,
-     @
+      sr.pickup_lat,
       sr.pickup_long,
       sr.location_from,
       sr.dropoff_lat,
