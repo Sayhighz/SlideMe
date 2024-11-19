@@ -20,7 +20,7 @@ const CarUploadPickUpConfirmation = () => {
   const handleImageSelection = async (label) => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission Denied', 'Camera roll permissions are required to select an image.');
+      Alert.alert('ขอสิทธิ์ใช้งาน', 'โปรดให้สิทธิ์การเข้าถึงคลังรูปภาพ');
       return;
     }
 
@@ -50,7 +50,7 @@ const CarUploadPickUpConfirmation = () => {
         {images[label] ? (
           <Image
             source={{ uri: images[label] }}
-            style={tw`w-32 h-32 mb-2 rounded-lg`}
+            style={tw`w-15 h-15 mb-2 rounded-lg`}
             resizeMode="cover"
           />
         ) : (
@@ -63,7 +63,6 @@ const CarUploadPickUpConfirmation = () => {
   );
 
   const handleConfirmation = async () => {
-    // Ensure required parameters are available
     const driver_id = 2;
     if (!request_id || !driver_id) {
       Alert.alert('Error', 'Missing required request or driver information');
@@ -82,13 +81,13 @@ const CarUploadPickUpConfirmation = () => {
     formData.append('driver_id', driver_id);
   
     imageUris.forEach((uri, index) => {
-      const fileName = uri.split('/').pop(); // Extract the file name from the URI
-      const fileType = fileName.split('.').pop(); // Extract the file extension/type
+      const fileName = uri.split('/').pop();
+      const fileType = fileName.split('.').pop();
   
       formData.append('photos', {
         uri,
-        name: `photo-${index}.${fileType}`, // Ensure each file has a unique name
-        type: `image/${fileType}` // MIME type
+        name: `photo-${index}.${fileType}`,
+        type: `image/${fileType}`
       });
     });
   
@@ -101,11 +100,9 @@ const CarUploadPickUpConfirmation = () => {
         },
       });
   
-      // Log response as text before parsing
       const responseText = await response.text();
       console.log('Response Text:', responseText);
   
-      // Parse JSON if applicable
       const result = JSON.parse(responseText);
       if (result.Status) {
         Alert.alert('Success', 'Images uploaded successfully');

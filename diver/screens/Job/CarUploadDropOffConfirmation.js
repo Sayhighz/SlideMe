@@ -56,7 +56,7 @@ const CarUploadDropOffConfirmation = () => {
         {images[label] ? (
           <Image
             source={{ uri: images[label] }}
-            style={tw`w-32 h-32 mb-2 rounded-lg`}
+            style={tw`w-15 h-15 mb-2 rounded-lg`}
             resizeMode="cover"
           />
         ) : (
@@ -83,7 +83,7 @@ const CarUploadDropOffConfirmation = () => {
       return;
     }
 
-    const driver_id = 2; // Use a hardcoded value or obtain from route.params
+    const driver_id = 2;
     if (!request_id || !driver_id) {
       Alert.alert("Error", "Missing request_id or driver_id");
       return;
@@ -107,7 +107,6 @@ const CarUploadDropOffConfirmation = () => {
     console.log("Form Data:", formData);
 
     try {
-      // First API call: Upload images
       const uploadResponse = await fetch(
         `http://${IP_ADDRESS}:3000/auth/upload_after_service`,
         {
@@ -123,7 +122,6 @@ const CarUploadDropOffConfirmation = () => {
       if (uploadResult.Status) {
         Alert.alert("Success", "Images uploaded successfully");
 
-        // Second API call: Complete request only if upload succeeded
         try {
           const completeResponse = await fetch(
             `http://${IP_ADDRESS}:3000/auth/complete_request`,
