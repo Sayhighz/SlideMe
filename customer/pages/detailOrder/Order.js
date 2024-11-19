@@ -278,19 +278,14 @@ export default function Order({ navigation }) {
       alert("Please fill in all required fields.");
       return;
     }
-
-    // if (!isValidLatitude(pickup_lat) || !isValidLongitude(pickup_long) ||
-    //     !isValidLatitude(dropoff_lat) || !isValidLongitude(dropoff_long)) {
-    //   alert("Invalid latitude or longitude values. Please check your input.");
-    //   return;
-    // }
+  
     if (!origin || !destination || !category) {
       alert(
         "Please fill in all mandatory fields: Pickup Location, Dropoff Location, and Vehicle Type."
       );
       return;
     }
-
+  
     // Construct the request data object
     const requestData = {
       customer_id: 1, // Replace with the appropriate customer ID
@@ -307,59 +302,46 @@ export default function Order({ navigation }) {
         : formatDateToMySQL(new Date()), // Assuming formattedDate is used for booking time
       customer_message: moreDetail || null, // Include the optional field if provided
     };
-
-    // Preparing the values for the SQL insertion query
-    const sqlValues = [
-      requestData.customer_id,
-      requestData.request_time,
-      requestData.pickup_lat,
-      requestData.pickup_long,
-      requestData.location_from,
-      requestData.dropoff_lat,
-      requestData.dropoff_long,
-      requestData.location_to,
-      requestData.vehicle_type,
-      requestData.booking_time,
-      requestData.customer_message,
-    ];
-
+  
     try {
-      const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/add_request`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(requestData),
-        }
-      );
-
+      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/add_request`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      });
+  
       if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);
       }
-
+  
       const responseData = await response.json();
       console.log("Response data:", responseData);
-      Alert.alert(
-        "Request submitted successfully!", // ชื่อข้อความแจ้งเตือน
-        "", // เนื้อหาของข้อความแจ้งเตือน (เว้นว่างได้)
-        [
-          {
-            text: "OK", // ปุ่ม OK
-            onPress: () => {
-              navigation.navigate("ChooseOffer"); // นำทางไปหน้า ChooseOffer เมื่อกดปุ่ม OK
+  
+      if (responseData && responseData.request_id) {
+        Alert.alert(
+          "Request submitted successfully!", 
+          "", 
+          [
+            {
+              text: "OK", 
+              onPress: () => {
+                navigation.navigate("ChooseOffer", { request_id: responseData.request_id });
+              },
             },
-          },
-        ],
-        { cancelable: false } // ไม่อนุญาตให้ปิดโดยการกดที่พื้นที่ว่าง
-      );
+          ],
+          { cancelable: false }
+        );
+      } else {
+        alert("Request submitted, but no request ID was returned.");
+      }
     } catch (error) {
       console.error("Error submitting request:", error);
       alert("Failed to submit the request. Please try again.");
     }
   };
-
+  
   return (
     <PaperProvider>
       <View style={tw`flex items-center `}>
@@ -530,7 +512,7 @@ export default function Order({ navigation }) {
               <TouchableOpacity
                 style={tw`items-center justify-center mt-4 w-50 h-12 bg-[#60B876] rounded-full `}
                 // onPress={handleSubmitRequest}
-                onPress={()=>{navigation.navigate("ChooseOffer")}}
+                onPress={handleSubmitRequest}
               >
                 <Text
                   style={[

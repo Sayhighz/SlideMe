@@ -9,21 +9,21 @@ const router = express.Router();
 
 router.post("/add_request", (req, res) => {
   const sql = `
-  INSERT INTO servicerequests (
-    customer_id,
-    request_time,
-    pickup_lat,
-    pickup_long,
-    location_from,
-    dropoff_lat,
-    dropoff_long,
-    location_to,
-    vehicle_type,
-    booking_time,
-    customer_message,
-    status
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,'pending')
-`;
+    INSERT INTO servicerequests (
+      customer_id,
+      request_time,
+      pickup_lat,
+      pickup_long,
+      location_from,
+      dropoff_lat,
+      dropoff_long,
+      location_to,
+      vehicle_type,
+      booking_time,
+      customer_message,
+      status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+  `;
 
   const values = [
     req.body.customer_id,
@@ -40,10 +40,15 @@ router.post("/add_request", (req, res) => {
   ];
 
   con.query(sql, values, (err, result) => {
-    if (err) return res.json({ Status: false, Error: err.message });
-    return res.json({ Status: true, InsertId: result.insertId });
+    if (err) {
+      return res.json({ Status: false, Error: err.message });
+    }
+
+    // Return the inserted request ID upon successful insertion
+    return res.json({ Status: true, request_id: result.insertId });
   });
 });
+
 
 router.get("/service_history_customer", (req, res) => {
   const customerId = req.query.customer_id || 1;
@@ -504,7 +509,7 @@ router.get("/drivers", (req, res) => {
 
 // ดึงข้อมูลของ driver ตาม ID ที่ระบุ
 router.get("/drivers/chooseoffer", (req, res) => {
-  const requestId = req.query.request_id || 24; 
+  const request_id = req.query.request_id || null; 
 
   const sql = `
     SELECT 
@@ -528,11 +533,11 @@ router.get("/drivers/chooseoffer", (req, res) => {
     LEFT JOIN reviews r ON u.user_id = r.driver_id
     INNER JOIN driveroffers do ON d.driver_id = do.driver_id
     LEFT JOIN servicerequests sr ON do.request_id = sr.request_id
-    WHERE sr.request_id = ? -- Filter by request_id
+    WHERE sr.request_id = ? AND do.offer_status = 'pending'
     GROUP BY d.driver_id, d.current_latitude, d.current_longitude, u.user_id, u.username, u.first_name, u.last_name, do.offered_price, sr.pickup_lat, sr.pickup_long, sr.location_from, sr.dropoff_lat, sr.dropoff_long, sr.location_to;
   `;
 
-  con.query(sql, [requestId], (err, result) => {
+  con.query(sql, [request_id], (err, result) => {
     if (err) {
       console.error("Error fetching drivers:", err);
       return res.status(500).json({ Status: false, Error: err.message });
