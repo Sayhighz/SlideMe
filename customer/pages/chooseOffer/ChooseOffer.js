@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
   Modal,
@@ -29,6 +30,8 @@ const ChooseOffer = ({ navigation, route }) => {
   const [filteredOffer, setFilteredOffer] = useState([]);
 
   const [radiusInMeters, setRadiusInMeters] = useState(5000);
+
+  const [offerLoading, setOfferLoading] = useState(true);
 
   const [originLocation, setOriginLocation] = useState({
     name: "",
@@ -165,42 +168,32 @@ const ChooseOffer = ({ navigation, route }) => {
   };
   
 
-  const refreshPage = async () => {
-    const retryFetch = async (maxRetries = 10, delay = 6000) => {
-      for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-          // Log request ID and attempt number
-          console.log(`Attempt ${attempt + 1}: Sending request_id: ${request_id}`);
-          
-          // Fetch data using fetch API
-          const response = await fetch(
-            `http://${IP_ADDRESS}:3000/auth/drivers/chooseoffer?request_id=${request_id}`
-          );
-  
-          if (!response.ok) {
-            console.error(`HTTP Status: ${response.status}`);
-            throw new Error(`Error fetching data: ${response.status} ${response.statusText}`);
+
+    const refreshPage = async () => {
+      try {
+        console.log("Refresh Page")
+        const response = await fetch(`http://${IP_ADDRESS}:3000/auth/drivers/chooseoffer?request_id=${request_id}`);
+        const data = await response.json();
+        if (data.Status) {
+          if (data.PickupDropoffInfo) {
+            setOriginLocation({
+              name: data.PickupDropoffInfo.location_from,
+              latitude: parseFloat(data.PickupDropoffInfo.pickup_lat),
+              longitude: parseFloat(data.PickupDropoffInfo.pickup_long),
+            });
+            setDestinationLocation({
+              name: data.PickupDropoffInfo.location_to,
+              latitude: parseFloat(data.PickupDropoffInfo.dropoff_lat),
+              longitude: parseFloat(data.PickupDropoffInfo.dropoff_long),
+            });
+          }
+
+          if(data.Result == ""){
+            setOfferLoading(true);
           }
   
-          const data = await response.json();
-  
-          if (data.Status && data.Result.length > 0) {
-            // Extract the first result for setting locations
-            const firstResult = data.Result[0];
-  
-            setOriginLocation({
-              name: firstResult.location_from,
-              latitude: parseFloat(firstResult.pickup_lat),
-              longitude: parseFloat(firstResult.pickup_long),
-            });
-  
-            setDestinationLocation({
-              name: firstResult.location_to,
-              latitude: parseFloat(firstResult.dropoff_lat),
-              longitude: parseFloat(firstResult.dropoff_long),
-            });
-  
-            // Map over the drivers
+          if (data.Result && data.Result.length > 0) {
+            // Handle driver data if available
             const drivers = data.Result.map((driver) => ({
               id: driver.driver_id,
               name: `${driver.first_name} ${driver.last_name}`,
@@ -211,33 +204,19 @@ const ChooseOffer = ({ navigation, route }) => {
               },
               price: driver.offered_price,
             }));
-  
-            setOffer(drivers); // Set drivers data
-  
-            // Optionally filter offers based on radius
-            const filtered = filterOffersByRadius(drivers, radiusInMeters);
-            setFilteredOffer(filtered);
-  
-            console.log("Data successfully fetched");
-            return; // Exit function if data is found
-          } else {
-            console.warn("No drivers found, retrying...");
+            setOffer(drivers);
+            setOfferLoading(false);
           }
-        } catch (error) {
-          console.error("Error fetching drivers, retrying:", error);
+  
         }
-  
-        // Wait for the specified delay before retrying
-        await new Promise((resolve) => setTimeout(resolve, delay));
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
-  
-      Alert.alert("Error", "Unable to fetch driver data after multiple attempts.");
     };
   
-    await retryFetch(); // Start the retry mechanism
-  };
-  
-  
+    useEffect(() => {
+      refreshPage();
+    }, []);
 
   const filterOffersByRadius = (offers, radius) => {
     const filteredOffers = offers.filter((item) => {
@@ -392,7 +371,11 @@ const ChooseOffer = ({ navigation, route }) => {
               }}
             /> */}
           </MapView>
-        ) : null}
+        ) : (
+          <View style={tw`flex-1 justify-center items-center`}>
+            <Text>Loading...</Text>
+          </View>
+        )}
       </View>
       <View style={tw`flex-1 p-4`}>
         <View style={tw`flex-1 flex-row`}>
@@ -402,6 +385,7 @@ const ChooseOffer = ({ navigation, route }) => {
             </Pressable>
           </View>
           <View style={tw`flex-1 justify-center items-end`}>
+            {!offerLoading ? (
             <Dropdown
               style={tw`h-3/4 w-2/4 border-gray-300 rounded-lg px-3 bg-white `}
               data={dataDropdown}
@@ -420,9 +404,13 @@ const ChooseOffer = ({ navigation, route }) => {
                 });
               }}
             />
+            ) : (
+              null
+            )}
           </View>
         </View>
         <View style={tw`flex-8 items-center `}>
+          {!offerLoading ? (
           <FlatList
             data={filteredOffer}
             keyExtractor={(item, index) => `${item.id}-${index}`}            
@@ -474,6 +462,12 @@ const ChooseOffer = ({ navigation, route }) => {
               </TouchableOpacity>
             )}
           />
+          ) : (
+            <View style={tw`flex-1 justify-center items-center`}>
+              <ActivityIndicator size="large" color={"#000000"} />
+              <Text style={tw`text-lg font-bold mt-5`}>กําลังรอคนขับ...</Text>
+            </View>
+          )}
         </View>
       </View>
     </SafeAreaView>

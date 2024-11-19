@@ -126,13 +126,15 @@ export default function ViewOrder({ navigation }) {
       try {
         const response = await axios.get(`http://${IP_ADDRESS}:3000/auth/fetch_driver_info`, {
           params: {
-            customer_id: 10,
-            driver_id: 6
+            customer_id: 10,  // Replace with dynamic value as needed
+            driver_id: 6     // Replace with dynamic value as needed
           }
         });
   
         if (response.data.Status && response.data.Result.length > 0) {
           const data = response.data.Result[0]; // Assuming you want the first result
+
+          console.log(data);
   
           // Set the state with fetched data
           setOrigin({
