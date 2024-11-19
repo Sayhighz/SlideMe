@@ -367,7 +367,7 @@ const ChooseOffer = ({ navigation }) => {
         <View style={tw`flex-1 flex-row`}>
           <View style={tw`flex-1 justify-center`}>
             <Pressable onPress={refreshPage}>
-              <MaterialIcons name="refresh" size={24} color="gray" />
+              <MaterialIcons name="refresh" size={24} color="gray"/>
             </Pressable>
           </View>
           <View style={tw`flex-1 justify-center items-end`}>
