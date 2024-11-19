@@ -24,6 +24,7 @@ import PaymentPage from './pages/paymentPage/PaymentPage';
 import ViewOrder from './pages/viewOrder/ViewOrder';
 import Rating from './pages/Rating/Rating';
 import tw from 'twrnc';
+import Bookmark from './pages/Bookmark/bookmark';
 
 
 
@@ -33,6 +34,7 @@ import InfoCustomer from './pages/InfoCustomer/InfoCustomer';
 import EditProfile from './pages/editProfile/editProfile';
 import AddressPage from './pages/addressPage/addressPage';
 import ChooseOffer from './pages/chooseOffer/ChooseOffer';
+import Bookmap from './pages/Bookmark/bookmap/Bookmap';
 
 
 
@@ -46,6 +48,8 @@ function HomeStack() {
    
     <Stack.Navigator screenOptions={{ headerStyle: { backgroundColor: '#60B876' }, headerTintColor: 'black' , borderBottomWidth: 0 , shadowOpacity: 0}}>
       <Stack.Screen name="HomePage" component={Home} />
+      <Stack.Screen name="Bookmark" component={Bookmark} />
+      <Stack.Screen name="Addmap" component={Bookmap} />
       <Stack.Screen name="Mapdetail" component={MapDetail} />
       <Stack.Screen name="MapPage" component={MapPage} options={{ headerShown: false }} />
       <Stack.Screen name="Order" component={Order} />
@@ -57,6 +61,8 @@ function HomeStack() {
     
   );
 }
+
+
 
 function PaymentMethodsStack() {
   return (

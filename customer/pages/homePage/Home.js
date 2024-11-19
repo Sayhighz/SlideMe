@@ -1,4 +1,4 @@
-import React from "react";
+import React , { useState }from "react";
 import {
   Text,
   View,
@@ -6,16 +6,34 @@ import {
   Image,
   StyleSheet,
   Dimensions,
+  Modal,
 } from "react-native";
 import { Card } from "react-native-paper";
 import Swiper from "react-native-swiper";
 import tw from "twrnc";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRoute } from "@react-navigation/native";
 
-function Home({ navigation }) {
+function Home({ navigation, }) {
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const handleOpenModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+  };
+
+  const route = useRoute();
+  const selectedLabel = route.params?.selectedLabel || "ไม่ระบุ";
+  const origin = route.params?.origin || "ไม่ระบุ";
+  const destination = route.params?.destination || "ไม่ระบุ";
+  const confirmOrigin = route.params?.confirmOrigin || "ไม่ระบุ";
+  const confirmDestination = route.params?.confirmDestination || "ไม่ระบุ";
 
   // Sample ads data (URLs for images or placeholders)
   const ads = [
@@ -60,28 +78,61 @@ function Home({ navigation }) {
             <TouchableOpacity
               style={[
                 { flex: 0.48 },
-                tw`rounded-lg h-20 flex items-center justify-center bg-[#5A8DEE]`,
+                tw`rounded-lg h-20 flex items-center justify-center bg-green-100 border border-[#60B876]`,
               ]}
+              onPress={() =>
+                selectedLabel !== "ไม่ระบุ" && selectedLabel
+                  ? navigation.navigate("Order", {
+                      
+                      origin,
+                      destination,
+                      confirmOrigin,
+                      confirmDestination,
+                    })
+                  : navigation.navigate("Bookmark")
+              }
             >
               <Text
-                style={[styles.globalText, tw`text-white text-lg font-bold`]}
+                style={[styles.globalText, tw`text-[#5A8DEE] text-lg font-bold`]}
               >
-                ตำแหน่ง 1
+                {selectedLabel !== "ไม่ระบุ" ? selectedLabel : "ตำแหน่ง 1"}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[
                 { flex: 0.48 },
-                tw`rounded-lg h-20 flex items-center justify-center bg-[#5A8DEE]`,
+                tw`rounded-lg h-20 flex items-center justify-center bg-green-100 border-[#60B876] border`,
               ]}
+              onPress={handleOpenModal}
             >
               <Text
-                style={[styles.globalText, tw`text-white text-lg font-bold`]}
+                style={[styles.globalText, tw`text-[#5A8DEE] text-lg font-bold`]}
               >
                 ตำแหน่ง 2
               </Text>
             </TouchableOpacity>
+            <Modal
+          transparent={true}
+          visible={isModalVisible}
+          animationType="slide"
+          onRequestClose={handleCloseModal}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={tw`text-lg mb-4`}>Use location in book mark ?</Text>
+              <View style={tw`flex-row gap-4`}>
+              <TouchableOpacity onPress={() => {{handleCloseModal()}  navigation.navigate('Bookmark')}} style={tw`p-2 bg-red-500 rounded`}>
+                
+                <Text style={tw`text-white text-center`}>Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleCloseModal} style={tw`p-2 bg-red-500 rounded`}>
+                <Text style={tw`text-white text-center`}>OK</Text>
+              </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
           </View>
           <View>
             <LinearGradient
@@ -142,6 +193,23 @@ const styles = StyleSheet.create({
   globalText: {
     fontFamily: "Mitr-Regular",
   },
-});
+  
+    modalOverlay: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContainer: {
+      width: 300,
+      padding: 20,
+      backgroundColor: 'white',
+      borderRadius: 10,
+      alignItems: 'center',
+    },
+  });
+
+
+
 
 export default Home;
