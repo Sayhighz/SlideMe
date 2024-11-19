@@ -134,34 +134,31 @@ const ChooseOffer = ({ navigation }) => {
     setFilteredOffer(results);
   };
 
-  const getRouteDistance = async (driverLocation , originLocation) => {
-    console.log(driverLocation,"';l;'l;l';l",originLocation);
-    const API_KEY = GOOGLE_MAPS_API_KEY; // Make sure this key is properly secured
+  const getRouteDistance = async (driverLocation, originLocation) => {
+    const API_KEY = GOOGLE_MAPS_API_KEY; // ใช้ API Key ของคุณ
     const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${driverLocation.latitude},${driverLocation.longitude}&destination=${originLocation.latitude},${originLocation.longitude}&key=${API_KEY}`;
-    console.log(url);
 
     try {
       const response = await axios.get(url);
-      console.log(response.data);
       if (response.data.routes.length > 0) {
         const leg = response.data.routes[0].legs[0];
-        const distance = leg.distance.value; // Distance in meters
-        const duration = leg.duration.value; // Duration in seconds
-        const durationText = leg.duration.text.replace(/[^\d]/g, "");
+        const distance = leg.distance.value; // ระยะทางในหน่วยเมตร
+        const duration = leg.duration.value; // เวลาเดินทางในหน่วยวินาที
+        const durationText = leg.duration.text.replace(/[^\d]/g, '');
 
         return { distance, duration, durationText };
       } else {
-        console.error("No routes found");
+        console.error("ไม่พบเส้นทาง");
         return { distance: null, duration: null, durationText: null };
       }
     } catch (error) {
-      console.error("Error calling Directions API:", error.message);
+      console.error(
+        "เกิดข้อผิดพลาดในการเรียกใช้ Directions API:",
+        error.message
+      );
       return { distance: null, duration: null, durationText: null };
     }
-};
-
-  
-
+  };
 
   const refreshPage = async () => {
     try {
@@ -189,7 +186,7 @@ const ChooseOffer = ({ navigation }) => {
         const drivers = response.data.Result.map((driver) => ({
           id: driver.driver_id,
           name: `${driver.first_name} ${driver.last_name}`,
-          rating: driver.rating,
+          rating: driver.average_rating.toFixed(1),
           location: {
             latitude: driver.current_latitude,
             longitude: driver.current_longitude,
@@ -262,7 +259,8 @@ const ChooseOffer = ({ navigation }) => {
                 <Text style={[styles.globalText, tw`text-lg font-bold`]}>
                   {"ราคา : "}
                   <Text style={tw`text-lg text-red-700`}>
-                    {chooseDriver.price || "-"}{" บาท"}
+                    {chooseDriver.price || "-"}
+                    {" บาท"}
                   </Text>
                 </Text>
                 <Text style={[styles.globalText, tw`text-lg font-bold`]}>
@@ -307,8 +305,8 @@ const ChooseOffer = ({ navigation }) => {
             initialRegion={{
               latitude: originLocation.latitude,
               longitude: originLocation.longitude,
-              latitudeDelta: 0.05, // ค่า zoom level สามารถปรับได้ตามต้องการ
-              longitudeDelta: 0.05,
+              latitudeDelta: 0.08, // ค่า zoom level สามารถปรับได้ตามต้องการ
+              longitudeDelta: 0.08,
             }}
           >
             <Marker
@@ -362,7 +360,6 @@ const ChooseOffer = ({ navigation }) => {
                 console.log("Duration:", result.duration); // Duration in minutes
               }}
             /> */}
-
           </MapView>
         ) : null}
       </View>
@@ -397,6 +394,7 @@ const ChooseOffer = ({ navigation }) => {
         <View style={tw`flex-8 items-center `}>
           <FlatList
             data={filteredOffer}
+            keyExtractor={(item, index) => `${item.id}-${index}`}            
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={[
@@ -419,19 +417,21 @@ const ChooseOffer = ({ navigation }) => {
                 >
                   <Text style={tw`text-red-700`}>
                     {item.price ? item.price : "-"}
-                  </Text>{" บาท"}
-                  
+                  </Text>
+                  {" บาท"}
                 </Text>
                 <View style={tw`flex-3 justify-around items-center h-full`}>
                   <Text style={[styles.globalText, tw`font-bold`]}>
                     <Text style={tw`text-red-700`}>
-                      {(item.distance / 1000).toFixed(2)}{" km"}
+                      {(item.distance / 1000).toFixed(2)}
+                      {" km"}
                     </Text>
-                    
                   </Text>
                   <Text style={tw`font-bold `}>
-                    <Text style={tw`text-red-700`}>{item.durationText}{" นาที"} </Text>
-                    
+                    <Text style={tw`text-red-700`}>
+                      {item.durationText}
+                      {" นาที"}{" "}
+                    </Text>
                   </Text>
                 </View>
                 <View style={tw`flex-2 flex-row justify-center items-center`}>
