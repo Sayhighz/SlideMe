@@ -931,6 +931,114 @@ router.post("/driver/reject_all_offers", (req, res) => {
   });
 });
 
+router.post("/register_driver", (req, res) => {
+  const { 
+    phone_number, 
+    email, 
+    username, 
+    first_name, 
+    last_name, 
+    password, 
+    id_number, 
+    birth_date, 
+    id_expiry_date, 
+    license_plate 
+  } = req.body;
+
+  // Validation for required fields
+  if (!phone_number || !password || !id_number || !birth_date || !id_expiry_date || !license_plate) {
+    return res.json({ Status: false, Error: "All required fields must be filled" });
+  }
+
+  // Hash password (use bcrypt or similar library)
+  // const bcrypt = require("bcrypt");
+  // const hashedPassword = bcrypt.hashSync(password, 10); // Hash with 10 salt rounds
+
+  const sql = `
+    INSERT INTO users (
+      phone_number,
+      email,
+      username,
+      first_name,
+      last_name,
+      password,
+      role,
+      id_number,
+      birth_date,
+      id_expiry_date,
+      license_plate,
+      created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, 'driver', ?, ?, ?, ?, NOW())
+  `;
+
+  const values = [
+    phone_number,
+    email || null,
+    username || null,
+    first_name,
+    last_name,
+    password,
+    // hashedPassword,  // Store hashed password
+    id_number,
+    birth_date,
+    id_expiry_date,
+    license_plate
+  ];
+
+  con.query(sql, values, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, InsertId: result.insertId });
+  });
+});
+
+router.post("/login", (req, res) => {
+  const { phone_number, password } = req.body;
+
+  if (!phone_number || !password) {
+      return res.status(400).json({ Status: false, Error: "กรุณาใส่เบอร์โทรศัพท์และรหัสผ่าน" });
+  }
+
+  const sql = "SELECT * FROM users WHERE phone_number = ?";
+  con.query(sql, [phone_number], (err, results) => {
+      if (err) {
+          return res.status(500).json({ Status: false, Error: "Database error" });
+      }
+
+      if (results.length === 0) {
+          return res.status(401).json({ Status: false, Error: "เบอร์โทรหรือรหัสผ่านผิด" });
+      }
+
+      const user = results[0];
+
+      // ตรวจสอบรหัสผ่าน
+      if (user.password !== password) {
+          return res.status(401).json({ Status: false, Error: "เบอร์โทรหรือรหัสผ่านผิด" });
+      }
+
+      // สร้าง JWT Token
+      const token = jwt.sign(
+          { user_id: user.user_id, role: user.role },
+          "YOUR_SECRET_KEY",
+          { expiresIn: "1h" }
+      );
+
+      // ส่งข้อมูลผู้ใช้กลับไป
+      return res.json({
+          Status: true,
+          Message: "เข้าสู่ระบบสำเร็จ",
+          Token: token,
+          User: {
+              user_id: user.user_id,
+              role: user.role,
+              first_name: user.first_name,
+              last_name: user.last_name,
+          }
+      });
+  });
+});
+
+
+
 
 router.get("/customer/getServiceInfo", (req, res) => {
   const request_id = req.query.request_id || null;

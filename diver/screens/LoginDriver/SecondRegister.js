@@ -4,8 +4,9 @@ import { View, Text, TextInput, TouchableOpacity, SafeAreaView } from 'react-nat
 import tw from 'twrnc';
 import Icon from 'react-native-vector-icons/Ionicons'; // Importing Ionicons from react-native-vector-icons
 
-const SecondRegister = ({ navigation }) => {
+const SecondRegister = ({ navigation, route }) => {
     const [name, setName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [idNumber, setIdNumber] = useState('');
     const [birthDate, setBirthDate] = useState('');
     const [idExpiryDate, setIdExpiryDate] = useState('');
@@ -13,7 +14,16 @@ const SecondRegister = ({ navigation }) => {
 
     const handleNextPress = () => {
         // Add logic to handle next step, e.g., form validation or navigation
-        navigation.navigate('ThirdRegister');
+        navigation.navigate('ThirdRegister', {
+            ...route.params,  // ส่งข้อมูลจาก FirstRegister.js
+            name,  // ชื่อ
+            lastName,  // นามสกุล
+            idNumber,  // เลขบัตรประชาชน
+            birthDate,  // วันเกิด
+            idExpiryDate,  // วันหมดอายุบัตรประชาชน
+            licensePlate,  // ทะเบียนรถ
+        });
+        
         console.log(`Name: ${name}, ID Number: ${idNumber}, Birth Date: ${birthDate}, ID Expiry Date: ${idExpiryDate}, License Plate: ${licensePlate}`);
     };
 
@@ -29,7 +39,7 @@ const SecondRegister = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
             <View style={tw`flex-1 justify-start mx-auto w-10/12 mt-8`}>
-                <Text style={tw`text-xl font-bold ml-5 mb-2`}>ขั้นตอนที่ 1 จาก 5</Text>
+                <Text style={tw`text-xl font-bold ml-5 mb-2`}>ขั้นตอนที่ 1 จาก 3</Text>
                 <Text style={tw`text-3xl font-bold mb-4`}>สร้างบัญชีของคุณ</Text>
                 <Text style={tw`text-lg mb-2`}>ข้อมูลทั่วไป</Text>
                 <Text style={tw`text-sm text-red-500`}>*จำเป็น</Text>
@@ -38,6 +48,13 @@ const SecondRegister = ({ navigation }) => {
                     style={tw`border-2 border-gray-300 rounded-lg p-2 mb-4`}
                     value={name}
                     onChangeText={setName}
+                />
+                <Text style={tw`text-sm text-red-500`}>*จำเป็น</Text>
+                <TextInput
+                    placeholder="นามสกุล (ตามบัตรประชาชน)"
+                    style={tw`border-2 border-gray-300 rounded-lg p-2 mb-4`}
+                    value={lastName}
+                    onChangeText={setLastName}
                 />
                 <Text style={tw`text-sm  text-red-500`}>*จำเป็น</Text>
                 <TextInput
