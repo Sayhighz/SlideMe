@@ -22,6 +22,8 @@ export default function PaymentPage({ navigation }) {
 
   const [discount, setDiscount] = useState(0);
 
+  const [totalPrice, setTotalPrice] = useState(0);
+
   const [paymentMethods, setPaymentMethods] = useState();
 
   const [choosePaymentMethod, setChoosePaymentMethod] = useState("");
@@ -34,21 +36,73 @@ export default function PaymentPage({ navigation }) {
   const driverName = route.params?.chooseDriver.name || "ไม่ระบุ";
   const driverRating = route.params?.chooseDriver.rating || "0";
   const driverPrice = route.params?.chooseDriver.price || "0";
+  const customer_id_request = route.params?.chooseDriver.customer_id_request || "ไม่ระบุ";
+
+  useEffect(() => {
+    setTotalPrice(driverPrice + feePrice - discount);
+  }, [driverPrice, discount]);
 
   useEffect(() => {
     const fetchPaymentMethods = async () => {
       try {
         const response = await axios.get(
-          `http://${IP_ADDRESS}:3000/auth/get_payments_method`
+          `http://${IP_ADDRESS}:3000/auth/get_payments_method?user_id=${customer_id_request}` // Pass the customer_id_request as user_id
         );
         setPaymentMethods(response.data.Result); // Assuming the response data is in the expected format
       } catch (error) {
         console.error("Error fetching payment methods:", error);
       }
     };
-
+  
     fetchPaymentMethods();
   }, []);
+
+  const updateData = async () => {
+    console.log("updateData",route.params);
+
+    const { request_id } = route.params.chooseDriver;
+    const chosen_driver_id = route.params.chooseDriver.id;
+
+    console.log("request_id:", request_id);
+    console.log("chosen_driver_id:", chosen_driver_id);
+
+    try {
+      const response = await axios.post(`http://${IP_ADDRESS}:3000/auth/update_offer_status`, {
+        request_id,
+        chosen_driver_id,
+      });
+  
+      if (response.data.Status) {
+        console.log("Offer status updated successfully");
+      } else {
+        console.error("Error:", response.data.Message);
+      }
+    } catch (error) {
+      console.error("API error:", error);
+    }
+
+
+    try {
+      const response = await axios.post(`http://${IP_ADDRESS}:3000/auth/update_service_request`, {
+        request_id: route.params.chooseDriver.request_id,
+        customer_id: route.params.chooseDriver.customer_id_request,
+        driver_id: route.params.chooseDriver.id,
+        price: totalPrice,
+      });
+
+      navigation.navigate("viewOrder", 
+        {driverProfile: route.params},
+      );
+  
+      if (response.data.Status) {
+        console.log("Service request updated successfully:", response.data.Message);
+      } else {
+        console.error("Error:", response.data.Message);
+      }
+    } catch (error) {
+      console.error("API error:", error);
+    }
+  }
 
   return (
     <SafeAreaView style={tw`flex-1 relative`}>
@@ -85,10 +139,11 @@ export default function PaymentPage({ navigation }) {
           <FlatList
             style={tw`flex-3 mx-4`}
             data={paymentMethods}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
+            keyExtractor={(item, index) => `${item.card_number || index}`}
+            renderItem={({ item, index }) => {
+              return(
               <Pressable
-                key={item.id}
+              key={item.card_number || index}
                 style={[
                   tw`flex-row items-center p-4 mb-2 rounded`,
                   choosePaymentMethod &&
@@ -158,7 +213,7 @@ export default function PaymentPage({ navigation }) {
                   <Text style={tw`text-sm mt-2`}>{item.card_number}</Text>
                 </View>
               </Pressable>
-            )}
+            )}}
           />
         )}
         {tabIndex === 0 && (
@@ -227,7 +282,7 @@ export default function PaymentPage({ navigation }) {
               <Text style={tw`text-xl font-bold`}>TOTAL</Text>
               <Text style={tw`text-xl font-bold`}>
                 <Text style={tw`font-bold text-[#E33F3F]`}>
-                  {driverPrice + feePrice - discount}
+                  {totalPrice}
                 </Text>{" "}
                 THB
               </Text>
@@ -240,11 +295,8 @@ export default function PaymentPage({ navigation }) {
               style={tw`justify-center w-1/2 h-2/3 items-center border-2 rounded-lg bg-[#60B876] border-[#60B876]`}
               onPress={() => {
                 if (choosePaymentMethod !== "") {
-                  navigation.navigate("viewOrder", {
-                    driverProfile: route.params,
-                    originLocation: route.params.originLocation,
-                    destinationLocation: route.params.destinationLocation,
-                  });
+
+                updateData()
                 }
               }}
             >

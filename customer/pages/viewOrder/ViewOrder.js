@@ -33,74 +33,8 @@ export default function ViewOrder({ navigation }) {
   const originLocation = route.params?.originLocation || "ไม่ระบุ";
   const destinationLocation = route.params?.destinationLocation || "ไม่ระบุ";
 
-  // useEffect(() => {
-  //   setOrigin({
-  //     name: originLocation.name,
-  //     latitude: originLocation.latitude,
-  //     longitude: originLocation.longitude,
-  //   });
-
-  //   setDestination({
-  //     name: destinationLocation.name,
-  //     latitude: destinationLocation.latitude,
-  //     longitude: destinationLocation.longitude,
-  //   });
-
-  //   setDriverInformation({
-  //     name: driverProfile.name,
-  //     latitude: driverProfile.location.latitude,
-  //     longitude: driverProfile.location.longitude,
-  //     phone: "0808341035",
-  //     rating: driverProfile.rating,
-  //   });
-
-  //   console.log(driverInformation)
-  // }, [route.params]);
-
-  
-
-  // useEffect(() => {
-  //   console.log(route.params);
-  // }, [route.params]);
-
-  // useEffect(() => {
-  //   _getLocation();
-  // }, []);
-
-  // const _getLocation = async () => {
-  //   try {
-  //     let { status } = await Location.requestForegroundPermissionsAsync();
-  //     if (status !== "granted") {
-  //       console.warn("Permission to access location was denied");
-  //       return;
-  //     }
-
-  //     // เฝ้าดูตำแหน่งของผู้ใช้แบบเรียลไทม์
-  //     await Location.watchPositionAsync(
-  //       {
-  //         accuracy: Location.Accuracy.High,
-  //         timeInterval: 600000, // Update every 10 minutes
-  //         distanceInterval: 500,
-  //       },
-  //       (location) => {
-  //         const { latitude, longitude } = location.coords;
-  //         const newRegion = {
-  //           latitude,
-  //           longitude,
-  //           latitudeDelta: 0.0922,
-  //           longitudeDelta: 0.0421,
-  //         };
-
-  //         setMyLocation(newRegion);
-  //         // console.log(myLocation)
-
-  //       }
-  //     );
-  //   } catch (error) {
-  //     console.warn("Error fetching location", error);
-  //   }
-  // };
-
+  const driver_id = route.params?.driverProfile.chooseDriver.id || "ไม่ระบุ";
+  const customer_id_request = route.params?.driverProfile.chooseDriver.customer_id_request || "ไม่ระบุ";
 
   const formatDateToThaiTimezone = (dateString) => {
     const date = new Date(dateString);
@@ -121,20 +55,18 @@ export default function ViewOrder({ navigation }) {
   };
 
   useEffect(() => {
+    console.log("driver_id:", driver_id);
+    console.log("customer_id_request:", customer_id_request);
+  }, [driver_id,customer_id_request]);
+
+  useEffect(() => {
     // Define an async function to fetch data
     const fetchOrderDetails = async () => {
       try {
-        const response = await axios.get(`http://${IP_ADDRESS}:3000/auth/fetch_driver_info`, {
-          params: {
-            customer_id: 10,  // Replace with dynamic value as needed
-            driver_id: 6     // Replace with dynamic value as needed
-          }
-        });
-  
+        const response = await axios.get(`http://${IP_ADDRESS}:3000/auth/fetch_driver_info/${customer_id_request}/${driver_id}`);
+
         if (response.data.Status && response.data.Result.length > 0) {
           const data = response.data.Result[0]; // Assuming you want the first result
-
-          console.log(data);
   
           // Set the state with fetched data
           setOrigin({
@@ -256,12 +188,12 @@ export default function ViewOrder({ navigation }) {
                       destination={
                         confirmFromDriver
                           ? {
-                              latitude: destinationLocation.latitude,
-                              longitude: destinationLocation.longitude,
+                              latitude: destination.latitude,
+                              longitude: destination.longitude,
                             }
                           : {
-                              latitude: originLocation.latitude,
-                              longitude: originLocation.longitude,
+                              latitude: origin.latitude,
+                              longitude: origin.longitude,
                             }
                       }
                       // onError={(errorMessage) => {

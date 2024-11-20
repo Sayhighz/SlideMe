@@ -531,7 +531,9 @@ router.get("/drivers/chooseoffer", (req, res) => {
       sr.location_from,
       sr.dropoff_lat,
       sr.dropoff_long,
-      sr.location_to
+      sr.location_to,
+      sr.customer_id,
+      sr.request_id
     FROM driverdetails d
     INNER JOIN users u ON d.driver_id = u.user_id
     LEFT JOIN reviews r ON u.user_id = r.driver_id
@@ -603,8 +605,9 @@ router.get("/drivers/chooseoffer", (req, res) => {
 
 
 router.get("/get_payments_method", (req, res) => {
-  const sql = `SELECT payment_type, card_number, account_name FROM paymentmethods`;
-  con.query(sql, (err, result) => {
+  const { user_id } = req.query; // Fetch user_id from the query
+  const sql = `SELECT payment_type, card_number, account_name FROM paymentmethods WHERE user_id = ?`; // Use WHERE to filter by user_id
+  con.query(sql, [user_id], (err, result) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
@@ -629,8 +632,8 @@ router.get("/validate_customer", (req, res) => {
   });
 });
 
-router.get("/fetch_driver_info", (req, res) => {
-  const { customer_id, driver_id } = req.query;
+router.get("/fetch_driver_info/:customer_id/:driver_id", (req, res) => {
+  const { customer_id, driver_id } = req.params; // Extract from URL
 
   if (!customer_id || !driver_id) {
     return res.status(400).json({ Status: false, Message: "Invalid parameters" });
@@ -638,6 +641,8 @@ router.get("/fetch_driver_info", (req, res) => {
 
   const sql = `
     SELECT 
+      d.driver_id,
+      sr.customer_id,
       sr.request_id,
       sr.pickup_lat,
       sr.pickup_long,
@@ -647,7 +652,7 @@ router.get("/fetch_driver_info", (req, res) => {
       sr.location_to,
       sr.booking_time,
       sr.request_time,
-      u.username AS driver_name,
+      u.first_name AS driver_name,
       u.phone_number AS driver_phone,
       AVG(r.rating) AS average_rating,
       d.current_latitude AS driver_latitude,
@@ -657,29 +662,85 @@ router.get("/fetch_driver_info", (req, res) => {
     INNER JOIN users u ON do.driver_id = u.user_id
     LEFT JOIN reviews r ON u.user_id = r.driver_id
     INNER JOIN driverdetails d ON do.driver_id = d.driver_id
-    WHERE sr.customer_id = ? AND do.driver_id = ?
+    WHERE sr.customer_id = ? AND do.driver_id = ? AND do.offer_status = 'accepted' AND sr.status = 'accepted'
     GROUP BY 
       sr.request_id, sr.pickup_lat, sr.pickup_long, sr.location_from, 
       sr.dropoff_lat, sr.dropoff_long, sr.location_to, 
-      sr.booking_time, sr.request_time, u.username, u.phone_number, 
+      sr.booking_time, sr.request_time, u.first_name, u.phone_number, 
       d.current_latitude, d.current_longitude;
   `;
 
   con.query(sql, [customer_id, driver_id], (err, result) => {
-    if (err) {
-      console.error("Error fetching driver info:", err);
-      return res.status(500).json({ Status: false, Error: err.message });
-    }
-
-    if (result.length === 0) {
-      return res.status(404).json({ Status: false, Message: "No matching data found" });
-    }
-
-    return res.status(200).json({ Status: true, Result: result });
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
   });
 });
 
+router.post("/update_offer_status", (req, res) => {
+  const { request_id, chosen_driver_id } = req.body;
 
+  if (!request_id || !chosen_driver_id) {
+    return res.status(400).json({ Status: false, Message: "Invalid parameters" });
+  }
+
+  const sqlUpdateAccepted = `
+    UPDATE driveroffers
+    SET offer_status = 'accepted'
+    WHERE request_id = ? AND driver_id = ?
+  `;
+
+  const sqlUpdateRejected = `
+    UPDATE driveroffers
+    SET offer_status = 'rejected'
+    WHERE request_id = ? AND driver_id != ? AND offer_status = 'pending'
+  `;
+
+  con.query(sqlUpdateAccepted, [request_id, chosen_driver_id], (err, result) => {
+    if (err) {
+      console.error("Error updating accepted offer:", err);
+      return res.status(500).json({ Status: false, Error: err.message });
+    }
+
+    con.query(sqlUpdateRejected, [request_id, chosen_driver_id], (err, result) => {
+      if (err) {
+        console.error("Error updating rejected offers:", err);
+        return res.status(500).json({ Status: false, Error: err.message });
+      }
+
+      return res.status(200).json({ Status: true, Message: "Offer status updated successfully" });
+    });
+  });
+});
+
+router.post("/update_service_request", (req, res) => {
+  const { request_id, customer_id, driver_id, price } = req.body;
+
+  // Validate input
+  if (!request_id || !customer_id || !driver_id || !price) {
+    return res.status(400).json({ Status: false, Message: "Invalid parameters" });
+  }
+
+  const sqlUpdate = `
+    UPDATE servicerequests
+    SET status = 'accepted',
+        accepted_driver_id = ?,
+        price_offer = ?
+    WHERE request_id = ? AND customer_id = ? 
+  `;
+
+  con.query(sqlUpdate, [driver_id, price, request_id, customer_id], (err, result) => {
+    if (err) {
+      console.error("Error updating service request:", err);
+      return res.status(500).json({ Status: false, Error: err.message });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ Status: false, Message: "No matching data found or already updated" });
+    }
+
+    return res.status(200).json({ Status: true, Message: "Service request updated successfully" });
+  });
+});
 
 
 export { router as adminRouter };

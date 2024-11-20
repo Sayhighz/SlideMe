@@ -315,6 +315,8 @@ export default function Order({ navigation }) {
       if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);
       }
+
+      console.log(response)
   
       const responseData = await response.json();
       console.log("Response data:", responseData);

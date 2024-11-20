@@ -171,7 +171,6 @@ const ChooseOffer = ({ navigation, route }) => {
 
     const refreshPage = async () => {
       try {
-        console.log("Refresh Page")
         const response = await fetch(`http://${IP_ADDRESS}:3000/auth/drivers/chooseoffer?request_id=${request_id}`);
         const data = await response.json();
         if (data.Status) {
@@ -191,6 +190,7 @@ const ChooseOffer = ({ navigation, route }) => {
           if(data.Result == ""){
             setOfferLoading(true);
           }
+
   
           if (data.Result && data.Result.length > 0) {
             // Handle driver data if available
@@ -203,6 +203,8 @@ const ChooseOffer = ({ navigation, route }) => {
                 longitude: driver.current_longitude,
               },
               price: driver.offered_price,
+              customer_id_request: driver.customer_id,
+              request_id: driver.request_id
             }));
             setOffer(drivers);
             setOfferLoading(false);
@@ -295,8 +297,9 @@ const ChooseOffer = ({ navigation, route }) => {
                 onPress={() => {
                   navigation.navigate("payment", {
                     chooseDriver: chooseDriver,
-                    originLocation: originLocation,
-                    destinationLocation: destinationLocation,
+
+                    // originLocation: originLocation,
+                    // destinationLocation: destinationLocation,
                   }),
                     setOpenModal(false);
                 }}

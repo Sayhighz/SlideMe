@@ -16,7 +16,6 @@ function Map({
   setOrigin,
   origin,
   destination,
-  store,
   confirmOrigin,
   confirmDestination
 }) {
@@ -82,12 +81,6 @@ useEffect(() => {
           style={tw`w-full h-full`}
           region={region}
           onRegionChangeComplete={setRegion}
-          // initialRegion={{
-          //   latitude: 13.7563, // ตัวอย่างค่า latitude ของกรุงเทพฯ
-          //   longitude: 100.5018, // ตัวอย่างค่า longitude ของกรุงเทพฯ
-          //   latitudeDelta: 0.0922,
-          //   longitudeDelta: 0.0421,
-          // }}
           onPress={(e) => {
             const { latitude, longitude } = e.nativeEvent.coordinate;
             {confirmOrigin.length ? 
@@ -118,31 +111,6 @@ useEffect(() => {
               description="ตำแหน่งต้นทาง"
             />
           )}
-
-          {confirmOrigin.length && confirmDestination.length
-            ? store.map((item, index) => (
-                <Marker
-                  key={index}
-                  coordinate={{
-                    latitude: item.latitude,
-                    longitude: item.longitude,
-                  }}
-                  pinColor="blue"
-                  title={item.name}
-                  description={item.price}
-                />
-              ))
-            : null}
-
-          {/* ระยะรอบตัว */}
-          {/* {confirmOrigin.length && confirmDestination.length ? (
-            <Circle
-              center={origin}
-              radius={5000}
-              fillColor="rgba(255, 0, 0, 0.1)"
-              strokeColor="rgba(255, 0, 0, 0.1)"
-            />
-          ) : null} */}
 
           {confirmOrigin.length ? (
             <Marker

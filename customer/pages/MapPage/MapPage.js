@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Text, View, Pressable, Modal , StyleSheet} from "react-native";
+import { Text, View, Pressable, Modal, StyleSheet } from "react-native";
 
 import * as Location from "expo-location";
 import tw from "twrnc"; // import twrnc
@@ -30,41 +30,11 @@ const MapPage = ({ navigation }) => {
 
   const [openModal, setOpenModal] = useState(false);
 
+  const googlePlacesRef = useRef();
+
   // 13.855827502824274, 100.58551678180032
 
-  //ร้านค้า
-  const [store, setStore] = useState([
-    {
-      name: "store 1",
-      latitude: 13.827187145167997,
-      longitude: 100.5548010679114,
-      price: "1,000",
-    },
-    {
-      name: "store 2",
-      latitude: 13.817187145167997,
-      longitude: 100.654801069114,
-      price: "1,000",
-    },
-    {
-      name: "store 3",
-      latitude: 13.827187145167997,
-      longitude: 100.4548010679114,
-      price: "1,000",
-    },
-    {
-      name: "store 4",
-      latitude: 13.727187145167997,
-      longitude: 100.6548010679114,
-      price: "1,000",
-    },
-    {
-      name: "store 5",
-      latitude: 13.927187145167997,
-      longitude: 100.6548010679114,
-      price: "1,000",
-    },
-  ]);
+
 
   //ระบุสถานที่
   const getAddressFromCoords = async (latitude, longitude) => {
@@ -148,12 +118,12 @@ const MapPage = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={tw`flex-1 relative`}>
+    <SafeAreaView style={tw`flex-1`}>
       <Modal transparent={true} visible={openModal}>
         <View style={tw`flex-1 justify-center items-center`}>
           <View style={tw`bg-[#FDFFFD] w-4/5 h-1/3 flex rounded-lg p-3`}>
             <View style={tw`flex-1 justify-center`}>
-              <Text style={[styles.globalText , tw`font-bold text-lg`]}>
+              <Text style={[styles.globalText, tw`font-bold text-lg`]}>
                 ยืนยันสถานที่ {confirmOrigin.length ? "ปลายทาง" : "ต้นทาง"}
               </Text>
             </View>
@@ -171,7 +141,14 @@ const MapPage = ({ navigation }) => {
                   setOpenModal(false);
                 }}
               >
-                <Text style={[styles.globalText , tw`text-lg font-bold text-[#FDFFFD]`]}>Cancel</Text>
+                <Text
+                  style={[
+                    styles.globalText,
+                    tw`text-lg font-bold text-[#FDFFFD]`,
+                  ]}
+                >
+                  Cancel
+                </Text>
               </Pressable>
               <Pressable
                 style={tw`bg-[#60B876] p-3 rounded-lg`}
@@ -190,72 +167,80 @@ const MapPage = ({ navigation }) => {
           </View>
         </View>
       </Modal>
-      <View style={tw`flex-1 flex-row z-10 absolute bg-[#FDFFFD] top-5`}>
-        <View style={tw`flex-1 justify-center items-center`}>
-          <TouchableOpacity
-            onPress={() => {
-              if (confirmOrigin.length) {
-                setConfirmOrigin([]);
-                setConfirmDestination([]);
-                setDestination([]);
-              } else {
-                navigation.goBack();
-              }
-            }}
-          >
-            <MaterialIcons name="arrow-back" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
-        <View style={tw`flex-9`}>
-          <GooglePlacesAutocomplete
-            //ต้องขอ api
-            styles={tw`bg-[#FDFFFD]`}
-            fetchDetails={true}
-            placeholder={confirmOrigin.length ? "Destination" : "Origin"}
-            minLength={2}
-            debounce={400}
-            onPress={(data, details = null) => {
-              if (confirmOrigin.length) {
-                let destinationCordinates = {
-                  latitude: details?.geometry?.location.lat,
-                  longitude: details?.geometry?.location.lng,
-                };
-                setDestination(destinationCordinates);
-              } else {
-                let originCordinates = {
-                  latitude: details?.geometry?.location.lat,
-                  longitude: details?.geometry?.location.lng,
-                };
-                setOrigin(originCordinates);
-              }
-            }}
-            query={{
-              key: GOOGLE_MAPS_API_KEY,
-              language: "th",
-            }}
-            onFail={(error) => console.log(error)}
-            onNotFound={() => console.log("ไม่พบสถานที่")}
-          />
-        </View>
-      </View>
 
-      <View style={tw`flex-3`}>
+      <View style={tw`flex-3 relative`}>
         <Map
           setDestination={setDestination}
           setOrigin={setOrigin}
           origin={origin}
           destination={destination}
-          store={store}
           confirmOrigin={confirmOrigin}
           confirmDestination={confirmDestination}
         />
+
+        <View
+          style={[
+            tw` flex-1 flex-row z-10 w-full absolute top-2 justify-center items-center `,
+          ]}
+        >
+          <View
+            style={tw` flex-row w-11/12 rounded-lg bg-[#FDFFFD] border border-gray-200`}
+          >
+            <View style={tw`flex-1 justify-center items-center`}>
+              <TouchableOpacity
+                onPress={() => {
+                  if (confirmOrigin.length) {
+                    setConfirmOrigin([]);
+                    setConfirmDestination([]);
+                    setDestination([]);
+                  } else {
+                    navigation.goBack();
+                  }
+                }}
+              >
+                <MaterialIcons name="arrow-back" size={24} color="black" />
+              </TouchableOpacity>
+            </View>
+            <View style={tw`flex-9`}>
+              <GooglePlacesAutocomplete
+                //ต้องขอ api
+                styles={tw`bg-[#FDFFFD]`}
+                fetchDetails={true}
+                placeholder={confirmOrigin.length ? "Destination" : "Origin"}
+                minLength={2}
+                debounce={400}
+                onPress={(data, details = null) => {
+                  if (confirmOrigin.length) {
+                    let destinationCordinates = {
+                      latitude: details?.geometry?.location.lat,
+                      longitude: details?.geometry?.location.lng,
+                    };
+                    setDestination(destinationCordinates);
+                  } else {
+                    let originCordinates = {
+                      latitude: details?.geometry?.location.lat,
+                      longitude: details?.geometry?.location.lng,
+                    };
+                    setOrigin(originCordinates);
+                  }
+                }}
+                query={{
+                  key: GOOGLE_MAPS_API_KEY,
+                  language: "th",
+                }}
+                onFail={(error) => console.log(error)}
+                onNotFound={() => console.log("ไม่พบสถานที่")}
+              />
+            </View>
+          </View>
+        </View>
       </View>
 
       <View
         style={tw`flex-1 bg-[#FDFFFD] p-3 border border-[#FDFFFD] rounded-t-3xl`}
       >
         <View style={tw`flex-1 justify-around`}>
-          <Text style={[styles.globalText , tw`text-xl font-bold mb-1`]}>
+          <Text style={[styles.globalText, tw`text-xl font-bold mb-1`]}>
             {confirmOrigin.length ? "Destination" : "Origin"}
           </Text>
           <Text style={styles.globalText}>
@@ -269,7 +254,9 @@ const MapPage = ({ navigation }) => {
               setOpenModal(true);
             }}
           >
-            <Text style={[styles.globalText ,tw`text-[#FDFFFD] text-xl font-bold`]}>
+            <Text
+              style={[styles.globalText, tw`text-[#FDFFFD] text-xl font-bold`]}
+            >
               Confirm {confirmOrigin.length ? "destination" : "origin"}
             </Text>
           </Pressable>
@@ -281,7 +268,7 @@ const MapPage = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   globalText: {
-    fontFamily: 'Mitr-Regular',
+    fontFamily: "Mitr-Regular",
   },
 });
 
