@@ -248,23 +248,53 @@ router.post("/add_reviews", (req, res) => {
   });
 });
 
-router.post("/add_address", (req, res) => {
+router.get("/getRequests", (req, res) => {
   const sql = `
-      INSERT INTO addresses (
-        user_id,
-        address_name,
-        address_detail,
-        latitude,
-        longitude
-    ) VALUES (?, ?, ?, ?, ?)
-    `;
+          select
+            s.request_id,
+              s.pickup_lat,
+              s.pickup_long,
+              s.location_from,
+              s.dropoff_lat,
+              s.dropoff_long,
+              s.location_to,
+              s.booking_time,
+              s.vehicle_type,
+              s.customer_message
+          FROM servicerequests s
+          WHERE s.status = 'pending';
+        `;
+  con.query(sql, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
+
+router.post("/customer/add_bookmark", (req, res) => {
+  const sql = `
+  INSERT INTO addresses (
+    user_id,
+    save_name,
+    location_from,
+    pickup_lat,
+    pickup_long,
+    location_to,
+    dropoff_lat,  
+    dropoff_long,
+    vahicle_type
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+`;
 
   const values = [
     req.body.user_id,
-    req.body.address_name,
-    req.body.address_detail,
-    req.body.latitude,
-    req.body.longitude,
+    req.body.save_name,
+    req.body.location_from,
+    req.body.pickup_lat,
+    req.body.pickup_long,
+    req.body.location_to,
+    req.body.dropoff_lat,
+    req.body.dropoff_long,
+    req.body.vahicle_type
   ];
 
   con.query(sql, values, (err, result) => {
@@ -273,22 +303,30 @@ router.post("/add_address", (req, res) => {
   });
 });
 
-router.post("/update_address", (req, res) => {
+router.post("/customer/edit_address", (req, res) => {
   const sql = `
           UPDATE addresses 
           SET 
-            address_name = ?, 
-            address_detail = ?, 
-            latitude = ?, 
-            longitude = ?
+            save_name = ?, 
+            location_from = ?,
+            pickup_lat = ?,
+            pickup_long = ?,
+            location_to = ?,
+            dropoff_lat = ?, 
+            dropoff_long = ?,
+            vahicle_type = ?
           WHERE address_id = ?
         `;
 
   const values = [
-    req.body.address_name,
-    req.body.address_detail,
-    req.body.latitude,
-    req.body.longitude,
+    req.body.save_name,
+    req.body.location_from,
+    req.body.pickup_lat,
+    req.body.pickup_long,
+    req.body.location_to,
+    req.body.dropoff_lat,
+    req.body.dropoff_long,
+    req.body.vahicle_type,
     req.body.address_id,
   ];
 
@@ -298,6 +336,52 @@ router.post("/update_address", (req, res) => {
       Status: true,
       AffectedRows: result.affectedRows,
     });
+  });
+});
+
+router.post("/customer/disable_bookmark", (req, res) => {
+  const sql = `
+          UPDATE addresses 
+          SET 
+            is_deleted = 1
+          WHERE address_id = ?
+        `;
+
+  const values = [
+    req.body.address_id,
+  ];
+
+  con.query(sql, values, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({
+      Status: true,
+      AffectedRows: result.affectedRows,
+    });
+  });
+});
+
+router.get("/customer/getuserbookmarks", (req, res) => {
+  const user_id = req.query.user_id || null;
+  const sql = `
+      SELECT
+        address_id,
+        save_name,
+        location_from,
+        pickup_lat,
+        pickup_long,
+        location_to,
+        dropoff_lat,
+        dropoff_long,
+        vehicle_type
+      FROM
+        addresses
+      WHERE
+        user_id = ?
+        and is_deleted = 0;
+    `;
+  con.query(sql, [user_id], (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
   });
 });
 
@@ -655,12 +739,10 @@ router.get("/drivers/chooseoffer", (req, res) => {
             PickupDropoffInfo: locationResult[0],
           });
         } else {
-          return res
-            .status(404)
-            .json({
-              Status: false,
-              Message: "No drivers or location data found",
-            });
+          return res.status(404).json({
+            Status: false,
+            Message: "No drivers or location data found",
+          });
         }
       });
 
@@ -849,5 +931,46 @@ router.post("/driver/reject_all_offers", (req, res) => {
   });
 });
 
+
+router.get("/customer/getServiceInfo", (req, res) => {
+  const request_id = req.query.request_id || null;
+  const sql = `
+   SELECT 
+        u.first_name,
+        u.last_name,
+        AVG(r.rating) AS average_rating,
+        sr.price_offer as price,
+        sr.location_from,
+        sr.pickup_lat,
+        sr.pickup_long,
+        sr.location_to,
+        sr.dropoff_lat,
+        sr.dropoff_long
+    FROM
+        servicerequests sr
+    INNER JOIN users u 
+        ON sr.accepted_driver_id = u.user_id
+    LEFT JOIN reviews r 
+        ON u.user_id = r.driver_id
+    WHERE
+        sr.request_id = ?
+    GROUP BY
+        sr.request_id,
+        u.first_name,
+        u.last_name,
+        sr.price_offer,
+        sr.pickup_lat,
+        sr.pickup_long,
+        sr.location_from,
+        sr.dropoff_lat,
+        sr.dropoff_long,
+        sr.location_to;
+
+  `;
+  con.query(sql, [request_id], (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
 
 export { router as adminRouter };
