@@ -62,6 +62,7 @@ function AuthNavigator({ handleLogin }) {
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userInfo, setUserInfo] = useState(null); // เก็บข้อมูลผู้ใช้
 
   const [fontsLoaded] = useFonts({
     'Mitr-Regular': require('./assets/fonts/Mitr-Regular.ttf'),
@@ -75,9 +76,10 @@ export default function App() {
     );
   }
 
-  const handleLogin = () => {
+  const handleLogin = (user) => {
     setIsLoggedIn(true);
-  };
+    setUserInfo(user); // เก็บข้อมูลผู้ใช้เมื่อเข้าสู่ระบบสำเร็จ
+};
 
   const driver_id = 2; // Assume this is retrieved when the user logs in or from context/state
 
