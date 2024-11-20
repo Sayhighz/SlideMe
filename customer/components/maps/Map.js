@@ -54,7 +54,6 @@ const _getLocation = async () => {
 
         setOrigin(location.coords);
         setRegion(newRegion);
-        console.log(newRegion);
       }
     );
   } catch (error) {

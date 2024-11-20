@@ -524,7 +524,7 @@ router.get("/drivers/chooseoffer", (req, res) => {
       u.username,
       u.first_name,
       u.last_name,
-      AVG(r.rating) AS average_rating,
+      COALESCE(AVG(r.rating), 0) AS average_rating,
       do.offered_price,
       sr.pickup_lat,
       sr.pickup_long,
@@ -654,7 +654,7 @@ router.get("/fetch_driver_info/:customer_id/:driver_id", (req, res) => {
       sr.request_time,
       u.first_name AS driver_name,
       u.phone_number AS driver_phone,
-      AVG(r.rating) AS average_rating,
+      COALESCE(AVG(r.rating), 0) AS average_rating, 
       d.current_latitude AS driver_latitude,
       d.current_longitude AS driver_longitude
     FROM servicerequests sr

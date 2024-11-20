@@ -210,7 +210,7 @@ export default function ViewOrder({ navigation }) {
           <Pressable
             style={tw`flex-1 flex-row bg-gray-300 m-4 rounded-lg items-center px-4`}
           >
-            <View style={tw`flex-9`}>
+            <View style={tw`flex-8`}>
               <Text style={[styles.globalText , tw`text-xl`]}>{driverInformation.name}</Text>
             </View>
             <View style={tw`flex-1 flex-row items-center justify-end`}>

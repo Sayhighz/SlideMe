@@ -142,20 +142,20 @@ const ChooseOffer = ({ navigation, route }) => {
   const getRouteDistance = async (driverLocation, originLocation) => {
     const API_KEY = GOOGLE_MAPS_API_KEY; // Use your API key
     const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${driverLocation.latitude},${driverLocation.longitude}&destination=${originLocation.latitude},${originLocation.longitude}&key=${API_KEY}`;
-  
+
     try {
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Error fetching route data: ${response.statusText}`);
       }
-  
+
       const data = await response.json();
       if (data.routes.length > 0) {
         const leg = data.routes[0].legs[0];
         const distance = leg.distance.value; // Distance in meters
         const duration = leg.duration.value; // Duration in seconds
-        const durationText = leg.duration.text.replace(/[^\d]/g, '');
-  
+        const durationText = leg.duration.text.replace(/[^\d]/g, "");
+
         return { distance, duration, durationText };
       } else {
         console.error("No routes found");
@@ -166,59 +166,57 @@ const ChooseOffer = ({ navigation, route }) => {
       return { distance: null, duration: null, durationText: null };
     }
   };
-  
 
-
-    const refreshPage = async () => {
-      try {
-        const response = await fetch(`http://${IP_ADDRESS}:3000/auth/drivers/chooseoffer?request_id=${request_id}`);
-        const data = await response.json();
-        if (data.Status) {
-          if (data.PickupDropoffInfo) {
-            setOriginLocation({
-              name: data.PickupDropoffInfo.location_from,
-              latitude: parseFloat(data.PickupDropoffInfo.pickup_lat),
-              longitude: parseFloat(data.PickupDropoffInfo.pickup_long),
-            });
-            setDestinationLocation({
-              name: data.PickupDropoffInfo.location_to,
-              latitude: parseFloat(data.PickupDropoffInfo.dropoff_lat),
-              longitude: parseFloat(data.PickupDropoffInfo.dropoff_long),
-            });
-          }
-
-          if(data.Result == ""){
-            setOfferLoading(true);
-          }
-
-  
-          if (data.Result && data.Result.length > 0) {
-            // Handle driver data if available
-            const drivers = data.Result.map((driver) => ({
-              id: driver.driver_id,
-              name: `${driver.first_name} ${driver.last_name}`,
-              rating: driver.average_rating.toFixed(1),
-              location: {
-                latitude: driver.current_latitude,
-                longitude: driver.current_longitude,
-              },
-              price: driver.offered_price,
-              customer_id_request: driver.customer_id,
-              request_id: driver.request_id
-            }));
-            setOffer(drivers);
-            setOfferLoading(false);
-          }
-  
+  const refreshPage = async () => {
+    try {
+      const response = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/drivers/chooseoffer?request_id=${request_id}`
+      );
+      const data = await response.json();
+      if (data.Status) {
+        if (data.PickupDropoffInfo) {
+          setOriginLocation({
+            name: data.PickupDropoffInfo.location_from,
+            latitude: parseFloat(data.PickupDropoffInfo.pickup_lat),
+            longitude: parseFloat(data.PickupDropoffInfo.pickup_long),
+          });
+          setDestinationLocation({
+            name: data.PickupDropoffInfo.location_to,
+            latitude: parseFloat(data.PickupDropoffInfo.dropoff_lat),
+            longitude: parseFloat(data.PickupDropoffInfo.dropoff_long),
+          });
         }
-      } catch (error) {
-        console.error("Error fetching data:", error);
+
+        if (data.Result == "") {
+          setOfferLoading(true);
+        }
+
+        if (data.Result && data.Result.length > 0) {
+          // Handle driver data if available
+          const drivers = data.Result.map((driver) => ({
+            id: driver.driver_id,
+            name: `${driver.first_name} ${driver.last_name}`,
+            rating: driver.average_rating.toFixed(1),
+            location: {
+              latitude: driver.current_latitude,
+              longitude: driver.current_longitude,
+            },
+            price: driver.offered_price,
+            customer_id_request: driver.customer_id,
+            request_id: driver.request_id,
+          }));
+          setOffer(drivers);
+          setOfferLoading(false);
+        }
       }
-    };
-  
-    useEffect(() => {
-      refreshPage();
-    }, []);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    refreshPage();
+  }, []);
 
   const filterOffersByRadius = (offers, radius) => {
     const filteredOffers = offers.filter((item) => {
@@ -389,82 +387,105 @@ const ChooseOffer = ({ navigation, route }) => {
           </View>
           <View style={tw`flex-1 justify-center items-end`}>
             {!offerLoading ? (
-            <Dropdown
-              style={tw`h-3/4 w-2/4 border-gray-300 rounded-lg px-3 bg-white `}
-              data={dataDropdown}
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
-              placeholder="Radius"
-              value={radiusInMeters.toString()}
-              onChange={(item) => {
-                const newRadius = parseInt(item.value, 10);
-                setRadiusInMeters(newRadius);
-                const filtered = filterOffersByRadius(offer, newRadius);
-                setFilteredOffer(filtered); // กรองข้อเสนอรอบตัว
-                calculateAccurateRouteDistance(filtered).then((results) => {
-                  setFilteredOffer(results); // อัพเดทข้อมูลที่มีระยะทางจริง
-                });
-              }}
-            />
-            ) : (
-              null
-            )}
+              <Dropdown
+                style={tw`h-3/4 w-2/4 border-gray-300 rounded-lg px-3 bg-white `}
+                data={dataDropdown}
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                placeholder="Radius"
+                value={radiusInMeters.toString()}
+                onChange={(item) => {
+                  const newRadius = parseInt(item.value, 10);
+                  setRadiusInMeters(newRadius);
+                  const filtered = filterOffersByRadius(offer, newRadius);
+                  setFilteredOffer(filtered); // กรองข้อเสนอรอบตัว
+                  calculateAccurateRouteDistance(filtered).then((results) => {
+                    setFilteredOffer(results); // อัพเดทข้อมูลที่มีระยะทางจริง
+                  });
+                }}
+              />
+            ) : null}
           </View>
         </View>
         <View style={tw`flex-8 items-center `}>
           {!offerLoading ? (
-          <FlatList
-            data={filteredOffer}
-            keyExtractor={(item, index) => `${item.id}-${index}`}            
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={[
-                  tw`flex-row items-center p-2 my-2 rounded shadow w-full justify-between h-20`,
-                  chooseDriver.id === item.id ? tw`bg-[#60B876]` : tw`bg-white`,
-                ]}
-                onPress={() => {
-                  if (chooseDriver.id !== item.id) {
-                    setChooseDriver(item);
-                  } else {
-                    setOpenModal(true);
-                  }
-                }}
-              >
-                <Text style={[styles.globalText, tw` font-bold flex-5`]}>
-                  {item.name}
-                </Text>
-                <Text
-                  style={[styles.globalText, tw` font-bold flex-3 text-center`]}
-                >
-                  <Text style={tw`text-red-700`}>
-                    {item.price ? item.price : "-"}
-                  </Text>
-                  {" บาท"}
-                </Text>
-                <View style={tw`flex-3 justify-around items-center h-full`}>
-                  <Text style={[styles.globalText, tw`font-bold`]}>
-                    <Text style={tw`text-red-700`}>
-                      {(item.distance / 1000).toFixed(2)}
-                      {" km"}
-                    </Text>
-                  </Text>
-                  <Text style={tw`font-bold `}>
-                    <Text style={tw`text-red-700`}>
-                      {item.durationText}
-                      {" นาที"}{" "}
-                    </Text>
-                  </Text>
-                </View>
-                <View style={tw`flex-2 flex-row justify-center items-center`}>
-                  <MaterialIcons name="star" size={24} color="yellow" />
-                  <Text style={[styles.globalText, tw` font-bold text-center`]}>
-                    {item.rating ? item.rating : "-"}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
-          />
+            <FlatList
+              data={filteredOffer}
+              keyExtractor={(item, index) => `${item.id}-${index}`}
+              renderItem={({ item }) => {
+                if (filteredOffer.length > 0) {
+                  return (
+                    <TouchableOpacity
+                      style={[
+                        tw`flex-row items-center p-2 my-2 rounded shadow w-full justify-between h-20`,
+                        chooseDriver.id === item.id
+                          ? tw`bg-[#60B876]`
+                          : tw`bg-white`,
+                      ]}
+                      onPress={() => {
+                        if (chooseDriver.id !== item.id) {
+                          setChooseDriver(item);
+                        } else {
+                          setOpenModal(true);
+                        }
+                      }}
+                    >
+                      <Text style={[styles.globalText, tw` font-bold flex-5`]}>
+                        {item.name}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.globalText,
+                          tw` font-bold flex-3 text-center`,
+                        ]}
+                      >
+                        <Text style={tw`text-red-700`}>
+                          {item.price ? item.price : "-"}
+                        </Text>
+                        {" บาท"}
+                      </Text>
+                      <View
+                        style={tw`flex-3 justify-around items-center h-full`}
+                      >
+                        <Text style={[styles.globalText, tw`font-bold`]}>
+                          <Text style={tw`text-red-700`}>
+                            {(item.distance / 1000).toFixed(2)}
+                            {" km"}
+                          </Text>
+                        </Text>
+                        <Text style={tw`font-bold `}>
+                          <Text style={tw`text-red-700`}>
+                            {item.durationText}
+                            {" นาที"}{" "}
+                          </Text>
+                        </Text>
+                      </View>
+                      <View
+                        style={tw`flex-2 flex-row justify-center items-center`}
+                      >
+                        <MaterialIcons name="star" size={24} color="yellow" />
+                        <Text
+                          style={[
+                            styles.globalText,
+                            tw` font-bold text-center`,
+                          ]}
+                        >
+                          {item.rating ? item.rating : "-"}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                }
+                else {
+                  return (
+                    <View style={tw`flex-1 justify-center items-center`}>
+                      <Text style={tw`text-lg font-bold`}>ไม่พบข้อเสนอ</Text>
+                    </View>
+                  );
+                }
+              }}
+            />
           ) : (
             <View style={tw`flex-1 justify-center items-center`}>
               <ActivityIndicator size="large" color={"#000000"} />

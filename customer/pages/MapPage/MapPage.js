@@ -82,12 +82,6 @@ const MapPage = ({ navigation }) => {
     return R * c; // ระยะทางเป็นกิโลเมตร
   };
 
-  // useEffect(() => {
-  //   store.forEach((item, index) => {
-  //     getAddressFromCoords(item.latitude, item.longitude, index);
-  //   });
-  // }, [store]);
-
   useEffect(() => {
     getAddressFromCoords(origin.latitude, origin.longitude);
   }, [origin]);
@@ -95,10 +89,6 @@ const MapPage = ({ navigation }) => {
   useEffect(() => {
     getAddressFromCoords(destination.latitude, destination.longitude);
   }, [destination]);
-
-  // useEffect(()=>{
-  //   console.log("confirm Origin = ",confirmOrigin)
-  // },[confirmOrigin])
 
   useEffect(() => {
     if (confirmDestination.length > 0) {
