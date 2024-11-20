@@ -1,50 +1,87 @@
 // NotificationRequest.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, Alert } from 'react-native';
 import tw from 'twrnc';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
+// import TrackPlayer from 'react-native-track-player'; // Import TrackPlayer if needed
+import { IP_ADDRESS } from '../config';
 
-export default function NotificationRequest() {
+export default function NotificationRequest({ driver_id }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [requestData, setRequestData] = useState(null);
-  const navigation = useNavigation(); // ใช้ useNavigation สำหรับการนำทาง
+  const navigation = useNavigation();
+  const [hasShownModal, setHasShownModal] = useState(false);
 
-  // ฟังก์ชันเพื่อจำลองการเรียก API เพื่อตรวจสอบ Request ใหม่
   const checkForNewRequest = async () => {
-    // ตัวอย่างจำลองข้อมูล request ใหม่
-    const newRequest = {
-      distance: "20 KM",
-      origin: "ต้นทาง",
-      destination: "ปลายทาง",
-      price: "฿2,000"
-    };
+    if (hasShownModal) return; // Prevent further checks once the modal is shown
 
-    // ตรวจสอบว่ามี request ใหม่หรือไม่
-    if (newRequest) {
-      setRequestData(newRequest);
-      setModalVisible(true);
+    try {
+      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/driver/notifications?driver_id=${driver_id}`);
+      const data = await response.json();
+
+      if (data.Status && data.Result && data.Result.length > 0) {
+        const newRequest = data.Result[0];
+        setRequestData({
+          request_id: newRequest.request_id,
+          origin: newRequest.orgin,
+          destination: newRequest.destination,
+          price: `฿${formatNumberWithCommas(newRequest.profit)}`
+        });
+        setModalVisible(true);
+        setHasShownModal(true);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch new requests.');
+      console.error(error);
     }
   };
 
   useEffect(() => {
-    // ตั้ง interval เพื่อตรวจสอบ request ใหม่ทุกๆ 10 วินาที
     const interval = setInterval(() => {
       checkForNewRequest();
-    }, 10000000);
+    }, 5000); // Check every 5 seconds
 
-    return () => clearInterval(interval); // ล้าง interval เมื่อ component ถูก unmount
-  }, []);
+    return () => clearInterval(interval);
+  }, [hasShownModal]);
 
   const closeModal = () => {
     setModalVisible(false);
-    setRequestData(null); // รีเซ็ตข้อมูลเมื่อปิด modal
+    setRequestData(null);
   };
 
-  const startJob = () => {
+  const rejectAllOffers = async () => {
+    try {
+      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/driver/reject_all_offers`, {
+        method: 'POST', // Use POST method; adjust if different
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ driver_id }), // Send driver_id as payload
+      });
+      const data = await response.json();
+      console.log("Reject all offers response:", data);
+      
+      if (data.Status == true) {
+        Alert.alert('คุณได้รับงานแล้ว', 'ระบบจะยกเลิกข้อเสนอทั้งหมด');
+      } else {
+        Alert.alert('Error', 'Failed to reject all offers.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'An error occurred while rejecting offers.');
+      console.error(error);
+    }
+  };
+  
+
+  const startJob = async () => {
+    await rejectAllOffers(); // Reject all offers before starting the job
     closeModal();
-    // นำทางไปยังหน้าการทำงาน (เช่น JobWorkingScreen)
-    navigation.navigate('JobWorking'); // แทนที่ 'JobWorking' ด้วยชื่อของหน้าที่คุณต้องการนำทางไป
+    navigation.navigate('JobWorking_Pickup', { request_id: requestData?.request_id });
+  };
+
+  const formatNumberWithCommas = (number) => {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
 
   return (
@@ -56,8 +93,8 @@ export default function NotificationRequest() {
     >
       <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
         <View style={tw`w-4/5 bg-white p-6 rounded-lg`}>
-          <Text style={tw`text-2xl font-bold mb-2`}>ยินดีด้วย!</Text>
-          <Text style={tw`text-gray-600 mb-4`}>ลูกค้ารับข้อเสนอของคุณแล้ว</Text>
+          <Text style={tw`text-2xl font-bold mb-2 text-center`}>ยินดีด้วย!</Text>
+          <Text style={tw`text-gray-600 mb-4 text-center`}>ลูกค้ารับข้อเสนอของคุณแล้ว</Text>
 
           {requestData && (
             <View style={tw`p-4 bg-gray-100 rounded-lg mb-4`}>
@@ -74,10 +111,9 @@ export default function NotificationRequest() {
 
           <Text style={tw`text-lg font-bold mb-4`}>รายได้ {requestData?.price}</Text>
 
-          {/* ปุ่มเริ่มงาน */}
           <TouchableOpacity
             style={tw`bg-green-500 rounded-full p-4 items-center`}
-            onPress={startJob} // เรียกใช้ startJob เมื่อกดปุ่ม
+            onPress={startJob}
           >
             <Text style={tw`text-white font-bold text-lg`}>เริ่มงาน</Text>
           </TouchableOpacity>

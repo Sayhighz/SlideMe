@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
   Modal,
@@ -19,7 +20,7 @@ import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
 import { IP_ADDRESS } from "../../config";
 import MapViewDirections from "react-native-maps-directions";
 
-const ChooseOffer = ({ navigation }) => {
+const ChooseOffer = ({ navigation, route }) => {
   const [offer, setOffer] = useState([]);
 
   const [chooseDriver, setChooseDriver] = useState({});
@@ -29,6 +30,8 @@ const ChooseOffer = ({ navigation }) => {
   const [filteredOffer, setFilteredOffer] = useState([]);
 
   const [radiusInMeters, setRadiusInMeters] = useState(5000);
+
+  const [offerLoading, setOfferLoading] = useState(true);
 
   const [originLocation, setOriginLocation] = useState({
     name: "",
@@ -47,6 +50,8 @@ const ChooseOffer = ({ navigation }) => {
     { label: "5 km", value: "5000" },
     { label: "10 km", value: "10000" },
   ];
+
+  const { request_id } = route.params;
 
   // const originLocation = {
   //   name: "Origin",
@@ -135,78 +140,83 @@ const ChooseOffer = ({ navigation }) => {
   };
 
   const getRouteDistance = async (driverLocation, originLocation) => {
-    const API_KEY = GOOGLE_MAPS_API_KEY; // ใช้ API Key ของคุณ
+    const API_KEY = GOOGLE_MAPS_API_KEY; // Use your API key
     const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${driverLocation.latitude},${driverLocation.longitude}&destination=${originLocation.latitude},${originLocation.longitude}&key=${API_KEY}`;
-
+  
     try {
-      const response = await axios.get(url);
-      if (response.data.routes.length > 0) {
-        const leg = response.data.routes[0].legs[0];
-        const distance = leg.distance.value; // ระยะทางในหน่วยเมตร
-        const duration = leg.duration.value; // เวลาเดินทางในหน่วยวินาที
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Error fetching route data: ${response.statusText}`);
+      }
+  
+      const data = await response.json();
+      if (data.routes.length > 0) {
+        const leg = data.routes[0].legs[0];
+        const distance = leg.distance.value; // Distance in meters
+        const duration = leg.duration.value; // Duration in seconds
         const durationText = leg.duration.text.replace(/[^\d]/g, '');
-
+  
         return { distance, duration, durationText };
       } else {
-        console.error("ไม่พบเส้นทาง");
+        console.error("No routes found");
         return { distance: null, duration: null, durationText: null };
       }
     } catch (error) {
-      console.error(
-        "เกิดข้อผิดพลาดในการเรียกใช้ Directions API:",
-        error.message
-      );
+      console.error("Error calling Directions API:", error.message);
       return { distance: null, duration: null, durationText: null };
     }
   };
+  
 
-  const refreshPage = async () => {
-    try {
-      // Fetch data using axios
-      const response = await axios.get(
-        `http://${IP_ADDRESS}:3000/auth/drivers/chooseoffer`
-      );
-      if (response.data.Status && response.data.Result.length > 0) {
-        // Extract the first result for setting locations
-        const firstResult = response.data.Result[0];
 
-        setOriginLocation({
-          name: firstResult.location_from,
-          latitude: parseFloat(firstResult.pickup_lat),
-          longitude: parseFloat(firstResult.pickup_long),
-        });
+    const refreshPage = async () => {
+      try {
+        console.log("Refresh Page")
+        const response = await fetch(`http://${IP_ADDRESS}:3000/auth/drivers/chooseoffer?request_id=${request_id}`);
+        const data = await response.json();
+        if (data.Status) {
+          if (data.PickupDropoffInfo) {
+            setOriginLocation({
+              name: data.PickupDropoffInfo.location_from,
+              latitude: parseFloat(data.PickupDropoffInfo.pickup_lat),
+              longitude: parseFloat(data.PickupDropoffInfo.pickup_long),
+            });
+            setDestinationLocation({
+              name: data.PickupDropoffInfo.location_to,
+              latitude: parseFloat(data.PickupDropoffInfo.dropoff_lat),
+              longitude: parseFloat(data.PickupDropoffInfo.dropoff_long),
+            });
+          }
 
-        setDestinationLocation({
-          name: firstResult.location_to,
-          latitude: parseFloat(firstResult.dropoff_lat),
-          longitude: parseFloat(firstResult.dropoff_long),
-        });
-
-        // Map over the drivers
-        const drivers = response.data.Result.map((driver) => ({
-          id: driver.driver_id,
-          name: `${driver.first_name} ${driver.last_name}`,
-          rating: driver.average_rating.toFixed(1),
-          location: {
-            latitude: driver.current_latitude,
-            longitude: driver.current_longitude,
-          },
-          price: driver.offered_price,
-        }));
-
-        setOffer(drivers); // Set drivers data
-
-        // Optionally filter offers based on radius
-        const filtered = filterOffersByRadius(drivers, radiusInMeters);
-        setFilteredOffer(filtered);
-      } else {
-        Alert.alert("Error", "No drivers found");
+          if(data.Result == ""){
+            setOfferLoading(true);
+          }
+  
+          if (data.Result && data.Result.length > 0) {
+            // Handle driver data if available
+            const drivers = data.Result.map((driver) => ({
+              id: driver.driver_id,
+              name: `${driver.first_name} ${driver.last_name}`,
+              rating: driver.average_rating.toFixed(1),
+              location: {
+                latitude: driver.current_latitude,
+                longitude: driver.current_longitude,
+              },
+              price: driver.offered_price,
+            }));
+            setOffer(drivers);
+            setOfferLoading(false);
+          }
+  
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
-    } catch (error) {
-      console.error("Error fetching drivers:", error);
-      Alert.alert("Error", "Unable to fetch driver data");
-    }
-  };
+    };
+  
+    useEffect(() => {
+      refreshPage();
+    }, []);
 
   const filterOffersByRadius = (offers, radius) => {
     const filteredOffers = offers.filter((item) => {
@@ -361,7 +371,11 @@ const ChooseOffer = ({ navigation }) => {
               }}
             /> */}
           </MapView>
-        ) : null}
+        ) : (
+          <View style={tw`flex-1 justify-center items-center`}>
+            <Text>Loading...</Text>
+          </View>
+        )}
       </View>
       <View style={tw`flex-1 p-4`}>
         <View style={tw`flex-1 flex-row`}>
@@ -371,6 +385,7 @@ const ChooseOffer = ({ navigation }) => {
             </Pressable>
           </View>
           <View style={tw`flex-1 justify-center items-end`}>
+            {!offerLoading ? (
             <Dropdown
               style={tw`h-3/4 w-2/4 border-gray-300 rounded-lg px-3 bg-white `}
               data={dataDropdown}
@@ -389,9 +404,13 @@ const ChooseOffer = ({ navigation }) => {
                 });
               }}
             />
+            ) : (
+              null
+            )}
           </View>
         </View>
         <View style={tw`flex-8 items-center `}>
+          {!offerLoading ? (
           <FlatList
             data={filteredOffer}
             keyExtractor={(item, index) => `${item.id}-${index}`}            
@@ -443,6 +462,12 @@ const ChooseOffer = ({ navigation }) => {
               </TouchableOpacity>
             )}
           />
+          ) : (
+            <View style={tw`flex-1 justify-center items-center`}>
+              <ActivityIndicator size="large" color={"#000000"} />
+              <Text style={tw`text-lg font-bold mt-5`}>กําลังรอคนขับ...</Text>
+            </View>
+          )}
         </View>
       </View>
     </SafeAreaView>

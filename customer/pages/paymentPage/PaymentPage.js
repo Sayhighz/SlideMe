@@ -88,6 +88,7 @@ export default function PaymentPage({ navigation }) {
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <Pressable
+                key={item.id}
                 style={[
                   tw`flex-row items-center p-4 mb-2 rounded`,
                   choosePaymentMethod &&

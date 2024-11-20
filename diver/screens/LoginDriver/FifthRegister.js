@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'r
 import tw from 'twrnc';
 import { MaterialIcons } from '@expo/vector-icons'; // Assuming you have react-native-vector-icons installed
 
-const FifthRegister = ({ navigation }) => {
+const FifthRegister = ({ navigation, route }) => {
     const initialItems = [
         { label: 'กำลังตรวจสอบ\nข้อมูลเพิ่มเติม', isProcessing: true },
         { label: 'กำลังตรวจสอบ\nข้อมูลยานพาหนะ', isProcessing: true },
@@ -57,7 +57,9 @@ const FifthRegister = ({ navigation }) => {
                 {allApproved && (
                     <TouchableOpacity
                         style={tw`bg-[#60B876] w-full p-4 rounded-lg mt-4`}
-                        onPress={() => navigation.navigate('SixRegister')}
+                        onPress={() => navigation.navigate('SixRegister', {
+                            ...route.params, // ส่งข้อมูลจาก FourthRegister.js
+                        })}
                     >
                         <Text style={tw`text-lg font-bold text-center text-white`}>เสร็จสิ้น</Text>
                     </TouchableOpacity>

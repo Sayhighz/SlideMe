@@ -30,12 +30,11 @@ export default function HomeScreen() {
   ];
   
 
-  // Fetch offers data when the screen is focused
   useFocusEffect(
     React.useCallback(() => {
       const fetchOffers = async () => {
         try {
-          const driver_id = 2; // Replace with the actual driver_id as needed
+          const driver_id = 2; // Replace driver_id
           const response = await fetch(
             `http://${IP_ADDRESS}:3000/auth/getOffersFromDriver?driver_id=${driver_id}`
           );
@@ -98,7 +97,6 @@ export default function HomeScreen() {
     }
   };
 
-  // Function to truncate text
   const truncateText = (text, maxLength = 8) => {
     if (!text) return "";
     return text.length > maxLength
@@ -106,13 +104,10 @@ export default function HomeScreen() {
       : text;
   };
 
-  // Function to format number with commas
   const formatNumberWithCommas = (number) => {
     if (isNaN(number)) return number;
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
-
-  // Function to format status
   const getFormattedStatus = (status) => {
     switch (status) {
       case "pending":
@@ -200,38 +195,39 @@ export default function HomeScreen() {
         }
         keyExtractor={(item) => item.offer_id.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleOfferPress(item)}>
-            <View
-              style={tw`flex-row justify-between p-2 bg-white rounded-lg mb-2 shadow-md border border-gray-300 mx-3`}
-            >
-              <View>
-                <Text style={[styles.globalText, tw`text-xs`]}>
-                  <Icon name="map-marker" size={13} color="gray" />
-                  {truncateText(item.location_from)}
-                </Text>
-                <Text style={[styles.globalText, tw`text-xs`]}>
-                  <Icon name="map-marker" size={13} color="gray" />
-                  {truncateText(item.location_to)}
-                </Text>
-              </View>
-              <View>
-                {getFormattedStatus(item.offer_status)}
-                <Text style={[styles.globalText, tw`text-xs`]}>
-                  {truncateText(item.vehicle_type)}
-                </Text>
-              </View>
-              <View>
-                <Text style={[styles.globalText, tw`text-blue-500 text-xs`]}>
-                  ราคาที่เสนอ
-                </Text>
-                <Text style={[styles.globalText, tw`text-xs`]}>
-                  {item.offered_price
-                    ? `฿${formatNumberWithCommas(item.offered_price)}`
-                    : "N/A"}
-                </Text>
-              </View>
-            </View>
-          </TouchableOpacity>
+<TouchableOpacity onPress={() => handleOfferPress(item)}>
+  <View
+    style={tw`p-2 bg-white rounded-lg mb-2 shadow-md border border-gray-300 mx-3 flex-row justify-between`}
+  >
+    <View style={tw`flex-1`}>
+      <View style={tw`flex-row items-center mb-1`}>
+        <Icon name="map-marker" size={13} color="gray" />
+        <Text style={[styles.globalText, tw`text-xs ml-1`]}>
+          {truncateText(item.location_from)}
+        </Text>
+      </View>
+      <View style={tw`flex-row items-center`}>
+        <Icon name="map-marker" size={13} color="gray" />
+        <Text style={[styles.globalText, tw`text-xs ml-1`]}>
+          {truncateText(item.location_to)}
+        </Text>
+      </View>
+    </View>
+    <View style={tw`flex-1 justify-center items-center`}>
+      {getFormattedStatus(item.offer_status)}
+      <Text style={[styles.globalText, tw`text-xs mt-1`]}>
+        {truncateText(item.vehicle_type)}
+      </Text>
+    </View>
+    <View style={tw`flex-1 justify-center items-end`}>
+      <Text style={[styles.globalText, tw`text-blue-500 text-xs`]}>ราคาที่เสนอ</Text>
+      <Text style={[styles.globalText, tw`text-xs mt-1`]}>
+        {item.offered_price ? `฿${formatNumberWithCommas(item.offered_price)}` : "N/A"}
+      </Text>
+    </View>
+  </View>
+</TouchableOpacity>
+
         )}
         ListEmptyComponent={
           loading ? (

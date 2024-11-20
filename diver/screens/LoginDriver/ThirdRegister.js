@@ -4,7 +4,7 @@ import tw from 'twrnc';
 import { MaterialIcons } from '@expo/vector-icons'; // Assuming you have react-native-vector-icons installed
 import Icon from 'react-native-vector-icons/Ionicons'; // Importing Ionicons from react-native-vector-icons
 
-const ThirdRegister = ({ navigation }) => {
+const ThirdRegister = ({ navigation , route}) => {
     const [isTestModalVisible, setTestModalVisible] = useState(false);
     const [isTestCompleted, setTestCompleted] = useState(false);
 
@@ -23,10 +23,14 @@ const ThirdRegister = ({ navigation }) => {
 
     const handleNextPress = () => {
         if (isTestCompleted) {
-            navigation.navigate('FourthRegister');
-            console.log('Next button pressed');
+            navigation.navigate('FourthRegister', {
+                ...route.params, // ส่งข้อมูลจาก SecondRegister.js
+            });
+            
+            console.log('ทำแบบทดสอบเสร็จแล้ว');
             // navigation logic here
         } else {
+            console.log('ทำแบบทดสอบก่อน');
             Alert.alert('แจ้งเตือน', 'กรุณาทำแบบทดสอบให้เสร็จก่อน');
         }
     };
@@ -39,7 +43,7 @@ const ThirdRegister = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
             <View style={tw`flex-1 justify-start mx-auto w-10/12 mt-8`}>
-                <Text style={tw`text-xl font-bold mb-2`}>ขั้นตอนที่ 2 จาก 5</Text>
+                <Text style={tw`text-xl font-bold mb-2`}>ขั้นตอนที่ 2 จาก 3</Text>
                 <Text style={tw`text-2xl font-bold mb-4`}>อบรมและทำแบบทดสอบ</Text>
                 <View style={tw`bg-black h-60 w-full rounded-lg mb-10 justify-center items-center`}>
                     <Icon name="videocam-outline" size={40} color="#ffff" />
