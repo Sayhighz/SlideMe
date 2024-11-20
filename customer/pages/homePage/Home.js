@@ -1,4 +1,4 @@
-import React , { useState }from "react";
+import React, { useState } from "react";
 import {
   Text,
   View,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Dimensions,
   Modal,
+  FlatList,
 } from "react-native";
 import { Card } from "react-native-paper";
 import Swiper from "react-native-swiper";
@@ -14,7 +15,7 @@ import tw from "twrnc";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRoute } from "@react-navigation/native";
 
-function Home({ navigation, }) {
+function Home({ navigation }) {
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
@@ -27,6 +28,17 @@ function Home({ navigation, }) {
   const handleCloseModal = () => {
     setIsModalVisible(false);
   };
+
+  const Card = ({ title, onPress }) => (
+    <TouchableOpacity
+      onPress={onPress}
+      style={tw`w-4/5 mx-2 bg-gray-200 rounded-lg p-5 shadow`}
+    >
+      <Text style={tw`text-lg font-semibold text-center`}>{title}</Text>
+    </TouchableOpacity>
+  );
+
+  
 
   const route = useRoute();
   const selectedLabel = route.params?.selectedLabel || "ไม่ระบุ";
@@ -55,7 +67,7 @@ function Home({ navigation, }) {
               colors={["#3DE183", "#60B876", "#6CA97C"]}
               style={[
                 tw`rounded-lg items-center justify-center`,
-                { width: responsiveWidth, height: height * 0.18, padding: 10 },
+                { width: responsiveWidth, height: height * 0.19, padding: 10 },
               ]}
             >
               <Text
@@ -69,16 +81,16 @@ function Home({ navigation, }) {
             </LinearGradient>
           </TouchableOpacity>
 
-          <View
+          {/* <View
             style={[
               tw`flex-row justify-between mt-4`,
               { width: responsiveWidth },
             ]}
           >
-            <TouchableOpacity
+          <TouchableOpacity
               style={[
-                { flex: 0.48 },
-                tw`rounded-lg h-20 flex items-center justify-center bg-green-100 border border-[#60B876]`,
+                { flex: 0.48 , height : height * 0.09},
+                tw`rounded-lg  flex items-center justify-center bg-green-100 border border-[#60B876]`,
               ]}
               onPress={() =>
                 selectedLabel !== "ไม่ระบุ" && selectedLabel
@@ -99,10 +111,10 @@ function Home({ navigation, }) {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
+          <TouchableOpacity
               style={[
-                { flex: 0.48 },
-                tw`rounded-lg h-20 flex items-center justify-center bg-green-100 border-[#60B876] border`,
+                { flex: 0.48 , height : height * 0.09},
+                tw`rounded-lg  flex items-center justify-center bg-green-100 border-[#60B876] border`,
               ]}
               onPress={handleOpenModal}
             >
@@ -112,33 +124,15 @@ function Home({ navigation, }) {
                 ตำแหน่ง 2
               </Text>
             </TouchableOpacity>
-            <Modal
-          transparent={true}
-          visible={isModalVisible}
-          animationType="slide"
-          onRequestClose={handleCloseModal}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContainer}>
-              <Text style={tw`text-lg mb-4`}>Use location in book mark ?</Text>
-              <View style={tw`flex-row gap-4`}>
-              <TouchableOpacity onPress={() => {{handleCloseModal()}  navigation.navigate('Bookmark')}} style={tw`p-2 bg-red-500 rounded`}>
-                
-                <Text style={tw`text-white text-center`}>Edit</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleCloseModal} style={tw`p-2 bg-red-500 rounded`}>
-                <Text style={tw`text-white text-center`}>OK</Text>
-              </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
-          </View>
+          
+          </View> */}
+          
+
           <View>
             <LinearGradient
-              colors={["#60B876", "#53A567"]}
+              colors={["#3DE183", "#60B876", "#6CA97C"]}
               style={[
-                { width: responsiveWidth, height: height * 0.18, padding: 10 },
+                { width: responsiveWidth, height: height * 0.16, padding: 10 },
                 tw`rounded-lg items-center justify-center mt-5`,
               ]}
             >
@@ -151,12 +145,29 @@ function Home({ navigation, }) {
               </TouchableOpacity>
             </LinearGradient>
           </View>
+          <View>
+            <LinearGradient
+              colors={["#60B876", "#53A567"]}
+              style={[
+                { width: responsiveWidth, height: height * 0.12, padding: 10 },
+                tw`rounded-lg items-center justify-center mt-5`,
+              ]}
+            >
+              <TouchableOpacity>
+                <Text
+                  style={[styles.globalText, tw`text-3xl font-bold text-white`]}
+                >
+                  ติดต่อเรา
+                </Text>
+              </TouchableOpacity>
+            </LinearGradient>
+          </View>
         </View>
 
         {/* Swiper for Ads Banner (placed above bottom navbar) */}
         <View
           style={[
-            tw`mb-4`,
+            tw`mb-2`,
             { width: responsiveWidth, height: responsiveHeight },
           ]}
         >
@@ -170,7 +181,7 @@ function Home({ navigation, }) {
             {(ads || []).map((ad) => (
               <View
                 key={ad.id}
-                style={tw`flex items-center justify-center w-full h-full`}
+              style={[{height: height * 0.17} ,tw`flex items-center justify-center w-full`]}
               >
                 <Image
                   source={{ uri: ad.image }}
@@ -193,23 +204,20 @@ const styles = StyleSheet.create({
   globalText: {
     fontFamily: "Mitr-Regular",
   },
-  
-    modalOverlay: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalContainer: {
-      width: 300,
-      padding: 20,
-      backgroundColor: 'white',
-      borderRadius: 10,
-      alignItems: 'center',
-    },
-  });
 
-
-
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContainer: {
+    width: 300,
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+    alignItems: "center",
+  },
+});
 
 export default Home;

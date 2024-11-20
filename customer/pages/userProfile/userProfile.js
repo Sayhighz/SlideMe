@@ -1,11 +1,18 @@
 import React from 'react'
-import { View, Text, TouchableOpacity , StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity , StyleSheet , Dimensions} from 'react-native'
 import tw from 'twrnc'
 import { Ionicons } from '@expo/vector-icons'
+import { SafeAreaView } from 'react-native-safe-area-context';
 
+
+const { width, height } = Dimensions.get("window");
+  const responsiveWidth = width * 0.9;
+  const responsiveHeight = height * 0.2;
 const UserProfile = ({ navigation }) => {
   return (
-    <View style={tw`flex-1 p-5 bg-gray-100 justify-center items-center`}>
+    <SafeAreaView style={[tw`flex-1 p-1 bg-gray-100`]}>
+    <View style={[{height: height * 0.55} ,tw`bg-gray-100 justify-center items-center`]}>
+      
       <TouchableOpacity
         style={tw`items-center justify-center w-32 h-32 rounded-full bg-gray-200 mb-3`}
         onPress={() => {
@@ -19,7 +26,7 @@ const UserProfile = ({ navigation }) => {
       </Text>
 
       <TouchableOpacity
-        style={tw`bg-green-500 py-3 px-6 rounded-lg mb-3 w-50`}
+        style={[{height: height * 0.05, width: width * 0.5} ,tw`bg-green-500 items-center justify-center rounded-lg mb-3 w-50`]}
         onPress={() => navigation.navigate('editProfile')}
       >
         <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>
@@ -28,14 +35,14 @@ const UserProfile = ({ navigation }) => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={tw`bg-green-500 py-3 px-6 rounded-lg mb-3 w-50`}
+        style={[{height: height * 0.05 , width : width * 0.5} ,tw`bg-green-500 items-center justify-center rounded-lg mb-3 w-50`]}
         onPress={() => navigation.navigate('addressPage')}
       >
         <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>ข้อมูลที่อยู่</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={tw`bg-green-500 py-3 px-6 rounded-lg mb-3 w-50`}
+        style={[{height: height * 0.05 , width: width * 0.5} ,tw`bg-green-500 items-center justify-center rounded-lg mb-3 w-50`]}
         onPress={() => navigation.navigate('PaymentMethodsStack')}
       >
         <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>
@@ -44,7 +51,7 @@ const UserProfile = ({ navigation }) => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={tw`bg-green-500 py-3 px-6 rounded-lg mb-30 w-50`}
+        style={[{height: height * 0.05 , width: width * 0.5 },tw`bg-green-500 items-center justify-center rounded-lg mb-30 w-50`]}
         onPress={() => navigation.navigate('HistoryPage')}
       >
         <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>
@@ -53,12 +60,14 @@ const UserProfile = ({ navigation }) => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={tw`bg-red-500 py-3 px-6 rounded-lg w-50`}
+        style={[{height: height * 0.05 , width: width * 0.5},tw`bg-red-500 items-center justify-center rounded-lg`]}
         onPress={() => navigation.navigate('HistoryPage')}
       >
         <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>ลงชื่อออก</Text>
       </TouchableOpacity>
+      
     </View>
+    </SafeAreaView>
   )
 }
 

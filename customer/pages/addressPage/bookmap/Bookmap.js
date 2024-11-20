@@ -138,7 +138,7 @@ const Bookmap = ({ navigation , label}) => {
     [confirmDestination];
 
   const handleConfirm = () => {
-    navigation.navigate("Bookmark", {
+    navigation.navigate("addressPage", {
       origin,
       destination,
       confirmOrigin,
@@ -191,7 +191,7 @@ const Bookmap = ({ navigation , label}) => {
         </View>
       </Modal>
       <View style={tw`flex-1 flex-row z-10 absolute bg-[#FDFFFD] top-5`}>
-        <View style={tw`flex-1 justify-center items-center`}>
+        
           <TouchableOpacity
             onPress={() => {
               if (confirmOrigin.length) {
@@ -203,9 +203,9 @@ const Bookmap = ({ navigation , label}) => {
               }
             }}
           >
-            <MaterialIcons name="arrow-back" size={24} color="black" />
+            {/* <MaterialIcons name="arrow-back" size={24} color="black" /> */}
           </TouchableOpacity>
-        </View>
+        
         <View style={tw`flex-9`}>
           <GooglePlacesAutocomplete
             //ต้องขอ api

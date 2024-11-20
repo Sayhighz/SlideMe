@@ -29,10 +29,10 @@ const Bookmark = ({navigation , }) => {
   const confirmDestination = route.params?.confirmDestination || "ไม่ระบุ";
   
 
-  const selectCategory = (label) => {
-    setCategory(label);
-    setMenuVisible(false); // Close the menu after selecting a category
-  };
+//   const selectCategory = (label) => {
+//     setCategory(label);
+//     setMenuVisible(false); // Close the menu after selecting a category
+//   };
 
   const handleSave = () => {
     // Handle form save logic here
@@ -62,7 +62,7 @@ const Bookmark = ({navigation , }) => {
     <SafeAreaView style={[tw`flex-1 bg-white items-center`]}>
         <PaperProvider>
 
-        <View style ={ tw`p-4`}>
+        <View style ={ tw`p-4`}>    
 
       <Text style={[styles.globalText , tw`text-2xl font-bold mb-5`]}>Delivery Info</Text>
       <TouchableOpacity

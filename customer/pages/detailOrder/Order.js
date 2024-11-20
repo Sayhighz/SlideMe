@@ -40,10 +40,7 @@ export default function Order({ navigation }) {
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
 
-  
-  useEffect(() => {
-    
-  }) ,[category];
+  useEffect(() => {}), [category];
   const toggleDatePicker = () => {
     setShowPicker(!showPicker);
   };
@@ -88,20 +85,26 @@ export default function Order({ navigation }) {
             tw`flex-1 justify-center items-center bg-[rgba(0,0,0,0.90)] `,
           ]}
         >
-          <View style={[tw`flex p-4 rounded-lg `, { maxWidth: width * 0.9 , height: height * 0.7}]}>
+          <View
+            style={[
+              tw`flex p-4 rounded-lg `,
+              { maxWidth: width * 0.9, height: height * 0.7 },
+            ]}
+          >
             {/* DateTimePicker */}
             <View
               style={[
-                {height: responsiveHeight},
-                tw`flex-row justify-center items-center`
-              ]}>
+                { height: responsiveHeight },
+                tw`flex-row justify-center items-center`,
+              ]}
+            >
               <DateTimePicker
                 mode="datetime"
                 display="calendar"
                 value={date}
                 onChange={onChange}
                 locale="th"
-                style={[{ height: responsiveHeight } , tw`text-white`]}
+                style={[{ height: responsiveHeight }, tw`text-white`]}
                 minimumDate={new Date()}
                 maximumDate={new Date("2024-12-31")}
                 textColor="white"
@@ -109,7 +112,7 @@ export default function Order({ navigation }) {
             </View>
 
             {/* Buttons */}
-            
+
             <View style={[tw`flex-row mt-4 gap-4 `]}>
               <TouchableOpacity
                 onPress={() => {
@@ -136,10 +139,6 @@ export default function Order({ navigation }) {
                 </Text>
               </TouchableOpacity>
             </View>
-             
-          
-
-
           </View>
         </View>
       </Modal>
@@ -365,16 +364,16 @@ export default function Order({ navigation }) {
 
   return (
     <PaperProvider>
-      <View style={tw`flex items-center `}>
-        <View style={tw`flex mt-2 `}>
+      <View style={tw`flex-1 items-center`}>
+        <View style={tw`flex-1 mt-2`}>
           {/* Subtitle */}
           <Text style={[styles.globalText, tw`text-[grey]`]}>
             ต้องการให้รถสไลด์ไปส่งที่ไหน​ ?
           </Text>
           <TouchableOpacity
             style={[
-              { width: responsiveWidth, height: height * 0.12 },
-              tw`p-2 mb-4 mt-1 justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876]`
+              { width: responsiveWidth, height: height * 0.11 },
+              tw`p-2 mb-4 mt-1 justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876]`,
             ]}
             onPress={() => navigation.navigate("Mapdetail")}
           >
@@ -404,7 +403,7 @@ export default function Order({ navigation }) {
                 Platform.OS === "ios" ? setShowPicker(true) : setShowModal(true)
               }
               style={[
-                { width: responsiveWidth, height: height * 0.16 },
+                { width: responsiveWidth, height: height * 0.13 },
                 tw`flex items-center justify-center bg-white p-4 rounded-lg border border-[#60B876]  shadow-xl shadow-[#60B876]`,
               ]}
             >
@@ -412,7 +411,7 @@ export default function Order({ navigation }) {
               <Text
                 style={[
                   styles.globalText,
-                  tw`flex text-center bg-white p-2 border-[#60B876] w-79  text-xl`,
+                  tw`flex text-center bg-white p-2 border-[#60B876] w-79  text-lg`,
                 ]}
                 // onPressIn={
                 //   Platform.OS === "ios" ? toggleDatePicker : handleDateChange
@@ -436,7 +435,7 @@ export default function Order({ navigation }) {
                 <TouchableOpacity
                   onPress={() => setMenuVisible(true)}
                   style={[
-                    { width: responsiveWidth, height: height * 0.15 },
+                    { width: responsiveWidth, height: height * 0.13 },
                     tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876] mb-4`,
                   ]}
                 >
@@ -446,7 +445,7 @@ export default function Order({ navigation }) {
                     color="black"
                     style={tw`mb-2`}
                   />
-                  <Text style={[styles.globalText, tw`text-xl`]}>
+                  <Text style={[styles.globalText, tw`text-lg`]}>
                     {category ? category : "ประเภทของรถสไลด์"}
                   </Text>
                 </TouchableOpacity>
@@ -467,13 +466,13 @@ export default function Order({ navigation }) {
           <View>
             <TouchableOpacity
               style={[
-                { width: responsiveWidth, height: height * 0.15 },
+                { width: responsiveWidth, height: height * 0.14 },
                 tw` justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876] p-1`,
               ]}
               onPress={handlePress}
             >
               <Text
-                style={[styles.globalText, tw` bg-white text-center text-xl`]}
+                style={[styles.globalText, tw` bg-white text-center text-lg`]}
               >
                 {moreDetail ? moreDetail : "รายละเอียดเพิ่มเติม . . ."}
               </Text>
@@ -494,7 +493,7 @@ export default function Order({ navigation }) {
                       styles.globalText,
                       tw`border p-2 mb-4 bg-white rounded-lg h-40`,
                     ]}
-                    placeholder="รายละเอียดเพิ่มเติม . . ." 
+                    placeholder="รายละเอียดเพิ่มเติม . . ."
                     mode="outlined"
                     value={preMoreDetail}
                     onChangeText={setPreMoreDetail}
@@ -528,12 +527,44 @@ export default function Order({ navigation }) {
               </View>
             </Modal>
           </View>
+
+          <View style={tw`flex-row items-center mt-3 justify-between`}>
+            <TouchableOpacity
+              
+              style={[
+                { flex: 0.44 , height: height * 0.07 },
+                tw` justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876] p-1 `,
+              ]}
+            >
+              <Text
+                style={[styles.globalText, tw` bg-white text-center text-lg`]}
+              >
+                Bookmark 1
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              
+              style={[
+                { flex: 0.44 , height: height * 0.07 },
+                tw` justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876] p-1`,
+              ]}
+            >
+              <Text
+                style={[styles.globalText, tw` bg-white text-center text-lg`]}
+              >
+                Bookmark 2
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           <View style={tw``}>
             <View style={tw`flex items-center justify-center`}>
               <TouchableOpacity
-                style={tw`items-center justify-center mt-4 w-50 h-12 bg-[#60B876] rounded-full `}
+                style={[
+                  { height: height * 0.06, width: width * 0.3 },
+                  tw`items-center justify-center mt-5  bg-[#60B876] rounded-full `,
+                ]}
                 onPress={handleSubmitRequest}
-               
               >
                 <Text
                   style={[
