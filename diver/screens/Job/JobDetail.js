@@ -8,19 +8,25 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
 } from "react-native";
 import tw from "twrnc";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { IP_ADDRESS } from "../../config";
 
 export default function JobDetailScreen({ route, navigation }) {
+  // Destructure route parameters
   const { distance, origin, destination, type, message, requestId } =
     route.params;
+  const { userData = {} } = route.params || {};
+
+  // State for the offered price
   const [offeredPrice, setOfferedPrice] = useState("");
 
+  // Handle submitting the offer price
   const handleOfferSubmit = async () => {
     if (!offeredPrice) {
-      Alert.alert("Error", "โปรดกรอกราคาที่ต้องการ");
+      Alert.alert("ข้อผิดพลาด", "โปรดกรอกราคาที่ต้องการ");
       return;
     }
 
@@ -34,30 +40,32 @@ export default function JobDetailScreen({ route, navigation }) {
           },
           body: JSON.stringify({
             request_id: requestId,
-            driver_id: 2,
-            offered_price: parseFloat(offeredPrice.replace(/,/g, "")),
+            driver_id: userData?.driver_id,
+            offered_price: parseFloat(offeredPrice.replace(/,/g, "")), // Remove commas before sending
           }),
         }
       );
 
       const result = await response.json();
       if (response.ok) {
-        Alert.alert("สำเร็จ", "เสนอราคาสําเร็จ");
+        Alert.alert("สำเร็จ", "เสนอราคาสำเร็จ");
         navigation.navigate("HomeMain");
       } else {
-        Alert.alert("Error", result.message || "เสนอราคาไม่สําเร็จ");
+        Alert.alert("ข้อผิดพลาด", result.message || "เสนอราคาไม่สำเร็จ");
       }
     } catch (error) {
-      Alert.alert("Error", "เสนอราคาไม่สําเร็จ");
+      Alert.alert("ข้อผิดพลาด", "เกิดข้อผิดพลาดในการเสนอราคา");
       console.error(error);
     }
   };
 
+  // Format number input with commas
   const formatNumberWithCommas = (value) => {
-    const numericValue = value.replace(/[^0-9.]/g, "");
+    const numericValue = value.replace(/[^0-9.]/g, ""); // Allow only numbers and decimal points
     return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
+  // Handle price input change and format
   const handlePriceChange = (text) => {
     const formattedText = formatNumberWithCommas(text);
     setOfferedPrice(formattedText);
@@ -65,7 +73,7 @@ export default function JobDetailScreen({ route, navigation }) {
 
   return (
     <KeyboardAvoidingView
-      style={tw`flex-1 bg-white`}
+      style={tw`flex-1 bg-gray-100`}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
@@ -80,38 +88,44 @@ export default function JobDetailScreen({ route, navigation }) {
           >
             <Icon name="arrow-left" size={24} color="black" />
           </TouchableOpacity>
-          <Text style={tw`text-xl font-bold`}>ประมาณ {distance}</Text>
+          <Text style={[styles.globalText, tw`text-xl font-bold`]}>
+            ประมาณ {distance} KM
+          </Text>
         </View>
 
-        {/* Job Information */}
-        <View style={tw`p-4 bg-gray-100 mt-4 rounded-lg`}>
+        {/* Job Information Section */}
+        <View style={tw`p-4 bg-white mt-4 rounded-lg shadow`}>
           <View style={tw`mb-2`}>
-            <Text style={tw`text-gray-800`}>
-              <Icon name="map-marker" size={20} color="gray" />
-              {origin}
+            <Text style={[styles.globalText, tw`text-gray-800`]}>
+              <Icon name="map-marker" size={20} color="green" /> {origin}
             </Text>
           </View>
           <View style={tw`mt-4`}>
-            <Text style={tw`text-gray-800`}>
-              <Icon name="map-marker" size={20} color="gray" />
-              {destination}
+            <Text style={[styles.globalText, tw`text-gray-800`]}>
+              <Icon name="map-marker" size={20} color="red" /> {destination}
             </Text>
           </View>
-          <Text style={tw`text-gray-800`}>ข้อความลูกค้า: {message}</Text>
+          <Text style={[styles.globalText, tw`text-gray-800`]}>
+            ข้อความลูกค้า: {message || "ไม่มีข้อความ"}
+          </Text>
         </View>
 
-        {/* Transportation Type */}
-        <Text style={tw`text-lg font-bold mt-6`}>ประเภทการขนส่ง</Text>
+        {/* Transportation Type Section */}
+        <Text style={[styles.globalText, tw`text-lg font-bold mt-6`]}>
+          ประเภทการขนส่ง
+        </Text>
         <TextInput
-          style={tw`border border-gray-300 rounded p-2 mt-2`}
+          style={[styles.globalText, tw`border border-gray-300 rounded p-2 mt-2`]}
           value={type}
-          editable={false}
+          editable={false} // Read-only input
         />
 
-        {/* Price Input */}
-        <Text style={tw`text-lg font-bold mt-6`}>กำหนดราคา</Text>
+        {/* Price Input Section */}
+        <Text style={[styles.globalText, tw`text-lg font-bold mt-6`]}>
+          กำหนดราคา
+        </Text>
         <TextInput
-          style={tw`border border-gray-300 rounded p-2 mt-2`}
+          style={[styles.globalText, tw`border border-gray-300 rounded p-2 mt-2`]}
           placeholder="ราคาที่คุณต้องการ"
           keyboardType="numeric"
           value={offeredPrice}
@@ -120,12 +134,20 @@ export default function JobDetailScreen({ route, navigation }) {
 
         {/* Submit Offer Button */}
         <TouchableOpacity
-          style={tw`bg-green-500 rounded-full p-4 mt-6 items-center`}
+          style={tw`bg-green-500 rounded p-2 mt-6 items-center`}
           onPress={handleOfferSubmit}
         >
-          <Text style={tw`text-white font-bold text-lg`}>ยื่นข้อเสนอ</Text>
+          <Text style={[styles.globalText, tw`text-white font-bold text-lg`]}>
+            ยื่นข้อเสนอ
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  globalText: {
+    fontFamily: "Mitr-Regular", // Ensure this font is loaded in your project
+  },
+});
