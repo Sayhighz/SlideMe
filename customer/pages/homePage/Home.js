@@ -129,38 +129,44 @@ function Home({ navigation }) {
           
 
           <View>
+            <TouchableOpacity style={[
+              { width: responsiveWidth, height: height * 0.16, padding: 10 },
+              tw`rounded-lg items-center justify-center mt-5 ` ,
+            ]}>
             <LinearGradient
               colors={["#3DE183", "#60B876", "#6CA97C"]}
               style={[
-                { width: responsiveWidth, height: height * 0.16, padding: 10 },
-                tw`rounded-lg items-center justify-center mt-5`,
+                { width: responsiveWidth, height: height * 0.16 },
+                tw`rounded-lg items-center justify-center `,
               ]}
             >
-              <TouchableOpacity>
                 <Text
                   style={[styles.globalText, tw`text-3xl font-bold text-white`]}
                 >
                   Order Status
                 </Text>
-              </TouchableOpacity>
             </LinearGradient>
+              </TouchableOpacity>
           </View>
           <View>
+            <TouchableOpacity style={[
+              { width: responsiveWidth, height: height * 0.12, padding: 10 },
+              tw`rounded-lg items-center justify-center mt-5 `,
+            ]}>
             <LinearGradient
               colors={["#60B876", "#53A567"]}
               style={[
                 { width: responsiveWidth, height: height * 0.12, padding: 10 },
-                tw`rounded-lg items-center justify-center mt-5`,
+                tw`rounded-lg items-center justify-center`,
               ]}
             >
-              <TouchableOpacity>
                 <Text
                   style={[styles.globalText, tw`text-3xl font-bold text-white`]}
                 >
                   ติดต่อเรา
                 </Text>
-              </TouchableOpacity>
             </LinearGradient>
+              </TouchableOpacity>
           </View>
         </View>
 
