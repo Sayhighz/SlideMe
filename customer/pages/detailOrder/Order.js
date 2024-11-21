@@ -8,6 +8,7 @@ import {
   Platform,
   Alert,
   Dimensions,
+  FlatList,
 } from "react-native";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import dayjs from "dayjs";
@@ -19,6 +20,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { TextInput, Menu, Provider } from "react-native-paper";
 import { Provider as PaperProvider } from "react-native-paper";
 import { IP_ADDRESS } from "../../config";
+import { ScrollView } from "react-native-gesture-handler";
 
 dayjs.locale("th");
 export default function Order({ navigation }) {
@@ -35,12 +37,42 @@ export default function Order({ navigation }) {
   const [preMoreDetail, setPreMoreDetail] = useState("");
   const [category, setCategory] = useState("");
   const [menuVisible, setMenuVisible] = useState(false); // แสดงตัวเลือกรถ
+  const [modalVisible, setModalVisible] = useState(false);
+  const [bookmarks, setBookmarks] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
+  const userId = 1;
 
-  useEffect(() => {}), [category];
+  const fetchBookmarks = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/customer/getuserbookmarks?user_id=${userId}`
+      );
+      const data = await response.json();
+      if (data.Status) {
+        setBookmarks(data.Result);
+      } else {
+        console.error(data.Error);
+      }
+    } catch (error) {
+      console.error("Error fetching bookmarks:", error.message);
+    }
+    setLoading(false);
+  };
+
+  const openModal = () => {
+    setModalVisible(true);
+    fetchBookmarks();
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
   const toggleDatePicker = () => {
     setShowPicker(!showPicker);
   };
@@ -280,14 +312,14 @@ export default function Order({ navigation }) {
       alert("Please fill in all required fields.");
       return;
     }
-  
+
     if (!origin || !destination || !category) {
       alert(
         "Please fill in all mandatory fields: Pickup Location, Dropoff Location, and Vehicle Type."
       );
       return;
     }
-  
+
     // Construct the request data object
     const requestData = {
       customer_id: 1, // Replace with the appropriate customer ID
@@ -304,32 +336,37 @@ export default function Order({ navigation }) {
         : formatDateToMySQL(new Date()), // Assuming formattedDate is used for booking time
       customer_message: moreDetail || null, // Include the optional field if provided
     };
-  
+
     try {
-      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/add_request`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      });
-  
+      const response = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/add_request`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData),
+        }
+      );
+
       if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);
       }
-  
+
       const responseData = await response.json();
       console.log("Response data:", responseData);
-  
+
       if (responseData && responseData.request_id) {
         Alert.alert(
-          "Request submitted successfully!", 
-          "", 
+          "Request submitted successfully!",
+          "",
           [
             {
-              text: "OK", 
+              text: "OK",
               onPress: () => {
-                navigation.navigate("ChooseOffer", { request_id: responseData.request_id });
+                navigation.navigate("ChooseOffer", {
+                  request_id: responseData.request_id,
+                });
               },
             },
           ],
@@ -343,7 +380,12 @@ export default function Order({ navigation }) {
       alert("Failed to submit the request. Please try again.");
     }
   };
-  
+
+  const truncateText = (text, maxLength = 22) => {
+    if (!text) return "N/A"; // Return default if text is null/undefined
+    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+  };
+
   return (
     <PaperProvider>
       <View style={tw`flex-1 items-center`}>
@@ -510,34 +552,135 @@ export default function Order({ navigation }) {
             </Modal>
           </View>
 
-          <View style={tw`flex-row items-center mt-3 justify-between`}>
+          <View style={tw`flex items-center mt-3 justify-between`}>
             <TouchableOpacity
-              
+              onPress={openModal}
               style={[
-                { flex: 0.44 , height: height * 0.07 },
+                { height: height * 0.07, width: responsiveWidth },
                 tw` justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876] p-1 `,
               ]}
             >
               <Text
                 style={[styles.globalText, tw` bg-white text-center text-lg`]}
               >
-                Bookmark 1
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              
-              style={[
-                { flex: 0.44 , height: height * 0.07 },
-                tw` justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876] p-1`,
-              ]}
-            >
-              <Text
-                style={[styles.globalText, tw` bg-white text-center text-lg`]}
-              >
-                Bookmark 2
+                เลือกที่อยู่ในรายการโปรด
               </Text>
             </TouchableOpacity>
           </View>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)} // Close modal on back press
+          >
+            
+            <View style={styles.modalOverlay}>
+              <View
+                style={[
+                  styles.modalContent,
+                  tw`rounded-lg `,
+                  { height: height * 0.7 },
+                ]}
+              >
+                <View style={tw`bg-white rounded-lg border border-[#60B876] p-4 my-3 w-7/12 self-center shadow-2xl`}>
+
+                <Text
+                  style={[styles.modalText, styles.globalText, tw`text-lg font-bold text-center text-gray-800 mb-2`]}
+                >
+                  รายการโปรด
+                </Text>
+                </View>
+                {loading ? (
+                  <Text style={tw`text-center`}>ไม่พบข้อมูล</Text>
+                ) : (
+                  
+                  <FlatList
+                    data={bookmarks}
+                    keyExtractor={(item) => item.address_id.toString()}
+                    renderItem={({ item }) => (
+                      <View
+                        style={[
+                          styles.bookmarkItem,
+                          tw`flex items-center justify-between mt-3 p-2 border border-[#60B876] rounded-lg `,
+                          { width: width * 0.69 },
+                        ]}
+                      >
+                        <TouchableOpacity
+                          style={tw`flex  justify-between`}
+                          onPress={() =>
+                            console.log(
+                              item.address_id,
+                              item.save_name,
+                              item.vahicle_type,
+                              item.location_from,
+                              item.location_to
+                            )
+                          }
+                        >
+                          <View style={tw``}>
+                            <Text
+                              style={[tw`text-base font-semibold text-center `, styles.globalText]}
+                            >
+                              {item.save_name}
+                            </Text>
+                            <View style={tw`flex-row items-center`}>
+                              <Text
+                                style={[
+                                  styles.globalText,
+                                  tw`text-base font-semibold`,
+                                ]}
+                              >
+                                Category :
+                              </Text>
+                              <Text style={[styles.globalText, tw`text-gray-500`]}>
+                                {truncateText(item.vahicle_type)}
+                              </Text>
+                            </View>
+                            <View style={tw`flex-row items-center`}>
+                              <Text
+                                style={[
+                                  styles.globalText,
+                                  tw`text-base font-semibold`,
+                                ]}
+                              >
+                                ต้นทาง :
+                              </Text>
+                              <Text style={[styles.globalText, tw`text-gray-500`]}>
+                                {truncateText(item.location_from)}
+                              </Text>
+                            </View>
+                            <View style={tw`flex-row items-center`}>
+                              <Text
+                                style={[
+                                  styles.globalText,
+                                  tw`text-base font-semibold`,
+                                ]}
+                              >
+                                ปลายทาง :
+                              </Text>
+                              <Text style={[styles.globalText, tw`text-gray-500`]}>
+                                {truncateText(item.location_to)}
+                              </Text>
+                            </View>
+                          </View>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                    />
+                    
+                )}
+                <TouchableOpacity
+                  onPress={closeModal}
+                  style={[
+                    styles.closeButton,
+                    tw`bg-red-400 rounded-lg p-3 mt-4`,
+                  ]}
+                >
+                  <Text style={styles.closeButtonText}>Close Modal</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
 
           <View style={tw``}>
             <View style={tw`flex items-center justify-center`}>
@@ -589,4 +732,33 @@ const styles = StyleSheet.create({
   },
 
   optionText: { marginLeft: 10, fontSize: 16 },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    textAlign: "center",
+  },
+  closeButton: {
+    alignSelf: "center",
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
 });

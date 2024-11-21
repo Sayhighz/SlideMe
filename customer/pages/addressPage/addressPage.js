@@ -16,6 +16,7 @@ import { Menu, TextInput , Provider} from "react-native-paper";
 import { Provider as PaperProvider } from "react-native-paper";
 import { FontAwesome5 } from "@expo/vector-icons";
 import bookmap from "./bookmap/Bookmap";
+import { IP_ADDRESS } from "../../config";
 
 const AddressPage = ({ navigation }) => {
   // const [houseNumber, setHouseNumber] = useState('')
@@ -25,7 +26,6 @@ const AddressPage = ({ navigation }) => {
   // const [province, setProvince] = useState('')
   // const [postalCode, setPostalCode] = useState('')
   const [nameBookMark, setNameBookMark] = useState("");
-  
   const [category, setCategory] = useState("");
   const [menuVisible, setMenuVisible] = useState(false);
 
@@ -39,13 +39,45 @@ const AddressPage = ({ navigation }) => {
   const confirmOrigin = route.params?.confirmOrigin || "ไม่ระบุ";
   const confirmDestination = route.params?.confirmDestination || "ไม่ระบุ";
 
-  const handleSave = () => {
-    // Handle form save logic here
-
-    console.log("Address Saved:");
-    navigation.navigate("UserProfile")
+  const handleSave = async () => {
+    if (!nameBookMark || !confirmOrigin || !confirmDestination || !category) {
+      Alert.alert("Error", "Please fill all the required fields.");
+      return;
+    }
+  
+    const payload = {
+      user_id: 1, // Replace with the actual user ID
+      save_name: nameBookMark,
+      location_from: confirmOrigin,
+      pickup_lat: origin.latitude , // Replace with actual lat/lng
+      pickup_long: origin.longitude,
+      location_to: confirmDestination,
+      dropoff_lat: destination.latitude,
+      dropoff_long: destination.longitude,
+      vahicle_type: category,
+    };
+  
+    try {
+      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/customer/add_bookmark`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok && data.Status) {
+        Alert.alert("Success", "Bookmark added successfully!");
+        navigation.navigate("UserProfile");
+      } else {
+        Alert.alert("Error", data.Error || "Failed to add bookmark.");
+      }
+    } catch (error) {
+      Alert.alert("Error", error.message || "An error occurred.");
+    }
   };
-
   const categoryOptions = [
     { label: "Mini Slide Car", value: "mini" },
     { label: "Standard Slide Car", value: "standard" },
@@ -75,6 +107,7 @@ const AddressPage = ({ navigation }) => {
               mode="outlined"
               value={nameBookMark}
               onChangeText={setNameBookMark}
+              maxLength={20}
             />
 
             <Text style={[styles.globalText, tw`mt-2 mb-1 font-semibold`]}>

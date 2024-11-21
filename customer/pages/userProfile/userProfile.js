@@ -38,7 +38,7 @@ const UserProfile = ({ navigation }) => {
         style={[{height: height * 0.05 , width : width * 0.5} ,tw`bg-green-500 items-center justify-center rounded-lg mb-3 w-50`]}
         onPress={() => navigation.navigate('addressPage')}
       >
-        <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>ข้อมูลที่อยู่</Text>
+        <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>เพิ่มรายการโปรด</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
