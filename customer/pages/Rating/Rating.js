@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { View, Text, TextInput, Alert, TouchableOpacity , StyleSheet } from 'react-native';
+import React, { useState , useEffect} from 'react';
+import { View, Text, TextInput, Alert, TouchableOpacity , StyleSheet , ActivityIndicator } from 'react-native';
 import StarRating from 'react-native-star-rating-widget';
 import { IP_ADDRESS } from "../../config";
 
@@ -13,6 +13,9 @@ const Rating = ({ navigation }) => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serviceData, setServiceData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const requestId = '60'; // Replace with dynamic request ID if needed.
 
   const getRatingText = (rating) => {
     switch (rating) {
@@ -30,6 +33,45 @@ const Rating = ({ navigation }) => {
         return "";
     }
   };
+
+
+  
+
+  // useEffect(() => {
+  //   // Fetch data from the API
+  //   const fetchServiceInfo = async () => {
+  //     try {
+  //       const response = await fetch(
+  //         `http://${IP_ADDRESS}:3000/auth/customer/getServiceInfo?request_id=${requestId}`
+  //       );
+  //       const data = await response.json();
+  //       setServiceData(data[0]); // Assuming data is an array with one object
+  //     } catch (error) {
+  //       console.error('Error fetching service info:', error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchServiceInfo();
+  // }, []);
+
+  // if (loading) {
+  //   return (
+  //     <View style={tw`flex-1 justify-center items-center`}>
+  //       <ActivityIndicator size="large" color="#0000ff" />
+  //     </View>
+  //   );
+  // }
+
+  // const {
+  //   first_name,
+  //   last_name,
+  //   average_rating,
+  //   price,
+  //   location_from,
+  //   location_to,
+  // } = serviceData;
 
   const handleSubmitReview = async () => {
     if (!review.trim() || rating === 0) {
@@ -84,7 +126,15 @@ const Rating = ({ navigation }) => {
   return (
     <View style={tw`flex-1 p-4 items-center`}>
       <Text style={tw`text-2xl mb-2 mt-2 text-center`}>Rate and Review</Text>
-      <View style={tw`flex-col bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-90 h-25`} />
+      <View style={tw`flex-col bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-90 h-25`} >
+      <Text style={styles.title}>{`Driver: ${first_name} ${last_name}`}</Text>
+      <Text style={styles.detail}>{`Average Rating: ${average_rating?.toFixed(
+        1
+      ) || 'N/A'}`}</Text>
+      <Text style={styles.detail}>{`Price Offer: $${price}`}</Text>
+      <Text style={styles.detail}>{`From: ${location_from}`}</Text>
+      <Text style={styles.detail}>{`To: ${location_to}`}</Text>
+      </View>
       <Text style={[styles.globalText , tw`text-3xl mb-1 mt-5 text-center`]}>
         {getRatingText(rating)}
       </Text>
