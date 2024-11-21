@@ -20,7 +20,7 @@ import JobWorking_Dropoff_Screen from "./screens/Job/JobWorking_Dropoff_Screen";
 import NotificationRequest from "./screens/NotificationRequest";
 import CarUploadPickUpConfirmation from "./screens/Job/CarUploadPickUpConfirmation";
 import CarUploadDropOffConfirmation from "./screens/Job/CarUploadDropOffConfirmation";
-// import DriverLocation from "./screens/DriverLocation";
+import DriverLocation from "./screens/DriverLocation";
 import HomeLogin from "./screens/LoginDriver/HomeLogin";
 import FirstRegister from "./screens/LoginDriver/FirstRegister";
 import SecondRegister from "./screens/LoginDriver/SecondRegister";
@@ -174,7 +174,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <View style={{ flex: 1 }}>
-      {/* <DriverLocation driver_id={userDataNa.driver_id} /> */}
+      <DriverLocation driver_id={userDataNa.driver_id} />
       <Tab.Navigator
   screenOptions={({ route, navigation }) => {
     const hiddenScreens = [
