@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity , StyleSheet } from 'react-native'
 import tw from 'twrnc'
 
 const EditProfile = ({ navigation }) => {
@@ -9,24 +9,24 @@ const EditProfile = ({ navigation }) => {
 
   return (
     <View style={tw`flex-1 p-5 bg-gray-100 justify-center items-center`}>
-      <Text style={tw`text-xl font-bold mb-5`}>แก้ไขข้อมูลผู้ใช้</Text>
+      <Text style={[styles.globalText , tw`text-xl font-bold mb-5`]}>แก้ไขข้อมูลผู้ใช้</Text>
 
       <TextInput
-        style={tw`w-full h-12 border border-gray-300 bg-white rounded-lg px-3 mb-3`}
+        style={[styles.globalText , tw`w-full h-12 border border-gray-300 bg-white rounded-lg px-3 mb-3`]}
         placeholder='ชื่อ'
         value={firstName}
         onChangeText={setFirstName}
       />
 
       <TextInput
-        style={tw`w-full h-12 border border-gray-300 bg-white rounded-lg px-3 mb-3`}
+        style={[styles.globalText , tw`w-full h-12 border border-gray-300 bg-white rounded-lg px-3 mb-3`]}
         placeholder='นามสกุล'
         value={lastName}
         onChangeText={setLastName}
       />
 
       <TextInput
-        style={tw`w-full h-12 border border-gray-300 bg-white rounded-lg px-3 mb-5`}
+        style={[styles.globalText , tw`w-full h-12 border border-gray-300 bg-white rounded-lg px-3 mb-5`]}
         placeholder='อีเมล'
         value={email}
         onChangeText={setEmail}
@@ -40,7 +40,7 @@ const EditProfile = ({ navigation }) => {
             navigation.goBack()
           }}
         >
-          <Text style={tw`text-white text-center font-bold`}>ยกเลิก</Text>
+          <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>ยกเลิก</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -49,11 +49,17 @@ const EditProfile = ({ navigation }) => {
             console.log({ firstName, lastName, email })
           }}
         >
-          <Text style={tw`text-white text-center font-bold`}>บันทึก</Text>
+          <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>บันทึก</Text>
         </TouchableOpacity>
       </View>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  globalText: {
+    fontFamily: 'Mitr-Regular'
+  },
+});
 
 export default EditProfile

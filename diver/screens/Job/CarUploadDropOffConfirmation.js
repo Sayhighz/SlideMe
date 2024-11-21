@@ -1,43 +1,56 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, Image, Alert } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native'; // Import useRoute to access params
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import tw from 'twrnc';
-import * as ImagePicker from 'expo-image-picker';
-import { IP_ADDRESS } from '../../config';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  SafeAreaView,
+  Image,
+  Alert,
+} from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import tw from "twrnc";
+import * as ImagePicker from "expo-image-picker";
+import { IP_ADDRESS } from "../../config";
 
 const CarUploadDropOffConfirmation = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { request_id } = route.params || {}; // Destructure request_id from route params
-  const [images, setImages] = useState({});
-  console.log(typeof(request_id));
+  const { request_id } = route.params || {};
+  const { userData = {} } = route.params || {};
 
+  const [images, setImages] = useState({
+    front: null,
+    back: null,
+    left: null,
+    right: null,
+  });
+
+  // Function to handle image selection
   const handleImageSelection = async (label) => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission Denied', 'Camera roll permissions are required to select an image.');
+    if (status !== "granted") {
+      Alert.alert("ขอสิทธิ์ใช้งาน", "โปรดอนุญาตการเข้าถึงรูปภาพในคลัง");
       return;
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-    });
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({ quality: 1 });
 
-    if (result.canceled) {
-      console.log(`Opening image picker for: ${label}`);
-      console.log('Image selection was canceled by the user.');
-    } else {
-      console.log('Selected image:', result.assets ? result.assets[0] : result.uri);
-      setImages((prevImages) => ({
-        ...prevImages,
-        [label]: result.assets ? result.assets[0].uri : result.uri,
-      }));
+      if (!result.canceled) {
+        const uri = result.assets ? result.assets[0].uri : result.uri;
+        setImages((prevImages) => ({
+          ...prevImages,
+          [label]: uri,
+        }));
+      }
+    } catch (error) {
+      console.error("Error selecting image:", error);
     }
   };
 
-  const renderUploadBox = (label) => (
+  // Render upload box
+  const renderUploadBox = (label, displayName) => (
     <TouchableOpacity
       style={tw`flex-1 bg-gray-100 rounded-lg p-4 m-2 shadow`}
       onPress={() => handleImageSelection(label)}
@@ -46,84 +59,135 @@ const CarUploadDropOffConfirmation = () => {
         {images[label] ? (
           <Image
             source={{ uri: images[label] }}
-            style={tw`w-32 h-32 mb-2 rounded-lg`}
+            style={tw`w-15 h-15 mb-2 rounded-lg`}
             resizeMode="cover"
           />
         ) : (
-          <Icon name="cloud-upload-outline" size={32} color="gray" style={tw`mb-2`} />
+          <Icon
+            name="cloud-upload-outline"
+            size={32}
+            color="gray"
+            style={tw`mb-2`}
+          />
         )}
-        <Text style={tw`text-gray-400`}>อัพโหลด</Text>
-        <Text style={tw`text-base text-center text-black font-bold`}>{label}</Text>
+        <Text style={[styles.globalText, tw`text-gray-400`]}>อัพโหลด</Text>
+        <Text
+          style={[styles.globalText, tw`text-base text-center text-black font-bold`]}
+        >
+          {displayName}
+        </Text>
       </View>
     </TouchableOpacity>
   );
 
+  // Handle confirmation process
   const handleConfirmation = async () => {
-    try {
-      console.log(`Sending request_id: ${request_id}`);
-      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/complete_request`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ request_id }),
+    const imageUris = Object.values(images).filter((uri) => uri !== null);
+
+    if (imageUris.length < 4) {
+      Alert.alert("ข้อผิดพลาด", "โปรดอัพโหลดรูปภาพทั้งหมด");
+      return;
+    }
+
+    if (!request_id || !userData?.driver_id) {
+      Alert.alert("ข้อผิดพลาด", "ข้อมูลคำขอหรือผู้ขับไม่สมบูรณ์");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("request_id", request_id);
+    formData.append("driver_id", userData?.driver_id);
+
+    imageUris.forEach((uri, index) => {
+      const fileName = uri.split("/").pop();
+      const fileType = fileName.split(".").pop();
+
+      formData.append("photos", {
+        uri,
+        name: `photo-${index}.${fileType}`,
+        type: `image/${fileType}`,
       });
-  
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Error response data:', errorData);
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-      }
-  
-      const data = await response.json();
-      console.log('Response data:', data);
-  
-      // Updated condition to match your response structure
-      if (data.Status) {
-        Alert.alert('Success', 'Request completed successfully.');
-        navigation.navigate('HomeMain');
+    });
+
+    try {
+      // Upload images
+      const uploadResponse = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/upload_after_service`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const uploadResult = await uploadResponse.json();
+      if (uploadResult.Status) {
+        Alert.alert("สำเร็จ", "อัพโหลดรูปภาพสำเร็จ");
+
+        // Complete request
+        const completeResponse = await fetch(
+          `http://${IP_ADDRESS}:3000/auth/complete_request`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ request_id }),
+          }
+        );
+
+        const completeData = await completeResponse.json();
+        if (completeData.Status) {
+          Alert.alert("สำเร็จ", "ดำเนินการเสร็จสิ้น");
+          navigation.navigate("HomeMain");
+        } else {
+          Alert.alert("ข้อผิดพลาด", "การดำเนินการล้มเหลว");
+        }
       } else {
-        Alert.alert('Error', 'Failed to complete request.');
+        Alert.alert("ข้อผิดพลาด", uploadResult.Error || "การอัพโหลดรูปภาพล้มเหลว");
       }
     } catch (error) {
-      console.error('Request failed:', error);
-      Alert.alert('Error', `An error occurred: ${error.message}`);
+      console.error("Error during upload or completion:", error);
+      Alert.alert("ข้อผิดพลาด", "เกิดปัญหาระหว่างการอัพโหลดหรือดำเนินการ");
     }
   };
-  
-  
-  
-
 
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
+      {/* Header */}
+      <View style={tw`p-4 pt-10 flex-row items-center`}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="arrow-left" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={[styles.globalText, tw`text-2xl font-bold ml-4`]}>ยืนยันการส่งรถ</Text>
+      </View>
+
+      {/* Content */}
       <View style={tw`p-4 flex-1`}>
-        <View style={tw`p-4 pt-8 flex-row items-center`}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="arrow-left" size={24} color="black" />
-          </TouchableOpacity>
-          <Text style={tw`text-2xl font-bold ml-4`}>ยืนยันการส่งรถ</Text>
+        {/* Upload Boxes */}
+        {renderUploadBox("front", "ด้านหน้ารถ")}
+        {renderUploadBox("back", "ด้านหลังรถ")}
+        <View style={tw`flex-row justify-between mt-4`}>
+          {renderUploadBox("left", "ด้านข้างรถ (ซ้าย)")}
+          {renderUploadBox("right", "ด้านข้างรถ (ขวา)")}
         </View>
-        <View style={tw`flex-1 justify-center`}>
-          {renderUploadBox('ด้านหน้ารถ')}
-          {renderUploadBox('ด้านหลังรถ')}
-          <View style={tw`flex-row justify-between mt-4`}>
-            {renderUploadBox('ด้านข้างรถ (ซ้าย)')}
-            {renderUploadBox('ด้านข้างรถ (ขวา)')}
-          </View>
-        </View>
+
+        {/* Confirm Button */}
         <TouchableOpacity
           onPress={handleConfirmation}
           style={tw`bg-green-500 p-4 rounded-lg mt-4 items-center`}
         >
-          <Text style={tw`text-white text-base font-bold`}>ยืนยันการส่งรถ</Text>
+          <Text style={[styles.globalText, tw`text-white text-base font-bold`]}>ยืนยันการส่งรถ</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
+};
+
+// Global styles
+const styles = {
+  globalText: {
+    fontFamily: "Mitr-Regular",
+  },
 };
 
 export default CarUploadDropOffConfirmation;

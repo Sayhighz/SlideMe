@@ -14,40 +14,40 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import tw from "twrnc";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import Swiper from "react-native-swiper";
-import { IP_ADDRESS } from "../config"; // Ensure IP_ADDRESS is correctly imported
+import { IP_ADDRESS } from "../config";
 
-export default function HomeScreen() {
+export default function HomeScreen({ route }) {
   const navigation = useNavigation();
-  const [offersData, setOffersData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedOffer, setSelectedOffer] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [offersData, setOffersData] = useState([]); // List of offers
+  const [loading, setLoading] = useState(true); // Loading state
+  const [selectedOffer, setSelectedOffer] = useState(null); // Selected offer for modal
+  const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
+  const { userData = {} } = route.params || {}; // User data passed via route params
 
+  // Sample notices for Swiper
   const notice = [
     { id: 1, title: "แจ้งเตือนที่ 1", description: "โปรดอ่าน" },
     { id: 2, title: "แจ้งเตือนที่ 2", description: "ข่าวสาร" },
     { id: 3, title: "แจ้งเตือนที่ 3", description: "แจ้งเตือน" },
   ];
-  
 
-  // Fetch offers data when the screen is focused
+  // Fetch offers when the screen gains focus
   useFocusEffect(
     React.useCallback(() => {
       const fetchOffers = async () => {
         try {
-          const driver_id = 2; // Replace with the actual driver_id as needed
           const response = await fetch(
-            `http://${IP_ADDRESS}:3000/auth/getOffersFromDriver?driver_id=${driver_id}`
+            `http://${IP_ADDRESS}:3000/auth/getOffersFromDriver?driver_id=${userData?.driver_id}`
           );
           const data = await response.json();
           if (data.Status && Array.isArray(data.Result)) {
             setOffersData(data.Result);
           } else {
-            console.warn("Unexpected API response format:", data);
+            console.warn("รูปแบบข้อมูลที่ได้จาก API ไม่ถูกต้อง:", data);
             setOffersData([]);
           }
         } catch (error) {
-          Alert.alert("Error", "Unable to fetch offers.");
+          Alert.alert("ข้อผิดพลาด", "ไม่สามารถดึงข้อมูลข้อเสนอได้");
           console.error(error);
           setOffersData([]);
         } finally {
@@ -59,10 +59,12 @@ export default function HomeScreen() {
     }, [])
   );
 
-
+  // Handle offer press
   const handleOfferPress = (offer) => {
-    if (offer.offer_status === 'accepted') {
-      navigation.navigate('JobWorking_Pickup', { request_id: offer.request_id });
+    if (offer.offer_status === "accepted") {
+      navigation.navigate("JobWorking_Pickup", {
+        request_id: offer.request_id,
+      });
     } else {
       setSelectedOffer(offer);
       setModalVisible(true);
@@ -84,21 +86,21 @@ export default function HomeScreen() {
       );
       const result = await response.json();
       if (response.ok) {
-        Alert.alert("สำเร็จ", "ส่งคําขอยกเลิกสําเร็จ");
+        Alert.alert("สำเร็จ", "การยกเลิกข้อเสนอสำเร็จ");
         setOffersData((prevData) =>
           prevData.filter((offer) => offer.offer_id !== offerId)
         );
         setModalVisible(false);
       } else {
-        Alert.alert("Error", result.message || "Failed to cancel the offer.");
+        Alert.alert("ข้อผิดพลาด", result.message || "ไม่สามารถยกเลิกข้อเสนอได้");
       }
     } catch (error) {
-      Alert.alert("Error", "An error occurred while cancelling the offer.");
+      Alert.alert("ข้อผิดพลาด", "เกิดข้อผิดพลาดขณะยกเลิกข้อเสนอ");
       console.error(error);
     }
   };
 
-  // Function to truncate text
+  // Utility to truncate long text
   const truncateText = (text, maxLength = 8) => {
     if (!text) return "";
     return text.length > maxLength
@@ -106,45 +108,33 @@ export default function HomeScreen() {
       : text;
   };
 
-  // Function to format number with commas
+  // Utility to format numbers with commas
   const formatNumberWithCommas = (number) => {
     if (isNaN(number)) return number;
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
-  // Function to format status
+  // Utility to format offer status
   const getFormattedStatus = (status) => {
     switch (status) {
       case "pending":
         return (
-          <Text
-            style={[
-              styles.globalText,
-              styles.textSize,
-              tw`text-yellow-500 text-xs`,
-            ]}
-          >
+          <Text style={[styles.globalText, tw`text-yellow-500 text-xs`]}>
             รออนุมัติ
           </Text>
         );
       case "accepted":
         return (
-          <Text
-            style={[
-              styles.globalText,
-              styles.textSize,
-              tw`text-green-500 text-xs`,
-            ]}
-          >
+          <Text style={[styles.globalText, tw`text-green-500 text-xs`]}>
             อยู่ระหว่างการทำงาน
           </Text>
         );
       default:
-        return (
-          <Text style={[styles.globalText, styles.textSize]}>{status}</Text>
-        );
+        return <Text style={styles.globalText}>{status}</Text>;
     }
   };
+
+  // Main Component Render
 
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
@@ -154,23 +144,29 @@ export default function HomeScreen() {
           <>
             <View style={tw`flex-row items-center mt-10 p-2 w-19/20 mx-auto`}>
               <Image
-                source={{ uri: "https://example.com/profile.jpg" }}
-                style={tw`w-24 h-24 rounded-full border-4 border-gray-400`}
+                source={{
+                  uri: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=${userData?.profile_picture}`,
+                }}
+                style={tw`w-24 h-24 rounded-full border-2 border-green-400`}
               />
               <View style={tw`ml-4`}>
-                <Text style={[styles.globalText, tw`text-2xl`]}>สวัสดี!</Text>
+                <Text style={[styles.globalText, tw`text-sm text-gray-400`]}>
+                  สวัสดี!
+                </Text>
                 <Text
                   style={[
                     styles.globalText,
                     tw`text-2xl font-bold text-green-600`,
                   ]}
                 >
-                  คุณ คุณาธิป อู่ทอง
+                  {`${userData?.first_name || "ไม่พบข้อมูล"} ${
+                    userData?.last_name || ""
+                  }`}
                 </Text>
               </View>
             </View>
             <View
-              style={tw`flex-row justify-around w-19/20 mx-auto mt-4 p-4 bg-gray-100 rounded-lg`}
+              style={tw`flex-row justify-around w-19/20 mx-auto mt-4 p-4 bg-white shadow-md rounded-lg border border-gray-300`}
             >
               <View style={tw`items-center`}>
                 <Text
@@ -202,29 +198,33 @@ export default function HomeScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => handleOfferPress(item)}>
             <View
-              style={tw`flex-row justify-between p-2 bg-white rounded-lg mb-2 shadow-md border border-gray-300 mx-3`}
+              style={tw`p-2 bg-white rounded-lg mb-2 shadow-md border border-gray-300 mx-3 flex-row justify-between`}
             >
-              <View>
-                <Text style={[styles.globalText, tw`text-xs`]}>
+              <View style={tw`flex-1`}>
+                <View style={tw`flex-row items-center mb-1`}>
                   <Icon name="map-marker" size={13} color="gray" />
-                  {truncateText(item.location_from)}
-                </Text>
-                <Text style={[styles.globalText, tw`text-xs`]}>
+                  <Text style={[styles.globalText, tw`text-xs ml-1`]}>
+                    {truncateText(item.location_from)}
+                  </Text>
+                </View>
+                <View style={tw`flex-row items-center`}>
                   <Icon name="map-marker" size={13} color="gray" />
-                  {truncateText(item.location_to)}
-                </Text>
+                  <Text style={[styles.globalText, tw`text-xs ml-1`]}>
+                    {truncateText(item.location_to)}
+                  </Text>
+                </View>
               </View>
-              <View>
+              <View style={tw`flex-1 justify-center items-center`}>
                 {getFormattedStatus(item.offer_status)}
-                <Text style={[styles.globalText, tw`text-xs`]}>
+                <Text style={[styles.globalText, tw`text-xs mt-1`]}>
                   {truncateText(item.vehicle_type)}
                 </Text>
               </View>
-              <View>
+              <View style={tw`flex-1 justify-center items-end`}>
                 <Text style={[styles.globalText, tw`text-blue-500 text-xs`]}>
                   ราคาที่เสนอ
                 </Text>
-                <Text style={[styles.globalText, tw`text-xs`]}>
+                <Text style={[styles.globalText, tw`text-xs mt-1`]}>
                   {item.offered_price
                     ? `฿${formatNumberWithCommas(item.offered_price)}`
                     : "N/A"}
@@ -235,9 +235,11 @@ export default function HomeScreen() {
         )}
         ListEmptyComponent={
           loading ? (
-            <Text style={tw`text-center text-gray-500`}>กำลังโหลด...</Text>
+            <Text style={[styles.globalText, tw`text-center text-gray-500`]}>
+              กำลังโหลด...
+            </Text>
           ) : (
-            <Text style={tw`text-center text-gray-500`}>
+            <Text style={[styles.globalText, tw`text-center text-gray-500`]}>
               ไม่มีข้อมูลเสนอราคา
             </Text>
           )
@@ -279,17 +281,19 @@ export default function HomeScreen() {
           <View style={tw`w-4/5 bg-white p-6 rounded-lg shadow-lg`}>
             {selectedOffer && (
               <>
-                <Text style={[styles.globalText, tw`text-lg mb-2`]}>
+                <Text style={[styles.globalText, tw`text-lg mb-2 text-center`]}>
                   รายละเอียดข้อเสนอ
                 </Text>
-                <Text style={[styles.globalText, tw`mb-1`]}>
-                  <Icon name="map-marker" size={20} color="gray" />
-                  ต้นทาง: {selectedOffer.location_from}
+                <Text style={[styles.globalText]}>
+                  <Icon name="map-marker" size={20} color="green" />
+                  ต้นทาง:
                 </Text>
-                <Text style={[styles.globalText, tw`mb-1`]}>
-                  <Icon name="map-marker" size={20} color="gray" />
-                  ปลายทาง: {selectedOffer.location_to}
+                <Text style={[styles.globalText, tw`text-gray-400 mb-3`]}>{selectedOffer.location_from}</Text>
+                <Text style={[styles.globalText]}>
+                  <Icon name="map-marker" size={20} color="red" />
+                  ปลายทาง:
                 </Text>
+                <Text style={[styles.globalText, tw`text-gray-400 `]}>{selectedOffer.location_to}</Text>
                 <Text style={[styles.globalText, tw`mb-1`]}>
                   ประเภท: {selectedOffer.vehicle_type}
                 </Text>
@@ -306,13 +310,17 @@ export default function HomeScreen() {
                   style={tw`bg-red-500 p-3 rounded-lg items-center`}
                   onPress={() => handleCancelOffer(selectedOffer.offer_id)}
                 >
-                  <Text style={tw`text-white font-bold`}>ยกเลิกข้อเสนอ</Text>
+                  <Text style={[styles.globalText, tw`text-white font-bold`]}>
+                    ยกเลิกข้อเสนอ
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={tw`mt-4 bg-gray-300 p-3 rounded-lg items-center`}
                   onPress={() => setModalVisible(false)}
                 >
-                  <Text style={tw`text-black font-bold`}>ปิด</Text>
+                  <Text style={[styles.globalText, tw`text-black font-bold`]}>
+                    ปิด
+                  </Text>
                 </TouchableOpacity>
               </>
             )}
@@ -322,7 +330,7 @@ export default function HomeScreen() {
       <View style={tw`absolute bottom-4 w-full items-center`}>
         <TouchableOpacity
           style={[
-            tw`w-11/12 bg-green-500 rounded-full p-4 items-center`,
+            tw`w-11/12 bg-green-500 rounded p-2 items-center`,
             offersData.length >= 2 && tw`bg-gray-400`,
           ]}
           disabled={offersData.length >= 2}

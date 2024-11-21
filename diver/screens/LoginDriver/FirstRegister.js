@@ -1,11 +1,11 @@
 // FirstRegister.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import tw from 'twrnc';
-import Icon from 'react-native-vector-icons/Ionicons'; // Importing Ionicons from react-native-vector-icons
+import Icon from 'react-native-vector-icons/Ionicons';
 
-const FirstRegister = ({ navigation }) => { // Added navigation prop
+const FirstRegister = ({ navigation }) => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [selectedProvince, setSelectedProvince] = useState('');
     const [selectedVehicleType, setSelectedVehicleType] = useState('');
@@ -20,21 +20,42 @@ const FirstRegister = ({ navigation }) => { // Added navigation prop
     ];
 
     const vehicleTypes = [
-        { label: 'รถยนต์', value: 'car' },
-        { label: 'รถจักรยานยนต์', value: 'motorcycle' },
+        { label: 'รถสไลด์มาตรฐาน', value: 'standard_slide' },
+        { label: 'รถสไลด์ขนาดใหญ่', value: 'heavy_duty_slide' },
+        { label: 'รถสไลด์สำหรับรถหรู', value: 'luxury_slide' },
+        { label: 'รถสไลด์ฉุกเฉิน', value: 'emergency_slide' },
     ];
+    
 
     const handleRegisterPress = () => {
-        if (!isTermsAccepted) {
-            alert('กรุณายอมรับเงื่อนไขก่อนสมัคร');
+        // Validate phone number length
+        if (phoneNumber.length !== 10 || isNaN(phoneNumber)) {
+            Alert.alert('ข้อผิดพลาด', 'กรุณากรอกเบอร์โทรศัพท์ที่มีความยาว 10 ตัวเลข');
             return;
         }
-        navigation.navigate('SecondRegister', { phoneNumber, selectedProvince, selectedVehicleType });
+
+        // Validate required fields
+        if (!phoneNumber || !selectedProvince || !selectedVehicleType) {
+            Alert.alert('ข้อผิดพลาด', 'กรุณากรอกข้อมูลให้ครบทุกช่อง');
+            return;
+        }
+
+        // Validate terms acceptance
+        if (!isTermsAccepted) {
+            Alert.alert('ข้อผิดพลาด', 'กรุณายอมรับเงื่อนไขก่อนสมัคร');
+            return;
+        }
+
+        navigation.navigate('SecondRegister', {
+            phoneNumber,  // ส่งเบอร์โทรศัพท์
+            selectedProvince, // จังหวัด
+            selectedVehicleType, // ประเภทรถ
+        });
         console.log(`Phone: ${phoneNumber}, Province: ${selectedProvince}, Vehicle: ${selectedVehicleType}`);
     };
 
     const handleBackPress = () => {
-        navigation.navigate('HomeLogin'); // Navigate back to HomeLogin screen
+        navigation.navigate('HomeLogin');
     };
 
     return (
@@ -44,7 +65,7 @@ const FirstRegister = ({ navigation }) => { // Added navigation prop
                     <Icon name="arrow-back" size={28} color="#000" />
                 </TouchableOpacity>
             </View>
-            <View style={tw`flex-1 justify-center items-center  mt-3`}>
+            <View style={tw`flex-1 justify-center items-center mt-3`}>
                 <View style={tw`flex-1 justify-center items-center mb-4`}>
                     <Text style={tw`text-6xl text-[#60B876] font-bold text-center`}>SLIDE</Text>
                     <Text style={tw`text-8xl text-[#60B876] font-bold text-center leading-none z-10`}>ME</Text>
@@ -52,7 +73,7 @@ const FirstRegister = ({ navigation }) => { // Added navigation prop
                     <Text style={tw`text-center text-gray-600 mb-4`}>เข้าร่วมทีมของเราและรับสิทธิพิเศษมากมาย!</Text>
                 </View>
             </View>
-            <View style={tw`flex-2 w-11/12 mx-auto `}>
+            <View style={tw`flex-2 w-11/12 mx-auto`}>
                 <Text style={tw`text-lg font-bold mb-2`}>เบอร์โทรศัพท์</Text>
                 <TextInput
                     placeholder="เบอร์โทรศัพท์"
@@ -60,6 +81,7 @@ const FirstRegister = ({ navigation }) => { // Added navigation prop
                     keyboardType="phone-pad"
                     value={phoneNumber}
                     onChangeText={setPhoneNumber}
+                    maxLength={10} // Ensure maximum length is 10 digits
                 />
                 <Text style={tw`text-lg font-bold mb-2`}>เลือกจังหวัด</Text>
                 <View style={tw`border-2 border-gray-300 rounded-lg h-1/10 mb-2`}>
@@ -86,7 +108,6 @@ const FirstRegister = ({ navigation }) => { // Added navigation prop
                     />
                 </View>
                 
-                {/* Custom Checkbox for terms acceptance */}
                 <TouchableOpacity
                     style={tw`flex-row items-center mt-4`}
                     onPress={() => setIsTermsAccepted(!isTermsAccepted)}
@@ -94,7 +115,7 @@ const FirstRegister = ({ navigation }) => { // Added navigation prop
                     <View
                         style={tw`w-6 h-6 border-2 border-gray-300 rounded mr-2 ${isTermsAccepted ? 'bg-green-500' : 'bg-white'}`}
                     />
-                    <Text>ยอมรับเงื่อนไข</Text>
+                    <Text>ยอมรับเงื่อนไข SLIDEME</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity

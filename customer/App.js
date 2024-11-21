@@ -24,15 +24,13 @@ import PaymentPage from './pages/paymentPage/PaymentPage';
 import ViewOrder from './pages/viewOrder/ViewOrder';
 import Rating from './pages/Rating/Rating';
 import tw from 'twrnc';
-
-
-
-
 import PhoneVerify from './pages/PhoneVerify/PhoneVerify';
 import InfoCustomer from './pages/InfoCustomer/InfoCustomer';
 import EditProfile from './pages/editProfile/editProfile';
 import AddressPage from './pages/addressPage/addressPage';
 import ChooseOffer from './pages/chooseOffer/ChooseOffer';
+import Addmap from './pages/addressPage/bookmap/Bookmap';
+
 
 
 
@@ -44,7 +42,7 @@ const Tab = createBottomTabNavigator();
 function HomeStack() {
   return (
    
-    <Stack.Navigator screenOptions={{ headerStyle: { backgroundColor: '#60B876' }, headerTintColor: 'black' , borderBottomWidth: 0 , shadowOpacity: 0}}>
+    <Stack.Navigator screenOptions={{ headerStyle: { backgroundColor: '#3DE183' }, headerTintColor: 'black' , borderBottomWidth: 0 , shadowOpacity: 0}}>
       <Stack.Screen name="HomePage" component={Home} />
       <Stack.Screen name="Mapdetail" component={MapDetail} />
       <Stack.Screen name="MapPage" component={MapPage} options={{ headerShown: false }} />
@@ -57,6 +55,8 @@ function HomeStack() {
     
   );
 }
+
+
 
 function PaymentMethodsStack() {
   return (
@@ -82,7 +82,9 @@ function UserProfileStack() {
       <Stack.Screen name="PaymentMethodsStack" component={PaymentMethodsStack} options={{ headerShown: false }} />
       <Stack.Screen name="userHistoryPage" component={HistoryPage} options={{ title: 'ประวัติการใช้บริการ' }} />
       <Stack.Screen name="editProfile" component={EditProfile} options={{ title: 'แก้ไขข้อมูลผู้ใช้' }} />
-      <Stack.Screen name="addressPage" component={AddressPage} options={{ title: 'แก้ไขข้อมูลที่อยู่' }} />
+      <Stack.Screen name="addressPage" component={AddressPage} options={{ title: 'แก้ไขข้อมูลที่อยู่' }}/>
+        <Stack.Screen name="addMapFav" component={Addmap} options={{title: 'เพิ่มบุ๊คมาร์ก'}}/>
+      
     </Stack.Navigator>
   );
 }

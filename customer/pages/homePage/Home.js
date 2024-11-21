@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Text,
   View,
@@ -6,16 +6,46 @@ import {
   Image,
   StyleSheet,
   Dimensions,
+  Modal,
+  FlatList,
 } from "react-native";
 import { Card } from "react-native-paper";
 import Swiper from "react-native-swiper";
 import tw from "twrnc";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRoute } from "@react-navigation/native";
 
 function Home({ navigation }) {
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const handleOpenModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+  };
+
+  const Card = ({ title, onPress }) => (
+    <TouchableOpacity
+      onPress={onPress}
+      style={tw`w-4/5 mx-2 bg-gray-200 rounded-lg p-5 shadow`}
+    >
+      <Text style={tw`text-lg font-semibold text-center`}>{title}</Text>
+    </TouchableOpacity>
+  );
+
+  
+
+  const route = useRoute();
+  const selectedLabel = route.params?.selectedLabel || "ไม่ระบุ";
+  const origin = route.params?.origin || "ไม่ระบุ";
+  const destination = route.params?.destination || "ไม่ระบุ";
+  const confirmOrigin = route.params?.confirmOrigin || "ไม่ระบุ";
+  const confirmDestination = route.params?.confirmDestination || "ไม่ระบุ";
 
   // Sample ads data (URLs for images or placeholders)
   const ads = [
@@ -37,7 +67,7 @@ function Home({ navigation }) {
               colors={["#3DE183", "#60B876", "#6CA97C"]}
               style={[
                 tw`rounded-lg items-center justify-center`,
-                { width: responsiveWidth, height: height * 0.18, padding: 10 },
+                { width: responsiveWidth, height: height * 0.19, padding: 10 },
               ]}
             >
               <Text
@@ -51,61 +81,99 @@ function Home({ navigation }) {
             </LinearGradient>
           </TouchableOpacity>
 
-          <View
+          {/* <View
             style={[
               tw`flex-row justify-between mt-4`,
               { width: responsiveWidth },
             ]}
           >
-            <TouchableOpacity
+          <TouchableOpacity
               style={[
-                { flex: 0.48 },
-                tw`rounded-lg h-20 flex items-center justify-center bg-[#5A8DEE]`,
+                { flex: 0.48 , height : height * 0.09},
+                tw`rounded-lg  flex items-center justify-center bg-green-100 border border-[#60B876]`,
               ]}
+              onPress={() =>
+                selectedLabel !== "ไม่ระบุ" && selectedLabel
+                  ? navigation.navigate("Order", {
+                      
+                      origin,
+                      destination,
+                      confirmOrigin,
+                      confirmDestination,
+                    })
+                  : navigation.navigate("Bookmark")
+              }
             >
               <Text
-                style={[styles.globalText, tw`text-white text-lg font-bold`]}
+                style={[styles.globalText, tw`text-[#5A8DEE] text-lg font-bold`]}
               >
-                ตำแหน่ง 1
+                {selectedLabel !== "ไม่ระบุ" ? selectedLabel : "ตำแหน่ง 1"}
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
+          <TouchableOpacity
               style={[
-                { flex: 0.48 },
-                tw`rounded-lg h-20 flex items-center justify-center bg-[#5A8DEE]`,
+                { flex: 0.48 , height : height * 0.09},
+                tw`rounded-lg  flex items-center justify-center bg-green-100 border-[#60B876] border`,
               ]}
+              onPress={handleOpenModal}
             >
               <Text
-                style={[styles.globalText, tw`text-white text-lg font-bold`]}
+                style={[styles.globalText, tw`text-[#5A8DEE] text-lg font-bold`]}
               >
                 ตำแหน่ง 2
               </Text>
             </TouchableOpacity>
-          </View>
+          
+          </View> */}
+          
+
           <View>
+            <TouchableOpacity style={[
+              { width: responsiveWidth, height: height * 0.16, padding: 10 },
+              tw`rounded-lg items-center justify-center mt-5 ` ,
+            ]}>
             <LinearGradient
-              colors={["#60B876", "#53A567"]}
+              colors={["#3DE183", "#60B876", "#6CA97C"]}
               style={[
-                { width: responsiveWidth, height: height * 0.18, padding: 10 },
-                tw`rounded-lg items-center justify-center mt-5`,
+                { width: responsiveWidth, height: height * 0.16 },
+                tw`rounded-lg items-center justify-center `,
               ]}
             >
-              <TouchableOpacity>
                 <Text
                   style={[styles.globalText, tw`text-3xl font-bold text-white`]}
                 >
                   Order Status
                 </Text>
-              </TouchableOpacity>
             </LinearGradient>
+              </TouchableOpacity>
+          </View>
+          <View>
+            <TouchableOpacity style={[
+              { width: responsiveWidth, height: height * 0.12, padding: 10 },
+              tw`rounded-lg items-center justify-center mt-5 `,
+            ]}>
+            <LinearGradient
+              colors={["#60B876", "#53A567"]}
+              style={[
+                { width: responsiveWidth, height: height * 0.12, padding: 10 },
+                tw`rounded-lg items-center justify-center`,
+              ]}
+            >
+                <Text
+                  style={[styles.globalText, tw`text-3xl font-bold text-white`]}
+                >
+                  ติดต่อเรา
+                </Text>
+            </LinearGradient>
+              </TouchableOpacity>
           </View>
         </View>
 
         {/* Swiper for Ads Banner (placed above bottom navbar) */}
         <View
           style={[
-            tw`mb-4`,
+            tw`mb-2`,
             { width: responsiveWidth, height: responsiveHeight },
           ]}
         >
@@ -119,7 +187,7 @@ function Home({ navigation }) {
             {(ads || []).map((ad) => (
               <View
                 key={ad.id}
-                style={tw`flex items-center justify-center w-full h-full`}
+              style={[{height: height * 0.17} ,tw`flex items-center justify-center w-full`]}
               >
                 <Image
                   source={{ uri: ad.image }}
@@ -141,6 +209,20 @@ function Home({ navigation }) {
 const styles = StyleSheet.create({
   globalText: {
     fontFamily: "Mitr-Regular",
+  },
+
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContainer: {
+    width: 300,
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+    alignItems: "center",
   },
 });
 
