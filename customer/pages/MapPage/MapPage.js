@@ -11,6 +11,7 @@ import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
+import axios from "axios";
 
 const MapPage = ({ navigation }) => {
   const route = useRoute();
@@ -39,17 +40,14 @@ const MapPage = ({ navigation }) => {
   //ระบุสถานที่
   const getAddressFromCoords = async (latitude, longitude) => {
     try {
-      let response = await Location.reverseGeocodeAsync({
-        latitude,
-        longitude,
-      });
-      if (response.length > 0) {
-        const place = response[0];
-        const address = `${place.name !== null ? place.name + "," : ""}${
-          place.street !== null ? place.street + "," : ""
-        }${place.city !== null ? place.city + "," : ""}${
-          place.region !== null ? place.region + "," : ""
-        }${place.country !== null ? place.country : ""}`;
+      const API_KEY = GOOGLE_MAPS_API_KEY; // ใส่ API Key ของคุณ
+      const response = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&language=th&key=${API_KEY}`
+      );
+  
+      if (response.data.results.length > 0) {
+        const address = response.data.results[0].formatted_address;
+        console.log("Address in Thai:", address);  
 
         if (!confirmOrigin.length) {
           setOriginAddress(address);
@@ -108,7 +106,7 @@ const MapPage = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={tw`flex-1`}>
+    <SafeAreaView style={tw`flex-1`} edges={['top', 'left', 'right']}>
       <Modal transparent={true} visible={openModal}>
         <View style={tw`flex-1 justify-center items-center`}>
           <View style={tw`bg-[#FDFFFD] w-4/5 h-1/3 flex rounded-lg p-3`}>
@@ -247,7 +245,7 @@ const MapPage = ({ navigation }) => {
             <Text
               style={[styles.globalText, tw`text-[#FDFFFD] text-xl font-bold`]}
             >
-              Confirm {confirmOrigin.length ? "destination" : "origin"}
+              Confirm {confirmOrigin.length ? "Destination" : "Origin"}
             </Text>
           </Pressable>
         </View>

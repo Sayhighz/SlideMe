@@ -51,7 +51,7 @@ const ChooseOffer = ({ navigation, route }) => {
     { label: "10 km", value: "10000" },
   ];
 
-  const { request_id , customer_id_request } = route.params;
+  const { request_id, customer_id_request } = route.params;
 
   useEffect(() => {
     console.log("customer_id_request", customer_id_request);
@@ -316,8 +316,14 @@ const ChooseOffer = ({ navigation, route }) => {
               }}
               title="Origin"
               description={originLocation.name}
-              pinColor="blue"
-            />
+            >
+              <MaterialIcons
+                name="location-pin"
+                size={35}
+                color="blue"
+                style={tw`ml-2`}
+              />
+            </Marker>
 
             <Marker
               coordinate={{
@@ -326,8 +332,14 @@ const ChooseOffer = ({ navigation, route }) => {
               }}
               title="Destination"
               description={destinationLocation.name}
-              pinColor="blue"
-            />
+            >
+              <MaterialIcons
+                name="location-pin"
+                size={35}
+                color="blue"
+                style={tw`ml-2`}
+              />
+            </Marker>
 
             {filteredOffer.map((item, index) => (
               <Marker
@@ -336,10 +348,16 @@ const ChooseOffer = ({ navigation, route }) => {
                   latitude: item.location.latitude,
                   longitude: item.location.longitude,
                 }}
-                pinColor={chooseDriver.id === item.id ? "green" : "red"}
                 title={item.name}
                 description={`ราคา: ${item.price} บาท`}
-              />
+              >
+                <MaterialIcons
+                  name="location-pin"
+                  size={35}
+                  color={chooseDriver.id === item.id ? "green" : "red"}
+                  style={tw`ml-2`}
+                />
+              </Marker>
             ))}
 
             <Circle
@@ -465,8 +483,7 @@ const ChooseOffer = ({ navigation, route }) => {
                       </View>
                     </TouchableOpacity>
                   );
-                }
-                else {
+                } else {
                   return (
                     <View style={tw`flex-1 justify-center items-center`}>
                       <Text style={tw`text-lg font-bold`}>ไม่พบข้อเสนอ</Text>

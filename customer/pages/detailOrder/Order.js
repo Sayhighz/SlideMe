@@ -40,7 +40,6 @@ export default function Order({ navigation }) {
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
 
-  
   const toggleDatePicker = () => {
     setShowPicker(!showPicker);
   };
@@ -85,20 +84,26 @@ export default function Order({ navigation }) {
             tw`flex-1 justify-center items-center bg-[rgba(0,0,0,0.90)] `,
           ]}
         >
-          <View style={[tw`flex p-4 rounded-lg `, { maxWidth: width * 0.9 , height: height * 0.7}]}>
+          <View
+            style={[
+              tw`flex p-4 rounded-lg `,
+              { maxWidth: width * 0.9, height: height * 0.7 },
+            ]}
+          >
             {/* DateTimePicker */}
             <View
               style={[
-                {height: responsiveHeight},
-                tw`flex-row justify-center items-center`
-              ]}>
+                { height: responsiveHeight },
+                tw`flex-row justify-center items-center`,
+              ]}
+            >
               <DateTimePicker
                 mode="datetime"
                 display="calendar"
                 value={date}
                 onChange={onChange}
                 locale="th"
-                style={[{ height: responsiveHeight } , tw`text-white`]}
+                style={[{ height: responsiveHeight }, tw`text-white`]}
                 minimumDate={new Date()}
                 maximumDate={new Date("2024-12-31")}
                 textColor="white"
@@ -106,7 +111,7 @@ export default function Order({ navigation }) {
             </View>
 
             {/* Buttons */}
-            
+
             <View style={[tw`flex-row mt-4 gap-4 `]}>
               <TouchableOpacity
                 onPress={() => {
@@ -133,10 +138,6 @@ export default function Order({ navigation }) {
                 </Text>
               </TouchableOpacity>
             </View>
-             
-          
-
-
           </View>
         </View>
       </Modal>
@@ -278,14 +279,14 @@ export default function Order({ navigation }) {
       alert("Please fill in all required fields.");
       return;
     }
-  
+
     if (!origin || !destination || !category) {
       alert(
         "Please fill in all mandatory fields: Pickup Location, Dropoff Location, and Vehicle Type."
       );
       return;
     }
-  
+
     // Construct the request data object
     const requestData = {
       customer_id: 1, // Replace with the appropriate customer ID
@@ -302,38 +303,40 @@ export default function Order({ navigation }) {
         : formatDateToMySQL(new Date()), // Assuming formattedDate is used for booking time
       customer_message: moreDetail || null, // Include the optional field if provided
     };
-  
+
     try {
-      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/add_request`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      });
-  
+      const response = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/add_request`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData),
+        }
+      );
+
       if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);
       }
 
-      console.log(response)
-  
+      console.log(response);
+
       const responseData = await response.json();
       console.log("Response data:", responseData);
-  
+
       if (responseData && responseData.request_id) {
         Alert.alert(
-          "Request submitted successfully!", 
-          "", 
+          "Request submitted successfully!",
+          "",
           [
             {
-              text: "OK", 
+              text: "OK",
               onPress: () => {
-                navigation.navigate("ChooseOffer", 
-                  { 
-                    request_id: responseData.request_id ,
-                    customer_id_request: responseData.customer_id
-                  });
+                navigation.navigate("ChooseOffer", {
+                  request_id: responseData.request_id,
+                  customer_id_request: responseData.customer_id,
+                });
               },
             },
           ],
@@ -347,7 +350,7 @@ export default function Order({ navigation }) {
       alert("Failed to submit the request. Please try again.");
     }
   };
-  
+
   return (
     <PaperProvider>
       <View style={tw`flex items-center `}>
@@ -359,26 +362,28 @@ export default function Order({ navigation }) {
           <TouchableOpacity
             style={[
               { width: responsiveWidth, height: height * 0.12 },
-              tw`p-2 mb-4 mt-1 justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876]`
+              tw`p-2 mb-4 mt-1 justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876]`,
             ]}
             onPress={() => navigation.navigate("Mapdetail")}
           >
             <View style={[tw`flex-row px-4`]}>
               <MaterialIcons name="place" size={24} color="red" />
-              <Text style={styles.globalText}>
-                ต้นทาง :{" "}
-                {confirmOrigin.length > 25
-                  ? confirmOrigin.slice(0, 25) + "..."
-                  : confirmOrigin}
+              <Text
+                style={styles.globalText}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                ต้นทาง : {confirmOrigin}
               </Text>
             </View>
             <View style={tw`flex-row px-4`}>
               <MaterialIcons name="place" size={24} color="green" />
-              <Text style={styles.globalText}>
-                ปลายทาง :{" "}
-                {confirmDestination.length > 25
-                  ? confirmDestination.slice(0, 25) + "..."
-                  : confirmDestination}
+              <Text
+                style={styles.globalText}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                ปลายทาง : {confirmDestination}
               </Text>
             </View>
           </TouchableOpacity>
@@ -479,7 +484,7 @@ export default function Order({ navigation }) {
                       styles.globalText,
                       tw`border p-2 mb-4 bg-white rounded-lg h-40`,
                     ]}
-                    placeholder="รายละเอียดเพิ่มเติม . . ." 
+                    placeholder="รายละเอียดเพิ่มเติม . . ."
                     mode="outlined"
                     value={preMoreDetail}
                     onChangeText={setPreMoreDetail}

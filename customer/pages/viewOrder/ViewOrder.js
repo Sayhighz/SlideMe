@@ -124,7 +124,7 @@ export default function ViewOrder({ navigation }) {
               <View
                 style={tw`flex-1 flex-row items-center w-full`}
                 onTouchEnd={() => {
-                  console.log("ต้นทาง :",origin.name);
+                  console.log("ต้นทาง :", origin.name);
                 }}
               >
                 <MaterialIcons name="place" size={24} color="red" />
@@ -139,7 +139,7 @@ export default function ViewOrder({ navigation }) {
               <View
                 style={tw`flex-1 flex-row items-center w-full`}
                 onTouchEnd={() => {
-                  console.log("ปลายทาง :",destination.name);
+                  console.log("ปลายทาง :", destination.name);
                 }}
               >
                 <MaterialIcons name="place" size={24} color="green" />
@@ -164,32 +164,51 @@ export default function ViewOrder({ navigation }) {
                   longitudeDelta: 0.0521,
                 }}
               >
-                <Marker
-                  coordinate={origin}
-                  title="origin"
+                <Marker 
+                  coordinate={origin} 
+                  title="origin" 
                   description="origin"
-                />
+                >
+                  <MaterialIcons
+                    name="location-pin"
+                    size={35}
+                    color="red"
+                    style={tw`ml-2`}
+                  />
+                </Marker>
 
                 <Marker
                   coordinate={destination}
                   title="destination"
                   description="destination"
-                  pinColor="green"
-                />
+                >
+                  <MaterialIcons
+                    name="location-pin"
+                    size={35}
+                    color="green"
+                    style={tw`ml-2`}
+                  />
+                </Marker>
 
                 <Marker
                   coordinate={driverInformation}
                   title="driverLocation"
                   description="driverLocation"
-                  pinColor="blue"
-                />
+                >
+                  <MaterialIcons
+                    name="location-pin"
+                    size={35}
+                    color="blue"
+                    style={tw`ml-2`}
+                  />
+                </Marker>
 
-                <Marker
+                {/* <Marker
                   coordinate={myLocation}
                   title="myLocation"
                   description="myLocation"
                   pinColor="red"
-                />
+                /> */}
 
                 {origin.latitude &&
                   origin.longitude &&

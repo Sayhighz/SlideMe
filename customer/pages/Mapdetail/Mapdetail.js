@@ -57,10 +57,6 @@ const locations = [
   },
 ];
 
-
-
-
-
 export default function Mapdetail({ navigation }) {
 
   const route = useRoute();
@@ -112,10 +108,11 @@ export default function Mapdetail({ navigation }) {
             style={tw`ml-2`}
           />
           <TextInput
-            style={[styles.globalText , tw`flex-row p-2 text-gray-700`]}
+            style={[styles.globalText , tw`flex-1 p-2 text-gray-700`]}
             placeholder="Enter destination"
             value={confirmDestination.length ? confirmDestination : "สถานที่ปลายทาง"}
           />
+          {console.log(confirmDestination)}
         </View>
         <View >
           <TouchableOpacity
