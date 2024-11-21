@@ -23,7 +23,9 @@ import { IP_ADDRESS } from "../../config";
 import { ScrollView } from "react-native-gesture-handler";
 
 dayjs.locale("th");
-export default function Order({ navigation }) {
+export default function Order({ navigation , bookmark}) {
+
+
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState(new Date());
   const [formattedDate, setFormattedDate] = useState("");
@@ -63,6 +65,78 @@ export default function Order({ navigation }) {
     }
     setLoading(false);
   };
+
+
+  
+    const handleRequestFromBookmark = async (selectedBookmark) => {
+      // Prepare the request payload using bookmark data
+
+      if (!confirmOrigin) {
+        alert("Pickup location is missing. Please select a pickup location.");
+        return;
+      }
+
+      const requestData = {
+        customer_id: selectedBookmark.customer_id || 1, // Use the customer ID from the bookmark
+        request_time: formatDateToMySQL(new Date()), // Current time
+        pickup_lat: selectedBookmark.pickup_lat, // Extract from bookmark
+        pickup_long: selectedBookmark.pickup_long, // Extract from bookmark
+        location_from: selectedBookmark.location_from, // Extract from bookmark
+        dropoff_lat: selectedBookmark.dropoff_lat, // Extract from bookmark
+        dropoff_long: selectedBookmark.dropoff_long, // Extract from bookmark
+        location_to: selectedBookmark.location_to, // Extract from bookmark
+        vahicle_type: selectedBookmark.vahicle_type, // Extract from bookmark
+        booking_time: formatDateToMySQL(new Date()), // Assuming immediate booking
+        customer_message: null, // Optional field
+      };
+  
+      console.log("Request data:", bookmark);
+
+      try {
+        const response = await fetch(
+          `http://${IP_ADDRESS}:3000/auth/add_request`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestData),
+          }
+        );
+  
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+  
+        const responseData = await response.json();
+        console.log("Response data:", responseData);
+  
+        if (responseData && responseData.request_id) {
+          Alert.alert(
+            "Request submitted successfully!",
+            "",
+            [
+              {
+                text: "OK",
+                onPress: () => {
+                  navigation.navigate("ChooseOffer", {
+                    request_id: responseData.request_id,
+
+                  } , setModalVisible(false));
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        } else {
+          alert("Request submitted, but no request ID was returned.");
+        }
+      } catch (error) {
+        console.error("Error submitting request:", error);
+        alert("Failed to submit the request. Please try again.");
+      }
+    };
+  
 
   const openModal = () => {
     setModalVisible(true);
@@ -389,8 +463,10 @@ export default function Order({ navigation }) {
   return (
     <PaperProvider>
       <View style={tw`flex-1 items-center`}>
+
         <View style={tw`flex-1 mt-2`}>
           {/* Subtitle */}
+           
           <Text style={[styles.globalText, tw`text-[grey]`]}>
             ต้องการให้รถสไลด์ไปส่งที่ไหน​ ?
           </Text>
@@ -470,7 +546,7 @@ export default function Order({ navigation }) {
                     style={tw`mb-2`}
                   />
                   <Text style={[styles.globalText, tw`text-lg`]}>
-                    {category ? category : "ประเภทของรถสไลด์"}
+                    {category ?  category : "ประเภทของรถสไลด์"}
                   </Text>
                 </TouchableOpacity>
               }
@@ -582,16 +658,16 @@ export default function Order({ navigation }) {
                   { height: height * 0.7 },
                 ]}
               >
-                <View style={tw`bg-white rounded-lg border border-[#60B876] p-4 my-3 w-7/12 self-center shadow-2xl`}>
+                <View style={tw`flex bg-white rounded-lg border border-[#60B876] p-4 w-7/12 shadow-2xl bg-[#60B876]`}>
 
                 <Text
-                  style={[styles.modalText, styles.globalText, tw`text-lg font-bold text-center text-gray-800 mb-2`]}
+                  style={[styles.modalText, styles.globalText, tw`text-xl font-bold  text-center text-white items-center`]}
                 >
                   รายการโปรด
                 </Text>
                 </View>
                 {loading ? (
-                  <Text style={tw`text-center`}>ไม่พบข้อมูล</Text>
+                  <Text style={[styles.globalText , tw`text-center`]}>ไม่พบข้อมูล</Text>
                 ) : (
                   
                   <FlatList
@@ -607,15 +683,16 @@ export default function Order({ navigation }) {
                       >
                         <TouchableOpacity
                           style={tw`flex  justify-between`}
-                          onPress={() =>
-                            console.log(
-                              item.address_id,
-                              item.save_name,
-                              item.vahicle_type,
-                              item.location_from,
-                              item.location_to
-                            )
-                          }
+                          // onPress={() =>
+                          //   console.log(
+                          //     item.address_id,
+                          //     item.save_name,
+                          //     item.vahicle_type,
+                          //     item.location_from,
+                          //     item.location_to
+                          //   )
+                          // }
+                          onPress={() => handleRequestFromBookmark(item) }
                         >
                           <View style={tw``}>
                             <Text
@@ -627,7 +704,7 @@ export default function Order({ navigation }) {
                               <Text
                                 style={[
                                   styles.globalText,
-                                  tw`text-base font-semibold`,
+                                  tw`text-sm font-semibold`,
                                 ]}
                               >
                                 Category :
@@ -640,7 +717,7 @@ export default function Order({ navigation }) {
                               <Text
                                 style={[
                                   styles.globalText,
-                                  tw`text-base font-semibold`,
+                                  tw`text-sm font-semibold`,
                                 ]}
                               >
                                 ต้นทาง :
@@ -653,7 +730,7 @@ export default function Order({ navigation }) {
                               <Text
                                 style={[
                                   styles.globalText,
-                                  tw`text-base font-semibold`,
+                                  tw`text-sm font-semibold`,
                                 ]}
                               >
                                 ปลายทาง :
@@ -700,8 +777,10 @@ export default function Order({ navigation }) {
               </TouchableOpacity>
             </View>
           </View>
+          
         </View>
       </View>
+      
     </PaperProvider>
   );
 }
