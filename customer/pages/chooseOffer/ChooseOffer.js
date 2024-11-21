@@ -51,19 +51,12 @@ const ChooseOffer = ({ navigation, route }) => {
     { label: "10 km", value: "10000" },
   ];
 
-  const { request_id } = route.params;
+  const { request_id , customer_id_request } = route.params;
 
-  // const originLocation = {
-  //   name: "Origin",
-  //   latitude: 13.855879586027092,
-  //   longitude: 100.58552751063581,
-  // };
-
-  // const destinationLocation = {
-  //   name: "Destination",
-  //   latitude: 13.875879586027092,
-  //   longitude: 100.58552751063581,
-  // };
+  useEffect(() => {
+    console.log("customer_id_request", customer_id_request);
+    console.log("request_id", request_id);
+  }, [route.params]);
 
   useEffect(() => {
     refreshPage(); // โหลดข้อมูลเมื่อคอมโพเนนต์ถูกสร้างครั้งแรก
@@ -213,10 +206,6 @@ const ChooseOffer = ({ navigation, route }) => {
       console.error("Error fetching data:", error);
     }
   };
-
-  useEffect(() => {
-    refreshPage();
-  }, []);
 
   const filterOffersByRadius = (offers, radius) => {
     const filteredOffers = offers.filter((item) => {
@@ -374,7 +363,7 @@ const ChooseOffer = ({ navigation, route }) => {
           </MapView>
         ) : (
           <View style={tw`flex-1 justify-center items-center`}>
-            <Text>Loading...</Text>
+            <Text>Loading Map...</Text>
           </View>
         )}
       </View>

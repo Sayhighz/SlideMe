@@ -329,7 +329,11 @@ export default function Order({ navigation }) {
             {
               text: "OK", 
               onPress: () => {
-                navigation.navigate("ChooseOffer", { request_id: responseData.request_id });
+                navigation.navigate("ChooseOffer", 
+                  { 
+                    request_id: responseData.request_id ,
+                    customer_id_request: responseData.customer_id
+                  });
               },
             },
           ],
@@ -513,8 +517,8 @@ export default function Order({ navigation }) {
             <View style={tw`flex items-center justify-center`}>
               <TouchableOpacity
                 style={tw`items-center justify-center mt-4 w-50 h-12 bg-[#60B876] rounded-full `}
-                // onPress={handleSubmitRequest}
                 onPress={handleSubmitRequest}
+                // onPress={() => navigation.navigate("ChooseOffer")}
               >
                 <Text
                   style={[

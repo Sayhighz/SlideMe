@@ -1,4 +1,4 @@
-import { Pressable, SafeAreaView, Text, View , StyleSheet } from "react-native";
+import { Pressable, SafeAreaView, Text, View, StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
@@ -10,7 +10,7 @@ import { useRoute } from "@react-navigation/native";
 import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
 import MapViewDirections from "react-native-maps-directions";
 import * as Location from "expo-location";
-import axios from 'axios';
+import axios from "axios";
 import { IP_ADDRESS } from "../../config";
 
 export default function ViewOrder({ navigation }) {
@@ -34,73 +34,75 @@ export default function ViewOrder({ navigation }) {
   const destinationLocation = route.params?.destinationLocation || "ไม่ระบุ";
 
   const driver_id = route.params?.driverProfile.chooseDriver.id || "ไม่ระบุ";
-  const customer_id_request = route.params?.driverProfile.chooseDriver.customer_id_request || "ไม่ระบุ";
+  const customer_id_request =
+    route.params?.driverProfile.chooseDriver.customer_id_request || "ไม่ระบุ";
 
   const formatDateToThaiTimezone = (dateString) => {
     const date = new Date(dateString);
-    const options = { 
-      timeZone: 'Asia/Bangkok', 
-      year: 'numeric', 
-      month: '2-digit', 
-      day: '2-digit', 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      second: '2-digit' 
+    const options = {
+      timeZone: "Asia/Bangkok",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     };
-    return new Intl.DateTimeFormat('th-TH', options).format(date);
+    return new Intl.DateTimeFormat("th-TH", options).format(date);
   };
-  
+
   const padNumber = (number, length) => {
-    return number.toString().padStart(length, '0');
+    return number.toString().padStart(length, "0");
   };
 
   useEffect(() => {
     console.log("driver_id:", driver_id);
     console.log("customer_id_request:", customer_id_request);
-  }, [driver_id,customer_id_request]);
+  }, [driver_id, customer_id_request]);
+
+  const fetchOrderDetails = async () => {
+    try {
+      const response = await axios.get(
+        `http://${IP_ADDRESS}:3000/auth/fetch_driver_info/${customer_id_request}/${driver_id}`
+      );
+
+      if (response.data.Status && response.data.Result.length > 0) {
+        const data = response.data.Result[0]; // Assuming you want the first result
+
+        // Set the state with fetched data
+        setOrigin({
+          name: data.location_from,
+          latitude: parseFloat(data.pickup_lat),
+          longitude: parseFloat(data.pickup_long),
+        });
+
+        setDestination({
+          name: data.location_to,
+          latitude: parseFloat(data.dropoff_lat),
+          longitude: parseFloat(data.dropoff_long),
+        });
+
+        setDriverInformation({
+          name: data.driver_first_name + " " + data.driver_last_name,
+          latitude: data.driver_latitude,
+          longitude: data.driver_longitude,
+          phone: data.driver_phone,
+          rating: data.average_rating.toFixed(1),
+        });
+
+        setTime(formatDateToThaiTimezone(data.booking_time));
+        setRequest(padNumber(data.request_id, 10));
+      } else {
+        console.error("No matching data found");
+      }
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+    }
+  };
 
   useEffect(() => {
-    // Define an async function to fetch data
-    const fetchOrderDetails = async () => {
-      try {
-        const response = await axios.get(`http://${IP_ADDRESS}:3000/auth/fetch_driver_info/${customer_id_request}/${driver_id}`);
-
-        if (response.data.Status && response.data.Result.length > 0) {
-          const data = response.data.Result[0]; // Assuming you want the first result
-  
-          // Set the state with fetched data
-          setOrigin({
-            name: data.location_from,
-            latitude: parseFloat(data.pickup_lat),
-            longitude: parseFloat(data.pickup_long),
-          });
-  
-          setDestination({
-            name: data.location_to,
-            latitude: parseFloat(data.dropoff_lat),
-            longitude: parseFloat(data.dropoff_long),
-          });
-  
-          setDriverInformation({
-            name: data.driver_name,
-            latitude: data.driver_latitude,
-            longitude: data.driver_longitude,
-            phone: data.driver_phone,
-            rating: (data.average_rating).toFixed(1),
-          });
-
-          setTime(formatDateToThaiTimezone(data.booking_time));
-          setRequest(padNumber(data.request_id, 10));
-
-        } else {
-          console.error('No matching data found');
-        }
-      } catch (error) {
-        console.error('Error fetching order details:', error);
-      }
-    };
-  
-    fetchOrderDetails(); // Call the function
+    // Initial fetch
+    fetchOrderDetails();
   }, []);
 
   return (
@@ -112,22 +114,40 @@ export default function ViewOrder({ navigation }) {
               <Text style={styles.globalText}>{time}</Text>
               <Text style={styles.globalText}>{request}</Text>
             </View>
-            <View
-              style={tw`flex-4 justify-around mx-4 px-4 bg-gray-200 rounded-lg`}
-            >
-              <View style={tw`flex-1 flex-row items-center`}>
+            <View style={tw`flex-4 justify-around mx-4 bg-gray-200 rounded-lg`}>
+              <View style={tw`flex-1 flex-row items-center w-full`}>
                 <MaterialIcons name="place" size={24} color="blue" />
-                <Text style={[styles.globalText , tw`items-center`]}>
+                <Text style={[styles.globalText, tw`items-center`]}>
                   คนขับ : {driverInformation.name}
                 </Text>
               </View>
-              <View style={tw`flex-1 flex-row items-center`}>
+              <View
+                style={tw`flex-1 flex-row items-center w-full`}
+                onTouchEnd={() => {
+                  console.log("ต้นทาง :",origin.name);
+                }}
+              >
                 <MaterialIcons name="place" size={24} color="red" />
-                <Text style={[styles.globalText , tw`items-center`]}>ต้นทาง : {origin.name}</Text>
+                <Text
+                  style={[styles.globalText, tw`items-center flex-1`]}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  ต้นทาง : {origin.name}
+                </Text>
               </View>
-              <View style={tw`flex-1 flex-row items-center`}>
+              <View
+                style={tw`flex-1 flex-row items-center w-full`}
+                onTouchEnd={() => {
+                  console.log("ปลายทาง :",destination.name);
+                }}
+              >
                 <MaterialIcons name="place" size={24} color="green" />
-                <Text style={[styles.globalText , tw`items-center`]}>
+                <Text
+                  style={[styles.globalText, tw`items-center flex-1`]}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
                   ปลายทาง : {destination.name}
                 </Text>
               </View>
@@ -211,11 +231,13 @@ export default function ViewOrder({ navigation }) {
             style={tw`flex-1 flex-row bg-gray-300 m-4 rounded-lg items-center px-4`}
           >
             <View style={tw`flex-8`}>
-              <Text style={[styles.globalText , tw`text-xl`]}>{driverInformation.name}</Text>
+              <Text style={[styles.globalText, tw`text-xl`]}>
+                {driverInformation.name}
+              </Text>
             </View>
             <View style={tw`flex-1 flex-row items-center justify-end`}>
               <MaterialIcons name="star" size={24} color="yellow" />
-              <Text style={[styles.globalText , tw`text-xl text-center`]}>
+              <Text style={[styles.globalText, tw`text-xl text-center`]}>
                 {driverInformation.rating}
               </Text>
             </View>
@@ -236,7 +258,7 @@ export default function ViewOrder({ navigation }) {
                 style={tw`flex-1 bg-gray-300 justify-center rounded-lg items-center w-1/3 mx-4`}
               >
                 <MaterialIcons name="chat" size={24} color="black" />
-                <Text styles={[styles.globalText , tw`text-xl`]}>ข้อความ</Text>
+                <Text styles={[styles.globalText, tw`text-xl`]}>ข้อความ</Text>
               </Pressable>
             </View>
             <View style={tw`flex-1 justify-center items-center`}>
@@ -247,7 +269,7 @@ export default function ViewOrder({ navigation }) {
                 }}
               >
                 <MaterialIcons name="close" size={24} color="red" />
-                <Text styles={[styles.globalText , tw`text-xl`]}>ยกเลิก</Text>
+                <Text styles={[styles.globalText, tw`text-xl`]}>ยกเลิก</Text>
               </Pressable>
             </View>
           </View>
@@ -257,9 +279,8 @@ export default function ViewOrder({ navigation }) {
   );
 }
 
-
 const styles = StyleSheet.create({
   globalText: {
-    fontFamily: 'Mitr-Regular'
+    fontFamily: "Mitr-Regular",
   },
 });
