@@ -21,6 +21,8 @@ import { IP_ADDRESS } from "../../config";
 import MapViewDirections from "react-native-maps-directions";
 
 const ChooseOffer = ({ navigation, route }) => {
+  const fee = 200;
+
   const [offer, setOffer] = useState([]);
 
   const [chooseDriver, setChooseDriver] = useState({});
@@ -435,7 +437,7 @@ const ChooseOffer = ({ navigation, route }) => {
                   style={[styles.globalText, tw` font-bold flex-3 text-center`]}
                 >
                   <Text style={tw`text-red-700`}>
-                    {item.price ? item.price : "-"}
+                    {item.price ? item.price + fee : "-"}
                   </Text>
                   {" บาท"}
                 </Text>
