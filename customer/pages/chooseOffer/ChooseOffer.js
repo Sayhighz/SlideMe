@@ -21,6 +21,8 @@ import { IP_ADDRESS } from "../../config";
 import MapViewDirections from "react-native-maps-directions";
 
 const ChooseOffer = ({ navigation, route }) => {
+  const fee = 200;
+
   const [offer, setOffer] = useState([]);
 
   const [chooseDriver, setChooseDriver] = useState({});
@@ -417,81 +419,57 @@ const ChooseOffer = ({ navigation, route }) => {
         </View>
         <View style={tw`flex-8 items-center `}>
           {!offerLoading ? (
-            <FlatList
-              data={filteredOffer}
-              keyExtractor={(item, index) => `${item.id}-${index}`}
-              renderItem={({ item }) => {
-                if (filteredOffer.length > 0) {
-                  return (
-                    <TouchableOpacity
-                      style={[
-                        tw`flex-row items-center p-2 my-2 rounded shadow w-full justify-between h-20`,
-                        chooseDriver.id === item.id
-                          ? tw`bg-[#60B876]`
-                          : tw`bg-white`,
-                      ]}
-                      onPress={() => {
-                        if (chooseDriver.id !== item.id) {
-                          setChooseDriver(item);
-                        } else {
-                          setOpenModal(true);
-                        }
-                      }}
-                    >
-                      <Text style={[styles.globalText, tw` font-bold flex-5`]}>
-                        {item.name}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.globalText,
-                          tw` font-bold flex-3 text-center`,
-                        ]}
-                      >
-                        <Text style={tw`text-red-700`}>
-                          {item.price ? item.price : "-"}
-                        </Text>
-                        {" บาท"}
-                      </Text>
-                      <View
-                        style={tw`flex-3 justify-around items-center h-full`}
-                      >
-                        <Text style={[styles.globalText, tw`font-bold`]}>
-                          <Text style={tw`text-red-700`}>
-                            {(item.distance / 1000).toFixed(2)}
-                            {" km"}
-                          </Text>
-                        </Text>
-                        <Text style={tw`font-bold `}>
-                          <Text style={tw`text-red-700`}>
-                            {item.durationText}
-                            {" นาที"}{" "}
-                          </Text>
-                        </Text>
-                      </View>
-                      <View
-                        style={tw`flex-2 flex-row justify-center items-center`}
-                      >
-                        <MaterialIcons name="star" size={24} color="yellow" />
-                        <Text
-                          style={[
-                            styles.globalText,
-                            tw` font-bold text-center`,
-                          ]}
-                        >
-                          {item.rating ? item.rating : "-"}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  );
-                } else {
-                  return (
-                    <View style={tw`flex-1 justify-center items-center`}>
-                      <Text style={tw`text-lg font-bold`}>ไม่พบข้อเสนอ</Text>
-                    </View>
-                  );
-                }
-              }}
-            />
+          <FlatList
+            data={filteredOffer}
+            keyExtractor={(item, index) => `${item.id}-${index}`}            
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={[
+                  tw`flex-row items-center p-2 my-2 rounded shadow w-full justify-between h-20`,
+                  chooseDriver.id === item.id ? tw`bg-[#60B876]` : tw`bg-white`,
+                ]}
+                onPress={() => {
+                  if (chooseDriver.id !== item.id) {
+                    setChooseDriver(item);
+                  } else {
+                    setOpenModal(true);
+                  }
+                }}
+              >
+                <Text style={[styles.globalText, tw` font-bold flex-5`]}>
+                  {item.name}
+                </Text>
+                <Text
+                  style={[styles.globalText, tw` font-bold flex-3 text-center`]}
+                >
+                  <Text style={tw`text-red-700`}>
+                    {item.price ? item.price + fee : "-"}
+                  </Text>
+                  {" บาท"}
+                </Text>
+                <View style={tw`flex-3 justify-around items-center h-full`}>
+                  <Text style={[styles.globalText, tw`font-bold`]}>
+                    <Text style={tw`text-red-700`}>
+                      {(item.distance / 1000).toFixed(2)}
+                      {" km"}
+                    </Text>
+                  </Text>
+                  <Text style={tw`font-bold `}>
+                    <Text style={tw`text-red-700`}>
+                      {item.durationText}
+                      {" นาที"}{" "}
+                    </Text>
+                  </Text>
+                </View>
+                <View style={tw`flex-2 flex-row justify-center items-center`}>
+                  <MaterialIcons name="star" size={24} color="yellow" />
+                  <Text style={[styles.globalText, tw` font-bold text-center`]}>
+                    {item.rating ? item.rating : "-"}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
           ) : (
             <View style={tw`flex-1 justify-center items-center`}>
               <ActivityIndicator size="large" color={"#000000"} />
