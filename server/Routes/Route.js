@@ -383,6 +383,11 @@ router.post("/customer/disable_bookmark", (req, res) => {
 
 router.get("/customer/getuserbookmarks", (req, res) => {
   const user_id = req.query.user_id || null;
+  console.log("Received user_id:", user_id); // Log the received user_id for debugging
+
+  if (!user_id) {
+    return res.status(400).json({ Status: false, Error: "user_id is required" });
+  }
   const sql = `
       SELECT
         address_id,
@@ -393,7 +398,7 @@ router.get("/customer/getuserbookmarks", (req, res) => {
         location_to,
         dropoff_lat,
         dropoff_long,
-        vehicle_type
+        vahicle_type
       FROM
         addresses
       WHERE
