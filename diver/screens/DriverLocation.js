@@ -1,13 +1,13 @@
-import React, { useEffect } from "react";
+import React , { useEffect, useRef, useState } from "react";
 // import Geolocation from "@react-native-community/geolocation";
 import { Alert } from "react-native";
 import { IP_ADDRESS } from "../config";
-// import * as Location from "expo-location";
+import * as Location from 'expo-location';
 
 export default function DriverLocation({ driver_id }) {
-  const [location, setLocation] = React.useState({});
+  const [location, setLocation] = useState({});
 
-  const locationWatcher = React.useRef(null);
+  const locationWatcher = useRef(null);
 
   const updateLocation = async () => {
     try {
@@ -44,11 +44,11 @@ export default function DriverLocation({ driver_id }) {
         }
       );
     } catch (error) {
-      // Alert.alert(
-      //   "Error Fetching Location",
-      //   "เกิดข้อผิดพลาดในการดึงข้อมูลตำแหน่งของคุณ กรุณาลองอีกครั้ง"
-      // );
-      // console.warn("Error fetching location", error);
+      Alert.alert(
+        "Error Fetching Location",
+        "เกิดข้อผิดพลาดในการดึงข้อมูลตำแหน่งของคุณ กรุณาลองอีกครั้ง"
+      );
+      console.warn("Error fetching location", error);
     }
   };
 
@@ -96,16 +96,22 @@ export default function DriverLocation({ driver_id }) {
     };
   }, []);
 
-  // เรียกใช้ updateLocation ทุก ๆ 10 วินาที
-  locationInterval = setInterval(() => {
-    updateLocation();
-  }, 10000);
-
-  return () => {
-    if (locationInterval) {
-      clearInterval(locationInterval);
+  useEffect(() => {
+    if (location) {
+      updateLocationToDB(location);
     }
-  };
+  }, [location]);
 
-  return null; // ไม่มี UI สำหรับ component นี้
+  useEffect(() => {
+    updateLocation();
+
+    return () => {
+      if (locationWatcher.current) {
+        locationWatcher.current.remove();
+        console.log("Location watcher removed");
+      }
+    };
+  }, []);
+
+  return null;
 }
