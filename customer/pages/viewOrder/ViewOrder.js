@@ -116,7 +116,7 @@ export default function ViewOrder({ navigation }) {
             </View>
             <View style={tw`flex-4 justify-around mx-4 bg-gray-200 rounded-lg`}>
               <View style={tw`flex-1 flex-row items-center w-full`}>
-                <MaterialIcons name="place" size={24} color="blue" />
+                <MaterialIcons name="location-pin" size={24} color="blue" />
                 <Text style={[styles.globalText, tw`items-center`]}>
                   คนขับ : {driverInformation.name}
                 </Text>
@@ -127,7 +127,7 @@ export default function ViewOrder({ navigation }) {
                   console.log("ต้นทาง :", origin.name);
                 }}
               >
-                <MaterialIcons name="place" size={24} color="red" />
+                <MaterialIcons name="location-pin" size={24} color="red" />
                 <Text
                   style={[styles.globalText, tw`items-center flex-1`]}
                   numberOfLines={1}
@@ -142,7 +142,7 @@ export default function ViewOrder({ navigation }) {
                   console.log("ปลายทาง :", destination.name);
                 }}
               >
-                <MaterialIcons name="place" size={24} color="green" />
+                <MaterialIcons name="location-pin" size={24} color="green" />
                 <Text
                   style={[styles.globalText, tw`items-center flex-1`]}
                   numberOfLines={1}
