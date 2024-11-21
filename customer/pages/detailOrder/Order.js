@@ -57,6 +57,7 @@ export default function Order({ navigation , bookmark}) {
       const data = await response.json();
       if (data.Status) {
         setBookmarks(data.Result);
+        console.log("Bookmarks:", data.Result);
       } else {
         console.error(data.Error);
       }
