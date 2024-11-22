@@ -65,7 +65,7 @@ export default function ViewOrder({ navigation }) {
   const fetchOrderDetails = async () => {
     try {
       const response = await axios.get(
-        `http://${IP_ADDRESS}:3000/auth/fetch_driver_info/${customer_id_request}/${driver_id}/${route.params.request_id}`
+        `http://${IP_ADDRESS}:3000/auth/fetch_driver_info/${customer_id_request}/${driver_id}/${route.params.driverProfile.request_id}`
       );
 
       if (response.data.Status && response.data.Result.length > 0) {

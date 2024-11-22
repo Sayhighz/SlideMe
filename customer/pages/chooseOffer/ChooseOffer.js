@@ -9,10 +9,10 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import tw from "twrnc";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, Animated } from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
 import { Dropdown } from "react-native-element-dropdown";
 import axios from "axios";
@@ -258,6 +258,25 @@ const ChooseOffer = ({ navigation, route }) => {
     return await Promise.all(promises);
   };
 
+  const animatedValue = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(animatedValue, {
+          toValue: 150, // ระยะทางในแกน X
+          duration: 2000, // ความเร็ว (1 วินาที)
+          useNativeDriver: true,
+        }),
+        // Animated.timing(animatedValue, {
+        //   toValue: -50, // ย้อนกลับไปในทิศตรงข้าม
+        //   duration: 2000,
+        //   useNativeDriver: true,
+        // }),
+      ])
+    ).start(); // เริ่มแอนิเมชัน
+  }, [animatedValue]);
+
   return (
     <SafeAreaView style={tw`flex-1`}>
       <Modal transparent={true} visible={openModal}>
@@ -499,8 +518,15 @@ const ChooseOffer = ({ navigation, route }) => {
               )}
             />
           ) : (
-            <View style={tw`flex-1 justify-center items-center`}>
-              <ActivityIndicator size="large" color={"#000000"} />
+            <View style={tw`flex-1 justify-center items-center w-1/2`}>
+              <Animated.View
+                style={StyleSheet.flatten([
+                  tw`w-full`, // ใช้ tw
+                  { transform: [{ translateX: animatedValue }] }, // ใช้แอนิเมชัน
+                ])}
+              >
+                <MaterialIcons name="local-shipping" size={35} color="gray" />
+              </Animated.View>
               <Text style={tw`text-lg font-bold mt-5`}>กําลังรอคนขับ...</Text>
             </View>
           )}
