@@ -151,6 +151,7 @@ const AppContent = () => {
   };
 
   return (
+    
     <NavigationContainer>
       {isLoggedIn ? (
         <Tab.Navigator

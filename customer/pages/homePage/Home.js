@@ -62,7 +62,7 @@ function Home({ navigation }) {
         <View style={tw`relative w-full items-center`}>
 
         <Text style={tw`text-xl font-bold mt-4`}>
-        Welcome {userData?.username || "User"}{userData?.user_id} !
+        Welcome {userData?.username || "User"} !
       </Text>
           <TouchableOpacity
             style={tw`mt-3`}

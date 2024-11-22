@@ -153,7 +153,7 @@ export default function App() {
 
   // Handle user login action
   const handleLogin = (user) => {
-    Alert.alert("สำเร็จ", "เข้าสู่ระบบสำเร็จ");
+    // Alert.alert("สำเร็จ", "เข้าสู่ระบบสำเร็จ");
     setUserDataNa({
       profile_picture: user.profile_picture || "photos-1732037296004-612856125.jpeg",
       first_name: user.first_name,
