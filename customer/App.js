@@ -1,9 +1,9 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { ActivityIndicator, View } from "react-native";
 import { useFonts } from "expo-font";
 
-import { UserProvider, UserContext } from "./UserContext";
+import { UserProvider } from "./UserContext";
 import {
   BorderlessButton,
   gestureHandlerRootHOC,
@@ -132,7 +132,6 @@ function AuthStack({ onLogin }) {
 }
 
 const AppContent = () => {
-  const { setUserData } = useContext(UserContext); // Now UserContext is accessible here
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [fontsLoaded] = useFonts({
@@ -149,8 +148,6 @@ const AppContent = () => {
 
   const handleLogin = () => {
     setIsLoggedIn(true);
-    //fetch ข้อมูลตรงนี้ แล้วก็ setซะ
-    setUserData({ user_id: 5, username: "new_user" }); // Set user data on login
   };
 
   return (

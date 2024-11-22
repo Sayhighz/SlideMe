@@ -823,10 +823,10 @@ router.get("/validate_customer", (req, res) => {
   });
 });
 
-router.get("/fetch_driver_info/:customer_id/:driver_id", (req, res) => {
-  const { customer_id, driver_id } = req.params; // Extract from URL
+router.get("/fetch_driver_info/:customer_id/:driver_id/:request_id", (req, res) => {
+  const { customer_id, driver_id, request_id } = req.params; // Extract from URL
 
-  if (!customer_id || !driver_id) {
+  if (!customer_id || !driver_id || !request_id) {
     return res
       .status(400)
       .json({ Status: false, Message: "Invalid parameters" });
@@ -856,7 +856,7 @@ router.get("/fetch_driver_info/:customer_id/:driver_id", (req, res) => {
     INNER JOIN users u ON do.driver_id = u.user_id
     LEFT JOIN reviews r ON u.user_id = r.driver_id
     INNER JOIN driverdetails d ON do.driver_id = d.driver_id
-    WHERE sr.customer_id = ? AND do.driver_id = ? AND do.offer_status = 'accepted' AND sr.status = 'accepted'
+    WHERE sr.customer_id = ? AND do.driver_id = ? AND sr.request_id = ? AND do.offer_status = 'accepted' AND sr.status = 'accepted'
     GROUP BY 
       sr.request_id, sr.pickup_lat, sr.pickup_long, sr.location_from, 
       sr.dropoff_lat, sr.dropoff_long, sr.location_to, 
@@ -864,7 +864,7 @@ router.get("/fetch_driver_info/:customer_id/:driver_id", (req, res) => {
       d.current_latitude, d.current_longitude;
   `;
 
-  con.query(sql, [customer_id, driver_id], (err, result) => {
+  con.query(sql, [customer_id, driver_id, request_id], (err, result) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
@@ -1243,5 +1243,56 @@ router.post("/driver/update_location", (req, res) => {
     }
   );
 });
+
+router.get('/driveroffers', (req, res) => {
+  const { request_id, driver_id } = req.query;
+
+  const sql = `
+    SELECT * 
+    FROM driveroffers 
+    WHERE request_id = ? 
+      AND offer_status = 'pending';
+  `;
+
+  con.query(sql, [request_id], (error, results) => {
+    if (error) {
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      res.status(200).json({ success: true, data: results });
+    }
+  });
+});
+
+router.get("/driver-location/:driver_id", (req, res) => {
+  const { driver_id } = req.params;
+
+  if (!driver_id) {
+    return res.status(400).json({ success: false, message: "Driver ID required" });
+  }
+
+  const query = `
+    SELECT current_latitude, current_longitude 
+    FROM driverdetails 
+    WHERE driver_id = ?;
+  `;
+
+  con.query(query, [driver_id], (err, results) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Database error: " + err.message });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ success: false, message: "Driver not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: results[0],
+    });
+  });
+});
+
 
 export { router as adminRouter };

@@ -33,7 +33,7 @@ export default function PaymentPage({ navigation }) {
 
   const route = useRoute();
 
-  const {  userData } = useContext(UserContext);
+  const { userData } = useContext(UserContext);
 
   const driverId = route.params?.chooseDriver.id || "ไม่ระบุ";
   const driverName = route.params?.chooseDriver.name || "ไม่ระบุ";
@@ -49,7 +49,7 @@ export default function PaymentPage({ navigation }) {
     const fetchPaymentMethods = async () => {
       try {
         const response = await axios.get(
-          `http://${IP_ADDRESS}:3000/auth/get_payments_method?user_id=${customer_id_request}` // Pass the customer_id_request as user_id
+          `http://${IP_ADDRESS}:3000/auth/get_payments_method?user_id=${userData.user_id}` // Pass the customer_id_request as user_id
         );
         setPaymentMethods(response.data.Result); // Assuming the response data is in the expected format
       } catch (error) {

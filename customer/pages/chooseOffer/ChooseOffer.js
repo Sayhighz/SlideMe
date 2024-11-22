@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useEffect, useState , useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import tw from "twrnc";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
@@ -20,7 +20,6 @@ import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
 import { IP_ADDRESS } from "../../config";
 import MapViewDirections from "react-native-maps-directions";
 import { UserContext } from "../../UserContext";
-
 
 const ChooseOffer = ({ navigation, route }) => {
   const fee = 200;
@@ -36,6 +35,8 @@ const ChooseOffer = ({ navigation, route }) => {
   const [radiusInMeters, setRadiusInMeters] = useState(5000);
 
   const [offerLoading, setOfferLoading] = useState(true);
+
+  const [fetchDataLoading, setFetchDataLoading] = useState(false);
 
   const [originLocation, setOriginLocation] = useState({
     name: "",
@@ -55,7 +56,7 @@ const ChooseOffer = ({ navigation, route }) => {
     { label: "10 km", value: "10000" },
   ];
 
-  const {  userData } = useContext(UserContext);
+  const { userData } = useContext(UserContext);
   const { request_id } = route.params;
 
   useEffect(() => {
@@ -164,7 +165,20 @@ const ChooseOffer = ({ navigation, route }) => {
     }
   };
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshPage();
+    }, 5000); // Poll every 5 seconds
+
+    return () => clearInterval(interval); // Cleanup on component unmount
+  }, [fetchDataLoading]);
+
+  useEffect(() => {
+    refreshPage();
+  }, []);
+
   const refreshPage = async () => {
+    if (fetchDataLoading) return;
     try {
       const response = await fetch(
         `http://${IP_ADDRESS}:3000/auth/drivers/chooseoffer?request_id=${request_id}`
@@ -204,6 +218,7 @@ const ChooseOffer = ({ navigation, route }) => {
           }));
           setOffer(drivers);
           setOfferLoading(false);
+          setFetchDataLoading(true);
         }
       }
     } catch (error) {
@@ -250,28 +265,41 @@ const ChooseOffer = ({ navigation, route }) => {
           <View style={tw`bg-gray-200 w-4/5 h-1/3 flex rounded-lg p-3`}>
             <View style={tw`flex-2`}>
               <View style={tw`flex-1 justify-between`}>
-                <Text style={[styles.globalText, tw`text-lg font-bold`]}>
-                  ข้อมูลคนขับ :
+                <Text
+                  style={[styles.globalText, tw`text-lg font-bold text-center`]}
+                >
+                  ข้อมูลคนขับ
                 </Text>
-                <Text style={[styles.globalText, tw`text-lg font-bold`]}>
-                  {"ชื่อ : "}
-                  <Text style={tw`text-lg text-green-700`}>
-                    {chooseDriver.name}
+                <View style={tw`flex-1`}>
+                  <Text style={[styles.globalText, tw`text-lg font-bold`]}>
+                    {"ชื่อ : "}
+                    <Text style={tw`text-lg text-green-700`}>
+                      {chooseDriver.name}
+                    </Text>
                   </Text>
-                </Text>
-                <Text style={[styles.globalText, tw`text-lg font-bold`]}>
-                  {"ราคา : "}
-                  <Text style={tw`text-lg text-red-700`}>
-                    {chooseDriver.price !== null ? chooseDriver.price + fee : "-"}
-                    {" บาท"}
+                </View>
+                <View style={tw`flex-1`}>
+                  <Text style={[styles.globalText, tw`text-lg font-bold`]}>
+                    {"ราคา : "}
+                    <Text style={tw`text-lg text-red-700`}>
+                      {chooseDriver.price !== null
+                        ? chooseDriver.price + fee
+                        : "-"}
+                      {" บาท"}
+                    </Text>
                   </Text>
-                </Text>
-                <Text style={[styles.globalText, tw`text-lg font-bold`]}>
-                  {"คะแนน : "}
-                  <Text style={tw`text-lg text-green-700`}>
-                    {chooseDriver.rating || "-"}
+                </View>
+                <View style={tw`flex-1 justify-center`}>
+                  <Text style={[styles.globalText, tw`text-lg font-bold`]}>
+                    {"คะแนน : "}
+                    <View>
+                      <MaterialIcons name="star" size={24} color="yellow" />
+                    </View>
+                    <Text style={tw`text-lg text-green-700 flex-1`}>
+                      {chooseDriver.rating || "-"}
+                    </Text>
                   </Text>
-                </Text>
+                </View>
               </View>
             </View>
             <View style={tw`flex-1 flex-row justify-around items-center`}>
@@ -288,7 +316,7 @@ const ChooseOffer = ({ navigation, route }) => {
                 onPress={() => {
                   navigation.navigate("payment", {
                     chooseDriver: chooseDriver,
-
+                    request_id: request_id,
                     // originLocation: originLocation,
                     // destinationLocation: destinationLocation,
                   }),
@@ -324,7 +352,7 @@ const ChooseOffer = ({ navigation, route }) => {
               <MaterialIcons
                 name="location-pin"
                 size={35}
-                color="blue"
+                color="red"
                 style={tw`ml-2`}
               />
             </Marker>
@@ -340,7 +368,7 @@ const ChooseOffer = ({ navigation, route }) => {
               <MaterialIcons
                 name="location-pin"
                 size={35}
-                color="blue"
+                color="green"
                 style={tw`ml-2`}
               />
             </Marker>
@@ -356,12 +384,11 @@ const ChooseOffer = ({ navigation, route }) => {
                 description={`ราคา: ${item.price + fee} บาท`}
               >
                 <MaterialIcons
-                  name="location-pin"
+                  name="local-shipping"
                   size={35}
-                  color={chooseDriver.id === item.id ? "green" : "red"}
+                  color={chooseDriver.id === item.id ? "#1d4ed8" : "gray"}
                   style={tw`ml-2`}
                 />
-                {}
               </Marker>
             ))}
 
@@ -371,7 +398,6 @@ const ChooseOffer = ({ navigation, route }) => {
               fillColor="rgba(255, 0, 0, 0.1)"
               strokeColor="transparent"
             />
-
           </MapView>
         ) : (
           <View style={tw`flex-1 justify-center items-center`}>
@@ -379,7 +405,7 @@ const ChooseOffer = ({ navigation, route }) => {
           </View>
         )}
       </View>
-      
+
       <View style={tw`flex-2 p-4`}>
         <View style={tw`flex-1 flex-row`}>
           <View style={tw`flex-1 justify-center`}>
@@ -412,57 +438,66 @@ const ChooseOffer = ({ navigation, route }) => {
         </View>
         <View style={tw`flex-8 items-center `}>
           {!offerLoading ? (
-          <FlatList
-            data={filteredOffer}
-            keyExtractor={(item, index) => `${item.id}-${index}`}            
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={[
-                  tw`flex-row items-center p-2 my-2 rounded shadow w-full justify-between h-20`,
-                  chooseDriver.id === item.id ? tw`bg-[#60B876]` : tw`bg-white`,
-                ]}
-                onPress={() => {
-                  if (chooseDriver.id !== item.id) {
-                    setChooseDriver(item);
-                  } else {
-                    setOpenModal(true);
-                  }
-                }}
-              >
-                <Text style={[styles.globalText, tw` font-bold flex-5`]}>
-                  {item.name}
-                </Text>
-                <Text
-                  style={[styles.globalText, tw` font-bold flex-3 text-center`]}
+            <FlatList
+              data={filteredOffer}
+              keyExtractor={(item, index) => `${item.id}-${index}`}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[
+                    tw`flex-row items-center p-2 my-2 rounded shadow w-full justify-between h-20`,
+                    chooseDriver.id === item.id
+                      ? tw`bg-[#60B876]`
+                      : tw`bg-white`,
+                  ]}
+                  onPress={() => {
+                    if (chooseDriver.id !== item.id) {
+                      setChooseDriver(item);
+                    } else {
+                      setOpenModal(true);
+                    }
+                  }}
                 >
-                  <Text style={tw`text-red-700`}>
-                    {item.price !== null ? item.price + fee : "-"}
+                  <Text style={[styles.globalText, tw` font-bold flex-5`]}>
+                    {item.name}
                   </Text>
-                  {" บาท"}
-                </Text>
-                <View style={tw`flex-3 justify-around items-center h-full`}>
-                  <Text style={[styles.globalText, tw`font-bold`]}>
+                  <Text
+                    style={[
+                      styles.globalText,
+                      tw` font-bold flex-3 text-center`,
+                    ]}
+                  >
                     <Text style={tw`text-red-700`}>
-                      {(item.distance / 1000).toFixed(2)}
-                      {" km"}
+                      {item.price ? item.price + fee : "-"}
                     </Text>
+                    {" บาท"}
                   </Text>
-                  <Text style={tw`font-bold `}>
-                    <Text style={tw`text-red-700`}>
-                      {item.durationText}
-                      {" นาที"}{" "}
+                  <View style={tw`flex-3 justify-around items-center h-full`}>
+                    <Text style={[styles.globalText, tw`font-bold`]}>
+                      <Text style={tw`text-red-700`}>
+                        {item.distance
+                          ? (item.distance / 1000).toFixed(2)
+                          : "-"}
+                        {" km"}
+                      </Text>
                     </Text>
-                  </Text>
-                </View>
-                <View style={tw`flex-2 flex-row justify-center items-center`}>
-                  <MaterialIcons name="star" size={24} color="yellow" />
-                  <Text style={[styles.globalText, tw` font-bold text-center`]}>
-                    {item.rating ? item.rating : "-"}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
-          />
+                    <Text style={tw`font-bold `}>
+                      <Text style={tw`text-red-700`}>
+                        {item.durationText}
+                        {" นาที"}{" "}
+                      </Text>
+                    </Text>
+                  </View>
+                  <View style={tw`flex-2 flex-row justify-center items-center`}>
+                    <MaterialIcons name="star" size={24} color="yellow" />
+                    <Text
+                      style={[styles.globalText, tw` font-bold text-center`]}
+                    >
+                      {item.rating ? item.rating : "-"}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            />
           ) : (
             <View style={tw`flex-1 justify-center items-center`}>
               <ActivityIndicator size="large" color={"#000000"} />

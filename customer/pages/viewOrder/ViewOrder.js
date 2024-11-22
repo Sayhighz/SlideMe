@@ -21,6 +21,8 @@ export default function ViewOrder({ navigation }) {
 
   const [driverInformation, setDriverInformation] = useState({});
 
+  const [driverLocation, setDriverLocation] = useState({});
+
   const [confirmFromDriver, setConfirmFromDriver] = useState(false);
 
   const [myLocation, setMyLocation] = useState({});
@@ -63,7 +65,7 @@ export default function ViewOrder({ navigation }) {
   const fetchOrderDetails = async () => {
     try {
       const response = await axios.get(
-        `http://${IP_ADDRESS}:3000/auth/fetch_driver_info/${customer_id_request}/${driver_id}`
+        `http://${IP_ADDRESS}:3000/auth/fetch_driver_info/${customer_id_request}/${driver_id}/${route.params.request_id}`
       );
 
       if (response.data.Status && response.data.Result.length > 0) {
@@ -104,6 +106,34 @@ export default function ViewOrder({ navigation }) {
     // Initial fetch
     fetchOrderDetails();
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      getDriverLocation();
+    }, 5000); // Fetch every 5 seconds
+
+    return () => clearInterval(interval); // Cleanup interval on unmount
+  }, []);
+
+  const getDriverLocation = async () => {
+    try {
+      const response = await axios.get(
+        `http://${IP_ADDRESS}:3000/auth/driver-location/${driver_id}`
+      );
+
+      if (response.data.success) {
+        setDriverLocation({
+          latitude: response.data.data.current_latitude,
+          longitude: response.data.data.current_longitude,
+        });
+        console.log("Driver location fetched:", response.data.data);
+      } else {
+        console.error("Failed to fetch driver location:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching driver location:", error);
+    }
+  };
 
   return (
     <SafeAreaView style={tw`flex-1 relative `}>
@@ -191,7 +221,7 @@ export default function ViewOrder({ navigation }) {
                 </Marker>
 
                 <Marker
-                  coordinate={driverInformation}
+                  coordinate={driverLocation}
                   title="driverLocation"
                   description="driverLocation"
                 >
