@@ -3,11 +3,15 @@ import { View, Text, TouchableOpacity , StyleSheet , Dimensions} from 'react-nat
 import tw from 'twrnc'
 import { Ionicons } from '@expo/vector-icons'
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { UserContext } from '../../UserContext';
 
 
 const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
+
+
+
 const UserProfile = ({ navigation }) => {
   return (
     <SafeAreaView style={[tw`flex-1 p-1 bg-gray-100`]}>
