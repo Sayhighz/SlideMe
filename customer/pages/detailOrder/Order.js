@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -24,9 +24,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { UserContext } from "../../UserContext";
 
 dayjs.locale("th");
-export default function Order({ navigation , bookmark}) {
-
-
+export default function Order({ navigation, bookmark }) {
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState(new Date());
   const [formattedDate, setFormattedDate] = useState("");
@@ -43,12 +41,16 @@ export default function Order({ navigation , bookmark}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(false);
-  const {  userData } = useContext(UserContext);
+  const { userData } = useContext(UserContext);
 
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
-  const userId = 1;
+  const userId = userData?.user_id;
+
+  useEffect(() => {
+    console.log("userId:", userId);
+  }, []);
 
   const fetchBookmarks = async () => {
     setLoading(true);
@@ -69,77 +71,77 @@ export default function Order({ navigation , bookmark}) {
     setLoading(false);
   };
 
+  const handleRequestFromBookmark = async (selectedBookmark) => {
+    // Prepare the request payload using bookmark data
 
-  
-    const handleRequestFromBookmark = async (selectedBookmark) => {
-      // Prepare the request payload using bookmark data
+    if (!confirmOrigin) {
+      alert("Pickup location is missing. Please select a pickup location.");
+      return;
+    }
 
-      if (!confirmOrigin) {
-        alert("Pickup location is missing. Please select a pickup location.");
-        return;
-      }
-
-      const requestData = {
-        customer_id: selectedBookmark.customer_id || 1, // Use the customer ID from the bookmark
-        request_time: formatDateToMySQL(new Date()), // Current time
-        pickup_lat: selectedBookmark.pickup_lat, // Extract from bookmark
-        pickup_long: selectedBookmark.pickup_long, // Extract from bookmark
-        location_from: selectedBookmark.location_from, // Extract from bookmark
-        dropoff_lat: selectedBookmark.dropoff_lat, // Extract from bookmark
-        dropoff_long: selectedBookmark.dropoff_long, // Extract from bookmark
-        location_to: selectedBookmark.location_to, // Extract from bookmark
-        vahicle_type: selectedBookmark.vahicle_type, // Extract from bookmark
-        booking_time: formatDateToMySQL(new Date()), // Assuming immediate booking
-        customer_message: null, // Optional field
-      };
-  
-      console.log("Request data:", bookmark);
-
-      try {
-        const response = await fetch(
-          `http://${IP_ADDRESS}:3000/auth/add_request`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(requestData),
-          }
-        );
-  
-        if (!response.ok) {
-          throw new Error(`Server error: ${response.status}`);
-        }
-  
-        const responseData = await response.json();
-        console.log("Response data:", responseData);
-  
-        if (responseData && responseData.request_id) {
-          Alert.alert(
-            "Request submitted successfully!",
-            "",
-            [
-              {
-                text: "OK",
-                onPress: () => {
-                  navigation.navigate("ChooseOffer", {
-                    request_id: responseData.request_id,
-
-                  } , setModalVisible(false));
-                },
-              },
-            ],
-            { cancelable: false }
-          );
-        } else {
-          alert("Request submitted, but no request ID was returned.");
-        }
-      } catch (error) {
-        console.error("Error submitting request:", error);
-        alert("Failed to submit the request. Please try again.");
-      }
+    const requestData = {
+      customer_id: userId, // Use the customer ID from the bookmark
+      request_time: formatDateToMySQL(new Date()), // Current time
+      pickup_lat: selectedBookmark.pickup_lat, // Extract from bookmark
+      pickup_long: selectedBookmark.pickup_long, // Extract from bookmark
+      location_from: selectedBookmark.location_from, // Extract from bookmark
+      dropoff_lat: selectedBookmark.dropoff_lat, // Extract from bookmark
+      dropoff_long: selectedBookmark.dropoff_long, // Extract from bookmark
+      location_to: selectedBookmark.location_to, // Extract from bookmark
+      vahicle_type: selectedBookmark.vahicle_type, // Extract from bookmark
+      booking_time: formatDateToMySQL(new Date()), // Assuming immediate booking
+      customer_message: null, // Optional field
     };
-  
+
+    console.log("Request data:", requestData);
+
+    try {
+      const response = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/add_request`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      console.log("Response data:", responseData);
+
+      if (responseData && responseData.request_id) {
+        Alert.alert(
+          "Request submitted successfully!",
+          "",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                navigation.navigate(
+                  "ChooseOffer",
+                  {
+                    request_id: responseData.request_id,
+                  },
+                  setModalVisible(false)
+                );
+              },
+            },
+          ],
+          { cancelable: false }
+        );
+      } else {
+        alert("Request submitted, but no request ID was returned.");
+      }
+    } catch (error) {
+      console.error("Error submitting request:", error);
+      alert("Failed to submit the request. Please try again.");
+    }
+  };
 
   const openModal = () => {
     setModalVisible(true);
@@ -253,6 +255,7 @@ export default function Order({ navigation , bookmark}) {
       </Modal>
     );
   };
+
   const renderAndroidDatePicker = () => {
     return (
       <Modal visible={showModal} transparent={true} animationType="slide">
@@ -399,7 +402,7 @@ export default function Order({ navigation , bookmark}) {
 
     // Construct the request data object
     const requestData = {
-      customer_id: 1, // Replace with the appropriate customer ID
+      customer_id: userId, // Replace with the appropriate customer ID
       request_time: formatDateToMySQL(new Date()), // Replace with actual selection
       pickup_lat: origin.latitude, // Replace with actual latitude
       pickup_long: origin.longitude, // Replace with actual longitude
@@ -443,6 +446,7 @@ export default function Order({ navigation , bookmark}) {
               onPress: () => {
                 navigation.navigate("ChooseOffer", {
                   request_id: responseData.request_id,
+                  customer_id_request: responseData.customer_id, //add by night
                 });
               },
             },
@@ -466,10 +470,9 @@ export default function Order({ navigation , bookmark}) {
   return (
     <PaperProvider>
       <View style={tw`flex-1 items-center`}>
-
         <View style={tw`flex-1 mt-2`}>
           {/* Subtitle */}
-           
+
           <Text style={[styles.globalText, tw`text-[grey]`]}>
             ต้องการให้รถสไลด์ไปส่งที่ไหน​ ?
           </Text>
@@ -482,20 +485,22 @@ export default function Order({ navigation , bookmark}) {
           >
             <View style={[tw`flex-row px-4`]}>
               <MaterialIcons name="place" size={24} color="red" />
-              <Text style={styles.globalText}>
-                ต้นทาง :{" "}
-                {confirmOrigin.length > 25
-                  ? confirmOrigin.slice(0, 25) + "..."
-                  : confirmOrigin}
+              <Text
+                style={styles.globalText}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                ต้นทาง : {confirmOrigin}
               </Text>
             </View>
             <View style={tw`flex-row px-4`}>
               <MaterialIcons name="place" size={24} color="green" />
-              <Text style={styles.globalText}>
-                ปลายทาง :{" "}
-                {confirmDestination.length > 25
-                  ? confirmDestination.slice(0, 25) + "..."
-                  : confirmDestination}
+              <Text
+                style={styles.globalText}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                ปลายทาง : {confirmDestination}
               </Text>
             </View>
           </TouchableOpacity>
@@ -549,7 +554,7 @@ export default function Order({ navigation , bookmark}) {
                     style={tw`mb-2`}
                   />
                   <Text style={[styles.globalText, tw`text-lg`]}>
-                    {category ?  category : "ประเภทของรถสไลด์"}
+                    {category ? category : "ประเภทของรถสไลด์"}
                   </Text>
                 </TouchableOpacity>
               }
@@ -652,7 +657,6 @@ export default function Order({ navigation , bookmark}) {
             visible={modalVisible}
             onRequestClose={() => setModalVisible(false)} // Close modal on back press
           >
-            
             <View style={styles.modalOverlay}>
               <View
                 style={[
@@ -661,18 +665,24 @@ export default function Order({ navigation , bookmark}) {
                   { height: height * 0.7 },
                 ]}
               >
-                <View style={tw`flex bg-white rounded-lg border border-[#60B876] p-4 w-7/12 shadow-2xl bg-[#60B876]`}>
-
-                <Text
-                  style={[styles.modalText, styles.globalText, tw`text-xl font-bold  text-center text-white items-center`]}
+                <View
+                  style={tw`flex bg-white rounded-lg border border-[#60B876] p-4 w-7/12 shadow-2xl bg-[#60B876]`}
                 >
-                  รายการโปรด
-                </Text>
+                  <Text
+                    style={[
+                      styles.modalText,
+                      styles.globalText,
+                      tw`text-xl font-bold  text-center text-white items-center`,
+                    ]}
+                  >
+                    รายการโปรด
+                  </Text>
                 </View>
                 {loading ? (
-                  <Text style={[styles.globalText , tw`text-center`]}>ไม่พบข้อมูล</Text>
+                  <Text style={[styles.globalText, tw`text-center`]}>
+                    ไม่พบข้อมูล
+                  </Text>
                 ) : (
-                  
                   <FlatList
                     data={bookmarks}
                     keyExtractor={(item) => item.address_id.toString()}
@@ -695,11 +705,14 @@ export default function Order({ navigation , bookmark}) {
                           //     item.location_to
                           //   )
                           // }
-                          onPress={() => handleRequestFromBookmark(item) }
+                          onPress={() => handleRequestFromBookmark(item)}
                         >
                           <View style={tw``}>
                             <Text
-                              style={[tw`text-base font-semibold text-center `, styles.globalText]}
+                              style={[
+                                tw`text-base font-semibold text-center `,
+                                styles.globalText,
+                              ]}
                             >
                               {item.save_name}
                             </Text>
@@ -712,7 +725,9 @@ export default function Order({ navigation , bookmark}) {
                               >
                                 Category :
                               </Text>
-                              <Text style={[styles.globalText, tw`text-gray-500`]}>
+                              <Text
+                                style={[styles.globalText, tw`text-gray-500`]}
+                              >
                                 {truncateText(item.vahicle_type)}
                               </Text>
                             </View>
@@ -725,7 +740,9 @@ export default function Order({ navigation , bookmark}) {
                               >
                                 ต้นทาง :
                               </Text>
-                              <Text style={[styles.globalText, tw`text-gray-500`]}>
+                              <Text
+                                style={[styles.globalText, tw`text-gray-500`]}
+                              >
                                 {truncateText(item.location_from)}
                               </Text>
                             </View>
@@ -738,7 +755,9 @@ export default function Order({ navigation , bookmark}) {
                               >
                                 ปลายทาง :
                               </Text>
-                              <Text style={[styles.globalText, tw`text-gray-500`]}>
+                              <Text
+                                style={[styles.globalText, tw`text-gray-500`]}
+                              >
                                 {truncateText(item.location_to)}
                               </Text>
                             </View>
@@ -746,8 +765,7 @@ export default function Order({ navigation , bookmark}) {
                         </TouchableOpacity>
                       </View>
                     )}
-                    />
-                    
+                  />
                 )}
                 <TouchableOpacity
                   onPress={closeModal}
@@ -766,8 +784,8 @@ export default function Order({ navigation , bookmark}) {
             <View style={tw`flex items-center justify-center`}>
               <TouchableOpacity
                 style={tw`items-center justify-center mt-4 w-50 h-12 bg-[#60B876] rounded-full `}
-                // onPress={handleSubmitRequest}
                 onPress={handleSubmitRequest}
+                // onPress={() => navigation.navigate("ChooseOffer")}
               >
                 <Text
                   style={[
@@ -780,10 +798,8 @@ export default function Order({ navigation , bookmark}) {
               </TouchableOpacity>
             </View>
           </View>
-          
         </View>
       </View>
-      
     </PaperProvider>
   );
 }
