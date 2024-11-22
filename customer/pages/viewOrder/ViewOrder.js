@@ -31,13 +31,19 @@ export default function ViewOrder({ navigation }) {
 
   const [time, setTime] = useState("");
 
+  const [status, setStatus] = useState(null);
+
   const driverProfile = route.params?.driverProfile.chooseDriver || "ไม่ระบุ";
   const originLocation = route.params?.originLocation || "ไม่ระบุ";
   const destinationLocation = route.params?.destinationLocation || "ไม่ระบุ";
 
   const driver_id = route.params?.driverProfile.chooseDriver.id || "ไม่ระบุ";
-  const customer_id_request =
-    route.params?.driverProfile.chooseDriver.customer_id_request || "ไม่ระบุ";
+  const customer_id_request = route.params?.driverProfile.chooseDriver.customer_id_request || "ไม่ระบุ";
+  const request_id = route.params?.driverProfile.chooseDriver.request_id || "ไม่ระบุ";
+
+  useEffect(() => {
+    console.log("route.params:", route.params.driverProfile);
+  }, [route.params]);
 
   const formatDateToThaiTimezone = (dateString) => {
     const date = new Date(dateString);
@@ -102,23 +108,39 @@ export default function ViewOrder({ navigation }) {
     }
   };
 
-  useEffect(() => {
-    // Initial fetch
-    fetchOrderDetails();
-  }, []);
+  const checkOrderStatus = async () => {
+    try {
+      const response = await axios.get(
+        `http://${IP_ADDRESS}:3000/auth/checkStatusOrder/${request_id}`
+      );
+  
+      if (response.data && response.data.status) {
+        setStatus(response.data.status);
+  
+        // ถ้า status เป็น "completed" ให้ navigate ไปยังหน้าถัดไป
+        if (response.data.status === "completed") {
+          navigation.navigate("Rating", { requestId: request_id });
+        }
+      } else {
+        console.error("No status found for the given request_id.");
+      }
+    } catch (error) {
+      console.error("Error fetching order status:", error);
+    }
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
-      getDriverLocation();
-    }, 5000); // Fetch every 5 seconds
-
-    return () => clearInterval(interval); // Cleanup interval on unmount
+      checkOrderStatus(); // เรียกฟังก์ชัน API
+    }, 5000); // อัปเดตทุก 5 วินาที
+  
+    return () => clearInterval(interval); // ล้าง interval เมื่อ component ถูกทำลาย
   }, []);
 
   const getDriverLocation = async () => {
     try {
       const response = await axios.get(
-        `http://${IP_ADDRESS}:3000/auth/driver-location/${driver_id}`
+        `http://${IP_ADDRESS}:3000/auth/driverlocation/${driver_id}`
       );
 
       if (response.data.success) {
@@ -134,6 +156,19 @@ export default function ViewOrder({ navigation }) {
       console.error("Error fetching driver location:", error);
     }
   };
+
+  useEffect(() => {
+    // Initial fetch
+    fetchOrderDetails();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      getDriverLocation();
+    }, 5000); // Fetch every 5 seconds
+
+    return () => clearInterval(interval); // Cleanup interval on unmount
+  }, []);
 
   return (
     <SafeAreaView style={tw`flex-1 relative `}>
@@ -314,7 +349,9 @@ export default function ViewOrder({ navigation }) {
               <Pressable
                 style={tw`flex-1 bg-gray-300 justify-center rounded-lg items-center w-1/3`}
                 onPress={() => {
-                  navigation.navigate("Rating");
+                  navigation.navigate("Rating",{
+                    requestId: request_id
+                  });
                 }}
               >
                 <MaterialIcons name="close" size={24} color="red" />

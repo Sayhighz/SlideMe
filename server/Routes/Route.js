@@ -1263,7 +1263,7 @@ router.get('/driveroffers', (req, res) => {
   });
 });
 
-router.get("/driver-location/:driver_id", (req, res) => {
+router.get("/driverlocation/:driver_id", (req, res) => {
   const { driver_id } = req.params;
 
   if (!driver_id) {
@@ -1291,6 +1291,21 @@ router.get("/driver-location/:driver_id", (req, res) => {
       success: true,
       data: results[0],
     });
+  });
+});
+
+router.get("/checkStatusOrder/:request_id", (req, res) => {
+  const requestId = req.params.request_id;
+  const query = `SELECT status FROM servicerequests WHERE request_id = ?`;
+
+  con.query(query, [requestId], (err, result) => {
+    if (err) {
+      res.status(500).send("Database error");
+    } else if (result.length > 0) {
+      res.status(200).json({ status: result[0].status });
+    } else {
+      res.status(404).json({ message: "Request not found" });
+    }
   });
 });
 

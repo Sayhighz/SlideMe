@@ -15,14 +15,16 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 
 import tw from "twrnc";
+import { useRoute } from "@react-navigation/native";
 
 const Rating = ({ navigation }) => {
+  const route = useRoute();
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serviceData, setServiceData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const requestId = "60"; // Replace with dynamic request ID if needed.
+  const requestId = route.params.requestId;
   const inputRef = useRef(null);
 
   const { width, height } = Dimensions.get("window");
@@ -61,6 +63,7 @@ const Rating = ({ navigation }) => {
           `http://${IP_ADDRESS}:3000/auth/customer/getServiceInfo?request_id=${requestId}`
         );
         const data = await response.json();
+        console.log("Service data:", data);
         setServiceData(data.Result[0]); // Assuming data is an array with one object
       } finally {
         setLoading(false);
