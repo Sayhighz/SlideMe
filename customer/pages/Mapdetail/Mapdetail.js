@@ -1,4 +1,4 @@
-import React from "react";
+import React  , { useContext } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
-
+import { UserContext } from "../../UserContext";
 import { useRoute } from "@react-navigation/native";
 
 const locations = [
@@ -65,6 +65,7 @@ export default function Mapdetail({ navigation }) {
   const destination = route.params?.destination || <Text style={styles.globalText}>ไม่ระบุ</Text>;
   const confirmOrigin = route.params?.confirmOrigin || <Text style={styles.globalText}>ไม่ระบุ</Text>;
   const confirmDestination = route.params?.confirmDestination || <Text style={styles.globalText}>ไม่ระบุ</Text>;
+  const {  userData } = useContext(UserContext);
 
   return (
 

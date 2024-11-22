@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState , useContext } from "react";
 import tw from "twrnc";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
@@ -19,6 +19,8 @@ import axios from "axios";
 import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
 import { IP_ADDRESS } from "../../config";
 import MapViewDirections from "react-native-maps-directions";
+import { UserContext } from "../../UserContext";
+
 
 const ChooseOffer = ({ navigation, route }) => {
   const fee = 200;
@@ -53,7 +55,8 @@ const ChooseOffer = ({ navigation, route }) => {
     { label: "10 km", value: "10000" },
   ];
 
-  const { request_id, customer_id_request } = route.params;
+  const {  userData } = useContext(UserContext);
+  const { request_id } = route.params;
 
   useEffect(() => {
     console.log("customer_id_request", customer_id_request);

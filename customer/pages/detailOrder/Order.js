@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   Text,
@@ -21,6 +21,7 @@ import { TextInput, Menu, Provider } from "react-native-paper";
 import { Provider as PaperProvider } from "react-native-paper";
 import { IP_ADDRESS } from "../../config";
 import { ScrollView } from "react-native-gesture-handler";
+import { UserContext } from "../../UserContext";
 
 dayjs.locale("th");
 export default function Order({ navigation , bookmark}) {
@@ -42,6 +43,7 @@ export default function Order({ navigation , bookmark}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(false);
+  const {  userData } = useContext(UserContext);
 
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
@@ -57,6 +59,7 @@ export default function Order({ navigation , bookmark}) {
       const data = await response.json();
       if (data.Status) {
         setBookmarks(data.Result);
+        console.log("Bookmarks:", data.Result);
       } else {
         console.error(data.Error);
       }

@@ -1,18 +1,40 @@
-
-import React, { useState } from 'react';
-import { View, Text, TextInput, Alert, TouchableOpacity , StyleSheet } from 'react-native';
-import StarRating from 'react-native-star-rating-widget';
+import React, { useState, useEffect , useRef } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Alert,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  Dimensions,
+} from "react-native";
+import StarRating from "react-native-star-rating-widget";
 import { IP_ADDRESS } from "../../config";
+import { MaterialIcons } from "@expo/vector-icons";
 
 
-import tw from 'twrnc';
-
-
+import tw from "twrnc";
 
 const Rating = ({ navigation }) => {
   const [rating, setRating] = useState(0);
-  const [review, setReview] = useState('');
+  const [review, setReview] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serviceData, setServiceData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const requestId = "60"; // Replace with dynamic request ID if needed.
+  const inputRef = useRef(null);
+
+  const { width, height } = Dimensions.get("window");
+  const responsiveWidth = width * 0.9;
+  const responsiveHeight = height * 0.2;
+
+  useEffect(() => {
+    // Automatically focus the TextInput when the component mounts
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   const getRatingText = (rating) => {
     switch (rating) {
@@ -31,74 +53,130 @@ const Rating = ({ navigation }) => {
     }
   };
 
+  useEffect(() => {
+    // Fetch data from the API
+    const fetchServiceInfo = async () => {
+      try {
+        const response = await fetch(
+          `http://${IP_ADDRESS}:3000/auth/customer/getServiceInfo?request_id=${requestId}`
+        );
+        const data = await response.json();
+        setServiceData(data.Result[0]); // Assuming data is an array with one object
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServiceInfo();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={tw`flex-1 justify-center items-center`}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
   const handleSubmitReview = async () => {
-    if (!review.trim() || rating === 0) {
-      Alert.alert('Error', 'Please provide a rating and a review')
-      
+    if (rating === 0) {
+      Alert.alert("Error", "Please provide a rating and a review");
+
       return;
     }
 
     setIsSubmitting(true);
 
     const newReview = {
-    //   request_id: '12345', // Replace with actual request_id as needed
-    //   customer_id: '67890', // Replace with actual customer_id as needed
-    //   driver_id: '54321', // Replace with actual driver_id as needed
+      //   request_id: '12345', // Replace with actual request_id as needed
+      //   customer_id: '67890', // Replace with actual customer_id as needed
+      //   driver_id: '54321', // Replace with actual driver_id as needed
       rating: rating,
       review_text: review.trim(),
     };
 
     try {
-      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/add_reviews`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newReview),
-      });
-    // Simulate sending review to database
-    console.log('Submitted Review:', newReview); // Replace this with your database call
-    // Alert.alert('Success', 'Thank you for your review!', [
-    //     {text: 'OK', onPress: () => navigation.navigate("HomePage")},
-    //   ] , {cancelable: false});
+      const response = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/add_reviews`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newReview),
+        }
+      );
+      // Simulate sending review to database
+      console.log("Submitted Review:", newReview); // Replace this with your database call
+    
 
       const result = await response.json();
 
       if (result.Status) {
-        Alert.alert('Success', 'Thank you for your review!'
-        , [
-          {text: 'OK', onPress: () => navigation.navigate("HomePage")},
-        ] , {cancelable: false});
-        setReview('');
+        Alert.alert(
+          "Success",
+          "Thank you for your review!",
+          [{ text: "OK", onPress: () => navigation.navigate("HomePage") }],
+          { cancelable: false }
+        );
+        setReview("");
         setRating(0);
       } else {
-        Alert.alert('Error', `Failed to submit review: ${result.Error}`);
+        Alert.alert("Error", `Failed to submit review: ${result.Error}`);
       }
     } catch (error) {
-      Alert.alert('Error', `Something went wrong: ${error.message}`);
+      Alert.alert("Error", `Something went wrong: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const truncateText = (text, maxLength = 22) => {
+    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+  };
+
   return (
     <View style={tw`flex-1 p-4 items-center`}>
       <Text style={tw`text-2xl mb-2 mt-2 text-center`}>Rate and Review</Text>
-      <View style={tw`flex-col bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md w-90 h-25`} />
-      <Text style={[styles.globalText , tw`text-3xl mb-1 mt-5 text-center`]}>
+      <View
+        style={[
+          tw`flex bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md `,
+        ]}
+      >
+        <Text style={styles.globalText}>{`คนขับ: ${truncateText(
+          serviceData.first_name
+        )} ${truncateText(serviceData.last_name)}`}</Text>
+        <Text style={styles.globalText}>{`คะแนน: ${
+          serviceData.average_rating?.toFixed(1) 
+        }`}<MaterialIcons name="star" size={17} color="orange" /></Text>
+        <Text style={styles.globalText}>
+          {`ราคา: ${serviceData.price}`} บาท
+        </Text>
+        <Text style={[styles.globalText]}>
+          <MaterialIcons name="location-on" size={17} color="red" />
+          {`ต้นทาง: ${truncateText(serviceData.location_from)}`}
+        </Text>
+        <Text style={styles.globalText}>
+          <MaterialIcons name="location-on" size={17} color="green" />
+          {`ปลายทาง: ${truncateText(serviceData.location_to)}`}
+        </Text>
+      </View>
+      <Text style={[styles.globalText, tw`text-3xl mb-1 mt-5 text-center pt-2`]}>
         {getRatingText(rating)}
       </Text>
       <StarRating
         rating={rating}
         onChange={setRating}
         starSize={40}
-        color="#f1c40f" // Optional: Customize color
+        color="orange" // Optional: Customize color
         emptyColor="#d4d4d4" // Optional: Customize empty star color
         enableHalfStar={false}
-        
       />
       <TextInput
-        style={[styles.globalText, tw`border border-gray-300 rounded p-2 w-full mb-4 mt-2 h-20`]}
+        style={[
+          styles.globalText,
+          tw`border border-gray-300 rounded p-2 w-full mb-4 mt-2 h-20`,
+        ]}
         placeholder="Write your review here..."
         value={review}
         onChangeText={setReview}
@@ -110,10 +188,12 @@ const Rating = ({ navigation }) => {
         <TouchableOpacity
           onPress={handleSubmitReview}
           disabled={isSubmitting}
-          style={tw`bg-${isSubmitting ? 'gray-400' : 'green-600'} text-white rounded-full p-2`}
+          style={tw`bg-${
+            isSubmitting ? "gray-400" : "green-600"
+          } text-white rounded-full p-2`}
         >
-          <Text style={[styles.globalText ,tw`text-center text-white text-xl`]}>
-            {isSubmitting ? 'Submitting...' : 'ส่งรีวิว'}
+          <Text style={[styles.globalText, tw`text-center text-white text-xl`]}>
+            {isSubmitting ? "Submitting..." : "ส่งรีวิว"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -122,13 +202,9 @@ const Rating = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    globalText: {
-      fontFamily: 'Mitr-Regular',
-    },
-  });
+  globalText: {
+    fontFamily: "Mitr-Regular",
+  },
+});
 
 export default Rating;
-
-
-
-

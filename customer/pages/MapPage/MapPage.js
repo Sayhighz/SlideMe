@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState , useContext } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text, View, Pressable, Modal, StyleSheet } from "react-native";
 
@@ -12,6 +12,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 import axios from "axios";
+import { UserContext } from "../../UserContext";
 
 const MapPage = ({ navigation }) => {
   const route = useRoute();
@@ -26,6 +27,8 @@ const MapPage = ({ navigation }) => {
   const [confirmDestination, setConfirmDestination] = useState([]);
 
   const [openModal, setOpenModal] = useState(false);
+  const { userData } = useContext(UserContext);
+
 
   //ระบุสถานที่
   const getAddressFromCoords = async (latitude, longitude) => {
