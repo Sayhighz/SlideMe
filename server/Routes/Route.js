@@ -6,6 +6,8 @@ import path from "path";
 import fs from "fs"; // Added fs import
 
 const router = express.Router();
+const uploadsDir = path.resolve("uploads");
+router.use("/uploads", express.static(uploadsDir));
 
 // Configure multer storage settings
 const storage = multer.diskStorage({
@@ -27,7 +29,28 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// API to handle multiple image uploads
+router.get("/fetch_image", (req, res) => {
+  const { filename } = req.query;
+
+  if (!filename) {
+    return res
+      .status(400)
+      .json({ Status: false, Error: "Filename is required" });
+  }
+
+  const filePath = path.join(uploadsDir, filename);
+
+  // Check if the file exists
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      return res.status(404).json({ Status: false, Error: "File not found" });
+    }
+
+    // Serve the file
+    res.sendFile(filePath);
+  });
+});
+
 router.post("/upload_before_service", upload.array("photos", 4), (req, res) => {
   console.log("Request Body:", req.body);
   console.log("Uploaded Files:", req.files);
@@ -248,23 +271,53 @@ router.post("/add_reviews", (req, res) => {
   });
 });
 
-router.post("/add_address", (req, res) => {
+router.get("/getRequests", (req, res) => {
   const sql = `
-      INSERT INTO addresses (
-        user_id,
-        address_name,
-        address_detail,
-        latitude,
-        longitude
-    ) VALUES (?, ?, ?, ?, ?)
-    `;
+          select
+            s.request_id,
+              s.pickup_lat,
+              s.pickup_long,
+              s.location_from,
+              s.dropoff_lat,
+              s.dropoff_long,
+              s.location_to,
+              s.booking_time,
+              s.vehicle_type,
+              s.customer_message
+          FROM servicerequests s
+          WHERE s.status = 'pending';
+        `;
+  con.query(sql, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
+
+router.post("/customer/add_bookmark", (req, res) => {
+  const sql = `
+  INSERT INTO addresses (
+    user_id,
+    save_name,
+    location_from,
+    pickup_lat,
+    pickup_long,
+    location_to,
+    dropoff_lat,  
+    dropoff_long,
+    vahicle_type
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+`;
 
   const values = [
     req.body.user_id,
-    req.body.address_name,
-    req.body.address_detail,
-    req.body.latitude,
-    req.body.longitude,
+    req.body.save_name,
+    req.body.location_from,
+    req.body.pickup_lat,
+    req.body.pickup_long,
+    req.body.location_to,
+    req.body.dropoff_lat,
+    req.body.dropoff_long,
+    req.body.vahicle_type,
   ];
 
   con.query(sql, values, (err, result) => {
@@ -273,22 +326,30 @@ router.post("/add_address", (req, res) => {
   });
 });
 
-router.post("/update_address", (req, res) => {
+router.post("/customer/edit_address", (req, res) => {
   const sql = `
           UPDATE addresses 
           SET 
-            address_name = ?, 
-            address_detail = ?, 
-            latitude = ?, 
-            longitude = ?
+            save_name = ?, 
+            location_from = ?,
+            pickup_lat = ?,
+            pickup_long = ?,
+            location_to = ?,
+            dropoff_lat = ?, 
+            dropoff_long = ?,
+            vahicle_type = ?
           WHERE address_id = ?
         `;
 
   const values = [
-    req.body.address_name,
-    req.body.address_detail,
-    req.body.latitude,
-    req.body.longitude,
+    req.body.save_name,
+    req.body.location_from,
+    req.body.pickup_lat,
+    req.body.pickup_long,
+    req.body.location_to,
+    req.body.dropoff_lat,
+    req.body.dropoff_long,
+    req.body.vahicle_type,
     req.body.address_id,
   ];
 
@@ -298,6 +359,55 @@ router.post("/update_address", (req, res) => {
       Status: true,
       AffectedRows: result.affectedRows,
     });
+  });
+});
+
+router.post("/customer/disable_bookmark", (req, res) => {
+  const sql = `
+          UPDATE addresses 
+          SET 
+            is_deleted = 1
+          WHERE address_id = ?
+        `;
+
+  const values = [req.body.address_id];
+
+  con.query(sql, values, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({
+      Status: true,
+      AffectedRows: result.affectedRows,
+    });
+  });
+});
+
+router.get("/customer/getuserbookmarks", (req, res) => {
+  const user_id = req.query.user_id || null;
+  console.log("Received user_id:", user_id); // Log the received user_id for debugging
+
+  if (!user_id) {
+    return res.status(400).json({ Status: false, Error: "user_id is required" });
+  }
+  const sql = `
+      SELECT
+        address_id,
+        save_name,
+        location_from,
+        pickup_lat,
+        pickup_long,
+        location_to,
+        dropoff_lat,
+        dropoff_long,
+        vahicle_type
+      FROM
+        addresses
+      WHERE
+        user_id = ?
+        and is_deleted = 0;
+    `;
+  con.query(sql, [user_id], (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
   });
 });
 
@@ -655,12 +765,10 @@ router.get("/drivers/chooseoffer", (req, res) => {
             PickupDropoffInfo: locationResult[0],
           });
         } else {
-          return res
-            .status(404)
-            .json({
-              Status: false,
-              Message: "No drivers or location data found",
-            });
+          return res.status(404).json({
+            Status: false,
+            Message: "No drivers or location data found",
+          });
         }
       });
 
@@ -850,22 +958,32 @@ router.post("/driver/reject_all_offers", (req, res) => {
 });
 
 router.post("/register_driver", (req, res) => {
-  const { 
-    phone_number, 
-    email, 
-    username, 
-    first_name, 
-    last_name, 
-    password, 
-    id_number, 
-    birth_date, 
-    id_expiry_date, 
-    license_plate 
+  const {
+    phone_number,
+    email,
+    username,
+    first_name,
+    last_name,
+    password,
+    id_number,
+    birth_date,
+    id_expiry_date,
+    license_plate,
   } = req.body;
 
   // Validation for required fields
-  if (!phone_number || !password || !id_number || !birth_date || !id_expiry_date || !license_plate) {
-    return res.json({ Status: false, Error: "All required fields must be filled" });
+  if (
+    !phone_number ||
+    !password ||
+    !id_number ||
+    !birth_date ||
+    !id_expiry_date ||
+    !license_plate
+  ) {
+    return res.json({
+      Status: false,
+      Error: "All required fields must be filled",
+    });
   }
 
   // Hash password (use bcrypt or similar library)
@@ -900,7 +1018,7 @@ router.post("/register_driver", (req, res) => {
     id_number,
     birth_date,
     id_expiry_date,
-    license_plate
+    license_plate,
   ];
 
   con.query(sql, values, (err, result) => {
@@ -913,49 +1031,179 @@ router.post("/login", (req, res) => {
   const { phone_number, password } = req.body;
 
   if (!phone_number || !password) {
-      return res.status(400).json({ Status: false, Error: "กรุณาใส่เบอร์โทรศัพท์และรหัสผ่าน" });
+    return res
+      .status(400)
+      .json({ Status: false, Error: "กรุณาใส่เบอร์โทรศัพท์และรหัสผ่าน" });
   }
 
   const sql = "SELECT * FROM users WHERE phone_number = ?";
   con.query(sql, [phone_number], (err, results) => {
-      if (err) {
-          return res.status(500).json({ Status: false, Error: "Database error" });
-      }
+    if (err) {
+      return res.status(500).json({ Status: false, Error: "Database error" });
+    }
 
-      if (results.length === 0) {
-          return res.status(401).json({ Status: false, Error: "เบอร์โทรหรือรหัสผ่านผิด" });
-      }
+    if (results.length === 0) {
+      return res
+        .status(401)
+        .json({ Status: false, Error: "เบอร์โทรหรือรหัสผ่านผิด" });
+    }
 
-      const user = results[0];
+    const user = results[0];
 
-      // ตรวจสอบรหัสผ่าน
-      if (user.password !== password) {
-          return res.status(401).json({ Status: false, Error: "เบอร์โทรหรือรหัสผ่านผิด" });
-      }
+    // ตรวจสอบรหัสผ่าน
+    if (user.password !== password) {
+      return res
+        .status(401)
+        .json({ Status: false, Error: "เบอร์โทรหรือรหัสผ่านผิด" });
+    }
 
-      // สร้าง JWT Token
-      const token = jwt.sign(
-          { user_id: user.user_id, role: user.role },
-          "YOUR_SECRET_KEY",
-          { expiresIn: "1h" }
-      );
+    // สร้าง JWT Token
+    const token = jwt.sign(
+      { user_id: user.user_id, role: user.role },
+      "YOUR_SECRET_KEY",
+      { expiresIn: "1h" }
+    );
 
-      // ส่งข้อมูลผู้ใช้กลับไป
-      return res.json({
-          Status: true,
-          Message: "เข้าสู่ระบบสำเร็จ",
-          Token: token,
-          User: {
-              user_id: user.user_id,
-              role: user.role,
-              first_name: user.first_name,
-              last_name: user.last_name,
-          }
-      });
+    // ส่งข้อมูลผู้ใช้กลับไป
+    return res.json({
+      Status: true,
+      Message: "เข้าสู่ระบบสำเร็จ",
+      Token: token,
+      User: {
+        user_id: user.user_id,
+        role: user.role,
+        first_name: user.first_name,
+        last_name: user.last_name,
+      },
+    });
   });
 });
 
+router.get("/customer/getServiceInfo", (req, res) => {
+  const request_id = req.query.request_id || null;
+  const sql = `
+   SELECT 
+        u.first_name,
+        u.last_name,
+        AVG(r.rating) AS average_rating,
+        sr.price_offer as price,
+        sr.location_from,
+        sr.pickup_lat,
+        sr.pickup_long,
+        sr.location_to,
+        sr.dropoff_lat,
+        sr.dropoff_long
+    FROM
+        servicerequests sr
+    INNER JOIN users u 
+        ON sr.accepted_driver_id = u.user_id
+    LEFT JOIN reviews r 
+        ON u.user_id = r.driver_id
+    WHERE
+        sr.request_id = ?
+    GROUP BY
+        sr.request_id,
+        u.first_name,
+        u.last_name,
+        sr.price_offer,
+        sr.pickup_lat,
+        sr.pickup_long,
+        sr.location_from,
+        sr.dropoff_lat,
+        sr.dropoff_long,
+        sr.location_to;
 
+  `;
+  con.query(sql, [request_id], (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
 
+router.get("/driver/getinfo", (req, res) => {
+  const driver_id = req.query.driver_id;
+  const sql = `
+          select
+            u.first_name,
+            u.last_name,
+            u.phone_number,
+            d.license_plate,
+            d.driver_license_expiration
+          from
+            users u
+          left join driverdetails d on
+            d.driver_id = u.user_id
+          where d.driver_id = ?
+        `;
+  con.query(sql, [driver_id], (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
+
+router.post("/driver/edit_profile", (req, res) => {
+  const sql = `
+          UPDATE driverdetails
+          SET 
+            driver_license_expiration = ?
+          WHERE driver_id = ?
+        `;
+
+  const { driver_id, driver_license_expiration } = req.body;
+
+  con.query(sql, [driver_license_expiration, driver_id], (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({
+      Status: true,
+      AffectedRows: result.affectedRows,
+    });
+  });
+});
+
+router.post("/driver/cancel_request", (req, res) => {
+  const request_id = req.body.request_id;
+
+  const sql = `
+          UPDATE servicerequests AS sr
+          JOIN driveroffers AS dof ON sr.request_id = dof.request_id
+          SET sr.status = 'cancelled',
+              dof.offer_status = 'rejected'
+          WHERE sr.request_id = ?;
+        `;
+
+  con.query(sql, [request_id], (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({
+      Status: true,
+      AffectedRows: result.affectedRows,
+    });
+  });
+});
+
+router.post("/driver/update_location", (req, res) => {
+  const { driver_id, current_latitude, current_longitude } = req.body;
+
+  const sql = `
+          update
+            driverdetails
+          set
+            current_latitude = ?,
+            current_longitude = ?
+          where
+            driver_id = ?
+        `;
+
+  con.query(
+    sql,
+    [current_latitude, current_longitude, driver_id],
+    (err, result) => {
+      if (err) return res.json({ Status: false, Error: err.message });
+      return res.json({
+        Status: true,
+        AffectedRows: result.affectedRows,
+      });
+    }
+  );
+});
 
 export { router as adminRouter };

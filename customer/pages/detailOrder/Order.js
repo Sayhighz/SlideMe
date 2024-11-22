@@ -8,6 +8,7 @@ import {
   Platform,
   Alert,
   Dimensions,
+  FlatList,
 } from "react-native";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import dayjs from "dayjs";
@@ -19,9 +20,12 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { TextInput, Menu, Provider } from "react-native-paper";
 import { Provider as PaperProvider } from "react-native-paper";
 import { IP_ADDRESS } from "../../config";
+import { ScrollView } from "react-native-gesture-handler";
 
 dayjs.locale("th");
-export default function Order({ navigation }) {
+export default function Order({ navigation , bookmark}) {
+
+
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState(new Date());
   const [formattedDate, setFormattedDate] = useState("");
@@ -35,12 +39,114 @@ export default function Order({ navigation }) {
   const [preMoreDetail, setPreMoreDetail] = useState("");
   const [category, setCategory] = useState("");
   const [menuVisible, setMenuVisible] = useState(false); // แสดงตัวเลือกรถ
+  const [modalVisible, setModalVisible] = useState(false);
+  const [bookmarks, setBookmarks] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
+  const userId = 1;
+
+  const fetchBookmarks = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/customer/getuserbookmarks?user_id=${userId}`
+      );
+      const data = await response.json();
+      if (data.Status) {
+        setBookmarks(data.Result);
+      } else {
+        console.error(data.Error);
+      }
+    } catch (error) {
+      console.error("Error fetching bookmarks:", error.message);
+    }
+    setLoading(false);
+  };
+
 
   
+    const handleRequestFromBookmark = async (selectedBookmark) => {
+      // Prepare the request payload using bookmark data
+
+      if (!confirmOrigin) {
+        alert("Pickup location is missing. Please select a pickup location.");
+        return;
+      }
+
+      const requestData = {
+        customer_id: selectedBookmark.customer_id || 1, // Use the customer ID from the bookmark
+        request_time: formatDateToMySQL(new Date()), // Current time
+        pickup_lat: selectedBookmark.pickup_lat, // Extract from bookmark
+        pickup_long: selectedBookmark.pickup_long, // Extract from bookmark
+        location_from: selectedBookmark.location_from, // Extract from bookmark
+        dropoff_lat: selectedBookmark.dropoff_lat, // Extract from bookmark
+        dropoff_long: selectedBookmark.dropoff_long, // Extract from bookmark
+        location_to: selectedBookmark.location_to, // Extract from bookmark
+        vahicle_type: selectedBookmark.vahicle_type, // Extract from bookmark
+        booking_time: formatDateToMySQL(new Date()), // Assuming immediate booking
+        customer_message: null, // Optional field
+      };
+  
+      console.log("Request data:", bookmark);
+
+      try {
+        const response = await fetch(
+          `http://${IP_ADDRESS}:3000/auth/add_request`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestData),
+          }
+        );
+  
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+  
+        const responseData = await response.json();
+        console.log("Response data:", responseData);
+  
+        if (responseData && responseData.request_id) {
+          Alert.alert(
+            "Request submitted successfully!",
+            "",
+            [
+              {
+                text: "OK",
+                onPress: () => {
+                  navigation.navigate("ChooseOffer", {
+                    request_id: responseData.request_id,
+
+                  } , setModalVisible(false));
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        } else {
+          alert("Request submitted, but no request ID was returned.");
+        }
+      } catch (error) {
+        console.error("Error submitting request:", error);
+        alert("Failed to submit the request. Please try again.");
+      }
+    };
+  
+
+  const openModal = () => {
+    setModalVisible(true);
+    fetchBookmarks();
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
   const toggleDatePicker = () => {
     setShowPicker(!showPicker);
   };
@@ -85,20 +191,26 @@ export default function Order({ navigation }) {
             tw`flex-1 justify-center items-center bg-[rgba(0,0,0,0.90)] `,
           ]}
         >
-          <View style={[tw`flex p-4 rounded-lg `, { maxWidth: width * 0.9 , height: height * 0.7}]}>
+          <View
+            style={[
+              tw`flex p-4 rounded-lg `,
+              { maxWidth: width * 0.9, height: height * 0.7 },
+            ]}
+          >
             {/* DateTimePicker */}
             <View
               style={[
-                {height: responsiveHeight},
-                tw`flex-row justify-center items-center`
-              ]}>
+                { height: responsiveHeight },
+                tw`flex-row justify-center items-center`,
+              ]}
+            >
               <DateTimePicker
                 mode="datetime"
                 display="calendar"
                 value={date}
                 onChange={onChange}
                 locale="th"
-                style={[{ height: responsiveHeight } , tw`text-white`]}
+                style={[{ height: responsiveHeight }, tw`text-white`]}
                 minimumDate={new Date()}
                 maximumDate={new Date("2024-12-31")}
                 textColor="white"
@@ -106,7 +218,7 @@ export default function Order({ navigation }) {
             </View>
 
             {/* Buttons */}
-            
+
             <View style={[tw`flex-row mt-4 gap-4 `]}>
               <TouchableOpacity
                 onPress={() => {
@@ -133,10 +245,6 @@ export default function Order({ navigation }) {
                 </Text>
               </TouchableOpacity>
             </View>
-             
-          
-
-
           </View>
         </View>
       </Modal>
@@ -278,14 +386,14 @@ export default function Order({ navigation }) {
       alert("Please fill in all required fields.");
       return;
     }
-  
+
     if (!origin || !destination || !category) {
       alert(
         "Please fill in all mandatory fields: Pickup Location, Dropoff Location, and Vehicle Type."
       );
       return;
     }
-  
+
     // Construct the request data object
     const requestData = {
       customer_id: 1, // Replace with the appropriate customer ID
@@ -302,32 +410,37 @@ export default function Order({ navigation }) {
         : formatDateToMySQL(new Date()), // Assuming formattedDate is used for booking time
       customer_message: moreDetail || null, // Include the optional field if provided
     };
-  
+
     try {
-      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/add_request`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      });
-  
+      const response = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/add_request`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData),
+        }
+      );
+
       if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);
       }
-  
+
       const responseData = await response.json();
       console.log("Response data:", responseData);
-  
+
       if (responseData && responseData.request_id) {
         Alert.alert(
-          "Request submitted successfully!", 
-          "", 
+          "Request submitted successfully!",
+          "",
           [
             {
-              text: "OK", 
+              text: "OK",
               onPress: () => {
-                navigation.navigate("ChooseOffer", { request_id: responseData.request_id });
+                navigation.navigate("ChooseOffer", {
+                  request_id: responseData.request_id,
+                });
               },
             },
           ],
@@ -341,19 +454,26 @@ export default function Order({ navigation }) {
       alert("Failed to submit the request. Please try again.");
     }
   };
-  
+
+  const truncateText = (text, maxLength = 22) => {
+    if (!text) return "N/A"; // Return default if text is null/undefined
+    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+  };
+
   return (
     <PaperProvider>
-      <View style={tw`flex items-center `}>
-        <View style={tw`flex mt-2 `}>
+      <View style={tw`flex-1 items-center`}>
+
+        <View style={tw`flex-1 mt-2`}>
           {/* Subtitle */}
+           
           <Text style={[styles.globalText, tw`text-[grey]`]}>
             ต้องการให้รถสไลด์ไปส่งที่ไหน​ ?
           </Text>
           <TouchableOpacity
             style={[
-              { width: responsiveWidth, height: height * 0.12 },
-              tw`p-2 mb-4 mt-1 justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876]`
+              { width: responsiveWidth, height: height * 0.11 },
+              tw`p-2 mb-4 mt-1 justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876]`,
             ]}
             onPress={() => navigation.navigate("Mapdetail")}
           >
@@ -383,7 +503,7 @@ export default function Order({ navigation }) {
                 Platform.OS === "ios" ? setShowPicker(true) : setShowModal(true)
               }
               style={[
-                { width: responsiveWidth, height: height * 0.16 },
+                { width: responsiveWidth, height: height * 0.13 },
                 tw`flex items-center justify-center bg-white p-4 rounded-lg border border-[#60B876]  shadow-xl shadow-[#60B876]`,
               ]}
             >
@@ -391,7 +511,7 @@ export default function Order({ navigation }) {
               <Text
                 style={[
                   styles.globalText,
-                  tw`flex text-center bg-white p-2 border-[#60B876] w-79  text-xl`,
+                  tw`flex text-center bg-white p-2 border-[#60B876] w-79  text-lg`,
                 ]}
                 // onPressIn={
                 //   Platform.OS === "ios" ? toggleDatePicker : handleDateChange
@@ -415,7 +535,7 @@ export default function Order({ navigation }) {
                 <TouchableOpacity
                   onPress={() => setMenuVisible(true)}
                   style={[
-                    { width: responsiveWidth, height: height * 0.15 },
+                    { width: responsiveWidth, height: height * 0.13 },
                     tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876] mb-4`,
                   ]}
                 >
@@ -425,8 +545,8 @@ export default function Order({ navigation }) {
                     color="black"
                     style={tw`mb-2`}
                   />
-                  <Text style={[styles.globalText, tw`text-xl`]}>
-                    {category ? category : "ประเภทของรถสไลด์"}
+                  <Text style={[styles.globalText, tw`text-lg`]}>
+                    {category ?  category : "ประเภทของรถสไลด์"}
                   </Text>
                 </TouchableOpacity>
               }
@@ -446,13 +566,13 @@ export default function Order({ navigation }) {
           <View>
             <TouchableOpacity
               style={[
-                { width: responsiveWidth, height: height * 0.15 },
+                { width: responsiveWidth, height: height * 0.14 },
                 tw` justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876] p-1`,
               ]}
               onPress={handlePress}
             >
               <Text
-                style={[styles.globalText, tw` bg-white text-center text-xl`]}
+                style={[styles.globalText, tw` bg-white text-center text-lg`]}
               >
                 {moreDetail ? moreDetail : "รายละเอียดเพิ่มเติม . . ."}
               </Text>
@@ -473,7 +593,7 @@ export default function Order({ navigation }) {
                       styles.globalText,
                       tw`border p-2 mb-4 bg-white rounded-lg h-40`,
                     ]}
-                    placeholder="รายละเอียดเพิ่มเติม . . ." 
+                    placeholder="รายละเอียดเพิ่มเติม . . ."
                     mode="outlined"
                     value={preMoreDetail}
                     onChangeText={setPreMoreDetail}
@@ -507,6 +627,138 @@ export default function Order({ navigation }) {
               </View>
             </Modal>
           </View>
+
+          <View style={tw`flex items-center mt-3 justify-between`}>
+            <TouchableOpacity
+              onPress={openModal}
+              style={[
+                { height: height * 0.07, width: responsiveWidth },
+                tw` justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876] p-1 `,
+              ]}
+            >
+              <Text
+                style={[styles.globalText, tw` bg-white text-center text-lg`]}
+              >
+                เลือกที่อยู่ในรายการโปรด
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)} // Close modal on back press
+          >
+            
+            <View style={styles.modalOverlay}>
+              <View
+                style={[
+                  styles.modalContent,
+                  tw`rounded-lg `,
+                  { height: height * 0.7 },
+                ]}
+              >
+                <View style={tw`flex bg-white rounded-lg border border-[#60B876] p-4 w-7/12 shadow-2xl bg-[#60B876]`}>
+
+                <Text
+                  style={[styles.modalText, styles.globalText, tw`text-xl font-bold  text-center text-white items-center`]}
+                >
+                  รายการโปรด
+                </Text>
+                </View>
+                {loading ? (
+                  <Text style={[styles.globalText , tw`text-center`]}>ไม่พบข้อมูล</Text>
+                ) : (
+                  
+                  <FlatList
+                    data={bookmarks}
+                    keyExtractor={(item) => item.address_id.toString()}
+                    renderItem={({ item }) => (
+                      <View
+                        style={[
+                          styles.bookmarkItem,
+                          tw`flex items-center justify-between mt-3 p-2 border border-[#60B876] rounded-lg `,
+                          { width: width * 0.69 },
+                        ]}
+                      >
+                        <TouchableOpacity
+                          style={tw`flex  justify-between`}
+                          // onPress={() =>
+                          //   console.log(
+                          //     item.address_id,
+                          //     item.save_name,
+                          //     item.vahicle_type,
+                          //     item.location_from,
+                          //     item.location_to
+                          //   )
+                          // }
+                          onPress={() => handleRequestFromBookmark(item) }
+                        >
+                          <View style={tw``}>
+                            <Text
+                              style={[tw`text-base font-semibold text-center `, styles.globalText]}
+                            >
+                              {item.save_name}
+                            </Text>
+                            <View style={tw`flex-row items-center`}>
+                              <Text
+                                style={[
+                                  styles.globalText,
+                                  tw`text-sm font-semibold`,
+                                ]}
+                              >
+                                Category :
+                              </Text>
+                              <Text style={[styles.globalText, tw`text-gray-500`]}>
+                                {truncateText(item.vahicle_type)}
+                              </Text>
+                            </View>
+                            <View style={tw`flex-row items-center`}>
+                              <Text
+                                style={[
+                                  styles.globalText,
+                                  tw`text-sm font-semibold`,
+                                ]}
+                              >
+                                ต้นทาง :
+                              </Text>
+                              <Text style={[styles.globalText, tw`text-gray-500`]}>
+                                {truncateText(item.location_from)}
+                              </Text>
+                            </View>
+                            <View style={tw`flex-row items-center`}>
+                              <Text
+                                style={[
+                                  styles.globalText,
+                                  tw`text-sm font-semibold`,
+                                ]}
+                              >
+                                ปลายทาง :
+                              </Text>
+                              <Text style={[styles.globalText, tw`text-gray-500`]}>
+                                {truncateText(item.location_to)}
+                              </Text>
+                            </View>
+                          </View>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                    />
+                    
+                )}
+                <TouchableOpacity
+                  onPress={closeModal}
+                  style={[
+                    styles.closeButton,
+                    tw`bg-red-400 rounded-lg p-3 mt-4`,
+                  ]}
+                >
+                  <Text style={styles.closeButtonText}>Close Modal</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+
           <View style={tw``}>
             <View style={tw`flex items-center justify-center`}>
               <TouchableOpacity
@@ -525,8 +777,10 @@ export default function Order({ navigation }) {
               </TouchableOpacity>
             </View>
           </View>
+          
         </View>
       </View>
+      
     </PaperProvider>
   );
 }
@@ -557,4 +811,33 @@ const styles = StyleSheet.create({
   },
 
   optionText: { marginLeft: 10, fontSize: 16 },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    textAlign: "center",
+  },
+  closeButton: {
+    alignSelf: "center",
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
 });

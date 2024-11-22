@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, Image, Alert } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native'; 
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from 'twrnc';
 import * as ImagePicker from 'expo-image-picker';
@@ -8,8 +8,9 @@ import { IP_ADDRESS } from '../../config';
 
 const CarUploadPickUpConfirmation = () => {
   const navigation = useNavigation();
-  const route = useRoute(); 
-  const { request_id, driver_id } = route.params || {}; 
+  const route = useRoute();
+  const { request_id } = route.params || {};
+  const { userData = {} } = route.params || {};
   const [images, setImages] = useState({
     front: null,
     back: null,
@@ -17,6 +18,7 @@ const CarUploadPickUpConfirmation = () => {
     right: null,
   });
 
+  // Handle image selection
   const handleImageSelection = async (label) => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -25,7 +27,7 @@ const CarUploadPickUpConfirmation = () => {
     }
 
     try {
-      let result = await ImagePicker.launchImageLibraryAsync({
+      const result = await ImagePicker.launchImageLibraryAsync({
         quality: 1,
       });
 
@@ -37,10 +39,11 @@ const CarUploadPickUpConfirmation = () => {
         }));
       }
     } catch (error) {
-      console.error('Error during image selection:', error);
+      console.error('Error selecting image:', error);
     }
   };
 
+  // Render upload box component
   const renderUploadBox = (label, displayName) => (
     <TouchableOpacity
       style={tw`flex-1 bg-gray-100 rounded-lg p-4 m-2 shadow`}
@@ -56,41 +59,43 @@ const CarUploadPickUpConfirmation = () => {
         ) : (
           <Icon name="cloud-upload-outline" size={32} color="gray" style={tw`mb-2`} />
         )}
-        <Text style={tw`text-gray-400`}>อัพโหลด</Text>
-        <Text style={tw`text-base text-center text-black font-bold`}>{displayName}</Text>
+        <Text style={[styles.globalText, tw`text-gray-400`]}>อัพโหลด</Text>
+        <Text style={[styles.globalText, tw`text-base text-center text-black font-bold`]}>
+          {displayName}
+        </Text>
       </View>
     </TouchableOpacity>
   );
 
+  // Handle confirmation
   const handleConfirmation = async () => {
-    const driver_id = 2;
-    if (!request_id || !driver_id) {
-      Alert.alert('Error', 'Missing required request or driver information');
+    if (!request_id || !userData?.driver_id) {
+      Alert.alert('ข้อผิดพลาด', 'ไม่มีข้อมูลการร้องขอหรือข้อมูลผู้ขับ');
       return;
     }
-  
-    const imageUris = Object.values(images).filter(uri => uri !== null);
-  
+
+    const imageUris = Object.values(images).filter((uri) => uri !== null);
+
     if (imageUris.length < 4) {
-      Alert.alert('Error', 'โปรดอัพโหลด 4 รูปภาพ');
+      Alert.alert('ข้อผิดพลาด', 'โปรดอัพโหลดรูปภาพทั้งหมด 4 รูป');
       return;
     }
-    console.log(driver_id, request_id);
+
     const formData = new FormData();
     formData.append('request_id', request_id);
-    formData.append('driver_id', driver_id);
-  
+    formData.append('driver_id', userData?.driver_id);
+
     imageUris.forEach((uri, index) => {
       const fileName = uri.split('/').pop();
       const fileType = fileName.split('.').pop();
-  
+
       formData.append('photos', {
         uri,
         name: `photo-${index}.${fileType}`,
-        type: `image/${fileType}`
+        type: `image/${fileType}`,
       });
     });
-  
+
     try {
       const response = await fetch(`http://${IP_ADDRESS}:3000/auth/upload_before_service`, {
         method: 'POST',
@@ -99,50 +104,57 @@ const CarUploadPickUpConfirmation = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-  
-      const responseText = await response.text();
-      console.log('Response Text:', responseText);
-  
-      const result = JSON.parse(responseText);
+
+      const result = await response.json();
       if (result.Status) {
-        Alert.alert('Success', 'Images uploaded successfully');
+        Alert.alert('สำเร็จ', 'อัพโหลดรูปภาพสำเร็จ');
         navigation.navigate('JobWorking_Dropoff', { request_id });
       } else {
-        Alert.alert('Error', result.Error || 'Failed to upload images');
+        Alert.alert('ข้อผิดพลาด', result.Error || 'การอัพโหลดรูปภาพล้มเหลว');
       }
     } catch (error) {
       console.error('Error during API call:', error);
-      Alert.alert('Error', 'An error occurred while uploading images');
+      Alert.alert('ข้อผิดพลาด', 'เกิดปัญหาระหว่างการอัพโหลดรูปภาพ');
     }
   };
-  
-  
+
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
+      {/* Header */}
+      <View style={tw`p-4 pt-10 flex-row items-center`}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="arrow-left" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={[styles.globalText, tw`text-2xl font-bold ml-4`]}>ยืนยันการรับรถ</Text>
+      </View>
+
+      {/* Content */}
       <View style={tw`p-4 flex-1`}>
-        <View style={tw`p-4 pt-8 flex-row items-center`}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="arrow-left" size={24} color="black" />
-          </TouchableOpacity>
-          <Text style={tw`text-2xl font-bold ml-4`}>ยืนยันการรับรถ</Text>
+        {/* Upload Boxes */}
+        {renderUploadBox('front', 'ด้านหน้ารถ')}
+        {renderUploadBox('back', 'ด้านหลังรถ')}
+        <View style={tw`flex-row justify-between mt-4`}>
+          {renderUploadBox('left', 'ด้านข้างรถ (ซ้าย)')}
+          {renderUploadBox('right', 'ด้านข้างรถ (ขวา)')}
         </View>
-        <View style={tw`flex-1 justify-center`}>
-          {renderUploadBox('front', 'ด้านหน้ารถ')}
-          {renderUploadBox('back', 'ด้านหลังรถ')}
-          <View style={tw`flex-row justify-between mt-4`}>
-            {renderUploadBox('left', 'ด้านข้างรถ (ซ้าย)')}
-            {renderUploadBox('right', 'ด้านข้างรถ (ขวา)')}
-          </View>
-        </View>
+
+        {/* Confirm Button */}
         <TouchableOpacity
           onPress={handleConfirmation}
           style={tw`bg-green-500 p-4 rounded-lg mt-4 items-center`}
         >
-          <Text style={tw`text-white text-base font-bold`}>ยืนยันการรับรถ</Text>
+          <Text style={[styles.globalText, tw`text-white text-base font-bold`]}>ยืนยันการรับรถ</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
+};
+
+// Global styles
+const styles = {
+  globalText: {
+    fontFamily: 'Mitr-Regular',
+  },
 };
 
 export default CarUploadPickUpConfirmation;
