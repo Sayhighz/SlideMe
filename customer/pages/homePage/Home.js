@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState , useContext } from "react";
 import {
   Text,
   View,
@@ -14,12 +14,15 @@ import Swiper from "react-native-swiper";
 import tw from "twrnc";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRoute } from "@react-navigation/native";
+import { UserContext } from "../../UserContext";
 
 function Home({ navigation }) {
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const {  userData } = useContext(UserContext);
+ 
 
   const handleOpenModal = () => {
     setIsModalVisible(true);
@@ -37,8 +40,6 @@ function Home({ navigation }) {
       <Text style={tw`text-lg font-semibold text-center`}>{title}</Text>
     </TouchableOpacity>
   );
-
-  
 
   const route = useRoute();
   const selectedLabel = route.params?.selectedLabel || "ไม่ระบุ";
@@ -59,8 +60,12 @@ function Home({ navigation }) {
       <View style={tw`flex-1 items-center justify-between `}>
         {/* Main Content */}
         <View style={tw`relative w-full items-center`}>
+
+        <Text style={tw`text-xl font-bold mt-4`}>
+        Welcome {userData?.username || "User"}!
+      </Text>
           <TouchableOpacity
-            style={tw`mt-5`}
+            style={tw`mt-3`}
             onPress={() => navigation.navigate("Order")}
           >
             <LinearGradient
@@ -126,54 +131,62 @@ function Home({ navigation }) {
             </TouchableOpacity>
           
           </View> */}
-          
 
           <View>
-            <TouchableOpacity style={[
-              { width: responsiveWidth, height: height * 0.16, padding: 10 },
-              tw`rounded-lg items-center justify-center mt-5 ` ,
-            ]}>
-            <LinearGradient
-              colors={["#3DE183", "#60B876", "#6CA97C"]}
+            <TouchableOpacity
               style={[
-                { width: responsiveWidth, height: height * 0.16 },
-                tw`rounded-lg items-center justify-center `,
+                { width: responsiveWidth, height: height * 0.16, padding: 10 },
+                tw`rounded-lg items-center justify-center mt-3 `,
               ]}
+              onPress={() => navigation.navigate("Rating")}
             >
+              <LinearGradient
+                colors={["#3DE183", "#60B876", "#6CA97C"]}
+                style={[
+                  { width: responsiveWidth, height: height * 0.16 },
+                  tw`rounded-lg items-center justify-center `,
+                ]}
+              >
                 <Text
                   style={[styles.globalText, tw`text-3xl font-bold text-white`]}
                 >
                   Order Status
                 </Text>
-            </LinearGradient>
-              </TouchableOpacity>
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
           <View>
-            <TouchableOpacity style={[
-              { width: responsiveWidth, height: height * 0.12, padding: 10 },
-              tw`rounded-lg items-center justify-center mt-5 `,
-            ]}>
-            <LinearGradient
-              colors={["#60B876", "#53A567"]}
+            <TouchableOpacity
               style={[
                 { width: responsiveWidth, height: height * 0.12, padding: 10 },
-                tw`rounded-lg items-center justify-center`,
+                tw`rounded-lg items-center justify-center mt-3 `,
               ]}
             >
+              <LinearGradient
+                colors={["#60B876", "#53A567"]}
+                style={[
+                  {
+                    width: responsiveWidth,
+                    height: height * 0.12,
+                    padding: 10,
+                  },
+                  tw`rounded-lg items-center justify-center`,
+                ]}
+              >
                 <Text
                   style={[styles.globalText, tw`text-3xl font-bold text-white`]}
                 >
                   ติดต่อเรา
                 </Text>
-            </LinearGradient>
-              </TouchableOpacity>
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
         </View>
 
         {/* Swiper for Ads Banner (placed above bottom navbar) */}
         <View
           style={[
-            tw`mb-2`,
+            tw``,
             { width: responsiveWidth, height: responsiveHeight },
           ]}
         >
@@ -187,7 +200,10 @@ function Home({ navigation }) {
             {(ads || []).map((ad) => (
               <View
                 key={ad.id}
-              style={[{height: height * 0.17} ,tw`flex items-center justify-center w-full`]}
+                style={[
+                  { height: height * 0.17 },
+                  tw`flex items-center justify-center w-full`,
+                ]}
               >
                 <Image
                   source={{ uri: ad.image }}
