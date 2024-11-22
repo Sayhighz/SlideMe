@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Text, View, Pressable, Modal , StyleSheet} from "react-native";
+import { Text, View, Pressable, Modal, StyleSheet } from "react-native";
 
 import * as Location from "expo-location";
 import tw from "twrnc"; // import twrnc
@@ -12,7 +12,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 
-const Bookmap = ({ navigation , label}) => {
+const Bookmap = ({ navigation, label }) => {
   const route = useRoute();
 
   const [origin, setOrigin] = useState([]);
@@ -30,7 +30,7 @@ const Bookmap = ({ navigation , label}) => {
 
   const [openModal, setOpenModal] = useState(false);
 
-  // 13.855827502824274, 100.58551678180032
+  // 13.855827502824274, 100.58551678180032|
 
   //ร้านค้า
   const [store, setStore] = useState([
@@ -139,10 +139,15 @@ const Bookmap = ({ navigation , label}) => {
 
   const handleConfirm = () => {
     navigation.navigate("addressPage", {
-      origin,
-      destination,
-      confirmOrigin,
-      confirmDestination,
+      origin_lat: origin.latitude,
+      origin_long: origin.longitude,
+      destination_lat: destination.latitude,
+      destination_long: destination.longitude,
+      confirmOrigin: confirmOrigin,
+      confirmDestination: confirmDestination,
+      category: route.params.category,
+      nameBookMark: route.params.save_name,
+      address_id: route.params.address,
     });
     setOpenModal(false);
   };
@@ -153,7 +158,7 @@ const Bookmap = ({ navigation , label}) => {
         <View style={tw`flex-1 justify-center items-center`}>
           <View style={tw`bg-[#FDFFFD] w-4/5 h-1/3 flex rounded-lg p-3`}>
             <View style={tw`flex-1 justify-center`}>
-              <Text style={[styles.globalText , tw`font-bold text-lg`]}>
+              <Text style={[styles.globalText, tw`font-bold text-lg`]}>
                 ยืนยันสถานที่ {confirmOrigin.length ? "ปลายทาง" : "ต้นทาง"}
               </Text>
             </View>
@@ -171,7 +176,14 @@ const Bookmap = ({ navigation , label}) => {
                   setOpenModal(false);
                 }}
               >
-                <Text style={[styles.globalText , tw`text-lg font-bold text-[#FDFFFD]`]}>Cancel</Text>
+                <Text
+                  style={[
+                    styles.globalText,
+                    tw`text-lg font-bold text-[#FDFFFD]`,
+                  ]}
+                >
+                  Cancel
+                </Text>
               </Pressable>
               <Pressable
                 style={tw`bg-[#60B876] p-3 rounded-lg`}
@@ -191,21 +203,20 @@ const Bookmap = ({ navigation , label}) => {
         </View>
       </Modal>
       <View style={tw`flex-1 flex-row z-10 absolute bg-[#FDFFFD] top-5`}>
-        
-          <TouchableOpacity
-            onPress={() => {
-              if (confirmOrigin.length) {
-                setConfirmOrigin([]);
-                setConfirmDestination([]);
-                setDestination([]);
-              } else {
-                navigation.goBack();
-              }
-            }}
-          >
-            {/* <MaterialIcons name="arrow-back" size={24} color="black" /> */}
-          </TouchableOpacity>
-        
+        <TouchableOpacity
+          onPress={() => {
+            if (confirmOrigin.length) {
+              setConfirmOrigin([]);
+              setConfirmDestination([]);
+              setDestination([]);
+            } else {
+              navigation.goBack();
+            }
+          }}
+        >
+          {/* <MaterialIcons name="arrow-back" size={24} color="black" /> */}
+        </TouchableOpacity>
+
         <View style={tw`flex-9`}>
           <GooglePlacesAutocomplete
             //ต้องขอ api
@@ -255,7 +266,7 @@ const Bookmap = ({ navigation , label}) => {
         style={tw`flex-1 bg-[#FDFFFD] p-3 border border-[#FDFFFD] rounded-t-3xl`}
       >
         <View style={tw`flex-1 justify-around`}>
-          <Text style={[styles.globalText , tw`text-xl font-bold mb-1`]}>
+          <Text style={[styles.globalText, tw`text-xl font-bold mb-1`]}>
             {confirmOrigin.length ? "Destination" : "Origin"}
           </Text>
           <Text style={styles.globalText}>
@@ -269,7 +280,9 @@ const Bookmap = ({ navigation , label}) => {
               setOpenModal(true);
             }}
           >
-            <Text style={[styles.globalText ,tw`text-[#FDFFFD] text-xl font-bold`]}>
+            <Text
+              style={[styles.globalText, tw`text-[#FDFFFD] text-xl font-bold`]}
+            >
               Confirm {confirmOrigin.length ? "destination" : "origin"}
             </Text>
           </Pressable>
@@ -281,7 +294,7 @@ const Bookmap = ({ navigation , label}) => {
 
 const styles = StyleSheet.create({
   globalText: {
-    fontFamily: 'Mitr-Regular',
+    fontFamily: "Mitr-Regular",
   },
 });
 

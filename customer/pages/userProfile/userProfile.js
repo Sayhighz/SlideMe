@@ -12,6 +12,8 @@ const { width, height } = Dimensions.get("window");
 
 
 
+
+
 const UserProfile = ({ navigation }) => {
   return (
     <SafeAreaView style={[tw`flex-1 p-1 bg-gray-100`]}>
@@ -40,7 +42,7 @@ const UserProfile = ({ navigation }) => {
 
       <TouchableOpacity
         style={[{height: height * 0.05 , width : width * 0.5} ,tw`bg-green-500 items-center justify-center rounded-lg mb-3 w-50`]}
-        onPress={() => navigation.navigate('addressPage')}
+        onPress={() => navigation.navigate('Bookmarklist')}
       >
         <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>เพิ่มรายการโปรด</Text>
       </TouchableOpacity>

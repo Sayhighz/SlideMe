@@ -31,6 +31,7 @@ import EditProfile from "./pages/editProfile/editProfile";
 import AddressPage from "./pages/addressPage/addressPage";
 import ChooseOffer from "./pages/chooseOffer/ChooseOffer";
 import Addmap from "./pages/addressPage/bookmap/Bookmap";
+import Bookmarklist from "./pages/addressPage/Bookmarklist";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -43,6 +44,7 @@ function HomeStack() {
         headerTintColor: "black",
         borderBottomWidth: 0,
         shadowOpacity: 0,
+        
       }}
     >
       <Stack.Screen name="HomePage" component={Home} />
@@ -80,7 +82,13 @@ function PaymentMethodsStack() {
 
 function UserProfileStack() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{
+      headerStyle: { backgroundColor: "#3DE183" },
+      headerTintColor: "black",
+      borderBottomWidth: 0,
+      shadowOpacity: 0,
+      fontSize: 16
+    }}>
       <Stack.Screen
         name="UserProfile"
         component={UserProfile}
@@ -110,6 +118,12 @@ function UserProfileStack() {
         name="addMapFav"
         component={Addmap}
         options={{ title: "เพิ่มบุ๊คมาร์ก" }}
+      />
+      <Stack.Screen
+        name="Bookmarklist"
+        component={Bookmarklist}
+        options={{ title: "Bookmark" }}
+
       />
     </Stack.Navigator>
   );

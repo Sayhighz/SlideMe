@@ -1,4 +1,4 @@
-import React, { useState  , useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,13 +12,12 @@ import {
 import tw, { style } from "twrnc"; // Assuming you have installed tailwind-rn using `npm install tailwind-rn` or equivalent
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
-import { Menu, TextInput , Provider} from "react-native-paper";
+import { Menu, TextInput, Provider } from "react-native-paper";
 import { Provider as PaperProvider } from "react-native-paper";
 import { FontAwesome5 } from "@expo/vector-icons";
 import bookmap from "./bookmap/Bookmap";
 import { IP_ADDRESS } from "../../config";
 import { UserContext } from "../../UserContext";
-
 
 const AddressPage = ({ navigation }) => {
   // const [houseNumber, setHouseNumber] = useState('')
@@ -35,53 +34,98 @@ const AddressPage = ({ navigation }) => {
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
 
-  const {  userData } = useContext(UserContext);
+  const { userData } = useContext(UserContext);
 
   const route = useRoute();
-  const origin = route.params?.origin || "ไม่ระบุ";
-  const destination = route.params?.destination || "ไม่ระบุ";
+  const address = route.params?.address_id || "ไม่ระบุ";
+  const vehicle_type = route.params?.category;
+  const save_name = route.params?.nameBookMark || "ไม่ระบุ";
+  const origin_lat = route.params?.origin_lat || "ไม่ระบุ";
+  const origin_long = route.params?.origin_long || "ไม่ระบุ";
+  const destination_lat = route.params?.destination_lat || "ไม่ระบุ";
+  const destination_long = route.params?.destination_long || "ไม่ระบุ";
   const confirmOrigin = route.params?.confirmOrigin || "ไม่ระบุ";
   const confirmDestination = route.params?.confirmDestination || "ไม่ระบุ";
 
+  useEffect(() => {
+    console.log(save_name);
+   
+  }, []);
   const handleSave = async () => {
     if (!nameBookMark || !confirmOrigin || !confirmDestination || !category) {
       Alert.alert("Error", "Please fill all the required fields.");
       return;
     }
-  
+
     const payload = {
       user_id: 1, // Replace with the actual user ID
       save_name: nameBookMark,
       location_from: confirmOrigin,
-      pickup_lat: origin.latitude , // Replace with actual lat/lng
-      pickup_long: origin.longitude,
+      pickup_lat: origin_lat, // Replace with actual lat/lng
+      pickup_long: origin_long,
       location_to: confirmDestination,
-      dropoff_lat: destination.latitude,
-      dropoff_long: destination.longitude,
+      dropoff_lat: destination_lat,
+      dropoff_long:  destination_long,
       vahicle_type: category,
+      address_id: address,
     };
-  
-    try {
-      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/customer/add_bookmark`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-  
-      const data = await response.json();
-  
-      if (response.ok && data.Status) {
-        Alert.alert("Success", "Bookmark added successfully!");
-        navigation.navigate("UserProfile");
-      } else {
-        Alert.alert("Error", data.Error || "Failed to add bookmark.");
+
+    if (
+      save_name !== "ไม่ระบุ"
+      
+    ) {
+      try {
+        const response = await fetch(
+          `http://${IP_ADDRESS}:3000/auth/customer/edit_address`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+            
+          }
+        );
+
+        const data = await response.json();
+        console.log(payload)
+
+        if (response.ok && data.Status) {
+          Alert.alert("Success", "Bookmark Edit successfully!");
+          navigation.navigate("UserProfile");
+        } else {
+          Alert.alert("Error", data.Error || "Failed to add bookmark.");
+        }
+      } catch (error) {
+        Alert.alert("Error", error.message || "An error occurred.");
       }
-    } catch (error) {
-      Alert.alert("Error", error.message || "An error occurred.");
+    } else {
+      try {
+        const response = await fetch(
+          `http://${IP_ADDRESS}:3000/auth/customer/add_bookmark`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok && data.Status) {
+          Alert.alert("Success", "Bookmark added successfully!");
+          navigation.navigate("UserProfile");
+        } else {
+          Alert.alert("Error", data.Error || "Failed to add bookmark.");
+        }
+      } catch (error) {
+        Alert.alert("Error", error.message || "An error occurred.");
+      }
     }
   };
+
   const categoryOptions = [
     { label: "Mini Slide Car", value: "mini" },
     { label: "Standard Slide Car", value: "standard" },
@@ -96,7 +140,12 @@ const AddressPage = ({ navigation }) => {
 
   return (
     <>
-      <SafeAreaView style={[tw`flex-1 bg-white items-center justify-between `, {height: height}]}>
+      <SafeAreaView
+        style={[
+          tw`flex-1 bg-white items-center justify-between `,
+          { height: height },
+        ]}
+      >
         <PaperProvider>
           <View style={tw` bg-white `}>
             <Text style={[styles.globalText, tw`mt-2 mb-1 font-semibold`]}>
@@ -105,9 +154,9 @@ const AddressPage = ({ navigation }) => {
             <TextInput
               style={[
                 styles.globalText,
-                tw`w-full h-12 border border-gray-300 bg-white rounded-lg px-3 mb-3`,
+                tw`w-full h-12 border border-[#60B876] bg-white rounded-lg px-3 mb-3`,
               ]}
-              placeholder="Name of Bookmark"
+              placeholder={save_name}
               mode="outlined"
               value={nameBookMark}
               onChangeText={setNameBookMark}
@@ -122,7 +171,7 @@ const AddressPage = ({ navigation }) => {
                 { width: responsiveWidth, height: height * 0.12 },
                 tw`p-2 mb-4 mt-1 justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876]`,
               ]}
-              onPress={() => navigation.navigate("addMapFav")}
+              onPress={() => navigation.navigate("addMapFav" , {save_name,category,address})}
               // onPress={() => navigation.navigate("Mapdetail")}
             >
               <View style={[tw`flex-row px-4`]}>
@@ -144,7 +193,7 @@ const AddressPage = ({ navigation }) => {
                 </Text>
               </View>
             </TouchableOpacity>
-            
+
             <View style={[tw`w-full items-center mt-2`]}>
               <Menu
                 visible={menuVisible}
@@ -165,7 +214,7 @@ const AddressPage = ({ navigation }) => {
                       style={tw`mb-2`}
                     />
                     <Text style={[styles.globalText, tw`text-lg`]}>
-                      {category ? category : "ประเภทของรถสไลด์"}
+                      {category ? category : vehicle_type}
                     </Text>
                   </TouchableOpacity>
                 }
@@ -185,27 +234,60 @@ const AddressPage = ({ navigation }) => {
               </Menu>
             </View>
 
-            <View style={[tw`flex items-center justify-end  `,{height: height * 0.331}]}>
-                <View style={tw`flex-row items-center justify-center gap-4`}>
-                  
-            <TouchableOpacity
-              onPress={handleSave}
-              style={[styles.globalText,tw` items-center justify-center bg-red-400 p-4 rounded-lg `, {width:width * 0.4 , height: height * 0.09 , marginBottom: height * 0.02}]}
+            <View
+              style={[
+                tw`flex items-center justify-end  `,
+                { height: height * 0.331 },
+              ]}
             >
-              <Text style={[ styles.globalText,tw`text-white font-bold text-lg`]}>ยกเลิก</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleSave}
-              style={[styles.globalText,tw` items-center justify-center bg-[#60B876] p-4 rounded-lg `, {width:width * 0.4 , height: height * 0.09 , marginBottom: height * 0.02}]}
-            >
-              <Text style={[styles.globalText,tw`text-white font-bold text-lg`]}>บันทึก</Text>
-            </TouchableOpacity>
-                </View>
+              <View style={tw`flex-row items-center justify-center gap-4`}>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("Bookmarklist")}
+                  style={[
+                    styles.globalText,
+                    tw` items-center justify-center bg-red-400 p-4 rounded-lg `,
+                    {
+                      width: width * 0.4,
+                      height: height * 0.09,
+                      marginBottom: height * 0.02,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.globalText,
+                      tw`text-white font-bold text-lg`,
+                    ]}
+                  >
+                    ยกเลิก
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleSave}
+                  style={[
+                    styles.globalText,
+                    tw` items-center justify-center bg-[#60B876] p-4 rounded-lg `,
+                    {
+                      width: width * 0.4,
+                      height: height * 0.09,
+                      marginBottom: height * 0.02,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.globalText,
+                      tw`text-white font-bold text-lg`,
+                    ]}
+                  >
+                    บันทึก
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </PaperProvider>
       </SafeAreaView>
-
     </>
   );
 };
