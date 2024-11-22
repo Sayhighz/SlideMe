@@ -58,17 +58,9 @@ const ChooseOffer = ({ navigation, route }) => {
   const {  userData } = useContext(UserContext);
   const { request_id } = route.params;
 
-  // const originLocation = {
-  //   name: "Origin",
-  //   latitude: 13.855879586027092,
-  //   longitude: 100.58552751063581,
-  // };
-
-  // const destinationLocation = {
-  //   name: "Destination",
-  //   latitude: 13.875879586027092,
-  //   longitude: 100.58552751063581,
-  // };
+  useEffect(() => {
+    console.log("request_id", request_id);
+  }, [route.params]);
 
   useEffect(() => {
     refreshPage(); // โหลดข้อมูลเมื่อคอมโพเนนต์ถูกสร้างครั้งแรก
@@ -147,20 +139,20 @@ const ChooseOffer = ({ navigation, route }) => {
   const getRouteDistance = async (driverLocation, originLocation) => {
     const API_KEY = GOOGLE_MAPS_API_KEY; // Use your API key
     const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${driverLocation.latitude},${driverLocation.longitude}&destination=${originLocation.latitude},${originLocation.longitude}&key=${API_KEY}`;
-  
+
     try {
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Error fetching route data: ${response.statusText}`);
       }
-  
+
       const data = await response.json();
       if (data.routes.length > 0) {
         const leg = data.routes[0].legs[0];
         const distance = leg.distance.value; // Distance in meters
         const duration = leg.duration.value; // Duration in seconds
-        const durationText = leg.duration.text.replace(/[^\d]/g, '');
-  
+        const durationText = leg.duration.text.replace(/[^\d]/g, "");
+
         return { distance, duration, durationText };
       } else {
         console.error("No routes found");
@@ -171,57 +163,53 @@ const ChooseOffer = ({ navigation, route }) => {
       return { distance: null, duration: null, durationText: null };
     }
   };
-  
 
-
-    const refreshPage = async () => {
-      try {
-        console.log("Refresh Page")
-        const response = await fetch(`http://${IP_ADDRESS}:3000/auth/drivers/chooseoffer?request_id=${request_id}`);
-        const data = await response.json();
-        if (data.Status) {
-          if (data.PickupDropoffInfo) {
-            setOriginLocation({
-              name: data.PickupDropoffInfo.location_from,
-              latitude: parseFloat(data.PickupDropoffInfo.pickup_lat),
-              longitude: parseFloat(data.PickupDropoffInfo.pickup_long),
-            });
-            setDestinationLocation({
-              name: data.PickupDropoffInfo.location_to,
-              latitude: parseFloat(data.PickupDropoffInfo.dropoff_lat),
-              longitude: parseFloat(data.PickupDropoffInfo.dropoff_long),
-            });
-          }
-
-          if(data.Result == ""){
-            setOfferLoading(true);
-          }
-  
-          if (data.Result && data.Result.length > 0) {
-            // Handle driver data if available
-            const drivers = data.Result.map((driver) => ({
-              id: driver.driver_id,
-              name: `${driver.first_name} ${driver.last_name}`,
-              rating: driver.average_rating.toFixed(1),
-              location: {
-                latitude: driver.current_latitude,
-                longitude: driver.current_longitude,
-              },
-              price: driver.offered_price,
-            }));
-            setOffer(drivers);
-            setOfferLoading(false);
-          }
-  
+  const refreshPage = async () => {
+    try {
+      const response = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/drivers/chooseoffer?request_id=${request_id}`
+      );
+      const data = await response.json();
+      if (data.Status) {
+        if (data.PickupDropoffInfo) {
+          setOriginLocation({
+            name: data.PickupDropoffInfo.location_from,
+            latitude: parseFloat(data.PickupDropoffInfo.pickup_lat),
+            longitude: parseFloat(data.PickupDropoffInfo.pickup_long),
+          });
+          setDestinationLocation({
+            name: data.PickupDropoffInfo.location_to,
+            latitude: parseFloat(data.PickupDropoffInfo.dropoff_lat),
+            longitude: parseFloat(data.PickupDropoffInfo.dropoff_long),
+          });
         }
-      } catch (error) {
-        console.error("Error fetching data:", error);
+
+        if (data.Result == "") {
+          setOfferLoading(true);
+        }
+
+        if (data.Result && data.Result.length > 0) {
+          // Handle driver data if available
+          const drivers = data.Result.map((driver) => ({
+            id: driver.driver_id,
+            name: `${driver.first_name} ${driver.last_name}`,
+            rating: driver.average_rating.toFixed(1),
+            location: {
+              latitude: driver.current_latitude,
+              longitude: driver.current_longitude,
+            },
+            price: driver.offered_price,
+            customer_id_request: driver.customer_id,
+            request_id: driver.request_id,
+          }));
+          setOffer(drivers);
+          setOfferLoading(false);
+        }
       }
-    };
-  
-    useEffect(() => {
-      refreshPage();
-    }, []);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   const filterOffersByRadius = (offers, radius) => {
     const filteredOffers = offers.filter((item) => {
@@ -274,7 +262,7 @@ const ChooseOffer = ({ navigation, route }) => {
                 <Text style={[styles.globalText, tw`text-lg font-bold`]}>
                   {"ราคา : "}
                   <Text style={tw`text-lg text-red-700`}>
-                    {chooseDriver.price || "-"}
+                    {chooseDriver.price !== null ? chooseDriver.price + fee : "-"}
                     {" บาท"}
                   </Text>
                 </Text>
@@ -300,8 +288,9 @@ const ChooseOffer = ({ navigation, route }) => {
                 onPress={() => {
                   navigation.navigate("payment", {
                     chooseDriver: chooseDriver,
-                    originLocation: originLocation,
-                    destinationLocation: destinationLocation,
+
+                    // originLocation: originLocation,
+                    // destinationLocation: destinationLocation,
                   }),
                     setOpenModal(false);
                 }}
@@ -313,7 +302,7 @@ const ChooseOffer = ({ navigation, route }) => {
         </View>
       </Modal>
 
-      <View style={tw`flex-1`}>
+      <View style={tw`flex-2`}>
         {originLocation.latitude && destinationLocation.latitude ? (
           <MapView
             style={tw`flex-1`} // ปรับขนาดตามที่ต้องการ
@@ -331,8 +320,14 @@ const ChooseOffer = ({ navigation, route }) => {
               }}
               title="Origin"
               description={originLocation.name}
-              pinColor="blue"
-            />
+            >
+              <MaterialIcons
+                name="location-pin"
+                size={35}
+                color="blue"
+                style={tw`ml-2`}
+              />
+            </Marker>
 
             <Marker
               coordinate={{
@@ -341,8 +336,14 @@ const ChooseOffer = ({ navigation, route }) => {
               }}
               title="Destination"
               description={destinationLocation.name}
-              pinColor="blue"
-            />
+            >
+              <MaterialIcons
+                name="location-pin"
+                size={35}
+                color="blue"
+                style={tw`ml-2`}
+              />
+            </Marker>
 
             {filteredOffer.map((item, index) => (
               <Marker
@@ -351,10 +352,17 @@ const ChooseOffer = ({ navigation, route }) => {
                   latitude: item.location.latitude,
                   longitude: item.location.longitude,
                 }}
-                pinColor={chooseDriver.id === item.id ? "green" : "red"}
                 title={item.name}
-                description={`ราคา: ${item.price} บาท`}
-              />
+                description={`ราคา: ${item.price + fee} บาท`}
+              >
+                <MaterialIcons
+                  name="location-pin"
+                  size={35}
+                  color={chooseDriver.id === item.id ? "green" : "red"}
+                  style={tw`ml-2`}
+                />
+                {}
+              </Marker>
             ))}
 
             <Circle
@@ -364,25 +372,15 @@ const ChooseOffer = ({ navigation, route }) => {
               strokeColor="transparent"
             />
 
-            {/* <MapViewDirections
-              origin={destinationLocation}
-              destination={originLocation}
-              apikey={GOOGLE_MAPS_API_KEY}
-              strokeWidth={3}
-              strokeColor="blue"
-              onReady={(result) => {
-                console.log("Distance:", result.distance); // Distance in km
-                console.log("Duration:", result.duration); // Duration in minutes
-              }}
-            /> */}
           </MapView>
         ) : (
           <View style={tw`flex-1 justify-center items-center`}>
-            <Text>Loading...</Text>
+            <Text>Loading Map...</Text>
           </View>
         )}
       </View>
-      <View style={tw`flex-1 p-4`}>
+      
+      <View style={tw`flex-2 p-4`}>
         <View style={tw`flex-1 flex-row`}>
           <View style={tw`flex-1 justify-center`}>
             <Pressable onPress={refreshPage}>
@@ -391,27 +389,25 @@ const ChooseOffer = ({ navigation, route }) => {
           </View>
           <View style={tw`flex-1 justify-center items-end`}>
             {!offerLoading ? (
-            <Dropdown
-              style={tw`h-3/4 w-2/4 border-gray-300 rounded-lg px-3 bg-white `}
-              data={dataDropdown}
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
-              placeholder="Radius"
-              value={radiusInMeters.toString()}
-              onChange={(item) => {
-                const newRadius = parseInt(item.value, 10);
-                setRadiusInMeters(newRadius);
-                const filtered = filterOffersByRadius(offer, newRadius);
-                setFilteredOffer(filtered); // กรองข้อเสนอรอบตัว
-                calculateAccurateRouteDistance(filtered).then((results) => {
-                  setFilteredOffer(results); // อัพเดทข้อมูลที่มีระยะทางจริง
-                });
-              }}
-            />
-            ) : (
-              null
-            )}
+              <Dropdown
+                style={tw`h-3/4 w-2/4 rounded-lg px-3 bg-white`}
+                data={dataDropdown}
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                placeholder="Radius"
+                value={radiusInMeters.toString()}
+                onChange={(item) => {
+                  const newRadius = parseInt(item.value, 10);
+                  setRadiusInMeters(newRadius);
+                  const filtered = filterOffersByRadius(offer, newRadius);
+                  setFilteredOffer(filtered); // กรองข้อเสนอรอบตัว
+                  calculateAccurateRouteDistance(filtered).then((results) => {
+                    setFilteredOffer(results); // อัพเดทข้อมูลที่มีระยะทางจริง
+                  });
+                }}
+              />
+            ) : null}
           </View>
         </View>
         <View style={tw`flex-8 items-center `}>
@@ -440,7 +436,7 @@ const ChooseOffer = ({ navigation, route }) => {
                   style={[styles.globalText, tw` font-bold flex-3 text-center`]}
                 >
                   <Text style={tw`text-red-700`}>
-                    {item.price ? item.price + fee : "-"}
+                    {item.price !== null ? item.price + fee : "-"}
                   </Text>
                   {" บาท"}
                 </Text>

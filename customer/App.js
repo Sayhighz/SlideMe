@@ -1,11 +1,9 @@
-// File path: /mnt/data/App.js
-
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { ActivityIndicator, View } from "react-native";
 import { useFonts } from "expo-font";
 
-import { UserProvider } from "./UserContext";
+import { UserProvider, UserContext } from "./UserContext";
 import {
   BorderlessButton,
   gestureHandlerRootHOC,
@@ -133,7 +131,8 @@ function AuthStack({ onLogin }) {
   );
 }
 
-const App = () => {
+const AppContent = () => {
+  const { setUserData } = useContext(UserContext); // Now UserContext is accessible here
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [fontsLoaded] = useFonts({
@@ -150,71 +149,77 @@ const App = () => {
 
   const handleLogin = () => {
     setIsLoggedIn(true);
+    //fetch ข้อมูลตรงนี้ แล้วก็ setซะ
+    
   };
 
   return (
+    
+    <NavigationContainer>
+      {isLoggedIn ? (
+        <Tab.Navigator
+          screenOptions={({ route }) => ({
+            tabBarIcon: ({ color, size }) => {
+              let iconName;
+
+              switch (route.name) {
+                case "Home":
+                  iconName = "home";
+                  break;
+                case "Map":
+                  iconName = "map";
+                  break;
+                case "ประวัติการใช้บริการ":
+                  iconName = "history";
+                  break;
+                case "การแจ้งเตือน":
+                  iconName = "bell";
+                  break;
+                case "โปรไฟล์ผู้ใช้":
+                  iconName = "account";
+                  break;
+                default:
+                  iconName = "circle";
+              }
+
+              return <Icon name={iconName} size={size} color={color} />;
+            },
+            tabBarActiveTintColor: "#60B876",
+            tabBarInactiveTintColor: "#555D65",
+          })}
+        >
+          <Tab.Screen
+            name="Home"
+            component={HomeStack}
+            options={{ headerShown: false }}
+          />
+          <Tab.Screen
+            name="ประวัติการใช้บริการ"
+            component={HistoryPage}
+            options={{ title: "ประวัติการใช้บริการ" }}
+          />
+          <Tab.Screen
+            name="การแจ้งเตือน"
+            component={MessageBoxScreen}
+            options={{ title: "การแจ้งเตือน" }}
+          />
+          <Tab.Screen
+            name="โปรไฟล์ผู้ใช้"
+            component={UserProfileStack}
+            options={{ headerShown: false }}
+          />
+        </Tab.Navigator>
+      ) : (
+        <AuthStack onLogin={handleLogin} />
+      )}
+    </NavigationContainer>
+  );
+};
+
+const App = () => {
+  return (
     <UserProvider>
-      <NavigationContainer>
-        {isLoggedIn ? (
-          <Tab.Navigator
-            screenOptions={({ route }) => ({
-              tabBarIcon: ({ color, size }) => {
-                let iconName;
-
-                switch (route.name) {
-                  case "Home":
-                    iconName = "home";
-                    break;
-                  case "Map":
-                    iconName = "map";
-                    break;
-                  case "ประวัติการใช้บริการ":
-                    iconName = "history";
-                    break;
-                  case "การแจ้งเตือน":
-                    iconName = "bell";
-                    break;
-                  case "โปรไฟล์ผู้ใช้":
-                    iconName = "account";
-                    break;
-                  default:
-                    iconName = "circle";
-                }
-
-                return <Icon name={iconName} size={size} color={color} />;
-              },
-              tabBarActiveTintColor: "#60B876",
-              tabBarInactiveTintColor: "#555D65",
-            })}
-          >
-            <Tab.Screen
-              name="Home"
-              component={HomeStack}
-              options={{ headerShown: false }}
-            />
-
-            <Tab.Screen
-              name="ประวัติการใช้บริการ"
-              component={HistoryPage}
-              options={{ title: "ประวัติการใช้บริการ" }}
-            />
-            <Tab.Screen
-              name="การแจ้งเตือน"
-              component={MessageBoxScreen}
-              options={{ title: "การแจ้งเตือน" }}
-            />
-
-            {/* <Tab.Screen name="Map" component={Map} options={{ headerShown: false }} /> */}
-            <Tab.Screen
-              name="โปรไฟล์ผู้ใช้"
-              component={UserProfileStack}
-              options={{ headerShown: false }}
-            />
-          </Tab.Navigator>
-        ) : (
-          <AuthStack onLogin={handleLogin} />
-        )}
-      </NavigationContainer>
+      <AppContent />
     </UserProvider>
   );
 };
