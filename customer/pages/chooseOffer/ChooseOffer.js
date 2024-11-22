@@ -59,7 +59,6 @@ const ChooseOffer = ({ navigation, route }) => {
   const { request_id } = route.params;
 
   useEffect(() => {
-    console.log("customer_id_request", customer_id_request);
     console.log("request_id", request_id);
   }, [route.params]);
 
