@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState  , useContext } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,8 @@ import { Provider as PaperProvider } from "react-native-paper";
 import { FontAwesome5 } from "@expo/vector-icons";
 import bookmap from "./bookmap/Bookmap";
 import { IP_ADDRESS } from "../../config";
+import { UserContext } from "../../UserContext";
+
 
 const AddressPage = ({ navigation }) => {
   // const [houseNumber, setHouseNumber] = useState('')
@@ -32,6 +34,8 @@ const AddressPage = ({ navigation }) => {
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
+
+  const {  userData } = useContext(UserContext);
 
   const route = useRoute();
   const origin = route.params?.origin || "ไม่ระบุ";

@@ -6,7 +6,7 @@ import {
   View,
   StyleSheet,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState , useContext} from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
 import { TouchableOpacity } from "react-native";
@@ -16,6 +16,7 @@ import { useRoute } from "@react-navigation/native";
 import { IP_ADDRESS } from "../../config";
 import axios from "axios";
 import QRCode from "react-native-qrcode-svg";
+import { UserContext } from "../../UserContext";
 
 export default function PaymentPage({ navigation }) {
   const feePrice = 200;
@@ -29,6 +30,8 @@ export default function PaymentPage({ navigation }) {
   const [tabIndex, setTabIndex] = useState(0);
 
   const route = useRoute();
+
+  const {  userData } = useContext(UserContext);
 
   const driverId = route.params?.chooseDriver.id || "ไม่ระบุ";
   const driverName = route.params?.chooseDriver.name || "ไม่ระบุ";

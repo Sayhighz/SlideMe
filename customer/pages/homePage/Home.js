@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState , useContext } from "react";
 import {
   Text,
   View,
@@ -14,12 +14,15 @@ import Swiper from "react-native-swiper";
 import tw from "twrnc";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRoute } from "@react-navigation/native";
+import { UserContext } from "../../UserContext";
 
 function Home({ navigation }) {
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const {  userData } = useContext(UserContext);
+ 
 
   const handleOpenModal = () => {
     setIsModalVisible(true);
@@ -57,8 +60,12 @@ function Home({ navigation }) {
       <View style={tw`flex-1 items-center justify-between `}>
         {/* Main Content */}
         <View style={tw`relative w-full items-center`}>
+
+        <Text style={tw`text-xl font-bold mt-4`}>
+        Welcome {userData?.username || "User"}!
+      </Text>
           <TouchableOpacity
-            style={tw`mt-5`}
+            style={tw`mt-3`}
             onPress={() => navigation.navigate("Order")}
           >
             <LinearGradient
@@ -129,7 +136,7 @@ function Home({ navigation }) {
             <TouchableOpacity
               style={[
                 { width: responsiveWidth, height: height * 0.16, padding: 10 },
-                tw`rounded-lg items-center justify-center mt-5 `,
+                tw`rounded-lg items-center justify-center mt-3 `,
               ]}
               onPress={() => navigation.navigate("Rating")}
             >
@@ -152,7 +159,7 @@ function Home({ navigation }) {
             <TouchableOpacity
               style={[
                 { width: responsiveWidth, height: height * 0.12, padding: 10 },
-                tw`rounded-lg items-center justify-center mt-5 `,
+                tw`rounded-lg items-center justify-center mt-3 `,
               ]}
             >
               <LinearGradient
@@ -179,7 +186,7 @@ function Home({ navigation }) {
         {/* Swiper for Ads Banner (placed above bottom navbar) */}
         <View
           style={[
-            tw`mb-2`,
+            tw``,
             { width: responsiveWidth, height: responsiveHeight },
           ]}
         >

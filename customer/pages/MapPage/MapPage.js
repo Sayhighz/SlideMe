@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState , useContext } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text, View, Pressable, Modal , StyleSheet} from "react-native";
 
@@ -11,6 +11,7 @@ import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
+import { UserContext } from "../../UserContext";
 
 const MapPage = ({ navigation }) => {
   const route = useRoute();
@@ -29,6 +30,8 @@ const MapPage = ({ navigation }) => {
   const [storeAddress, setStoreAddress] = useState([]); // State สำหรับที่อยู่ของร้านค้า
 
   const [openModal, setOpenModal] = useState(false);
+  const { userData } = useContext(UserContext);
+
 
   // 13.855827502824274, 100.58551678180032
 

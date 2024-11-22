@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState , useContext } from 'react'
 import { View, Text, TouchableOpacity , TextInput , StyleSheet , Alert} from 'react-native'
 import { IP_ADDRESS } from '../../config'
 import tw from 'twrnc'
+import { UserContext } from '../../UserContext'
 
 const EditProfile = ({ navigation }) => {
   const [firstName, setFirstName] = useState('')
@@ -9,6 +10,7 @@ const EditProfile = ({ navigation }) => {
   const [email, setEmail] = useState('')
   const [username , setUsername] = useState('')
   const [userId, setUserId] = useState('1');
+  const { userData } = useContext(UserContext);
 
   const handleSave = async () => {
     if ( !firstName || !lastName || !email) {
