@@ -46,6 +46,11 @@ const FirstRegister = ({ navigation }) => {
             return;
         }
 
+        if (!selectedProvince || !selectedVehicleType) {
+            Alert.alert('ข้อผิดพลาด', 'กรุณาเลือกจังหวัดและประเภทรถ');
+            return;
+        }
+
         navigation.navigate('SecondRegister', {
             phoneNumber,  // ส่งเบอร์โทรศัพท์
             selectedProvince, // จังหวัด

@@ -130,7 +130,12 @@ function AuthNavigator({ handleLogin }) {
  */
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userInfo, setUserInfo] = useState(null);
+  const [userDataNa, setUserDataNa] = useState({
+    profile_picture: "",
+    first_name: "",
+    last_name: "",
+    driver_id: null,
+  });
 
   // Load custom fonts
   const [fontsLoaded] = useFonts({
@@ -149,17 +154,22 @@ export default function App() {
   // Handle user login action
   const handleLogin = (user) => {
     Alert.alert("สำเร็จ", "เข้าสู่ระบบสำเร็จ");
+    setUserDataNa({
+      profile_picture: user.profile_picture || "photos-1732037296004-612856125.jpeg",
+      first_name: user.first_name,
+      last_name: user.last_name,
+      driver_id: user.user_id,
+    });
     setIsLoggedIn(true);
-    setUserInfo(user);
   };
 
   // Mock user data for demonstration purposes
-  const userDataNa = {
-    profile_picture: "photos-1732037296004-612856125.jpeg", // เอาจาก table users
-    first_name: "John", // เอาจาก table users
-    last_name: "Doe", // เอาจาก table users
-    driver_id: 6, // เอาจาก table users
-  };
+  // const userDataNa = {
+  //   profile_picture: "photos-1732037296004-612856125.jpeg", // เอาจาก table users
+  //   first_name: "John", // เอาจาก table users
+  //   last_name: "Doe", // เอาจาก table users
+  //   driver_id: 6, // เอาจาก table users
+  // };
 
   // Render Authentication Navigator if the user is not logged in
   if (!isLoggedIn) {

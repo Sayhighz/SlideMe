@@ -16,7 +16,9 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { IP_ADDRESS } from "../../config";
 
 const { width } = Dimensions.get("window");
-const dynamicFontSize = (size) => Math.min(size, (size * width) / 375);
+const dynamicFontSize = (size) => Math.max(16, (size * width) / 375);
+
+
 
 export default function HomeLogin({ route, navigation, onLogin }) {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -42,6 +44,8 @@ export default function HomeLogin({ route, navigation, onLogin }) {
           Alert.alert("สำเร็จ", "เข้าสู่ระบบสำเร็จ");
           if (typeof onLogin === "function") {
             onLogin(data.User);
+            console.log(data.User);
+            // navigation.navigate("HomeMain", { userData: data.User });
           }
         } else {
           Alert.alert("ข้อผิดพลาด", data.Error);
@@ -59,29 +63,32 @@ export default function HomeLogin({ route, navigation, onLogin }) {
         <ScrollView contentContainerStyle={tw`flex-grow`}>
           <View style={tw`flex-1 justify-center items-center`}>
             <Text
-              style={tw.style("font-bold text-center text-4xl", {
-                fontSize: dynamicFontSize(48),
+              style={tw.style("font-bold text-center", {
+                fontSize: dynamicFontSize(52),
                 color: "#60B876",
+                lineHeight: dynamicFontSize(58), // เพิ่ม lineHeight
               })}
             >
               SLIDE
             </Text>
             <Text
-              style={tw.style(
-                "font-bold text-center leading-none text-6xl z-10",
-                { fontSize: dynamicFontSize(72), color: "#60B876" }
-              )}
+              style={tw.style("font-bold text-center", {
+                fontSize: dynamicFontSize(80),
+                color: "#60B876",
+                lineHeight: dynamicFontSize(88), // เพิ่ม lineHeight
+              })}
             >
               ME
             </Text>
             <Text
-              style={tw.style("text-lg font-bold leading-none text-[#60B876]", {
+              style={tw.style("text-lg font-bold text-[#60B876]", {
                 lineHeight: dynamicFontSize(24),
               })}
             >
               Drive & Earn
             </Text>
           </View>
+
           <View style={tw.style("flex-1 mx-auto mt-6", { width: "90%" })}>
             <Text style={tw`text-lg font-bold mb-2`}>เบอร์โทรศัพท์</Text>
             <TextInput
