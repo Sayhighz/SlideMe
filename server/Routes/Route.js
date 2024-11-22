@@ -1105,7 +1105,7 @@ router.post("/login", (req, res) => {
     // ส่งข้อมูลผู้ใช้กลับไป
     return res.json({
       Status: true,
-      Message: "เข้าสู่ระบบสำเร็จ",
+      // Message: "เข้าสู่ระบบสำเร็จ",
       Token: token,
       User: {
         user_id: user.user_id,

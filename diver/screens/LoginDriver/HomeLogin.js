@@ -123,7 +123,7 @@ export default function HomeLogin({ route, navigation, onLogin }) {
               </TouchableOpacity>
             </View>
             <Text
-              onPress={() => onLogin()}
+              // onPress={() => onLogin()}
               style={tw`text-sm`}
             >
               ลืมรหัสผ่าน
