@@ -25,17 +25,7 @@ const MapPage = ({ navigation }) => {
   const [confirmOrigin, setConfirmOrigin] = useState([]);
   const [confirmDestination, setConfirmDestination] = useState([]);
 
-  const [tab, setTab] = useState(0);
-  const [address, setAddress] = useState(null);
-  const [storeAddress, setStoreAddress] = useState([]); // State สำหรับที่อยู่ของร้านค้า
-
   const [openModal, setOpenModal] = useState(false);
-
-  const googlePlacesRef = useRef();
-
-  // 13.855827502824274, 100.58551678180032
-
-
 
   //ระบุสถานที่
   const getAddressFromCoords = async (latitude, longitude) => {
@@ -62,22 +52,14 @@ const MapPage = ({ navigation }) => {
     }
   };
 
-  //คำนวณระยะทาง
-  const haversineDistance = (coords1, coords2) => {
-    const toRad = (value) => (value * Math.PI) / 180;
-
-    const R = 6371; // รัศมีของโลกเป็นกิโลเมตร
-    const dLat = toRad(coords2.latitude - coords1.latitude);
-    const dLon = toRad(coords2.longitude - coords1.longitude);
-    const lat1 = toRad(coords1.latitude);
-    const lat2 = toRad(coords2.latitude);
-
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    return R * c; // ระยะทางเป็นกิโลเมตร
+  const handleConfirm = () => {
+    navigation.navigate("Mapdetail", {
+      origin,
+      destination,
+      confirmOrigin,
+      confirmDestination,
+    });
+    setOpenModal(false);
   };
 
   useEffect(() => {
@@ -92,18 +74,7 @@ const MapPage = ({ navigation }) => {
     if (confirmDestination.length > 0) {
       handleConfirm();
     }
-  }),
-    [confirmDestination];
-
-  const handleConfirm = () => {
-    navigation.navigate("Mapdetail", {
-      origin,
-      destination,
-      confirmOrigin,
-      confirmDestination,
-    });
-    setOpenModal(false);
-  };
+  },[confirmDestination]);
 
   return (
     <SafeAreaView style={tw`flex-1`} edges={['top', 'left', 'right']}>

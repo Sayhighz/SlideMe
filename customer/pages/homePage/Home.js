@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Text,
   View,
@@ -14,12 +14,15 @@ import Swiper from "react-native-swiper";
 import tw from "twrnc";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRoute } from "@react-navigation/native";
+import { CustomerContext } from "../../CustomerContext";
 
 function Home({ navigation }) {
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
   const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const { customerId } = useContext(CustomerContext);
 
   const handleOpenModal = () => {
     setIsModalVisible(true);
@@ -38,7 +41,9 @@ function Home({ navigation }) {
     </TouchableOpacity>
   );
 
-  
+  useEffect(() => {
+    console.log("customerId:", customerId);
+  }, [customerId]);
 
   const route = useRoute();
   const selectedLabel = route.params?.selectedLabel || "ไม่ระบุ";
@@ -61,7 +66,9 @@ function Home({ navigation }) {
         <View style={tw`relative w-full items-center`}>
           <TouchableOpacity
             style={tw`mt-5`}
-            onPress={() => navigation.navigate("Order")}
+            onPress={() => {navigation.navigate("Order", {
+              customerId: customerId,
+            })}}
           >
             <LinearGradient
               colors={["#3DE183", "#60B876", "#6CA97C"]}

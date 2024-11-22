@@ -62,15 +62,8 @@ function Map({
     }
   };
 
-  // ยกเลิกการติดตามตำแหน่งเมื่อ component ถูก unmounted
   useEffect(() => {
     _getLocation();
-
-    return () => {
-      if (locationWatcher.current) {
-        locationWatcher.current.remove(); // ยกเลิกการติดตามเมื่อ component ถูก unmounted
-      }
-    };
   }, []);
 
   return (
@@ -137,7 +130,7 @@ function Map({
                     }
                   : {
                       latitude: origin.latitude,
-                      longitude: origin.longitude + 0.005,
+                      longitude: origin.longitude + 0.003,
                     }
               }
               pinColor="green"

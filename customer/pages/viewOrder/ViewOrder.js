@@ -1,4 +1,4 @@
-import { Pressable, SafeAreaView, Text, View, StyleSheet } from "react-native";
+import { Pressable, SafeAreaView, Text, View, StyleSheet, Alert } from "react-native";
 import React, { useEffect, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
@@ -46,7 +46,7 @@ export default function ViewOrder({ navigation }) {
       day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
-      second: "2-digit",
+      // second: "2-digit",
     };
     return new Intl.DateTimeFormat("th-TH", options).format(date);
   };
@@ -111,8 +111,8 @@ export default function ViewOrder({ navigation }) {
         <View style={tw`flex-2`}>
           <View style={tw`flex-1`}>
             <View style={tw`flex-1 flex-row justify-between px-4 items-end`}>
-              <Text style={styles.globalText}>{time}</Text>
-              <Text style={styles.globalText}>{request}</Text>
+              <Text style={[styles.globalText, tw`text-sm`]}>{time}</Text>
+              <Text style={[styles.globalText, tw`text-sm`]}>{request}</Text>
             </View>
             <View style={tw`flex-4 justify-around mx-4 bg-gray-200 rounded-lg`}>
               <View style={tw`flex-1 flex-row items-center w-full`}>
@@ -124,7 +124,7 @@ export default function ViewOrder({ navigation }) {
               <View
                 style={tw`flex-1 flex-row items-center w-full`}
                 onTouchEnd={() => {
-                  console.log("ต้นทาง :", origin.name);
+                  Alert.alert("ต้นทาง :", origin.name);
                 }}
               >
                 <MaterialIcons name="location-pin" size={24} color="red" />
@@ -139,7 +139,7 @@ export default function ViewOrder({ navigation }) {
               <View
                 style={tw`flex-1 flex-row items-center w-full`}
                 onTouchEnd={() => {
-                  console.log("ปลายทาง :", destination.name);
+                  Alert.alert("ปลายทาง :", destination.name);
                 }}
               >
                 <MaterialIcons name="location-pin" size={24} color="green" />
@@ -217,8 +217,8 @@ export default function ViewOrder({ navigation }) {
                   driverInformation.latitude &&
                   driverInformation.longitude && (
                     <MapViewDirections
-                      strokeColor="blue"
-                      strokeWidth={2}
+                      strokeColor={"#1e40af"}
+                      strokeWidth={3}    
                       apikey={GOOGLE_MAPS_API_KEY}
                       origin={{
                         latitude: driverInformation.latitude,

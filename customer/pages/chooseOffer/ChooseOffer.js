@@ -260,7 +260,7 @@ const ChooseOffer = ({ navigation, route }) => {
                 <Text style={[styles.globalText, tw`text-lg font-bold`]}>
                   {"ราคา : "}
                   <Text style={tw`text-lg text-red-700`}>
-                    {chooseDriver.price || "-"}
+                    {chooseDriver.price !== null ? chooseDriver.price + fee : "-"}
                     {" บาท"}
                   </Text>
                 </Text>
@@ -300,7 +300,7 @@ const ChooseOffer = ({ navigation, route }) => {
         </View>
       </Modal>
 
-      <View style={tw`flex-1`}>
+      <View style={tw`flex-2`}>
         {originLocation.latitude && destinationLocation.latitude ? (
           <MapView
             style={tw`flex-1`} // ปรับขนาดตามที่ต้องการ
@@ -351,7 +351,7 @@ const ChooseOffer = ({ navigation, route }) => {
                   longitude: item.location.longitude,
                 }}
                 title={item.name}
-                description={`ราคา: ${item.price} บาท`}
+                description={`ราคา: ${item.price + fee} บาท`}
               >
                 <MaterialIcons
                   name="location-pin"
@@ -359,6 +359,7 @@ const ChooseOffer = ({ navigation, route }) => {
                   color={chooseDriver.id === item.id ? "green" : "red"}
                   style={tw`ml-2`}
                 />
+                {}
               </Marker>
             ))}
 
@@ -369,17 +370,6 @@ const ChooseOffer = ({ navigation, route }) => {
               strokeColor="transparent"
             />
 
-            {/* <MapViewDirections
-              origin={destinationLocation}
-              destination={originLocation}
-              apikey={GOOGLE_MAPS_API_KEY}
-              strokeWidth={3}
-              strokeColor="blue"
-              onReady={(result) => {
-                console.log("Distance:", result.distance); // Distance in km
-                console.log("Duration:", result.duration); // Duration in minutes
-              }}
-            /> */}
           </MapView>
         ) : (
           <View style={tw`flex-1 justify-center items-center`}>
@@ -387,7 +377,8 @@ const ChooseOffer = ({ navigation, route }) => {
           </View>
         )}
       </View>
-      <View style={tw`flex-1 p-4`}>
+      
+      <View style={tw`flex-2 p-4`}>
         <View style={tw`flex-1 flex-row`}>
           <View style={tw`flex-1 justify-center`}>
             <Pressable onPress={refreshPage}>
@@ -397,7 +388,7 @@ const ChooseOffer = ({ navigation, route }) => {
           <View style={tw`flex-1 justify-center items-end`}>
             {!offerLoading ? (
               <Dropdown
-                style={tw`h-3/4 w-2/4 border-gray-300 rounded-lg px-3 bg-white `}
+                style={tw`h-3/4 w-2/4 rounded-lg px-3 bg-white`}
                 data={dataDropdown}
                 maxHeight={300}
                 labelField="label"
@@ -443,7 +434,7 @@ const ChooseOffer = ({ navigation, route }) => {
                   style={[styles.globalText, tw` font-bold flex-3 text-center`]}
                 >
                   <Text style={tw`text-red-700`}>
-                    {item.price ? item.price + fee : "-"}
+                    {item.price !== null ? item.price + fee : "-"}
                   </Text>
                   {" บาท"}
                 </Text>
