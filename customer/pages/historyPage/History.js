@@ -34,7 +34,7 @@ const mapServiceStatus = (status) => {
 
 // Function to format number with commas
 const formatNumberWithCommas = (number) => {
-  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  // return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
 const HistoryPage = () => {
@@ -100,7 +100,7 @@ const HistoryPage = () => {
           <Text style={tw`text-lg font-semibold`}>{item.vehicle_type || 'ไม่ระบุ'}</Text>
           <Text style={tw`text-gray-600`}>วันที่: {formatThaiDate(item.date)}</Text>
           <Text style={tw`text-gray-600`}>สถานะ: {mapServiceStatus(item.service_status)}</Text>
-          <Text style={tw`text-gray-600`}>ค่าบริการ: {formatNumberWithCommas(item.service_charge)} บาท</Text>
+          <Text style={tw`text-gray-600`}>ค่าบริการ: {item.service_charge ? formatNumberWithCommas(item.service_charge) : 'ไม่ระบุ'} บาท</Text>
         </View>
       </View>
     </TouchableOpacity>
