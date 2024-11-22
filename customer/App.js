@@ -150,10 +150,11 @@ const AppContent = () => {
   const handleLogin = () => {
     setIsLoggedIn(true);
     //fetch ข้อมูลตรงนี้ แล้วก็ setซะ
-    setUserData({ user_id: 5, username: "new_user" }); // Set user data on login
+    
   };
 
   return (
+    
     <NavigationContainer>
       {isLoggedIn ? (
         <Tab.Navigator
