@@ -959,73 +959,49 @@ router.post("/driver/reject_all_offers", (req, res) => {
 
 router.post("/register_driver", (req, res) => {
   const {
-    phone_number,
-    email,
-    username,
-    first_name,
-    last_name,
-    password,
-    id_number,
-    birth_date,
-    id_expiry_date,
-    license_plate,
-  } = req.body;
-
-  // Validation for required fields
-  if (
-    !phone_number ||
-    !password ||
-    !id_number ||
-    !birth_date ||
-    !id_expiry_date ||
-    !license_plate
-  ) {
-    return res.json({
-      Status: false,
-      Error: "All required fields must be filled",
-    });
-  }
-
-  // Hash password (use bcrypt or similar library)
-  // const bcrypt = require("bcrypt");
-  // const hashedPassword = bcrypt.hashSync(password, 10); // Hash with 10 salt rounds
-
-  const sql = `
-    INSERT INTO users (
       phone_number,
       email,
       username,
       first_name,
       last_name,
       password,
-      role,
       id_number,
       birth_date,
       id_expiry_date,
       license_plate,
-      created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, 'driver', ?, ?, ?, ?, NOW())
+      province,
+      vehicle_type,
+  } = req.body;
+
+  // Validation
+  if (!phone_number || !password || !id_number || !birth_date || !id_expiry_date || !license_plate || !province || !vehicle_type) {
+      return res.json({
+          Status: false,
+          Error: "กรุณากรอกข้อมูลให้ครบถ้วน (เบอร์โทร, จังหวัด และประเภทรถเป็นข้อมูลที่จำเป็น)",
+      });
+  }
+
+  const sql = `
+      INSERT INTO users (
+          phone_number, email, username, first_name, last_name, password,
+          role, id_number, birth_date, id_expiry_date, license_plate,
+          province, vehicle_type, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, 'driver', ?, ?, ?, ?, ?, ?, NOW())
   `;
 
   const values = [
-    phone_number,
-    email || null,
-    username || null,
-    first_name,
-    last_name,
-    password,
-    // hashedPassword,  // Store hashed password
-    id_number,
-    birth_date,
-    id_expiry_date,
-    license_plate,
+      phone_number, email || null, username || null, first_name, last_name, password,
+      id_number, birth_date, id_expiry_date, license_plate, province, vehicle_type,
   ];
 
   con.query(sql, values, (err, result) => {
-    if (err) return res.json({ Status: false, Error: err.message });
-    return res.json({ Status: true, InsertId: result.insertId });
+      if (err) {
+          return res.json({ Status: false, Error: err.message });
+      }
+      return res.json({ Status: true, InsertId: result.insertId });
   });
 });
+
 
 router.post("/login", (req, res) => {
   const { phone_number, password } = req.body;
