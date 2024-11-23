@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import tw from 'twrnc';
 import { IP_ADDRESS } from "../../config";
+import { UserContext } from '../../UserContext';
 
 const AddPaymentMethod = ({ route }) => {
   const navigation = useNavigation();
@@ -13,6 +14,8 @@ const AddPaymentMethod = ({ route }) => {
   const [accountName, setAccountName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
+
+  const { userData } = useContext(UserContext);
 
   const handleExpirationDateChange = (input) => {
     let formattedInput = input.replace(/\D/g, ''); // Remove non-numeric characters
@@ -29,7 +32,7 @@ const AddPaymentMethod = ({ route }) => {
     }
 
     const payload = {
-      user_id: 2,
+      user_id: userData.user_id,
       payment_type: paymentType,
       card_number: accountNumber,
       account_name: accountName,

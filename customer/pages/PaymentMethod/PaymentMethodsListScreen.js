@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import tw from 'twrnc';
 import EditPaymentMethodModal from './EditPaymentMethodModal';
 import { useIsFocused } from '@react-navigation/native';
 import { IP_ADDRESS } from "../../config";
+import { UserContext } from '../../UserContext';
 
 const PaymentMethodsListScreen = ({ navigation }) => {
   const [paymentMethods, setPaymentMethods] = useState([]);
@@ -16,6 +17,8 @@ const PaymentMethodsListScreen = ({ navigation }) => {
   const [editAccountNumber, setEditAccountNumber] = useState('');
   const [editPaymentType, setEditPaymentType] = useState('');
   const [editExpirationDate, setEditExpirationDate] = useState('');
+
+  const { userData } = useContext(UserContext);
 
   // Hook to detect when the screen is focused
   const isFocused = useIsFocused();
@@ -35,7 +38,7 @@ const PaymentMethodsListScreen = ({ navigation }) => {
   const fetchPaymentMethods = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/getAllUserPaymentMethods?user_id=2`);
+      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/getAllUserPaymentMethods?user_id=${userData.user_id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch payment methods');
       }
