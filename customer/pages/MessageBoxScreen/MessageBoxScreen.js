@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Modal, Button, ActivityIndicator , StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from 'twrnc';
 import { IP_ADDRESS } from "../../config";
+import { UserContext } from '../../UserContext';
 
 const MessageBoxScreen = () => {
   const [messages, setMessages] = useState([]);
@@ -11,11 +12,12 @@ const MessageBoxScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const { userData } = useContext(UserContext);
 
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch(`http://${IP_ADDRESS}:3000/auth/getAllDiscounts`);
+        const response = await fetch(`http://${IP_ADDRESS}:3000/auth/getAllDiscounts?customer_id=${userData.user_id}`);
         const data = await response.json();
         console.log('Fetched data:', data);
 

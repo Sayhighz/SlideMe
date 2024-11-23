@@ -58,7 +58,7 @@ const UserProfile = ({ navigation }) => {
 
       <TouchableOpacity
         style={[{height: height * 0.05 , width: width * 0.5 },tw`bg-green-500 items-center justify-center rounded-lg mb-30 w-50`]}
-        onPress={() => navigation.navigate('HistoryPage')}
+        onPress={() => navigation.navigate('userHistoryPage')}
       >
         <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>
           ประวัติการใช้บริการ

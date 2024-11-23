@@ -191,7 +191,7 @@ router.get("/service_history_customer", (req, res) => {
       sr.status AS service_status,
       sr.location_from AS origin,
       sr.location_to AS destination,
-      do.offered_price AS service_charge
+      sr.price_offer AS service_charge
       FROM
           ServiceRequests sr
       LEFT JOIN

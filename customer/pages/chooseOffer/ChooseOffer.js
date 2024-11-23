@@ -38,6 +38,8 @@ const ChooseOffer = ({ navigation, route }) => {
 
   const [fetchDataLoading, setFetchDataLoading] = useState(false);
 
+  const [sortedFilteredOffer, setSortedFilteredOffer] = useState([]);
+
   const [originLocation, setOriginLocation] = useState({
     name: "",
     latitude: 0,
@@ -165,6 +167,12 @@ const ChooseOffer = ({ navigation, route }) => {
     }
   };
 
+  const sortOffersByDistance = (offers) => {
+    return offers.sort(
+      (a, b) => (a.distance || Infinity) - (b.distance || Infinity)
+    );
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       refreshPage();
@@ -232,8 +240,10 @@ const ChooseOffer = ({ navigation, route }) => {
       );
       return distance <= radius;
     });
-    return filteredOffers;
+    return sortOffersByDistance(filteredOffers); // เรียงข้อมูลทันที
   };
+  
+  
 
   const calculateAccurateRouteDistance = async (offers) => {
     const promises = offers.map(async (item) => {
@@ -241,7 +251,7 @@ const ChooseOffer = ({ navigation, route }) => {
         const result = await getRouteDistance(item.location, originLocation);
         return {
           ...item,
-          distance: result.distance, // ระยะทางที่ได้จากเส้นทางจริง
+          distance: result.distance,
           duration: result.duration,
           durationText: result.durationText,
         };
@@ -250,8 +260,10 @@ const ChooseOffer = ({ navigation, route }) => {
         return { ...item, distance: null, duration: null, durationText: null };
       }
     });
-
-    return await Promise.all(promises);
+  
+    const results = await Promise.all(promises);
+    setSortedFilteredOffer(results);
+    return sortOffersByDistance(results); // เรียงลำดับ
   };
 
   useEffect(() => {
@@ -274,6 +286,16 @@ const ChooseOffer = ({ navigation, route }) => {
   useEffect(() => {
     refreshPage();
   }, []);
+
+  const renderEmptyList = () => {
+    return (
+      <View style={tw`flex-1 justify-center items-center mt-20 h-2/2`}>
+        <Text style={[styles.globalText, tw`text-lg font-bold`]}>
+          ไม่มีคนขับในระยะนี้
+        </Text>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={tw`flex-1`}>
@@ -426,10 +448,12 @@ const ChooseOffer = ({ navigation, route }) => {
       <View style={tw`flex-2 p-4`}>
         <View style={tw`flex-1 flex-row`}>
           <View style={tw`flex-1 justify-center`}>
-            <Pressable onPress={()=>{
-              refreshPage();
-              setFetchDataLoading(false);
-            }}>
+            <Pressable
+              onPress={() => {
+                refreshPage();
+                setFetchDataLoading(false);
+              }}
+            >
               <MaterialIcons name="refresh" size={24} color="gray" />
             </Pressable>
           </View>
@@ -446,21 +470,25 @@ const ChooseOffer = ({ navigation, route }) => {
                 onChange={(item) => {
                   const newRadius = parseInt(item.value, 10);
                   setRadiusInMeters(newRadius);
+              
+                  // กรองและเรียงข้อมูลทันที
                   const filtered = filterOffersByRadius(offer, newRadius);
-                  setFilteredOffer(filtered); // กรองข้อเสนอรอบตัว
                   calculateAccurateRouteDistance(filtered).then((results) => {
-                    setFilteredOffer(results); // อัพเดทข้อมูลที่มีระยะทางจริง
+                    const sorted = sortOffersByDistance(results); // เรียงข้อมูล
+                    setSortedFilteredOffer(sorted); // อัปเดตข้อมูลเรียงเสร็จแล้ว
                   });
                 }}
+              
               />
             ) : null}
           </View>
         </View>
-        <View style={tw`flex-8 items-center `}>
+        <View style={tw`flex-8 items-center`}>
           {!offerLoading ? (
             <FlatList
-              data={filteredOffer}
+              data={sortedFilteredOffer}
               keyExtractor={(item, index) => `${item.id}-${index}`}
+              ListEmptyComponent={renderEmptyList}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={[
@@ -487,7 +515,7 @@ const ChooseOffer = ({ navigation, route }) => {
                     ]}
                   >
                     <Text style={tw`text-red-700`}>
-                      {item.price ? item.price + fee : "-"}
+                      {item.price + fee}
                     </Text>
                     {" บาท"}
                   </Text>
