@@ -46,6 +46,7 @@ const AddPaymentMethod = ({ route }) => {
       });
 
       if (response.ok) {
+        console.log()
         Alert.alert('Success', 'บันทึกช่องทางการชำระเงินสําเร็จ');
         if (onRefresh) {
           onRefresh(); // Call the callback to refresh data

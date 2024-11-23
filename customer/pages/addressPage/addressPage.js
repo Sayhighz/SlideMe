@@ -38,7 +38,7 @@ const AddressPage = ({ navigation }) => {
 
   const route = useRoute();
   const address = route.params?.address_id || "ไม่ระบุ";
-  const vehicle_type = route.params?.category;
+  const vehicle_type = route.params?.category || "ประเภทของรถสไลด์"
   const save_name = route.params?.nameBookMark || "ไม่ระบุ";
   const origin_lat = route.params?.origin_lat || "ไม่ระบุ";
   const origin_long = route.params?.origin_long || "ไม่ระบุ";
