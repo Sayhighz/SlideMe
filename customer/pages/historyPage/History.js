@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
+import { UserContext } from '../../UserContext';
 
 
 // Utility function to format date to Thai format
@@ -34,7 +35,7 @@ const mapServiceStatus = (status) => {
 
 // Function to format number with commas
 const formatNumberWithCommas = (number) => {
-  // return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
 const HistoryPage = () => {
@@ -45,10 +46,12 @@ const HistoryPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const { userData } = useContext(UserContext);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://${IP_ADDRESS}:3000/auth/service_history_customer?customer_id=2`);
+        const response = await fetch(`http://${IP_ADDRESS}:3000/auth/service_history_customer?customer_id=${userData.user_id}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }

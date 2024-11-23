@@ -1,4 +1,11 @@
-import { Pressable, SafeAreaView, Text, View, StyleSheet, Alert } from "react-native";
+import {
+  Pressable,
+  SafeAreaView,
+  Text,
+  View,
+  StyleSheet,
+  Alert,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
@@ -33,13 +40,17 @@ export default function ViewOrder({ navigation }) {
 
   const [status, setStatus] = useState(null);
 
+  const [alertComfirm, setAlertConfirm] = useState(false);
+
   const driverProfile = route.params?.driverProfile.chooseDriver || "ไม่ระบุ";
   const originLocation = route.params?.originLocation || "ไม่ระบุ";
   const destinationLocation = route.params?.destinationLocation || "ไม่ระบุ";
 
   const driver_id = route.params?.driverProfile.chooseDriver.id || "ไม่ระบุ";
-  const customer_id_request = route.params?.driverProfile.chooseDriver.customer_id_request || "ไม่ระบุ";
-  const request_id = route.params?.driverProfile.chooseDriver.request_id || "ไม่ระบุ";
+  const customer_id_request =
+    route.params?.driverProfile.chooseDriver.customer_id_request || "ไม่ระบุ";
+  const request_id =
+    route.params?.driverProfile.chooseDriver.request_id || "ไม่ระบุ";
 
   useEffect(() => {
     console.log("route.params:", route.params.driverProfile);
@@ -113,18 +124,30 @@ export default function ViewOrder({ navigation }) {
       const response = await axios.get(
         `http://${IP_ADDRESS}:3000/auth/checkStatusOrder/${request_id}`
       );
-  
+
       if (response.data && response.data.status) {
-        setStatus(response.data.status);
-  
-        // ถ้า status เป็น "completed" ให้ navigate ไปยังหน้าถัดไป
-        if (response.data.status === "completed") {
-          navigation.navigate("Rating", 
-            { 
-              requestId: request_id, 
-              driver_id: driver_id, 
-              customer_id_request: customer_id_request,
-            });
+        setStatus(response.data.status); // อัปเดตสถานะใน state
+
+        // ถ้า status เป็น "completed" แสดง Alert และ navigate
+        if (response.data.status === "completed" && !alertComfirm) {
+          setAlertConfirm(true);
+          Alert.alert(
+            "รถของคุณได้ถึงปลายทางแล้ว",
+            "",
+            [
+              {
+                text: "OK",
+                onPress: () => {
+                  navigation.navigate("Rating", {
+                    requestId: request_id,
+                    driver_id: driver_id,
+                    customer_id_request: customer_id_request,
+                  });
+                },
+              },
+            ],
+            { cancelable: false }
+          );
         }
       } else {
         console.error("No status found for the given request_id.");
@@ -135,27 +158,39 @@ export default function ViewOrder({ navigation }) {
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      checkOrderStatus(); // เรียกฟังก์ชัน API
-    }, 5000); // อัปเดตทุก 5 วินาที
-  
-    return () => clearInterval(interval); // ล้าง interval เมื่อ component ถูกทำลาย
-  }, []);
+    let interval;
+
+    if (status === "accepted") {
+      interval = setInterval(() => {
+        checkOrderStatus();
+      }, 5000);
+    }
+
+    if (status === "completed") {
+      clearInterval(interval);
+    }
+
+    // Cleanup function สำหรับ useEffect
+    return () => clearInterval(interval);
+  }, [status]);
 
   const getDriverLocation = async () => {
     try {
       const response = await axios.get(
         `http://${IP_ADDRESS}:3000/auth/driverlocation/${driver_id}`
       );
-
-      if (response.data.success) {
-        setDriverLocation({
-          latitude: response.data.data.current_latitude,
-          longitude: response.data.data.current_longitude,
-        });
-        console.log("Driver location fetched:", response.data.data);
-      } else {
-        console.error("Failed to fetch driver location:", response.data.message);
+      if (status === "accepted") {
+        if (response.data.success) {
+          setDriverLocation({
+            latitude: response.data.data.current_latitude,
+            longitude: response.data.data.current_longitude,
+          });
+        } else {
+          console.error(
+            "Failed to fetch driver location:",
+            response.data.message
+          );
+        }
       }
     } catch (error) {
       console.error("Error fetching driver location:", error);
@@ -163,16 +198,24 @@ export default function ViewOrder({ navigation }) {
   };
 
   useEffect(() => {
-    // Initial fetch
-    fetchOrderDetails();
-  }, []);
+    let intervalLocation;
+    if (status === "accepted") {
+      intervalLocation = setInterval(() => {
+        getDriverLocation();
+      }, 1000);
+    }
+    if (status === "completed") {
+      console.log("Clearing interval");
+      clearInterval(intervalLocation);
+    }
+
+    return () => clearInterval(intervalLocation);
+  }, [status]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      getDriverLocation();
-    }, 5000); // Fetch every 5 seconds
-
-    return () => clearInterval(interval); // Cleanup interval on unmount
+    fetchOrderDetails();
+    checkOrderStatus();
+    getDriverLocation();
   }, []);
 
   return (
@@ -234,11 +277,7 @@ export default function ViewOrder({ navigation }) {
                   longitudeDelta: 0.0521,
                 }}
               >
-                <Marker 
-                  coordinate={origin} 
-                  title="origin" 
-                  description="origin"
-                >
+                <Marker coordinate={origin} title="origin" description="origin">
                   <MaterialIcons
                     name="location-pin"
                     size={35}
@@ -288,7 +327,7 @@ export default function ViewOrder({ navigation }) {
                   driverInformation.longitude && (
                     <MapViewDirections
                       strokeColor={"#1e40af"}
-                      strokeWidth={3}    
+                      strokeWidth={3}
                       apikey={GOOGLE_MAPS_API_KEY}
                       origin={{
                         latitude: driverInformation.latitude,
@@ -354,10 +393,10 @@ export default function ViewOrder({ navigation }) {
               <Pressable
                 style={tw`flex-1 bg-gray-300 justify-center rounded-lg items-center w-1/3`}
                 onPress={() => {
-                  navigation.navigate("Rating",{
+                  navigation.navigate("Rating", {
                     requestId: request_id,
                     driverId: driver_id,
-                    customer_id_request: customer_id_request
+                    customer_id_request: customer_id_request,
                   });
                 }}
               >

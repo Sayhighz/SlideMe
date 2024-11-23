@@ -28,7 +28,7 @@ const EditProfile = ({ navigation }) => {
           email,
           first_name: firstName,
           last_name: lastName,
-          user_id: userId,
+          user_id: userData.user_id,
         }),
       });
   

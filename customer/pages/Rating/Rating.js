@@ -1,4 +1,4 @@
-import React, { useState, useEffect , useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -12,7 +12,6 @@ import {
 import StarRating from "react-native-star-rating-widget";
 import { IP_ADDRESS } from "../../config";
 import { MaterialIcons } from "@expo/vector-icons";
-
 
 import tw from "twrnc";
 import { useRoute } from "@react-navigation/native";
@@ -91,9 +90,9 @@ const Rating = ({ navigation }) => {
     setIsSubmitting(true);
 
     const newReview = {
-        request_id: route.params.requestId, // Replace with actual request_id as needed
-        customer_id: route.params.customer_id_request, // Replace with actual customer_id as needed
-        driver_id: route.params.driver_id, // Replace with actual driver_id as needed
+      request_id: route.params.requestId, // Replace with actual request_id as needed
+      customer_id: route.params.customer_id_request, // Replace with actual customer_id as needed
+      driver_id: route.params.driver_id, // Replace with actual driver_id as needed
       rating: rating,
       review_text: review.trim(),
     };
@@ -111,7 +110,6 @@ const Rating = ({ navigation }) => {
       );
       // Simulate sending review to database
       console.log("Submitted Review:", newReview); // Replace this with your database call
-    
 
       const result = await response.json();
 
@@ -149,22 +147,29 @@ const Rating = ({ navigation }) => {
         <Text style={styles.globalText}>{`คนขับ: ${truncateText(
           serviceData.first_name
         )} ${truncateText(serviceData.last_name)}`}</Text>
-        <Text style={styles.globalText}>{`คะแนน: ${
-          serviceData.average_rating?.toFixed(1) 
-        }`}<MaterialIcons name="star" size={17} color="orange" /></Text>
+        <Text style={styles.globalText}>
+          {`คะแนน: ${serviceData.average_rating?.toFixed(1)}`}
+          <MaterialIcons name="star" size={17} color="orange" />
+        </Text>
         <Text style={styles.globalText}>
           {`ราคา: ${serviceData.price}`} บาท
         </Text>
-        <Text style={[styles.globalText]}>
+        <Text
+          style={[styles.globalText]}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
           <MaterialIcons name="location-on" size={17} color="red" />
-          {`ต้นทาง: ${truncateText(serviceData.location_from)}`}
+          {`ต้นทาง: ${serviceData.location_from}`}
         </Text>
-        <Text style={styles.globalText}>
+        <Text style={styles.globalText} numberOfLines={1} ellipsizeMode="tail">
           <MaterialIcons name="location-on" size={17} color="green" />
-          {`ปลายทาง: ${truncateText(serviceData.location_to)}`}
+          {`ปลายทาง: ${serviceData.location_to}`}
         </Text>
       </View>
-      <Text style={[styles.globalText, tw`text-3xl mb-1 mt-5 text-center pt-2`]}>
+      <Text
+        style={[styles.globalText, tw`text-3xl mb-1 mt-5 text-center pt-2`]}
+      >
         {getRatingText(rating)}
       </Text>
       <StarRating
