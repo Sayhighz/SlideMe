@@ -540,7 +540,8 @@ router.post("/add_user_info", (req, res) => {
 
   con.query(sql, values, (err, result) => {
     if (err) return res.json({ Status: false, Error: err.message });
-    return res.json({ Status: true, InsertId: result.insertId });
+    return res.json({ Status: true, InsertId: result.insertId, user_id: result.insertId });
+
   });
 });
 
@@ -554,6 +555,7 @@ router.post("/check_user_phone", (req, res) => {
         Status: true,
         Exists: true,
         Message: "Phone number exists",
+        User: result[0], // Return user details
       });
     } else {
       return res.json({
