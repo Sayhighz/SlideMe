@@ -54,6 +54,8 @@ const ChooseOffer = ({ navigation, route }) => {
     { label: "1 km", value: "1000" },
     { label: "5 km", value: "5000" },
     { label: "10 km", value: "10000" },
+    { label: "20 km", value: "20000" },
+    { label: "30 km", value: "30000" },
   ];
 
   const { userData } = useContext(UserContext);
@@ -428,7 +430,10 @@ const ChooseOffer = ({ navigation, route }) => {
       <View style={tw`flex-2 p-4`}>
         <View style={tw`flex-1 flex-row`}>
           <View style={tw`flex-1 justify-center`}>
-            <Pressable onPress={refreshPage}>
+            <Pressable onPress={()=>{
+              refreshPage();
+              setFetchDataLoading(false);
+            }}>
               <MaterialIcons name="refresh" size={24} color="gray" />
             </Pressable>
           </View>

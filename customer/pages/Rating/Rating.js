@@ -91,9 +91,9 @@ const Rating = ({ navigation }) => {
     setIsSubmitting(true);
 
     const newReview = {
-      //   request_id: '12345', // Replace with actual request_id as needed
-      //   customer_id: '67890', // Replace with actual customer_id as needed
-      //   driver_id: '54321', // Replace with actual driver_id as needed
+        request_id: route.params.requestId, // Replace with actual request_id as needed
+        customer_id: route.params.customer_id_request, // Replace with actual customer_id as needed
+        driver_id: route.params.driver_id, // Replace with actual driver_id as needed
       rating: rating,
       review_text: review.trim(),
     };

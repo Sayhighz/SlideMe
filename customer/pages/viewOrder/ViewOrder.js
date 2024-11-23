@@ -119,7 +119,12 @@ export default function ViewOrder({ navigation }) {
   
         // ถ้า status เป็น "completed" ให้ navigate ไปยังหน้าถัดไป
         if (response.data.status === "completed") {
-          navigation.navigate("Rating", { requestId: request_id });
+          navigation.navigate("Rating", 
+            { 
+              requestId: request_id, 
+              driver_id: driver_id, 
+              customer_id_request: customer_id_request,
+            });
         }
       } else {
         console.error("No status found for the given request_id.");
@@ -350,7 +355,9 @@ export default function ViewOrder({ navigation }) {
                 style={tw`flex-1 bg-gray-300 justify-center rounded-lg items-center w-1/3`}
                 onPress={() => {
                   navigation.navigate("Rating",{
-                    requestId: request_id
+                    requestId: request_id,
+                    driverId: driver_id,
+                    customer_id_request: customer_id_request
                   });
                 }}
               >
