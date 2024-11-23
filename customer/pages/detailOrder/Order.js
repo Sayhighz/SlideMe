@@ -61,7 +61,7 @@ export default function Order({ navigation, bookmark }) {
       const data = await response.json();
       if (data.Status) {
         setBookmarks(data.Result);
-        console.log("Bookmarks:", data.Result);
+        
       } else {
         console.error(data.Error);
       }
@@ -80,7 +80,7 @@ export default function Order({ navigation, bookmark }) {
     }
 
     const requestData = {
-      customer_id: userId, // Use the customer ID from the bookmark
+      customer_id: userId, // User ID จาก useContext
       request_time: formatDateToMySQL(new Date()), // Current time
       pickup_lat: selectedBookmark.pickup_lat, // Extract from bookmark
       pickup_long: selectedBookmark.pickup_long, // Extract from bookmark
@@ -88,7 +88,7 @@ export default function Order({ navigation, bookmark }) {
       dropoff_lat: selectedBookmark.dropoff_lat, // Extract from bookmark
       dropoff_long: selectedBookmark.dropoff_long, // Extract from bookmark
       location_to: selectedBookmark.location_to, // Extract from bookmark
-      vahicle_type: selectedBookmark.vahicle_type, // Extract from bookmark
+      vehicle_type: selectedBookmark.vahicle_type, // Extract from bookmark
       booking_time: formatDateToMySQL(new Date()), // Assuming immediate booking
       customer_message: null, // Optional field
     };
@@ -696,15 +696,7 @@ export default function Order({ navigation, bookmark }) {
                       >
                         <TouchableOpacity
                           style={tw`flex  justify-between`}
-                          // onPress={() =>
-                          //   console.log(
-                          //     item.address_id,
-                          //     item.save_name,
-                          //     item.vahicle_type,
-                          //     item.location_from,
-                          //     item.location_to
-                          //   )
-                          // }
+                          
                           onPress={() => handleRequestFromBookmark(item)}
                         >
                           <View style={tw``}>

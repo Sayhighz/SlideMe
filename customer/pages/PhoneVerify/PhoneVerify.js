@@ -3,12 +3,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Text, View, TouchableOpacity, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback, Alert , StyleSheet} from 'react-native';
 import tw from 'twrnc';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { useContext } from 'react'; // Import useContext
+import { UserContext } from '../../UserContext'; // Import UserContext
 
 function PhoneVerify({ onLogin }) {
+    const { setUserData } = useContext(UserContext);
     const route = useRoute();
     const navigation = useNavigation();
-    const { phoneNumber, otp: initialOtp } = route.params;
-
+    const { phoneNumber, otp: initialOtp, isExistingUser, userDetails } = route.params;
     const [otp, setOtp] = useState(['', '', '', '']);
     const [generatedOtp, setGeneratedOtp] = useState(initialOtp); // Store current OTP
     const [cooldown, setCooldown] = useState(0); // Cooldown state
@@ -34,11 +36,33 @@ function PhoneVerify({ onLogin }) {
     const handleLoginClick = () => {
         const enteredOtp = otp.join('');
         if (enteredOtp === generatedOtp.toString()) {
-            // ถ้าเบอร์มีอยู่แล้วในระบบ ให้เรียกฟังก์ชัน onLogin() หรือเข้าสู่ระบบโดยตรง
-            if (route.params?.isExistingUser) {
-                onLogin(); // หรือเรียกฟังก์ชันสำหรับเข้าสู่ระบบ
+            if (isExistingUser) {
+                if (userDetails) {
+                    const { user_id, phone_number, email, username, first_name, last_name, role } = userDetails;
+                    console.log('User Details:', {
+                        user_id,
+                        phone_number,
+                        email,
+                        username,
+                        first_name,
+                        last_name,
+                        role,
+                    });
+
+                    // Save user details to UserContext
+                    setUserData({
+                        user_id,
+                        phone_number,
+                        email,
+                        username,
+                        first_name,
+                        last_name,
+                        role,
+                    });
+                }
+
+                onLogin(); // Trigger the login process
             } else {
-                // ถ้าเบอร์ไม่มีในระบบ ให้ไปยังหน้า InfoCustomer เพื่อกรอกข้อมูลเพิ่มเติม
                 navigation.navigate('InfoCustomer', { phoneNumber });
             }
         } else {

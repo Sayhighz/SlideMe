@@ -26,31 +26,48 @@ const handlePhoneLogin = async () => {
                 },
                 body: JSON.stringify({ phone_number: formattedPhoneNumber }),
             });
-        
+
             if (!response.ok) {
                 throw new Error(`HTTP status ${response.status}`);
             }
-        
+
             const result = await response.json();
-            console.log('Response from server:', result); // ตรวจสอบการตอบสนองจากเซิร์ฟเวอร์
-        
-            if (result.Status && result.Exists) {
-                const otp = generateOtp();
-                Alert.alert("Your OTP Code", `OTP: ${otp}`);
-                navigation.navigate('PhoneVerify', { phoneNumber: formattedPhoneNumber, otp, isExistingUser: true });
-            } else {
-                const otp = generateOtp();
-                Alert.alert("Your OTP Code", `OTP: ${otp}`);
-                navigation.navigate('PhoneVerify', { phoneNumber: formattedPhoneNumber, otp, isExistingUser: false });
+            console.log('Response from server:', result);
+
+            if (result.Exists) {
+                const { user_id, phone_number, email, username, first_name, last_name, role } = result.User;
+
+                // Log only the necessary fields
+                console.log('User Details:', {
+                    user_id,
+                    phone_number,
+                    email,
+                    username,
+                    first_name,
+                    last_name,
+                    role,
+                });
             }
+
+            const otp = generateOtp();
+            Alert.alert("Your OTP Code", `OTP: ${otp}`);
+
+            navigation.navigate('PhoneVerify', {
+                phoneNumber: formattedPhoneNumber,
+                otp,
+                isExistingUser: result.Exists,
+                userDetails: result.User || null,
+            });
         } catch (error) {
-            console.error('Error occurred:', error.message); // ตรวจสอบข้อผิดพลาดที่เกิดขึ้น
+            console.error('Error occurred:', error.message);
             Alert.alert("Error", "Failed to check phone number. Please try again.");
-        }        
+        }
     } else {
         Alert.alert("Invalid Input", "Please enter a valid 9-digit phone number.");
     }
 };
+
+
 
   
 
