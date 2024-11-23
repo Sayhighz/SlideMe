@@ -207,20 +207,26 @@ router.get("/service_history_customer", (req, res) => {
   });
 });
 
-router.get("/getAllDiscounts", (req, res) => {
-  const customerId = req.query.customer_id || 1;
+router.get('/getAllNotifications', (req, res) => {
   const sql = `
-      SELECT
-        discount_code,
-        discount_percentage,
-        discount_message,
-        expiration_date,
-        type
-      FROM
-        slideme.discounts
-    `;
-  con.query(sql, [customerId], (err, result) => {
-    if (err) return res.json({ Status: false, Error: err.message });
+    SELECT
+      id,
+      title,
+      message,
+      type,
+      discount_code,
+      created_at,
+      read_status
+    FROM
+      app_notifications
+    ORDER BY
+      created_at DESC
+  `;
+
+  con.query(sql, (err, result) => {
+    if (err) {
+      return res.json({ Status: false, Error: err.message });
+    }
     return res.json({ Status: true, Result: result });
   });
 });

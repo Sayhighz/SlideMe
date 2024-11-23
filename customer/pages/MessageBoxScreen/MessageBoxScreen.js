@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Modal, Button, ActivityIndicator , StyleSheet} from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Modal, Button, ActivityIndicator, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from 'twrnc';
 import { IP_ADDRESS } from "../../config";
@@ -17,14 +17,14 @@ const MessageBoxScreen = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch(`http://${IP_ADDRESS}:3000/auth/getAllDiscounts?customer_id=${userData.user_id}`);
+        const response = await fetch(`http://${IP_ADDRESS}:3000/api/getAllNotifications`);
         const data = await response.json();
         console.log('Fetched data:', data);
 
-        if (data && Array.isArray(data.Result)) {
+        if (data.Status && Array.isArray(data.Result)) {
           setMessages(data.Result);
         } else {
-          console.error('Expected array in data.Result but received:', data);
+          console.error('Unexpected data structure:', data);
           setMessages([]);
         }
       } catch (error) {
@@ -57,14 +57,14 @@ const MessageBoxScreen = () => {
     <TouchableOpacity onPress={() => openModal(item)}>
       <View style={tw`flex-row items-center p-4 bg-white mb-2 rounded shadow`}>
         <Icon
-          name={item.type === 'coupon' ? 'tag' : 'newspaper'}
+          name={item.type === 'discount' ? 'tag' : 'newspaper'}
           size={30}
-          color={item.type === 'coupon' ? '#f59e0b' : '#3b82f6'}
+          color={item.type === 'discount' ? '#f59e0b' : '#3b82f6'}
           style={tw`mr-3`}
         />
         <View>
-          <Text style={tw`text-lg font-bold`}>{item.discount_code}</Text>
-          <Text style={tw`text-sm mt-2`}>{item.discount_message}</Text>
+          <Text style={tw`text-lg font-bold`}>{item.title}</Text>
+          <Text style={tw`text-sm mt-2`}>{item.message}</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -77,23 +77,29 @@ const MessageBoxScreen = () => {
           style={filter === 'all' ? tw`border-b-2 border-white` : tw`opacity-70`}
           onPress={() => setFilter('all')}
         >
-          <Text style={[styles.globalText , tw`text-white text-lg`]}>ทั้งหมด</Text>
+          <Text style={[styles.globalText, tw`text-white text-lg`]}>ทั้งหมด</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={filter === 'coupon' ? tw`border-b-2 border-white` : tw`opacity-70`}
-          onPress={() => setFilter('coupon')}
+          style={filter === 'discount' ? tw`border-b-2 border-white` : tw`opacity-70`}
+          onPress={() => setFilter('discount')}
         >
-          <Text style={[styles.globalText , tw`text-white text-lg`]}>คูปองส่วนลด</Text>
+          <Text style={[styles.globalText, tw`text-white text-lg`]}>คูปองส่วนลด</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={filter === 'news' ? tw`border-b-2 border-white` : tw`opacity-70`}
+          onPress={() => setFilter('news')}
+        >
+          <Text style={[styles.globalText, tw`text-white text-lg`]}>ข่าวสาร</Text>
         </TouchableOpacity>
       </View>
 
       <View style={tw`p-5`}>
         {loading ? (
-          <ActivityIndicator color="#3b82f6" />
+          <ActivityIndicator color="#60B876" />
         ) : (
           <FlatList
             data={filteredMessages}
-            keyExtractor={(item) => item.discount_code}
+            keyExtractor={(item) => item.id.toString()}
             renderItem={renderItem}
           />
         )}
@@ -109,8 +115,11 @@ const MessageBoxScreen = () => {
           <View style={tw`w-11/12 bg-white p-5 rounded`}>
             {selectedMessage && (
               <>
-                <Text style={[styles.globalText , tw`text-2xl font-bold mb-3`]}>{selectedMessage.discount_code}</Text>
-                <Text style={[styles.globalText , tw`text-lg mb-5`]}>{selectedMessage.discount_message}</Text>
+                <Text style={[styles.globalText, tw`text-2xl font-bold mb-3`]}>{selectedMessage.title}</Text>
+                <Text style={[styles.globalText, tw`text-lg mb-5`]}>{selectedMessage.message}</Text>
+                {selectedMessage.type === 'discount' && (
+                  <Text style={[styles.globalText, tw`text-lg mb-5 text-green-600`]}>โค้ดส่วนลด: {selectedMessage.discount_code}</Text>
+                )}
                 <Button title="Close" color={'#60B876'} onPress={closeModal} />
               </>
             )}
@@ -123,7 +132,7 @@ const MessageBoxScreen = () => {
 
 const styles = StyleSheet.create({
   globalText: {
-    fontFamily: 'Mitr-Regular'
+    fontFamily: 'Mitr-Regular',
   },
 });
 
