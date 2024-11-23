@@ -58,7 +58,7 @@ const AddressPage = ({ navigation }) => {
     }
 
     const payload = {
-      user_id: 1, // Replace with the actual user ID
+      user_id: userData.user_id, // Replace with the actual user ID
       save_name: nameBookMark,
       location_from: confirmOrigin,
       pickup_lat: origin_lat, // Replace with actual lat/lng
@@ -118,7 +118,7 @@ const AddressPage = ({ navigation }) => {
 
         if (response.ok && data.Status) {
           Alert.alert("Success", "Bookmark added successfully!");
-          navigation.navigate("UserProfile");
+          navigation.navigate("Bookmarklist");
         } else {
           Alert.alert("Error", data.Error || "Failed to add bookmark.");
         }
