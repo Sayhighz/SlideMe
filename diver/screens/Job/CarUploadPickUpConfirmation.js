@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, Image, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -17,6 +17,28 @@ const CarUploadPickUpConfirmation = () => {
     left: null,
     right: null,
   });
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [isDelayOver, setIsDelayOver] = useState(false);
+
+  // Update button state based on uploaded images
+  useEffect(() => {
+    const allImagesUploaded = Object.values(images).every((uri) => uri !== null);
+
+    if (allImagesUploaded) {
+      setIsButtonDisabled(true);
+      setIsDelayOver(false);
+
+      // Add a 3-second delay before enabling the button
+      const delayTimer = setTimeout(() => {
+        setIsButtonDisabled(false);
+        setIsDelayOver(true);
+      }, 3000);
+
+      return () => clearTimeout(delayTimer);
+    } else {
+      setIsButtonDisabled(true);
+    }
+  }, [images]);
 
   // Handle image selection
   const handleImageSelection = async (label) => {
@@ -141,9 +163,15 @@ const CarUploadPickUpConfirmation = () => {
         {/* Confirm Button */}
         <TouchableOpacity
           onPress={handleConfirmation}
-          style={tw`bg-green-500 p-4 rounded-lg mt-4 items-center`}
+          style={[
+            tw`p-4 rounded-lg mt-4 items-center`,
+            isButtonDisabled ? tw`bg-gray-400` : tw`bg-green-500`,
+          ]}
+          disabled={isButtonDisabled}
         >
-          <Text style={[styles.globalText, tw`text-white text-base font-bold`]}>ยืนยันการรับรถ</Text>
+          <Text style={[styles.globalText, tw`text-white text-base font-bold`]}>
+            ยืนยันการรับรถ
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, SafeAreaView, ActivityIndicator,StyleSheet } from 'react-native';
 import tw from 'twrnc';
 import { MaterialIcons } from '@expo/vector-icons'; // Assuming you have react-native-vector-icons installed
 
@@ -61,12 +61,20 @@ const FifthRegister = ({ navigation, route }) => {
                             ...route.params, // ส่งข้อมูลจาก FourthRegister.js
                         })}
                     >
-                        <Text style={tw`text-lg font-bold text-center text-white`}>เสร็จสิ้น</Text>
+                        <Text style={[styles.globalText, tw`text-lg font-bold text-center text-white`]}>เสร็จสิ้น</Text>
                     </TouchableOpacity>
                 )}
             </View>
         </SafeAreaView>
     );
+
+    const styles = {
+        globalText: {
+          fontFamily: "Mitr-Regular", // Use your custom font
+        },
+      };
 };
+
+
 
 export default FifthRegister;

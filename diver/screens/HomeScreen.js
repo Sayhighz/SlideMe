@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import tw from "twrnc";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import Swiper from "react-native-swiper";
 import { IP_ADDRESS } from "../config";
+import NotificationRequest from "./NotificationRequest";
 
 export default function HomeScreen({ route }) {
   const navigation = useNavigation();
@@ -23,6 +24,8 @@ export default function HomeScreen({ route }) {
   const [selectedOffer, setSelectedOffer] = useState(null); // Selected offer for modal
   const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
   const { userData = {} } = route.params || {}; // User data passed via route params
+  const [notificationKey, setNotificationKey] = useState(0); // Key for NotificationRequest
+  const [profitToday, setProfitToday] = useState(0); // Profit today
 
   // Sample notices for Swiper
   const notice = [
@@ -30,6 +33,28 @@ export default function HomeScreen({ route }) {
     { id: 2, title: "แจ้งเตือนที่ 2", description: "ข่าวสาร" },
     { id: 3, title: "แจ้งเตือนที่ 3", description: "แจ้งเตือน" },
   ];
+
+  useEffect(() => {
+    const fetchProfitToday = async () => {
+      try {
+        const response = await fetch(
+          `http://${IP_ADDRESS}:3000/auth/driver/profitToday?driver_id=${userData?.driver_id}`
+        );
+        const data = await response.json();
+        if (data.Status && Array.isArray(data.Result) && data.Result.length > 0) {
+          setProfitToday(data.Result[0].profit_today); // Update profit today
+        } else {
+          setProfitToday(0); // Default to 0 if no data
+        }
+      } catch (error) {
+        console.error("Error fetching profit_today:", error);
+        setProfitToday(0);
+      }
+    };
+    
+
+    fetchProfitToday();
+  }, [userData?.driver_id]);
 
   // Fetch offers when the screen gains focus
   useFocusEffect(
@@ -54,9 +79,10 @@ export default function HomeScreen({ route }) {
           setLoading(false);
         }
       };
+
       fetchOffers();
-      return () => {};
-    }, [])
+      setNotificationKey((prevKey) => prevKey + 1); // Update the key to reload NotificationRequest
+    }, [userData?.driver_id])
   );
 
   // Handle offer press
@@ -100,6 +126,12 @@ export default function HomeScreen({ route }) {
     }
   };
 
+  const formatCurrency = (number) => {
+    if (isNaN(number)) return "฿0.00";
+    return `฿${number.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+  };
+
+
   // Utility to truncate long text
   const truncateText = (text, maxLength = 8) => {
     if (!text) return "";
@@ -114,6 +146,7 @@ export default function HomeScreen({ route }) {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
+  console.log(profitToday)
   // Utility to format offer status
   const getFormattedStatus = (status) => {
     switch (status) {
@@ -134,8 +167,6 @@ export default function HomeScreen({ route }) {
     }
   };
 
-  // Main Component Render
-
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
       <FlatList
@@ -154,10 +185,7 @@ export default function HomeScreen({ route }) {
                   สวัสดี!
                 </Text>
                 <Text
-                  style={[
-                    styles.globalText,
-                    tw`text-2xl font-bold text-green-600`,
-                  ]}
+                  style={[styles.globalText, tw`text-2xl font-bold text-green-600`]}
                 >
                   {`${userData?.first_name || "ไม่พบข้อมูล"} ${
                     userData?.last_name || ""
@@ -170,24 +198,16 @@ export default function HomeScreen({ route }) {
             >
               <View style={tw`items-center`}>
                 <Text
-                  style={[
-                    styles.globalText,
-                    tw`text-2xl font-bold text-green-600`,
-                  ]}
+                  style={[styles.globalText, tw`text-2xl font-bold text-green-600`]}
                 >
-                  ฿50.00
+                  {formatCurrency(profitToday)}
                 </Text>
-                <Text style={[styles.globalText, tw`text-gray-600`]}>
-                  รายได้วันนี้
-                </Text>
+                <Text style={[styles.globalText, tw`text-gray-600`]}>รายได้วันนี้</Text>
               </View>
             </View>
             <View style={tw`w-19/20 mx-auto mt-4 p-4`}>
               <Text
-                style={[
-                  styles.globalText,
-                  tw`text-gray-600 text-xl mb-2 text-center`,
-                ]}
+                style={[styles.globalText, tw`text-gray-600 text-xl mb-2 text-center`]}
               >
                 รายการเสนอราคา
               </Text>
@@ -221,9 +241,7 @@ export default function HomeScreen({ route }) {
                 </Text>
               </View>
               <View style={tw`flex-1 justify-center items-end`}>
-                <Text style={[styles.globalText, tw`text-blue-500 text-xs`]}>
-                  ราคาที่เสนอ
-                </Text>
+                <Text style={[styles.globalText, tw`text-blue-500 text-xs`]}>ราคาที่เสนอ</Text>
                 <Text style={[styles.globalText, tw`text-xs mt-1`]}>
                   {item.offered_price
                     ? `฿${formatNumberWithCommas(item.offered_price)}`
@@ -334,12 +352,17 @@ export default function HomeScreen({ route }) {
             offersData.length >= 2 && tw`bg-gray-400`,
           ]}
           disabled={offersData.length >= 2}
-          onPress={() => navigation.navigate("JobsScreen")}
+          onPress={() => navigation.navigate("JobsScreen", { driver_id: userData?.driver_id })}
         >
           <Text style={[styles.globalText, tw`text-white font-bold text-lg`]}>
             ค้นหางาน
           </Text>
         </TouchableOpacity>
+        <NotificationRequest
+          key={notificationKey}
+          driver_id={userData?.driver_id}
+          status={false}
+        />
       </View>
     </SafeAreaView>
   );

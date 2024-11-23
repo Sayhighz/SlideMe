@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   FlatList,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native"; // Import hook
 import tw from "twrnc";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { IP_ADDRESS } from "../../config";
@@ -20,9 +21,12 @@ export default function HistoryScreen({ userData }) {
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("all");
 
-  useEffect(() => {
-    fetchJobHistory();
-  }, []);
+  // Fetch job history every time the screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      fetchJobHistory();
+    }, [])
+  );
 
   useEffect(() => {
     filterHistory();
@@ -34,7 +38,6 @@ export default function HistoryScreen({ userData }) {
         `http://${IP_ADDRESS}:3000/auth/driver/getHistory?driver_id=${userData?.driver_id}`
       );
       const data = await response.json();
-      console.log(data);
       if (data.Status) {
         setJobHistory(data.Result);
         setFilteredHistory(data.Result);
@@ -84,10 +87,9 @@ export default function HistoryScreen({ userData }) {
   };
 
   const formatNumberWithCommas = (number) => {
-    if (!number && number !== 0) return " 0"; // Handle null, undefined, or other falsy values except 0
+    if (!number && number !== 0) return "0"; // Handle null, undefined, or other falsy values except 0
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
-  
 
   const truncateText = (text, maxLength = 10) => {
     if (!text) return "";
@@ -156,15 +158,17 @@ export default function HistoryScreen({ userData }) {
       {selectedJob && (
         <Modal
           visible={modalVisible}
-          animationType="slide"
+          animationType="fade"
           transparent={true}
           onRequestClose={closeModal}
         >
           <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
-            <View style={tw`w-4/5 p-6 bg-white rounded-lg`}>
-              <Text style={[styles.globalText, tw`text-lg font-bold mb-4`]}>รายละเอียดงาน</Text>
-              <Text style={styles.globalText}>ต้นทาง: {selectedJob.origin}</Text>
-              <Text style={styles.globalText}>ปลายทาง: {selectedJob.destination}</Text>
+            <View style={tw`w-4/5 p-9 bg-white rounded-lg`}>
+              <Text style={[styles.globalText, tw`text-lg font-bold mb-4 text-center`]}>รายละเอียดงาน</Text>
+              <Text style={styles.globalText}><Icon name="map-marker" size={20} color="green" />ต้นทาง</Text>
+              <Text style={[styles.globalText, tw`text-gray-500 mb-2`]}>{selectedJob.origin}</Text>
+              <Text style={styles.globalText}> <Icon name="map-marker" size={20} color="red" />ปลายทาง</Text>
+              <Text style={[styles.globalText, tw`text-gray-500 mb-2`]}>{selectedJob.destination}</Text>
               <Text style={styles.globalText}>
                 วันที่เริ่มงาน:{" "}
                 {new Date(selectedJob.start_time).toLocaleDateString()}
