@@ -156,7 +156,8 @@ export default function App() {
   const handleLogin = (user) => {
     // Alert.alert("สำเร็จ", "เข้าสู่ระบบสำเร็จ");
     setUserDataNa({
-      profile_picture: user.profile_picture || "photos-1732037296004-612856125.jpeg",
+      profile_picture:
+        user.profile_picture || "photos-1732037296004-612856125.jpeg",
       first_name: user.first_name,
       last_name: user.last_name,
       driver_id: user.user_id,
@@ -185,116 +186,111 @@ export default function App() {
   return (
     <NavigationContainer>
       <View style={{ flex: 1 }}>
-      <DriverLocation driver_id={userDataNa.driver_id} />
-      <Tab.Navigator
-  screenOptions={({ route, navigation }) => {
-    const hiddenScreens = [
-      "JobsScreen",
-      "JobDetail",
-      "JobWorking_Pickup",
-      "CarUploadPickUpConfirmation",
-      "JobWorking_Dropoff",
-      "CarUploadDropOffConfirmation",
-      "PersonalInfo",
-      "EditInfo",
-    ];
+        <DriverLocation driver_id={userDataNa.driver_id} />
+        <Tab.Navigator
+          screenOptions={({ route, navigation }) => {
+            const hiddenScreens = [
+              "JobsScreen",
+              "JobDetail",
+              "JobWorking_Pickup",
+              "CarUploadPickUpConfirmation",
+              "JobWorking_Dropoff",
+              "CarUploadDropOffConfirmation",
+              "PersonalInfo",
+              "EditInfo",
+            ];
 
-    // Check if any of the hidden screens is currently active
-    const shouldHideTabBar = navigation
-      .getState()
-      .routes.some((r) =>
-        r.state?.routes
-          ? r.state.routes.some((sr) => hiddenScreens.includes(sr.name))
-          : hiddenScreens.includes(r.name)
-      );
+            // Check if any of the hidden screens is currently active
+            const shouldHideTabBar = navigation
+              .getState()
+              .routes.some((r) =>
+                r.state?.routes
+                  ? r.state.routes.some((sr) => hiddenScreens.includes(sr.name))
+                  : hiddenScreens.includes(r.name)
+              );
 
-    return {
-      headerShown: false,
-      tabBarStyle: [
-        shouldHideTabBar ? { display: "none" } : {},
-        tw`bg-white border-t border-gray-300 shadow-md h-13`,
-      ],
-      tabBarIcon: ({ color, size }) => {
-        let iconName;
-        if (route.name === "HomeTab") {
-          iconName = "home";
-        } else if (route.name === "History") {
-          iconName = "history";
-        } else if (route.name === "ProfileTab") {
-          iconName = "account";
-        }
-        return <Icon name={iconName} size={size} color={color} />;
-      },
-      tabBarActiveTintColor: "#60B876",
-      tabBarInactiveTintColor: "gray",
-    };
-  }}
->
-  {/* Home Tab */}
-  <Tab.Screen
-    name="HomeTab"
-    options={{
-      title: "หน้าหลัก",
-      tabBarLabel: ({ focused, color }) => (
-        <Text
-          style={[
-            { fontFamily: "Mitr-Regular", fontSize: 12, color },
-            focused ? tw`text-green-500` : tw`text-gray-400`,
-          ]}
+            return {
+              headerShown: false,
+              tabBarStyle: [
+                shouldHideTabBar ? { display: "none" } : {},
+                tw`bg-white border-t border-gray-300 shadow-md h-13`,
+              ],
+              tabBarIcon: ({ color, size }) => {
+                let iconName;
+                if (route.name === "HomeTab") {
+                  iconName = "home";
+                } else if (route.name === "History") {
+                  iconName = "history";
+                } else if (route.name === "ProfileTab") {
+                  iconName = "account";
+                }
+                return <Icon name={iconName} size={size} color={color} />;
+              },
+              tabBarActiveTintColor: "#60B876",
+              tabBarInactiveTintColor: "gray",
+            };
+          }}
         >
-          หน้าหลัก
-        </Text>
-      ),
-    }}
-  >
-    {() => <HomeStackNavigator userData={userDataNa} />}
-  </Tab.Screen>
+          {/* Home Tab */}
+          <Tab.Screen
+            name="HomeTab"
+            options={{
+              title: "หน้าหลัก",
+              tabBarLabel: ({ focused, color }) => (
+                <Text
+                  style={[
+                    { fontFamily: "Mitr-Regular", fontSize: 12, color },
+                    focused ? tw`text-green-500` : tw`text-gray-400`,
+                  ]}
+                >
+                  หน้าหลัก
+                </Text>
+              ),
+            }}
+          >
+            {() => <HomeStackNavigator userData={userDataNa} />}
+          </Tab.Screen>
 
-  {/* History Tab */}
-  <Tab.Screen
-    name="History"
-    options={{
-      title: "ประวัติรับงาน",
-      tabBarLabel: ({ focused, color }) => (
-        <Text
-          style={[
-            { fontFamily: "Mitr-Regular", fontSize: 12, color },
-            focused ? tw`text-green-500` : tw`text-gray-400`,
-          ]}
-        >
-          ประวัติรับงาน
-        </Text>
-      ),
-    }}
-  >
-    {() => <HistoryScreen userData={userDataNa} />}
-  </Tab.Screen>
+          {/* History Tab */}
+          <Tab.Screen
+            name="History"
+            options={{
+              title: "ประวัติรับงาน",
+              tabBarLabel: ({ focused, color }) => (
+                <Text
+                  style={[
+                    { fontFamily: "Mitr-Regular", fontSize: 12, color },
+                    focused ? tw`text-green-500` : tw`text-gray-400`,
+                  ]}
+                >
+                  ประวัติรับงาน
+                </Text>
+              ),
+            }}
+          >
+            {() => <HistoryScreen userData={userDataNa} />}
+          </Tab.Screen>
 
-  {/* Profile Tab */}
-  <Tab.Screen
-    name="ProfileTab"
-    options={{
-      title: "โปรไฟล์",
-      tabBarLabel: ({ focused, color }) => (
-        <Text
-          style={[
-            { fontFamily: "Mitr-Regular", fontSize: 12, color },
-            focused ? tw`text-green-500` : tw`text-gray-400`,
-          ]}
-        >
-          โปรไฟล์
-        </Text>
-      ),
-    }}
-  >
-    {() => <ProfileStackNavigator userData={userDataNa} />}
-  </Tab.Screen>
-</Tab.Navigator>
-
-
-  
-        {/* Render Notification Request */}
-        <NotificationRequest driver_id={userDataNa?.driver_id} />
+          {/* Profile Tab */}
+          <Tab.Screen
+            name="ProfileTab"
+            options={{
+              title: "โปรไฟล์",
+              tabBarLabel: ({ focused, color }) => (
+                <Text
+                  style={[
+                    { fontFamily: "Mitr-Regular", fontSize: 12, color },
+                    focused ? tw`text-green-500` : tw`text-gray-400`,
+                  ]}
+                >
+                  โปรไฟล์
+                </Text>
+              ),
+            }}
+          >
+            {() => <ProfileStackNavigator userData={userDataNa} />}
+          </Tab.Screen>
+        </Tab.Navigator>
       </View>
     </NavigationContainer>
   );

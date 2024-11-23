@@ -6,6 +6,7 @@ import {
   ScrollView,
   ActivityIndicator,
   StyleSheet,
+  Modal,
 } from "react-native";
 import tw from "twrnc";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -17,9 +18,8 @@ function truncateText(text, maxLength = 12) {
   return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
 }
 
-// Calculate distance between two coordinates
 function calculateDistance(lat1, lon1, lat2, lon2) {
-  if (!lat1 || !lon1 || !lat2 || !lon2) return "ไม่ทราบระยะห่าง";
+  if (!lat1 || !lon1 || !lat2 || !lon2) return 0;
 
   const toRadians = (degrees) => (degrees * Math.PI) / 180;
   const earthRadiusKm = 6371;
@@ -36,7 +36,6 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   return parseFloat((earthRadiusKm * c).toFixed(2)); // Return distance rounded to 2 decimal places
 }
 
-// Job Card Component
 function JobCard({
   requestId,
   distance,
@@ -63,58 +62,64 @@ function JobCard({
       }
     >
       <Text style={[styles.globalText, tw`text-gray-800 font-bold text-lg mb-4`]}>
-    ระยะทางประมาณ {distance} KM
-  </Text>
-
-  {/* Locations (Origin and Destination) */}
-  <View style={tw`flex-row justify-between items-center mb-4`}>
-    {/* Origin */}
-    <View style={tw`flex-1 flex-row items-center`}>
-      <Icon name="map-marker" size={20} color="green" />
-      <Text style={[styles.globalText, tw`text-gray-600 ml-2 text-base`]}>
-        {truncateText(origin)}
+        ระยะทางประมาณ {distance} กิโลเมตร
       </Text>
-    </View>
-    {/* Destination */}
-    <View style={tw`flex-1 flex-row items-center justify-end`}>
-      <Icon name="map-marker" size={20} color="red" />
-      <Text style={[styles.globalText, tw`text-gray-600 ml-2 text-base`]}>
-        {truncateText(destination)}
-      </Text>
-    </View>
-  </View>
 
-  {/* Type and Time */}
-  <View style={tw`flex-row justify-between items-center mb-4`}>
-    <Text style={[styles.globalText, tw`flex-1 text-gray-500 text-sm`]}>ประเภท: {type}</Text>
-    <Text style={[styles.globalText, tw`flex-1 text-gray-500 text-sm text-right`]}>
-      เวลาเริ่มงาน: {time ? time : "ไม่ระบุ"}
-    </Text>
-  </View>
+      <View style={tw`flex-row justify-between items-center mb-4`}>
+        <View style={tw`flex-1 flex-row items-center`}>
+          <Icon name="map-marker" size={20} color="green" />
+          <Text style={[styles.globalText, tw`text-gray-600 ml-2 text-base`]}>
+            {truncateText(origin)}
+          </Text>
+        </View>
+        <View style={tw`flex-1 flex-row items-center justify-end`}>
+          <Icon name="map-marker" size={20} color="red" />
+          <Text style={[styles.globalText, tw`text-gray-600 ml-2 text-base`]}>
+            {truncateText(destination)}
+          </Text>
+        </View>
+      </View>
 
-  {/* Customer Message */}
-  {message && (
-    <View style={tw`mt-2`}>
-      <Text style={[styles.globalText, tw`text-gray-600`]}>
-        ข้อความลูกค้า: {truncateText(message)}
-      </Text>
-    </View>
-  )}
-</TouchableOpacity>
+      <View style={tw`flex-row justify-between items-center mb-4`}>
+        <Text style={[styles.globalText, tw`flex-1 text-gray-500 text-sm`]}>
+          ประเภท: {type}
+        </Text>
+        <Text
+          style={[
+            styles.globalText,
+            tw`flex-1 text-gray-500 text-sm text-right`,
+          ]}
+        >
+          เวลาเริ่มงาน: {time ? time : "ไม่ระบุ"}
+        </Text>
+      </View>
+
+      {message && (
+        <View style={tw`mt-2`}>
+          <Text style={[styles.globalText, tw`text-gray-600`]}>
+            ข้อความลูกค้า: {truncateText(message)}
+          </Text>
+        </View>
+      )}
+    </TouchableOpacity>
   );
 }
 
-export default function JobsScreen() {
+export default function JobsScreen({ route }) {
   const navigation = useNavigation();
+  const { driver_id } = route.params || {};
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterDistance, setFilterDistance] = useState(10); // Default filter to 10km
+  const [filterDistance, setFilterDistance] = useState(10);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [sortCriteria, setSortCriteria] = useState("latest");
+  const [showSortModal, setShowSortModal] = useState(false);
 
   useEffect(() => {
     const fetchRequests = async () => {
       try {
         const response = await fetch(
-          `http://${IP_ADDRESS}:3000/auth/getRequests`
+          `http://${IP_ADDRESS}:3000/auth/getRequests?driver_id=${driver_id}`
         );
         const data = await response.json();
 
@@ -133,9 +138,8 @@ export default function JobsScreen() {
     };
 
     fetchRequests();
-  }, []);
+  }, [driver_id]);
 
-  // Filter requests based on the distance filter
   const filteredRequests = requests.filter((request) => {
     const distance = calculateDistance(
       parseFloat(request.pickup_lat),
@@ -146,10 +150,49 @@ export default function JobsScreen() {
     return distance <= filterDistance;
   });
 
+  const sortedRequests = [...filteredRequests].sort((a, b) => {
+    if (sortCriteria === "latest") {
+      return new Date(b.booking_time) - new Date(a.booking_time);
+    }
+    if (sortCriteria === "oldest") {
+      return new Date(a.booking_time) - new Date(b.booking_time);
+    }
+    if (sortCriteria === "shortest") {
+      const distanceA = calculateDistance(
+        parseFloat(a.pickup_lat),
+        parseFloat(a.pickup_long),
+        parseFloat(a.dropoff_lat),
+        parseFloat(a.dropoff_long)
+      );
+      const distanceB = calculateDistance(
+        parseFloat(b.pickup_lat),
+        parseFloat(b.pickup_long),
+        parseFloat(b.dropoff_lat),
+        parseFloat(b.dropoff_long)
+      );
+      return distanceA - distanceB;
+    }
+    if (sortCriteria === "longest") {
+      const distanceA = calculateDistance(
+        parseFloat(a.pickup_lat),
+        parseFloat(a.pickup_long),
+        parseFloat(a.dropoff_lat),
+        parseFloat(a.dropoff_long)
+      );
+      const distanceB = calculateDistance(
+        parseFloat(b.pickup_lat),
+        parseFloat(b.pickup_long),
+        parseFloat(b.dropoff_lat),
+        parseFloat(b.dropoff_long)
+      );
+      return distanceB - distanceA;
+    }
+    return 0;
+  });
+
   return (
     <View style={tw`flex-1 bg-gray-100`}>
-      {/* Header Bar */}
-      <View style={tw`bg-green-500 p-4 pt-10 flex-row items-center`}>
+      <View style={tw`bg-green-500 p-4 pt-13 flex-row items-center`}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} color="white" />
         </TouchableOpacity>
@@ -158,39 +201,130 @@ export default function JobsScreen() {
         </Text>
       </View>
 
-      {/* Filter Buttons */}
-      <View style={tw`flex-row justify-around bg-gray-200 p-2`}>
-        {[2, 5, 10].map((distance) => (
-          <TouchableOpacity
-            key={distance}
-            style={[
-              tw`p-2 rounded-lg`,
-              filterDistance === distance
-                ? tw`bg-green-500`
-                : tw`bg-gray-200`,
-            ]}
-            onPress={() => setFilterDistance(distance)}
-          >
-            <Text
-              style={[
-                styles.globalText,
-                tw`text-center ${
-                  filterDistance === distance ? "text-white" : "text-gray-800"
-                }`,
-              ]}
-            >
-              {distance} KM
-            </Text>
-          </TouchableOpacity>
-        ))}
+      <View style={tw`flex-row justify-between items-center bg-gray-200 p-2`}>
+        <Text style={[styles.globalText, tw`text-gray-700 ml-4`]}>
+          ระยะห่างจากต้นทาง: {filterDistance} กิโลเมตร
+        </Text>
+        <TouchableOpacity
+          style={tw`p-2 bg-green-500 rounded-full`}
+          onPress={() => setShowFilterModal(true)}
+        >
+          <Icon name="filter" size={24} color="white" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={tw`p-2 bg-blue-500 rounded-full ml-2`}
+          onPress={() => setShowSortModal(true)}
+        >
+          <Icon name="sort" size={24} color="white" />
+        </TouchableOpacity>
       </View>
 
-      {/* Jobs List */}
+      {/* Filter Modal */}
+      <Modal
+        transparent={true}
+        visible={showFilterModal}
+        onRequestClose={() => setShowFilterModal(false)}
+        animationType="fade"
+      >
+        <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
+          <View style={tw`bg-white w-3/4 p-4 rounded-lg`}>
+            <Text
+              style={[styles.globalText, tw`text-lg font-bold text-center mb-4`]}
+            >
+              เลือกระยะทาง
+            </Text>
+            {[10, 20, 30].map((distance) => (
+              <TouchableOpacity
+                key={distance}
+                style={[
+                  tw`p-2 rounded-lg mb-2`,
+                  filterDistance === distance ? tw`bg-green-500` : tw`bg-gray-200`,
+                ]}
+                onPress={() => {
+                  setFilterDistance(distance);
+                  setShowFilterModal(false);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.globalText,
+                    tw`text-center ${filterDistance === distance ? "text-white" : "text-black"}`,
+                  ]}
+                >
+                  {distance} กิโลเมตร
+                </Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity
+              style={tw`mt-4 bg-red-500 p-2 rounded-lg`}
+              onPress={() => setShowFilterModal(false)}
+            >
+              <Text style={[styles.globalText, tw`text-center text-white font-bold`]}>
+                ปิด
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Sort Modal */}
+      <Modal
+        transparent={true}
+        visible={showSortModal}
+        onRequestClose={() => setShowSortModal(false)}
+        animationType="fade"
+      >
+        <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
+          <View style={tw`bg-white w-3/4 p-4 rounded-lg`}>
+            <Text
+              style={[styles.globalText, tw`text-lg font-bold text-center mb-4`]}
+            >
+              เลือกการเรียงลำดับ
+            </Text>
+            {[
+              { label: "ล่าสุด-เก่า", value: "latest" },
+              { label: "เก่า-ล่าสุด", value: "oldest" },
+              { label: "ระยะรับรถใกล้กับจุดส่งที่สุด", value: "shortest" },
+              { label: "ระยะส่งรถใกล้กับจุดรับที่สุด", value: "longest" },
+            ].map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                style={[
+                  tw`p-2 rounded-lg mb-2`,
+                  sortCriteria === option.value ? tw`bg-blue-500` : tw`bg-gray-200`,
+                ]}
+                onPress={() => {
+                  setSortCriteria(option.value);
+                  setShowSortModal(false);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.globalText,
+                    tw`text-center ${sortCriteria === option.value ? "text-white" : "text-black"}`,
+                  ]}
+                >
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity
+              style={tw`mt-4 bg-red-500 p-2 rounded-lg`}
+              onPress={() => setShowSortModal(false)}
+            >
+              <Text style={[styles.globalText, tw`text-center text-white font-bold`]}>
+                ปิด
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <ScrollView contentContainerStyle={tw`p-4`}>
         {loading ? (
           <ActivityIndicator size="large" color="#00ff00" />
-        ) : filteredRequests.length > 0 ? (
-          filteredRequests.map((request) => {
+        ) : sortedRequests.length > 0 ? (
+          sortedRequests.map((request) => {
             const distance = calculateDistance(
               parseFloat(request.pickup_lat),
               parseFloat(request.pickup_long),
@@ -235,6 +369,6 @@ export default function JobsScreen() {
 
 const styles = StyleSheet.create({
   globalText: {
-    fontFamily: "Mitr-Regular", // Ensure this font is loaded in your project
+    fontFamily: "Mitr-Regular",
   },
 });

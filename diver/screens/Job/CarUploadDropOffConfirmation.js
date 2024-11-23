@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -25,6 +25,7 @@ const CarUploadDropOffConfirmation = () => {
     left: null,
     right: null,
   });
+  const [buttonEnabled, setButtonEnabled] = useState(false); // State for button enable/disable
 
   // Function to handle image selection
   const handleImageSelection = async (label) => {
@@ -48,6 +49,18 @@ const CarUploadDropOffConfirmation = () => {
       console.error("Error selecting image:", error);
     }
   };
+
+  // Update button enabled state when images change
+  useEffect(() => {
+    const allImagesUploaded = Object.values(images).every((uri) => uri !== null);
+
+    if (allImagesUploaded) {
+      const timer = setTimeout(() => setButtonEnabled(true), 3000); // Enable after 2000ms
+      return () => clearTimeout(timer);
+    } else {
+      setButtonEnabled(false);
+    }
+  }, [images]);
 
   // Render upload box
   const renderUploadBox = (label, displayName) => (
@@ -174,7 +187,11 @@ const CarUploadDropOffConfirmation = () => {
         {/* Confirm Button */}
         <TouchableOpacity
           onPress={handleConfirmation}
-          style={tw`bg-green-500 p-4 rounded-lg mt-4 items-center`}
+          style={[
+            tw`p-4 rounded-lg mt-4 items-center`,
+            buttonEnabled ? tw`bg-green-500` : tw`bg-gray-400`,
+          ]}
+          disabled={!buttonEnabled}
         >
           <Text style={[styles.globalText, tw`text-white text-base font-bold`]}>ยืนยันการส่งรถ</Text>
         </TouchableOpacity>
