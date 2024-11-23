@@ -21,7 +21,7 @@ function Home({ navigation }) {
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const {  userData } = useContext(UserContext);
+  const { userData } = useContext(UserContext); // Access userData from UserContext
  
 
   const handleOpenModal = () => {
@@ -62,7 +62,7 @@ function Home({ navigation }) {
         <View style={tw`relative w-full items-center`}>
 
         <Text style={tw`text-xl font-bold mt-4`}>
-        Welcome {userData?.username || "User"} !
+        Welcome, {userData?.username || userData?.first_name || userData?.phone_number}!
       </Text>
           <TouchableOpacity
             style={tw`mt-3`}

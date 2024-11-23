@@ -5,10 +5,13 @@ import tw from 'twrnc';
 import { useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { IP_ADDRESS } from '../../config';
+import { useContext } from 'react'; // Import useContext
+import { UserContext } from '../../UserContext'; // Import UserContext
 
 const InfoCustomer = ({ onLogin }) => {
     const route = useRoute();
     const phoneNumber = route.params?.phoneNumber || '';
+    const { setUserData } = useContext(UserContext);
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -36,23 +39,35 @@ const InfoCustomer = ({ onLogin }) => {
                 });
     
                 const result = await response.json();
-                console.log("Response:", result);
-                if (result.Status) {
-                    Alert.alert("Success", "User data added successfully!");
+                console.log("Response:", result); // Log backend response
+    
+                if (result.Status && result.user_id) {
+                    Alert.alert("สำเร็ข", "สมัครมาชิคสำเร็จ ยินดีต้อนรับ!");
+    
+                    // Save user details including user_id to UserContext
+                    const userData = {
+                        user_id: result.user_id, // Add user_id
+                        phone_number: phoneNumber,
+                        email: email,
+                        username: username,
+                        first_name: name,
+                        last_name: lastname,
+                    };
+                    console.log("User Data to Context:", userData); // Log user data
+                    setUserData(userData);
+    
+                    onLogin(); // Navigate to Home
                 } else {
-                    Alert.alert("Error", result.Error);
+                    Alert.alert("Error", result.Error || "User ID missing in response");
                 }
             } catch (error) {
-                console.error("Fetch Error:", error); // Log the error
+                console.error("Fetch Error:", error); // Log fetch error
                 Alert.alert("Error", "Failed to add user data");
             }
     
-            setModalVisible(false); // Optional: Close modal on confirm
-            onLogin();
+            setModalVisible(false);
         }
     };
-    
-    
     
     const handleSkip = async () => {
         try {
@@ -67,17 +82,29 @@ const InfoCustomer = ({ onLogin }) => {
             });
     
             const result = await response.json();
-            if (result.Status) {
-                Alert.alert("Success", "User data added successfully with phone number!");
+            console.log("Response on Skip:", result); // Log backend response for skip
+    
+            if (result.Status && result.user_id) {
+                Alert.alert("สำเร็ข", "สมัครมาชิคสำเร็จ ยินดีต้อนรับ!");
+    
+                // Save minimal user details including user_id to UserContext
+                const userData = {
+                    user_id: result.user_id, // Add user_id
+                    phone_number: phoneNumber,
+                };
+                console.log("Minimal User Data to Context:", userData); // Log user data
+                setUserData(userData);
+    
+                onLogin(); // Navigate to Home
             } else {
-                Alert.alert("Error", result.Error);
+                Alert.alert("Error", result.Error || "User ID missing in response");
             }
         } catch (error) {
-            Alert.alert("Error", "Failed to add user data");
+            console.error("Fetch Error on Skip:", error); // Log fetch error
+            Alert.alert("Error", "ล้มเหลวในการเพิ่ม User Data");
         }
     
-        setModalVisible(false); // Close modal on skip
-        onLogin();
+        setModalVisible(false);
     };
     
     

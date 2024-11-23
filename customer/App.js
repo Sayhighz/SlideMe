@@ -1,3 +1,4 @@
+// Customer
 import React, { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { ActivityIndicator, View } from "react-native";
