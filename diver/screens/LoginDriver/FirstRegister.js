@@ -1,137 +1,185 @@
-// FirstRegister.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  SafeAreaView,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import tw from 'twrnc';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const FirstRegister = ({ navigation }) => {
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [selectedProvince, setSelectedProvince] = useState('');
-    const [selectedVehicleType, setSelectedVehicleType] = useState('');
-    const [isTermsAccepted, setIsTermsAccepted] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [selectedProvince, setSelectedProvince] = useState('');
+  const [selectedVehicleType, setSelectedVehicleType] = useState('');
+  const [isTermsAccepted, setIsTermsAccepted] = useState(false);
 
-    const provinces = [
-        { label: 'กรุงเทพมหานคร', value: 'bangkok' },
-        { label: 'เชียงใหม่', value: 'chiangmai' },
-        { label: 'ภูเก็ต', value: 'phuket' },
-        { label: 'ชลบุรี', value: 'chonburi' },
-        { label: 'นครราชสีมา', value: 'korat' },
-    ];
+  const provinces = [
+    { label: 'กรุงเทพมหานคร', value: 'bangkok' },
+    { label: 'เชียงใหม่', value: 'chiangmai' },
+    { label: 'ภูเก็ต', value: 'phuket' },
+    { label: 'ชลบุรี', value: 'chonburi' },
+    { label: 'นครราชสีมา', value: 'korat' },
+  ];
 
-    const vehicleTypes = [
-        { label: 'รถสไลด์มาตรฐาน', value: 'standard_slide' },
-        { label: 'รถสไลด์ขนาดใหญ่', value: 'heavy_duty_slide' },
-        { label: 'รถสไลด์สำหรับรถหรู', value: 'luxury_slide' },
-        { label: 'รถสไลด์ฉุกเฉิน', value: 'emergency_slide' },
-    ];
-    
+  const vehicleTypes = [
+    { label: 'รถสไลด์มาตรฐาน', value: 'standard_slide' },
+    { label: 'รถสไลด์ขนาดใหญ่', value: 'heavy_duty_slide' },
+    { label: 'รถสไลด์สำหรับรถหรู', value: 'luxury_slide' },
+    { label: 'รถสไลด์ฉุกเฉิน', value: 'emergency_slide' },
+  ];
 
-    const handleRegisterPress = () => {
-        // Validate phone number length
-        if (phoneNumber.length !== 10 || isNaN(phoneNumber)) {
-            Alert.alert('ข้อผิดพลาด', 'กรุณากรอกเบอร์โทรศัพท์ที่มีความยาว 10 ตัวเลข');
-            return;
-        }
+  const handleRegisterPress = () => {
+    if (phoneNumber.length !== 10 || isNaN(phoneNumber)) {
+      Alert.alert('ข้อผิดพลาด', 'กรุณากรอกเบอร์โทรศัพท์ที่มีความยาว 10 ตัวเลข');
+      return;
+    }
 
-        // Validate required fields
-        if (!phoneNumber || !selectedProvince || !selectedVehicleType) {
-            Alert.alert('ข้อผิดพลาด', 'กรุณากรอกข้อมูลให้ครบทุกช่อง');
-            return;
-        }
+    if (!phoneNumber || !selectedProvince || !selectedVehicleType) {
+      Alert.alert('ข้อผิดพลาด', 'กรุณากรอกข้อมูลให้ครบทุกช่อง');
+      return;
+    }
 
-        // Validate terms acceptance
-        if (!isTermsAccepted) {
-            Alert.alert('ข้อผิดพลาด', 'กรุณายอมรับเงื่อนไขก่อนสมัคร');
-            return;
-        }
+    if (!isTermsAccepted) {
+      Alert.alert('ข้อผิดพลาด', 'กรุณายอมรับเงื่อนไขก่อนสมัคร');
+      return;
+    }
 
-        if (!selectedProvince || !selectedVehicleType) {
-            Alert.alert('ข้อผิดพลาด', 'กรุณาเลือกจังหวัดและประเภทรถ');
-            return;
-        }
+    navigation.navigate('SecondRegister', {
+      phoneNumber,
+      selectedProvince,
+      selectedVehicleType,
+    });
+    console.log(`Phone: ${phoneNumber}, Province: ${selectedProvince}, Vehicle: ${selectedVehicleType}`);
+  };
 
-        navigation.navigate('SecondRegister', {
-            phoneNumber,  // ส่งเบอร์โทรศัพท์
-            selectedProvince, // จังหวัด
-            selectedVehicleType, // ประเภทรถ
-        });
-        console.log(`Phone: ${phoneNumber}, Province: ${selectedProvince}, Vehicle: ${selectedVehicleType}`);
-    };
+  const handleBackPress = () => {
+    navigation.navigate('HomeLogin');
+  };
 
-    const handleBackPress = () => {
-        navigation.navigate('HomeLogin');
-    };
-
-    return (
-        <SafeAreaView style={tw`flex-1 bg-white p-4`}>
-            <View style={tw`absolute top-6 left-4 z-50`}>
-                <TouchableOpacity onPress={handleBackPress}>
-                    <Icon name="arrow-back" size={28} color="#000" />
-                </TouchableOpacity>
+  return (
+    <SafeAreaView style={tw`flex-1 bg-white`}>
+      <KeyboardAvoidingView
+        style={tw`flex-1`}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView
+          contentContainerStyle={tw`p-4`}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={tw`absolute top-10 left-4 z-50`}>
+            <TouchableOpacity onPress={handleBackPress}>
+              <Icon name="arrow-back" size={28} color="#000" />
+            </TouchableOpacity>
+          </View>
+          <View style={tw`flex-1 justify-center mt-6 items-center`}>
+            <View style={tw`mb-4`}>
+              <Text style={[styles.globalText, tw`text-6xl text-[#60B876] font-bold text-center`]}>SLIDE</Text>
+              <Text style={[styles.globalText, tw`text-8xl text-[#60B876] font-bold text-center leading-none`]}>ME</Text>
+              <Text style={[styles.globalText, tw`text-3xl font-bold text-center mb-2 text-[#60B876]`]}>สมัครเป็นคนขับ</Text>
+              <Text style={[styles.globalText, tw`text-center text-gray-600`]}>เข้าร่วมทีมของเราและรับสิทธิพิเศษมากมาย!</Text>
             </View>
-            <View style={tw`flex-1 justify-center items-center mt-3`}>
-                <View style={tw`flex-1 justify-center items-center mb-4`}>
-                    <Text style={tw`text-6xl text-[#60B876] font-bold text-center`}>SLIDE</Text>
-                    <Text style={tw`text-8xl text-[#60B876] font-bold text-center leading-none z-10`}>ME</Text>
-                    <Text style={tw`text-3xl font-bold text-center mb-2 text-[#60B876]`}>สมัครเป็นคนขับ</Text>
-                    <Text style={tw`text-center text-gray-600 mb-4`}>เข้าร่วมทีมของเราและรับสิทธิพิเศษมากมาย!</Text>
-                </View>
+          </View>
+          <View style={tw`flex-1`}>
+            <Text style={[styles.globalText, tw`text-lg font-bold mb-2`]}>เบอร์โทรศัพท์</Text>
+            <TextInput
+              placeholder="เบอร์โทรศัพท์"
+              style={[styles.input, tw`mb-4`]}
+              keyboardType="phone-pad"
+              value={phoneNumber}
+              onChangeText={setPhoneNumber}
+              maxLength={10}
+            />
+            <Text style={[styles.globalText, tw`text-lg font-bold mb-2`]}>เลือกจังหวัด</Text>
+            <View style={[styles.pickerContainer, tw`mb-4`]}>
+              <RNPickerSelect
+                onValueChange={(value) => setSelectedProvince(value)}
+                items={provinces}
+                placeholder={{ label: 'กรุณาเลือกจังหวัด', value: null }}
+                useNativeAndroidPickerStyle={false}
+                style={{
+                  inputIOS: styles.pickerText,
+                  inputAndroid: styles.pickerText,
+                  placeholder: styles.placeholderText,
+                }}
+              />
             </View>
-            <View style={tw`flex-2 w-11/12 mx-auto`}>
-                <Text style={tw`text-lg font-bold mb-2`}>เบอร์โทรศัพท์</Text>
-                <TextInput
-                    placeholder="เบอร์โทรศัพท์"
-                    style={tw`border-2 border-gray-300 rounded-lg p-2 mb-4`}
-                    keyboardType="phone-pad"
-                    value={phoneNumber}
-                    onChangeText={setPhoneNumber}
-                    maxLength={10} // Ensure maximum length is 10 digits
-                />
-                <Text style={tw`text-lg font-bold mb-2`}>เลือกจังหวัด</Text>
-                <View style={tw`border-2 border-gray-300 rounded-lg h-1/10 mb-2`}>
-                    <RNPickerSelect
-                        onValueChange={(value) => setSelectedProvince(value)}
-                        items={provinces}
-                        placeholder={{ label: 'กรุณาเลือกจังหวัด', value: null }}
-                        style={{
-                            inputIOS: { padding: 12, borderWidth: 1, borderColor: 'gray', borderRadius: 4, marginBottom: 16 },
-                            inputAndroid: { padding: 12, borderWidth: 1, borderColor: 'gray', borderRadius: 4, marginBottom: 16 },
-                        }}
-                    />
-                </View>
-                <Text style={tw`text-lg font-bold mb-2`}>เลือกประเภทรถ</Text>
-                <View style={tw`border-2 border-gray-300 rounded-lg h-1/10`}>
-                    <RNPickerSelect
-                        onValueChange={(value) => setSelectedVehicleType(value)}
-                        items={vehicleTypes}
-                        placeholder={{ label: 'กรุณาเลือกประเภทรถ', value: null }}
-                        style={{
-                            inputIOS: { padding: 12, borderWidth: 1, borderColor: 'gray', borderRadius: 4 },
-                            inputAndroid: { padding: 12, borderWidth: 1, borderColor: 'gray', borderRadius: 4 },
-                        }}
-                    />
-                </View>
-                
-                <TouchableOpacity
-                    style={tw`flex-row items-center mt-4`}
-                    onPress={() => setIsTermsAccepted(!isTermsAccepted)}
-                >
-                    <View
-                        style={tw`w-6 h-6 border-2 border-gray-300 rounded mr-2 ${isTermsAccepted ? 'bg-green-500' : 'bg-white'}`}
-                    />
-                    <Text>ยอมรับเงื่อนไข SLIDEME</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={tw`w-full bg-[#60B876] rounded-full p-4 mt-4`}
-                    onPress={handleRegisterPress}
-                >
-                    <Text style={tw`text-center text-lg font-bold text-white`}>สมัครเป็นคนขับ</Text>
-                </TouchableOpacity>
+            <Text style={[styles.globalText, tw`text-lg font-bold mb-2`]}>เลือกประเภทรถ</Text>
+            <View style={styles.pickerContainer}>
+              <RNPickerSelect
+                onValueChange={(value) => setSelectedVehicleType(value)}
+                items={vehicleTypes}
+                placeholder={{ label: 'กรุณาเลือกประเภทรถ', value: null }}
+                useNativeAndroidPickerStyle={false}
+                style={{
+                  inputIOS: styles.pickerText,
+                  inputAndroid: styles.pickerText,
+                  placeholder: styles.placeholderText,
+                }}
+              />
             </View>
-        </SafeAreaView>
-    );
+            <TouchableOpacity
+              style={tw`flex-row items-center mt-4`}
+              onPress={() => setIsTermsAccepted(!isTermsAccepted)}
+            >
+              <View
+                style={tw`w-6 h-6 border-2 border-gray-300 rounded mr-2 ${
+                  isTermsAccepted ? 'bg-green-500' : 'bg-white'
+                }`}
+              />
+              <Text style={[styles.globalText]}>ยอมรับเงื่อนไข SLIDEME</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+        {/* Fixed Next Button */}
+        <View style={tw`absolute bottom-4 left-4 right-4`}>
+          <TouchableOpacity
+            style={tw`w-full bg-[#60B876] rounded p-4`}
+            onPress={handleRegisterPress}
+          >
+            <Text style={[styles.globalText, tw`text-center text-lg font-bold text-white`]}>สมัครเป็นคนขับ</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
 };
+
+const styles = StyleSheet.create({
+  globalText: {
+    fontFamily: 'Mitr-Regular',
+  },
+  input: {
+    borderWidth: 2,
+    borderColor: '#d1d1d1',
+    borderRadius: 8,
+    padding: 12,
+    fontFamily: 'Mitr-Regular',
+  },
+  pickerContainer: {
+    borderWidth: 2,
+    borderColor: '#d1d1d1',
+    borderRadius: 8,
+    justifyContent: 'center',
+    height: 48,
+  },
+  pickerText: {
+    fontFamily: 'Mitr-Regular',
+    padding: 12,
+    color: 'black',
+  },
+  placeholderText: {
+    fontFamily: 'Mitr-Regular',
+    color: 'gray',
+  },
+});
 
 export default FirstRegister;

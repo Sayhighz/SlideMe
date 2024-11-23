@@ -19,25 +19,26 @@ export default function PersonalInfoScreen({ navigation, route }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Helper function to format dates
+  const formatDate = (date) => {
+    if (!date) return "ไม่พบข้อมูล";
+    const formattedDate = new Date(date).toISOString().split("T")[0];
+    return formattedDate;
+  };
+
   // Fetch user information
   const fetchData = async () => {
     setLoading(true); // Start loading state
     setError(null); // Reset error state
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/driver/getinfo?driver_id=${userData?.driver_id}`
+        `http://${IP_ADDRESS}:3000/auth/driver/getinfo?user_id=${userData?.driver_id}`
       );
       const data = await response.json();
       if (data.Status) {
         const user = data.Result[0];
-        // Format driver_license_expiration to YYYY-MM-DD if it exists
-        if (user.driver_license_expiration) {
-          user.driver_license_expiration = new Date(
-            user.driver_license_expiration
-          )
-            .toISOString()
-            .split("T")[0]; // Extract YYYY-MM-DD
-        }
+        // Format date fields
+        user.id_expiry_date = formatDate(user.id_expiry_date);
         setUserInfo(user);
       } else {
         setError("ไม่สามารถดึงข้อมูลได้");
@@ -84,9 +85,7 @@ export default function PersonalInfoScreen({ navigation, route }) {
             style={tw`py-3 px-4 rounded bg-gray-200 mt-4`}
             onPress={() => navigation.goBack()}
           >
-            <Text style={[styles.globalText, tw`text-gray-700 text-base`]}>
-              กลับ
-            </Text>
+            <Text style={[styles.globalText, tw`text-gray-700 text-base`]}>กลับ</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -121,9 +120,7 @@ export default function PersonalInfoScreen({ navigation, route }) {
         <View style={tw`ml-4`}>
           <Text style={[styles.globalText, tw`text-sm text-gray-400`]}>สวัสดี!</Text>
           <Text style={[styles.globalText, tw`text-2xl font-bold text-green-600`]}>
-            {`${userData?.first_name || "ไม่พบข้อมูล"} ${
-              userData?.last_name || ""
-            }`}
+            {`${userData?.first_name || "ไม่พบข้อมูล"} ${userData?.last_name || ""}`}
           </Text>
         </View>
       </View>
@@ -146,7 +143,7 @@ export default function PersonalInfoScreen({ navigation, route }) {
         <View style={tw`flex-row justify-between mb-3`}>
           <Text style={[styles.globalText, tw`text-base text-gray-600`]}>วันหมดอายุใบขับขี่</Text>
           <Text style={[styles.globalText, tw`text-base text-gray-800`]}>
-            {userInfo?.driver_license_expiration || "ไม่พบข้อมูล"}
+            {userInfo?.id_expiry_date || "ไม่พบข้อมูล"}
           </Text>
         </View>
 
@@ -165,9 +162,7 @@ export default function PersonalInfoScreen({ navigation, route }) {
           style={tw`py-3 rounded bg-green-500`}
           onPress={() => navigation.navigate("EditInfo", { userData })}
         >
-          <Text style={[styles.globalText, tw`text-center text-white text-base font-bold`]}>
-            แก้ไขข้อมูล
-          </Text>
+          <Text style={[styles.globalText, tw`text-center text-white text-base font-bold`]}>แก้ไขข้อมูล</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

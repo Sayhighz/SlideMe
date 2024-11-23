@@ -11,9 +11,10 @@ import {
 } from "react-native";
 import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
+import { CommonActions } from "@react-navigation/native";
 
-export default function ProfileScreen({ navigation, route }) {
-  const { userData = {} } = route.params || {};
+export default function ProfileScreen({ navigation, userData, onLogout }) {
+  console.log("userData", userData);
 
   // Logout function with Thai alert
   const handleLogout = () => {
@@ -28,16 +29,16 @@ export default function ProfileScreen({ navigation, route }) {
         {
           text: "ยืนยัน",
           onPress: () => {
-            // Add your logout functionality here
-            navigation.reset({
-              index: 0,
-              routes: [{ name: "HomeLogin" }],
-            });
+            if (typeof onLogout === "function") {
+              onLogout(); // Call the logout function passed as a prop
+            }
           },
         },
       ]
     );
   };
+  
+  
 
   return (
     <SafeAreaView
@@ -99,7 +100,12 @@ export default function ProfileScreen({ navigation, route }) {
           style={tw`w-full py-3 rounded bg-green-500`}
           onPress={handleLogout}
         >
-          <Text style={[styles.globalText, tw`text-center text-white font-bold text-base `]}>
+          <Text
+            style={[
+              styles.globalText,
+              tw`text-center text-white font-bold text-base`,
+            ]}
+          >
             ออกจากระบบ
           </Text>
         </TouchableOpacity>

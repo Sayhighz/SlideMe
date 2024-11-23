@@ -68,8 +68,8 @@ export default function EditInfoScreen({ navigation, route }) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            driver_id: userData?.driver_id,
-            driver_license_expiration: licenseExpiryDate,
+            user_id: userData?.driver_id,
+            id_expiry_date: licenseExpiryDate,
           }),
         }
       );

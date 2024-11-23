@@ -127,9 +127,11 @@ export default function HomeScreen({ route }) {
   };
 
   const formatCurrency = (number) => {
-    if (isNaN(number)) return "฿0.00";
-    return `฿${number.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+    // Default to 0 if the number is null, undefined, or not a valid number
+    if (number == null || isNaN(number)) return "฿0.00";
+    return `฿${Number(number).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
   };
+  
 
 
   // Utility to truncate long text
@@ -146,7 +148,6 @@ export default function HomeScreen({ route }) {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
-  console.log(profitToday)
   // Utility to format offer status
   const getFormattedStatus = (status) => {
     switch (status) {
