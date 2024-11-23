@@ -61,7 +61,6 @@ export default function Order({ navigation, bookmark }) {
       const data = await response.json();
       if (data.Status) {
         setBookmarks(data.Result);
-        
       } else {
         console.error(data.Error);
       }
@@ -666,7 +665,7 @@ export default function Order({ navigation, bookmark }) {
                 ]}
               >
                 <View
-                  style={tw`flex bg-white rounded-lg border border-[#60B876] p-4 w-7/12 shadow-2xl bg-[#60B876]`}
+                  style={tw`flex bg-white rounded-lg border border-[#60B876] p-2 w-7/12 shadow-2xl bg-[#60B876]`}
                 >
                   <Text
                     style={[
@@ -690,69 +689,63 @@ export default function Order({ navigation, bookmark }) {
                       <View
                         style={[
                           styles.bookmarkItem,
-                          tw`flex items-center justify-between mt-3 p-2 border border-[#60B876] rounded-lg `,
+                          tw`flex  justify-between mt-3 p-2 border border-[#60B876] rounded-lg `,
                           { width: width * 0.69 },
                         ]}
                       >
                         <TouchableOpacity
                           style={tw`flex  justify-between`}
-                          
                           onPress={() => handleRequestFromBookmark(item)}
                         >
-                          <View style={tw``}>
+                          <Text
+                            style={[
+                              tw`text-base font-semibold text-center `,
+                              styles.globalText,
+                            ]}
+                          >
+                            {item.save_name}
+                          </Text>
+                          <View style={tw`flex-row items-center mb-2 p-1`}>
+                            <MaterialIcons
+                              name="directions-car"
+                              size={21}
+                              color="black"
+                            />
                             <Text
-                              style={[
-                                tw`text-base font-semibold text-center `,
-                                styles.globalText,
-                              ]}
+                              style={[styles.globalText, tw`text-gray-500 ml-1`]}
+                              numberOfLines={1}
+                              ellipsizeMode="tail"
                             >
-                              {item.save_name}
+                              : {item.vahicle_type}
                             </Text>
-                            <View style={tw`flex-row items-center`}>
-                              <Text
-                                style={[
-                                  styles.globalText,
-                                  tw`text-sm font-semibold`,
-                                ]}
-                              >
-                                Category :
-                              </Text>
-                              <Text
-                                style={[styles.globalText, tw`text-gray-500`]}
-                              >
-                                {truncateText(item.vahicle_type)}
-                              </Text>
-                            </View>
-                            <View style={tw`flex-row items-center`}>
-                              <Text
-                                style={[
-                                  styles.globalText,
-                                  tw`text-sm font-semibold`,
-                                ]}
-                              >
-                                ต้นทาง :
-                              </Text>
-                              <Text
-                                style={[styles.globalText, tw`text-gray-500`]}
-                              >
-                                {truncateText(item.location_from)}
-                              </Text>
-                            </View>
-                            <View style={tw`flex-row items-center`}>
-                              <Text
-                                style={[
-                                  styles.globalText,
-                                  tw`text-sm font-semibold`,
-                                ]}
-                              >
-                                ปลายทาง :
-                              </Text>
-                              <Text
-                                style={[styles.globalText, tw`text-gray-500`]}
-                              >
-                                {truncateText(item.location_to)}
-                              </Text>
-                            </View>
+                          </View>
+                          <View style={tw`flex-row items-center mb-2 p-1`}>
+                            <MaterialIcons
+                              name="location-pin"
+                              size={21}
+                              color="red"
+                            />
+                            <Text
+                              style={[styles.globalText, tw`text-gray-500 ml-1`]}
+                              numberOfLines={1}
+                              ellipsizeMode="tail"
+                            >
+                              : {item.location_from}
+                            </Text>
+                          </View>
+                          <View style={tw`flex-row items-center p-1`}>
+                            <MaterialIcons
+                              name="location-pin"
+                              size={21}
+                              color="green"
+                            />
+                            <Text
+                              style={[styles.globalText, tw`text-gray-500 ml-1`]}
+                              numberOfLines={1}
+                              ellipsizeMode="tail"
+                            >
+                              : {item.location_to}
+                            </Text>
                           </View>
                         </TouchableOpacity>
                       </View>
@@ -777,7 +770,6 @@ export default function Order({ navigation, bookmark }) {
               <TouchableOpacity
                 style={tw`items-center justify-center mt-4 w-50 h-12 bg-[#60B876] rounded-full `}
                 onPress={handleSubmitRequest}
-               
               >
                 <Text
                   style={[

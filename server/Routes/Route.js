@@ -1125,15 +1125,21 @@ router.post("/register_driver", (req, res) => {
     });
   }
 
-  const sql = `
-      INSERT INTO users (
-          phone_number, email, username, first_name, last_name, password,
-          role, id_number, birth_date, id_expiry_date, license_plate,
-          province, vehicle_type, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, 'driver', ?, ?, ?, ?, ?, ?, NOW())
+  // SQL queries
+  const insertUserSQL = `
+    INSERT INTO users (
+        phone_number, email, username, first_name, last_name, password,
+        role, id_number, birth_date, id_expiry_date, license_plate,
+        province, vehicle_type, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, 'driver', ?, ?, ?, ?, ?, ?, NOW())
   `;
 
-  const values = [
+  const insertDriverDetailsSQL = `
+    INSERT INTO driverdetails (driver_id)
+    VALUES (LAST_INSERT_ID())
+  `;
+
+  const userValues = [
     phone_number,
     email || null,
     username || null,
@@ -1148,13 +1154,43 @@ router.post("/register_driver", (req, res) => {
     vehicle_type,
   ];
 
-  con.query(sql, values, (err, result) => {
+  // Execute queries using a transaction for atomicity
+  con.beginTransaction((err) => {
     if (err) {
-      return res.json({ Status: false, Error: err.message });
+      return res.json({ Status: false, Error: "Transaction Error: " + err.message });
     }
-    return res.json({ Status: true, InsertId: result.insertId });
+
+    // Insert into users table
+    con.query(insertUserSQL, userValues, (err, result) => {
+      if (err) {
+        return con.rollback(() => {
+          return res.json({ Status: false, Error: "Insert User Error: " + err.message });
+        });
+      }
+
+      // Insert into driverdetails table
+      con.query(insertDriverDetailsSQL, (err) => {
+        if (err) {
+          return con.rollback(() => {
+            return res.json({ Status: false, Error: "Insert Driver Details Error: " + err.message });
+          });
+        }
+
+        // Commit transaction
+        con.commit((err) => {
+          if (err) {
+            return con.rollback(() => {
+              return res.json({ Status: false, Error: "Commit Error: " + err.message });
+            });
+          }
+
+          return res.json({ Status: true, Message: "Driver registered successfully" });
+        });
+      });
+    });
   });
 });
+
 
 router.post("/login", (req, res) => {
   const { phone_number, password } = req.body;
@@ -1250,21 +1286,19 @@ router.get("/customer/getServiceInfo", (req, res) => {
 });
 
 router.get("/driver/getinfo", (req, res) => {
-  const driver_id = req.query.driver_id;
+  const user_id = req.query.user_id;
   const sql = `
           select
             u.first_name,
             u.last_name,
             u.phone_number,
-            d.license_plate,
-            d.driver_license_expiration
+            u.license_plate,
+            u.id_expiry_date
           from
             users u
-          left join driverdetails d on
-            d.driver_id = u.user_id
-          where d.driver_id = ?
+          where u.user_id = ?
         `;
-  con.query(sql, [driver_id], (err, result) => {
+  con.query(sql, [user_id], (err, result) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
@@ -1272,15 +1306,15 @@ router.get("/driver/getinfo", (req, res) => {
 
 router.post("/driver/edit_profile", (req, res) => {
   const sql = `
-          UPDATE driverdetails
+          UPDATE users
           SET 
-            driver_license_expiration = ?
-          WHERE driver_id = ?
+            id_expiry_date = ?
+          WHERE user_id = ?
         `;
 
-  const { driver_id, driver_license_expiration } = req.body;
+  const { user_id, id_expiry_date } = req.body;
 
-  con.query(sql, [driver_license_expiration, driver_id], (err, result) => {
+  con.query(sql, [id_expiry_date, user_id], (err, result) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({
       Status: true,

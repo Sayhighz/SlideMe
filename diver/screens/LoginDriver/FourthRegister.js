@@ -1,6 +1,16 @@
-// FourthRegister.js
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, Image, Alert, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  SafeAreaView,
+  Image,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import tw from 'twrnc';
 import Icon from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
@@ -54,43 +64,64 @@ const FourthRegister = ({ navigation, route }) => {
         ) : (
           <Icon name="cloud-upload-outline" size={32} color="gray" style={tw`mb-2`} />
         )}
-        <Text style={tw`text-lg font-bold text-center`}>{displayName}</Text>
+        <Text style={[styles.globalText, tw`text-lg font-bold text-center`]}>{displayName}</Text>
       </View>
     </TouchableOpacity>
   );
 
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
-      <View style={tw`absolute top-6 left-4 z-50`}>
-        <TouchableOpacity onPress={() => navigation.navigate('ThirdRegister')}>
-          <Icon name="arrow-back" size={28} color="#000" />
-        </TouchableOpacity>
-      </View>
-      <ScrollView contentContainerStyle={tw`p-4 justify-start mx-auto w-10/12`}>
-        <Text style={tw`text-xl font-bold mb-2`}>ขั้นตอนที่ 3 จาก 3</Text>
-        <Text style={tw`text-2xl font-bold mb-6`}>อัพโหลดไฟล์เอกสาร</Text>
+      <KeyboardAvoidingView
+        style={tw`flex-1`}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView
+          contentContainerStyle={tw`p-4 justify-start mx-auto w-10/12`}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Back Button */}
+          <View style={tw`absolute top-12 left-4 z-50`}>
+            <TouchableOpacity onPress={() => navigation.navigate('ThirdRegister')}>
+              <Icon name="arrow-back" size={28} color="#000" />
+            </TouchableOpacity>
+          </View>
 
-        {/* Render upload buttons */}
-        {renderUploadButton('idPhoto', 'รูปถ่ายบัตรตรวจ')}
-        {renderUploadButton('vehiclePhoto', 'รูปถ่ายยานพาหนะ')}
-        {renderUploadButton('vehicleDoc', 'รูปถ่ายเอกสารรถ (เล่มรถ)')}
-        {renderUploadButton('idCardPhoto', 'รูปถ่ายบัตรประชาชน')}
-        {renderUploadButton('licensePhoto', 'รูปใบขับขี่')}
-        {renderUploadButton('bankBookPhoto', 'รูปสมุดธนาคาร')}
+          {/* Page Title */}
+          <Text style={[styles.globalText, tw`text-xl font-bold mb-2 mt-8 ml-11`]}>ขั้นตอนที่ 3 จาก 3</Text>
+          <Text style={[styles.globalText, tw`text-2xl font-bold mb-6`]}>อัพโหลดไฟล์เอกสาร</Text>
 
-        <View style={tw`items-center mt-4`}>
+          {/* Render upload buttons */}
+          {renderUploadButton('idPhoto', 'รูปถ่ายบัตรตรวจ')}
+          {renderUploadButton('vehiclePhoto', 'รูปถ่ายยานพาหนะ')}
+          {renderUploadButton('vehicleDoc', 'รูปถ่ายเอกสารรถ (เล่มรถ)')}
+          {renderUploadButton('idCardPhoto', 'รูปถ่ายบัตรประชาชน')}
+          {renderUploadButton('licensePhoto', 'รูปใบขับขี่')}
+          {renderUploadButton('bankBookPhoto', 'รูปสมุดธนาคาร')}
+          <View style={tw`h-20`}></View>
+        </ScrollView>
+
+        {/* Fixed Next Button */}
+        <View style={tw`absolute bottom-4 left-4 right-4`}>
           <TouchableOpacity
-            style={tw`bg-[#60B876] w-full p-4 rounded-lg`}
+            style={tw`w-full bg-[#60B876] p-4 rounded`}
             onPress={() => navigation.navigate('FifthRegister', {
-                ...route.params, // ส่งข้อมูลจาก ThirdRegister.js
+              ...route.params, // Pass data from ThirdRegister.js
             })}
           >
-            <Text style={tw`text-lg text-white font-bold text-center`}>ยืนยันการส่งข้อมูล</Text>
+            <Text style={[styles.globalText, tw`text-lg text-white font-bold text-center`]}>
+              ยืนยันการส่งข้อมูล
+            </Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  globalText: {
+    fontFamily: 'Mitr-Regular', // Custom font
+  },
+});
 
 export default FourthRegister;

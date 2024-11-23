@@ -84,13 +84,19 @@ function HomeStackNavigator({ userData }) {
  * Profile Stack Navigator
  * Handles navigation for Profile and Edit-related screens.
  */
-function ProfileStackNavigator({ userData }) {
+function ProfileStackNavigator({ userData, handleLogout }) {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name="ProfileMain"
-        component={ProfileScreen}
-        initialParams={{ userData }}
+        options={{ headerShown: false }}
+        children={(props) => (
+          <ProfileScreen
+            {...props}
+            userData={userData}
+            onLogout={handleLogout}
+          />
+        )}
       />
       <Stack.Screen
         name="PersonalInfo"
@@ -163,6 +169,16 @@ export default function App() {
       driver_id: user.user_id,
     });
     setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserDataNa({
+      profile_picture: "",
+      first_name: "",
+      last_name: "",
+      driver_id: null,
+    });
   };
 
   // Mock user data for demonstration purposes
@@ -288,7 +304,12 @@ export default function App() {
               ),
             }}
           >
-            {() => <ProfileStackNavigator userData={userDataNa} />}
+            {() => (
+              <ProfileStackNavigator
+                userData={userDataNa}
+                handleLogout={handleLogout}
+              />
+            )}
           </Tab.Screen>
         </Tab.Navigator>
       </View>

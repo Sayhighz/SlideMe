@@ -28,7 +28,7 @@ const BookmarkList = ({ navigation }) => {
       const response = await fetch(
         `http://${IP_ADDRESS}:3000/auth/customer/getuserbookmarks?user_id=${userData.user_id}`
       );
-      console.log("User Data :", bookmarks);
+
       const data = await response.json();
       if (data.Status) {
         setBookmarks(data.Result);
@@ -110,6 +110,11 @@ const BookmarkList = ({ navigation }) => {
 
   return (
     <View style={tw`flex-1 bg-gray-100`}>
+      <View style={tw`flex-row items-center justify-end mr-4 `}>
+        <TouchableOpacity onPress={fetchBookmarks}>
+          <MaterialIcons name="refresh" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
       {/* Header */}
       {loading && <Text> Loading </Text>}
       {/* Bookmark List */}
