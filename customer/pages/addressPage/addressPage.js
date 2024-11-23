@@ -50,7 +50,7 @@ const AddressPage = ({ navigation }) => {
   useEffect(() => {
     console.log(save_name);
    
-  }, []);
+  }, [save_name , confirmOrigin , confirmDestination , category]);
   const handleSave = async () => {
     if (!nameBookMark || !confirmOrigin || !confirmDestination || !category) {
       Alert.alert("Error", "Please fill all the required fields.");
@@ -91,8 +91,10 @@ const AddressPage = ({ navigation }) => {
         console.log(payload)
 
         if (response.ok && data.Status) {
-          Alert.alert("Success", "Bookmark Edit successfully!");
-          navigation.navigate("UserProfile");
+          Alert.alert("Success", "Bookmark Edit successfully!" , [
+            {text: "OK", onPress: () => navigation.navigate("Bookmarklist")},
+          ]);
+          // navigation.navigate("Bookmarklist");
         } else {
           Alert.alert("Error", data.Error || "Failed to add bookmark.");
         }
