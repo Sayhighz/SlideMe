@@ -86,59 +86,13 @@ function Home({ navigation }) {
             </LinearGradient>
           </TouchableOpacity>
 
-          {/* <View
-            style={[
-              tw`flex-row justify-between mt-4`,
-              { width: responsiveWidth },
-            ]}
-          >
-          <TouchableOpacity
-              style={[
-                { flex: 0.48 , height : height * 0.09},
-                tw`rounded-lg  flex items-center justify-center bg-green-100 border border-[#60B876]`,
-              ]}
-              onPress={() =>
-                selectedLabel !== "ไม่ระบุ" && selectedLabel
-                  ? navigation.navigate("Order", {
-                      
-                      origin,
-                      destination,
-                      confirmOrigin,
-                      confirmDestination,
-                    })
-                  : navigation.navigate("Bookmark")
-              }
-            >
-              <Text
-                style={[styles.globalText, tw`text-[#5A8DEE] text-lg font-bold`]}
-              >
-                {selectedLabel !== "ไม่ระบุ" ? selectedLabel : "ตำแหน่ง 1"}
-              </Text>
-            </TouchableOpacity>
-
-          <TouchableOpacity
-              style={[
-                { flex: 0.48 , height : height * 0.09},
-                tw`rounded-lg  flex items-center justify-center bg-green-100 border-[#60B876] border`,
-              ]}
-              onPress={handleOpenModal}
-            >
-              <Text
-                style={[styles.globalText, tw`text-[#5A8DEE] text-lg font-bold`]}
-              >
-                ตำแหน่ง 2
-              </Text>
-            </TouchableOpacity>
-          
-          </View> */}
-
           <View>
             <TouchableOpacity
               style={[
                 { width: responsiveWidth, height: height * 0.16, padding: 10 },
                 tw`rounded-lg items-center justify-center mt-3 `,
               ]}
-              onPress={() => navigation.navigate("Rating")}
+              onPress={() => navigation.navigate("viewOrder")}
             >
               <LinearGradient
                 colors={["#3DE183", "#60B876", "#6CA97C"]}
