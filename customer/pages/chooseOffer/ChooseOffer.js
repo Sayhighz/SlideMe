@@ -58,16 +58,14 @@ const ChooseOffer = ({ navigation, route }) => {
     { label: "30 km", value: "30000" },
   ];
 
+  const animatedValue = useRef(new Animated.Value(0)).current;
+
   const { userData } = useContext(UserContext);
   const { request_id } = route.params;
 
   useEffect(() => {
     console.log("request_id", request_id);
   }, [route.params]);
-
-  useEffect(() => {
-    refreshPage(); // โหลดข้อมูลเมื่อคอมโพเนนต์ถูกสร้างครั้งแรก
-  }, []);
 
   useEffect(() => {
     // กรองข้อมูลด้วยรัศมีเมื่อเปลี่ยน `radiusInMeters`
@@ -175,10 +173,6 @@ const ChooseOffer = ({ navigation, route }) => {
     return () => clearInterval(interval); // Cleanup on component unmount
   }, [fetchDataLoading]);
 
-  useEffect(() => {
-    refreshPage();
-  }, []);
-
   const refreshPage = async () => {
     if (fetchDataLoading) return;
     try {
@@ -260,8 +254,6 @@ const ChooseOffer = ({ navigation, route }) => {
     return await Promise.all(promises);
   };
 
-  const animatedValue = useRef(new Animated.Value(0)).current;
-
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
@@ -278,6 +270,10 @@ const ChooseOffer = ({ navigation, route }) => {
       ])
     ).start(); // เริ่มแอนิเมชัน
   }, [animatedValue]);
+
+  useEffect(() => {
+    refreshPage();
+  }, []);
 
   return (
     <SafeAreaView style={tw`flex-1`}>
