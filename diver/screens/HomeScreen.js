@@ -34,27 +34,28 @@ export default function HomeScreen({ route }) {
     { id: 3, title: "แจ้งเตือนที่ 3", description: "แจ้งเตือน" },
   ];
 
-  useEffect(() => {
-    const fetchProfitToday = async () => {
-      try {
-        const response = await fetch(
-          `http://${IP_ADDRESS}:3000/auth/driver/profitToday?driver_id=${userData?.driver_id}`
-        );
-        const data = await response.json();
-        if (data.Status && Array.isArray(data.Result) && data.Result.length > 0) {
-          setProfitToday(data.Result[0].profit_today); // Update profit today
-        } else {
-          setProfitToday(0); // Default to 0 if no data
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchProfitToday = async () => {
+        try {
+          const response = await fetch(
+            `http://${IP_ADDRESS}:3000/auth/driver/profitToday?driver_id=${userData?.driver_id}`
+          );
+          const data = await response.json();
+          if (data.Status && Array.isArray(data.Result) && data.Result.length > 0) {
+            setProfitToday(data.Result[0].profit_today); // Update profit today
+          } else {
+            setProfitToday(0); // Default to 0 if no data
+          }
+        } catch (error) {
+          console.error("Error fetching profit_today:", error);
+          setProfitToday(0);
         }
-      } catch (error) {
-        console.error("Error fetching profit_today:", error);
-        setProfitToday(0);
-      }
-    };
-    
-
-    fetchProfitToday();
-  }, [userData?.driver_id]);
+      };
+  
+      fetchProfitToday();
+    }, [userData?.driver_id])
+  );
 
   // Fetch offers when the screen gains focus
   useFocusEffect(
@@ -186,7 +187,7 @@ export default function HomeScreen({ route }) {
                   สวัสดี!
                 </Text>
                 <Text
-                  style={[styles.globalText, tw`text-2xl font-bold text-green-600`]}
+                  style={[styles.globalText, tw`text-2xl font-bold text-[#60B876]`]}
                 >
                   {`${userData?.first_name || "ไม่พบข้อมูล"} ${
                     userData?.last_name || ""
@@ -199,7 +200,7 @@ export default function HomeScreen({ route }) {
             >
               <View style={tw`items-center`}>
                 <Text
-                  style={[styles.globalText, tw`text-2xl font-bold text-green-600`]}
+                  style={[styles.globalText, tw`text-2xl font-bold text-[#60B876]`]}
                 >
                   {formatCurrency(profitToday)}
                 </Text>
@@ -273,7 +274,7 @@ export default function HomeScreen({ route }) {
           activeDotColor="green"
           dotColor="gray"
           dotStyle={tw`w-2 h-2 bg-gray-600 rounded-full`}
-          activeDotStyle={tw`w-3 h-3 bg-green-500 rounded-full`}
+          activeDotStyle={tw`w-3 h-3 bg-[#60B876] rounded-full`}
         >
           {notice.map((ad) => (
             <View
@@ -349,7 +350,7 @@ export default function HomeScreen({ route }) {
       <View style={tw`absolute bottom-4 w-full items-center`}>
         <TouchableOpacity
           style={[
-            tw`w-11/12 bg-green-500 rounded p-2 items-center`,
+            tw`w-11/12 bg-[#60B876] rounded p-2 items-center`,
             offersData.length >= 2 && tw`bg-gray-400`,
           ]}
           disabled={offersData.length >= 2}

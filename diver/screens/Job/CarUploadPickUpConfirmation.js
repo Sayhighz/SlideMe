@@ -165,7 +165,7 @@ const CarUploadPickUpConfirmation = () => {
           onPress={handleConfirmation}
           style={[
             tw`p-4 rounded-lg mt-4 items-center`,
-            isButtonDisabled ? tw`bg-gray-400` : tw`bg-green-500`,
+            isButtonDisabled ? tw`bg-gray-400` : tw`bg-[#60B876]`,
           ]}
           disabled={isButtonDisabled}
         >

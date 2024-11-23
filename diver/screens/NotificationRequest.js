@@ -124,7 +124,7 @@ export default function NotificationRequest({ driver_id, status }) {
           </Text>
 
           <TouchableOpacity
-            style={tw`bg-green-500 rounded p-4 items-center`}
+            style={tw`bg-[#60B876] rounded p-4 items-center`}
             onPress={startJob}
           >
             <Text style={[tw`text-white font-bold text-lg`, styles.globalText]}>

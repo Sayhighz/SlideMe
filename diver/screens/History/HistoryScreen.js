@@ -109,7 +109,7 @@ export default function HistoryScreen({ userData }) {
       <View style={tw`flex-row justify-between items-center mt-9 px-4 py-4`}>
         <Text style={[styles.globalText, tw`text-xl font-bold`]}>ประวัติการทำงาน</Text>
         <TouchableOpacity
-          style={tw`p-3 bg-green-500 rounded-full`}
+          style={tw`p-3 bg-[#60B876] rounded`}
           onPress={() => setFilterModalVisible(true)}
         >
           <Icon name="filter-outline" size={24} color="white" />
@@ -183,7 +183,7 @@ export default function HistoryScreen({ userData }) {
               {getStatusDisplay(selectedJob.status)}
 
               <TouchableOpacity
-                style={tw`mt-6 bg-green-500 p-3 rounded items-center`}
+                style={tw`mt-6 bg-[#60B876] p-3 rounded items-center`}
                 onPress={closeModal}
               >
                 <Text style={[styles.globalText, tw`text-white font-bold`]}>ปิด</Text>

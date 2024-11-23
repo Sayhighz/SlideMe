@@ -1450,7 +1450,6 @@ router.get("/driver/profitToday", (req, res) => {
               servicerequests s ON s.request_id = d.request_id
           WHERE
               d.driver_id = ?
-              AND d.offer_status = 'rejected'
               AND s.status = 'completed'
               AND DATE(s.request_time) = CURDATE();
         `;

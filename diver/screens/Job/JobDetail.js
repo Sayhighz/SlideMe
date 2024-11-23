@@ -134,7 +134,7 @@ export default function JobDetailScreen({ route, navigation }) {
 
         {/* Submit Offer Button */}
         <TouchableOpacity
-          style={tw`bg-green-500 rounded p-2 mt-6 items-center`}
+          style={tw`bg-[#60B876] rounded p-2 mt-6 items-center`}
           onPress={handleOfferSubmit}
         >
           <Text style={[styles.globalText, tw`text-white font-bold text-lg`]}>

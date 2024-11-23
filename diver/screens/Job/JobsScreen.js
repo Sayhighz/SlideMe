@@ -192,7 +192,7 @@ export default function JobsScreen({ route }) {
 
   return (
     <View style={tw`flex-1 bg-gray-100`}>
-      <View style={tw`bg-green-500 p-4 pt-13 flex-row items-center`}>
+      <View style={tw`bg-[#60B876] p-4 pt-13 flex-row items-center`}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} color="white" />
         </TouchableOpacity>
@@ -206,7 +206,7 @@ export default function JobsScreen({ route }) {
           ระยะห่างจากต้นทาง: {filterDistance} กิโลเมตร
         </Text>
         <TouchableOpacity
-          style={tw`p-2 bg-green-500 rounded-full`}
+          style={tw`p-2 bg-[#60B876] rounded-full`}
           onPress={() => setShowFilterModal(true)}
         >
           <Icon name="filter" size={24} color="white" />
@@ -238,7 +238,7 @@ export default function JobsScreen({ route }) {
                 key={distance}
                 style={[
                   tw`p-2 rounded-lg mb-2`,
-                  filterDistance === distance ? tw`bg-green-500` : tw`bg-gray-200`,
+                  filterDistance === distance ? tw`bg-[#60B876]` : tw`bg-gray-200`,
                 ]}
                 onPress={() => {
                   setFilterDistance(distance);

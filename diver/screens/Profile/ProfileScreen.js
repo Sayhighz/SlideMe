@@ -11,12 +11,10 @@ import {
 } from "react-native";
 import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
-import { CommonActions } from "@react-navigation/native";
 
 export default function ProfileScreen({ navigation, userData, onLogout }) {
   console.log("userData", userData);
 
-  // Logout function with Thai alert
   const handleLogout = () => {
     Alert.alert(
       "ยืนยันการออกจากระบบ",
@@ -30,7 +28,7 @@ export default function ProfileScreen({ navigation, userData, onLogout }) {
           text: "ยืนยัน",
           onPress: () => {
             if (typeof onLogout === "function") {
-              onLogout(); // Call the logout function passed as a prop
+              onLogout();
             }
           },
         },
@@ -97,7 +95,7 @@ export default function ProfileScreen({ navigation, userData, onLogout }) {
       {/* Logout Button */}
       <View style={tw`p-4`}>
         <TouchableOpacity
-          style={tw`w-full py-3 rounded bg-green-500`}
+          style={tw`w-full py-3 rounded bg-[#60B876]`}
           onPress={handleLogout}
         >
           <Text

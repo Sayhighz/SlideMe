@@ -124,7 +124,7 @@ export default function EditInfoScreen({ navigation, route }) {
       {/* Confirm Button */}
       <View style={tw`px-4 py-4`}>
         <TouchableOpacity
-          style={tw`w-full py-3 bg-green-500 rounded`}
+          style={tw`w-full py-3 bg-[#60B876] rounded`}
           onPress={handleSave}
         >
           <Text style={[styles.globalText, tw`text-center text-base font-bold text-white`]}>

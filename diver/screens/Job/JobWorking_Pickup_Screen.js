@@ -132,11 +132,11 @@ export default function JobWorking_Pickup_Screen() {
       <ScrollView contentContainerStyle={tw`p-4`}>
         {/* Header Section */}
         <View style={tw`flex-row justify-between my-7`}>
-          <TouchableOpacity onPress={() => handleCancelRequest(request_id)}>
-            <Text style={[styles.globalText, tw`text-lg text-green-600 font-bold`]}>ยกเลิกงาน</Text>
+          <TouchableOpacity onPress={() => Alert.alert("ยกเลิก", "กรุณาติดต่อผู้ดูแลระบบสำหรับปัญหานี้")}>
+            <Text style={[styles.globalText, tw`text-lg text-[#60B876] font-bold`]}>ยกเลิกงาน</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => Alert.alert("แจ้งปัญหา", "กรุณาติดต่อผู้ดูแลระบบสำหรับปัญหานี้")}>
-            <Text style={[styles.globalText, tw`text-lg text-green-600 font-bold`]}>แจ้งปัญหา</Text>
+            <Text style={[styles.globalText, tw`text-lg text-[#60B876] font-bold`]}>แจ้งปัญหา</Text>
           </TouchableOpacity>
         </View>
 
@@ -199,7 +199,7 @@ export default function JobWorking_Pickup_Screen() {
       <View style={tw`absolute bottom-0 left-0 right-0 bg-white p-4`}>
         <TouchableOpacity
           onPress={handleConfirmation}
-          style={tw`bg-green-500 rounded p-2 items-center`}
+          style={tw`bg-[#60B876] rounded p-2 items-center`}
         >
           <Text style={[styles.globalText, tw`text-white font-bold text-lg`]}>ยืนยันถึงที่หมาย</Text>
         </TouchableOpacity>

@@ -159,7 +159,7 @@ export default function PersonalInfoScreen({ navigation, route }) {
       {/* Edit Button */}
       <View style={tw`px-4 mt-8`}>
         <TouchableOpacity
-          style={tw`py-3 rounded bg-green-500`}
+          style={tw`py-3 rounded bg-[#60B876]`}
           onPress={() => navigation.navigate("EditInfo", { userData })}
         >
           <Text style={[styles.globalText, tw`text-center text-white text-base font-bold`]}>แก้ไขข้อมูล</Text>

@@ -189,7 +189,7 @@ const CarUploadDropOffConfirmation = () => {
           onPress={handleConfirmation}
           style={[
             tw`p-4 rounded-lg mt-4 items-center`,
-            buttonEnabled ? tw`bg-green-500` : tw`bg-gray-400`,
+            buttonEnabled ? tw`bg-[#60B876]` : tw`bg-gray-400`,
           ]}
           disabled={!buttonEnabled}
         >

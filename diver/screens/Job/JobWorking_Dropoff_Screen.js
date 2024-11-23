@@ -24,43 +24,6 @@ export default function JobWorking_Dropoff_Screen() {
   const [loading, setLoading] = useState(true); // State for loading indicator
   const [error, setError] = useState(null); // State for error handling
 
-  const handleCancelRequest = async (requestId) => {
-    try {
-      // Confirm before canceling the job
-      Alert.alert(
-        "ยกเลิกงาน",
-        "คุณต้องการยกเลิกงานนี้หรือไม่?",
-        [
-          { text: "ยกเลิก", style: "cancel" },
-          {
-            text: "ยืนยัน",
-            onPress: async () => {
-              // Make the POST request
-              const response = await fetch(`http://${IP_ADDRESS}:3000/auth/driver/cancel_request`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ request_id: requestId }),
-              });
-  
-              const data = await response.json();
-              if (data.Status) {
-                Alert.alert("สำเร็จ", "งานถูกยกเลิกเรียบร้อยแล้ว");
-                // Navigate to HomeMain screen
-                navigation.navigate("HomeMain");
-              } else {
-                Alert.alert("ข้อผิดพลาด", data.Error || "ไม่สามารถยกเลิกงานได้");
-              }
-            },
-          },
-        ]
-      );
-    } catch (error) {
-      Alert.alert("ข้อผิดพลาด", "เกิดข้อผิดพลาดในการยกเลิกงาน");
-      console.error("Cancel Request Error:", error);
-    }
-  };  
   useEffect(() => {
     // Fetch offer details
     const fetchOfferDetails = async () => {
@@ -111,7 +74,7 @@ export default function JobWorking_Dropoff_Screen() {
   if (loading) {
     return (
       <View style={tw`flex-1 justify-center items-center`}>
-        <ActivityIndicator size="large" color="#00ff00" />
+        <ActivityIndicator size="large" color="#60B876" />
       </View>
     );
   }
@@ -131,11 +94,8 @@ export default function JobWorking_Dropoff_Screen() {
       <ScrollView contentContainerStyle={tw`p-4`}>
         {/* Header Section */}
         <View style={tw`flex-row justify-between my-7`}>
-          <TouchableOpacity onPress={() => handleCancelRequest(request_id)}>
-            <Text style={[styles.globalText, tw`text-lg text-green-600 font-bold`]}>ยกเลิกงาน</Text>
-          </TouchableOpacity>
           <TouchableOpacity onPress={() => Alert.alert("แจ้งปัญหา", "กรุณาติดต่อผู้ดูแลระบบสำหรับปัญหานี้")}>
-            <Text style={[styles.globalText, tw`text-lg text-green-600 font-bold`]}>แจ้งปัญหา</Text>
+            <Text style={[styles.globalText, tw`text-lg text-[#60B876] font-bold`]}>แจ้งปัญหา</Text>
           </TouchableOpacity>
         </View>
 
@@ -198,7 +158,7 @@ export default function JobWorking_Dropoff_Screen() {
       <View style={tw`absolute bottom-0 left-0 right-0 bg-white p-4`}>
         <TouchableOpacity
           onPress={handleConfirmation}
-          style={tw`bg-green-500 rounded p-2 items-center`}
+          style={tw`bg-[#60B876] rounded p-2 items-center`}
         >
           <Text style={[styles.globalText, tw`text-white font-bold text-lg`]}>ยืนยันถึงที่หมาย</Text>
         </TouchableOpacity>
