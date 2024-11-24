@@ -9,6 +9,7 @@ import {
   Modal,
   FlatList,
   Alert,
+  SafeAreaView,
 } from "react-native";
 import { Card } from "react-native-paper";
 import Swiper from "react-native-swiper";
@@ -22,6 +23,7 @@ function Home({ navigation }) {
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { userData } = useContext(UserContext); // Access userData from UserContext
 
@@ -41,20 +43,6 @@ function Home({ navigation }) {
       <Text style={tw`text-lg font-semibold text-center`}>{title}</Text>
     </TouchableOpacity>
   );
-
-  const route = useRoute();
-  const selectedLabel = route.params?.selectedLabel || "ไม่ระบุ";
-  const origin = route.params?.origin || "ไม่ระบุ";
-  const destination = route.params?.destination || "ไม่ระบุ";
-  const confirmOrigin = route.params?.confirmOrigin || "ไม่ระบุ";
-  const confirmDestination = route.params?.confirmDestination || "ไม่ระบุ";
-
-  // Sample ads data (URLs for images or placeholders)
-  const ads = [
-    { id: 1, image: "https://via.placeholder.com/300x150.png?text=Ad+1" },
-    { id: 2, image: "https://via.placeholder.com/300x150.png?text=Ad+2" },
-    { id: 3, image: "https://via.placeholder.com/300x150.png?text=Ad+3" },
-  ];
 
   const order_status = async () => {
     try {
@@ -82,88 +70,86 @@ function Home({ navigation }) {
     }
   };
 
-  return (
-    <>
-      <View style={tw`flex-1 items-center justify-between `}>
-        {/* Main Content */}
-        <View style={tw`relative w-full items-center`}>
-          <Text style={tw`text-xl font-bold mt-4`}>
-            Welcome,{" "}
-            {userData?.username ||
-              userData?.first_name ||
-              userData?.phone_number}
-            !
-          </Text>
-          <TouchableOpacity
-            style={tw`mt-3`}
-            onPress={() => navigation.navigate("Order")}
-          >
-            <LinearGradient
-              colors={["#3DE183", "#60B876", "#6CA97C"]}
-              style={[
-                tw`rounded-lg items-center justify-center`,
-                { width: responsiveWidth, height: height * 0.19, padding: 10 },
-              ]}
-            >
-              <Text
-                style={[styles.globalText, tw`text-white text-4xl font-bold`]}
-              >
-                SLIDE ME
-              </Text>
-              <Text style={[styles.globalText, tw`text-white text-xl`]}>
-                Service
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
+  const route = useRoute();
+  const selectedLabel = route.params?.selectedLabel || "ไม่ระบุ";
+  const origin = route.params?.origin || "ไม่ระบุ";
+  const destination = route.params?.destination || "ไม่ระบุ";
+  const confirmOrigin = route.params?.confirmOrigin || "ไม่ระบุ";
+  const confirmDestination = route.params?.confirmDestination || "ไม่ระบุ";
 
-          <View>
+  // Sample ads data (URLs for images or placeholders)
+  const ads = [
+    { id: 1, image: "https://via.placeholder.com/300x150.png?text=Ad+1" },
+    { id: 2, image: "https://via.placeholder.com/300x150.png?text=Ad+2" },
+    { id: 3, image: "https://via.placeholder.com/300x150.png?text=Ad+3" },
+  ];
+
+  return (
+    <SafeAreaView style={tw`flex-1`} edges={["top", "left", "right"]}>
+      <View style={[tw`flex-1 items-center justify-center `]}>
+        {/* Main Content */}
+        <View style={tw`flex-1 w-full items-center mt-7`}>
+          <Text style={tw`flex-1 text-xl font-bold `}>
+            Welcome, {userData?.first_name || userData?.phone_number}!
+          </Text>
+          <View style={tw`flex-5 justify-center`}>
             <TouchableOpacity
-              style={[
-                { width: responsiveWidth, height: height * 0.16, padding: 10 },
-                tw`rounded-lg items-center justify-center mt-3 `,
-              ]}
-              onPress={() => order_status()}
+              style={tw``}
+              onPress={() => navigation.navigate("Order")}
             >
               <LinearGradient
                 colors={["#3DE183", "#60B876", "#6CA97C"]}
                 style={[
-                  { width: responsiveWidth, height: height * 0.16 },
-                  tw`rounded-lg items-center justify-center `,
+                  tw`rounded-lg items-center justify-center`,
+                  {
+                    width: responsiveWidth,
+                    height: height * 0.23,
+                    padding: 10,
+                  },
                 ]}
               >
                 <Text
-                  style={[styles.globalText, tw`text-3xl font-bold text-white`]}
+                  style={[styles.globalText, tw`text-white text-4xl font-bold`]}
                 >
-                  Order Status
+                  SLIDE ME
+                </Text>
+                <Text style={[styles.globalText, tw`text-white text-xl`]}>
+                  Service
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
-          <View>
-            <TouchableOpacity
-              style={[
-                { width: responsiveWidth, height: height * 0.12, padding: 10 },
-                tw`rounded-lg items-center justify-center mt-3 `,
-              ]}
-            >
-              <LinearGradient
-                colors={["#60B876", "#53A567"]}
+          <View style={[tw`flex-row flex-6 justify-between ` , {width : responsiveWidth}]}> 
+            
+              <TouchableOpacity
                 style={[
-                  {
-                    width: responsiveWidth,
-                    height: height * 0.12,
-                    padding: 10,
-                  },
-                  tw`rounded-lg items-center justify-center`,
+                  { height: height * 0.16 },
+                  { flex: 0.48 },
+
+                  tw`rounded-lg items-center justify-center bg-[#60B876]`,
+                ]}
+                onPress={() => order_status()}
+              >
+                <Text
+                  style={[styles.globalText, tw`text-2xl font-bold text-white`]}
+                >
+                  ติดตามสถานะ
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  { height: height * 0.16 },
+                  { flex: 0.48 },
+                  tw`rounded-lg items-center justify-center bg-[#60B876]`,
                 ]}
               >
                 <Text
-                  style={[styles.globalText, tw`text-3xl font-bold text-white`]}
+                  style={[styles.globalText, tw`text-2xl font-bold text-white`]}
                 >
                   ติดต่อเรา
                 </Text>
-              </LinearGradient>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            
           </View>
         </View>
 
@@ -199,7 +185,7 @@ function Home({ navigation }) {
           </Swiper>
         </View>
       </View>
-    </>
+    </SafeAreaView>
   );
 }
 

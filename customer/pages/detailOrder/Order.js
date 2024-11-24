@@ -23,6 +23,7 @@ import { IP_ADDRESS } from "../../config";
 import { ScrollView } from "react-native-gesture-handler";
 import { UserContext } from "../../UserContext";
 
+
 dayjs.locale("th");
 export default function Order({ navigation, bookmark }) {
   const [date, setDate] = useState(new Date());
@@ -174,7 +175,10 @@ export default function Order({ navigation, bookmark }) {
 
   const confirmDate = () => {
     setShowPicker(false);
-    setFormattedDate(dayjs(date).format("DD/MM/YYYY HH:mm"));
+    const formattedDate = dayjs(date)
+    .add(543, 'year') // 
+    .format(`DD/MM/YYYY HH:mm`);
+  setFormattedDate(formattedDate);
   };
 
   const renderIOSDatePicker = () => {
@@ -461,11 +465,6 @@ export default function Order({ navigation, bookmark }) {
     }
   };
 
-  const truncateText = (text, maxLength = 22) => {
-    if (!text) return "N/A"; // Return default if text is null/undefined
-    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
-  };
-
   return (
     <PaperProvider>
       <View style={tw`flex-1 items-center`}>
@@ -508,6 +507,7 @@ export default function Order({ navigation, bookmark }) {
             <TouchableOpacity
               onPress={() =>
                 Platform.OS === "ios" ? setShowPicker(true) : setShowModal(true)
+                
               }
               style={[
                 { width: responsiveWidth, height: height * 0.13 },
