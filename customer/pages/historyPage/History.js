@@ -63,7 +63,9 @@ const getStatusIcon = (status) => {
 
 // Function to format number with commas
 const formatNumberWithCommas = (number) => {
-  return number ? number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "ไม่ระบุ";
+  return number
+    ? number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+    : "ไม่ระบุ";
 };
 
 const HistoryPage = () => {
@@ -114,10 +116,12 @@ const HistoryPage = () => {
 
   const renderItem = ({ item }) => {
     const { icon, color, bgColor } = getStatusIcon(item.service_status);
-  
+
     return (
       <TouchableOpacity onPress={() => openModal(item)}>
-        <View style={tw`bg-white rounded-lg p-4 mb-4 shadow flex-row items-center`}>
+        <View
+          style={tw`bg-white rounded-lg p-4 mb-4 shadow flex-row items-center`}
+        >
           <View
             style={[
               tw`items-center justify-center mr-4`,
@@ -143,14 +147,16 @@ const HistoryPage = () => {
             </Text>
             <Text style={[tw`text-gray-600`, styles.customFont]}>
               ค่าบริการ:{" "}
-              {item.service_charge ? formatNumberWithCommas(item.service_charge) : "0"} บาท
+              {item.service_charge
+                ? formatNumberWithCommas(item.service_charge)
+                : "0"}{" "}
+              บาท
             </Text>
           </View>
         </View>
       </TouchableOpacity>
     );
   };
-  
 
   if (loading) {
     return (
@@ -179,74 +185,143 @@ const HistoryPage = () => {
         contentContainerStyle={tw`pb-15`}
       />
 
-{selectedItem && (
-  <Modal
-    animationType="slide"
-    transparent={true}
-    visible={modalVisible}
-    onRequestClose={() => setModalVisible(false)}
-  >
-    <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
-      <View
-        style={[
-          tw`bg-white rounded-lg p-6 w-11/12`,
-          { maxHeight: "90%" },
-        ]}
-      >
-        <Text style={[tw`text-2xl font-bold mb-4 text-black`, styles.customFont]}>
-          รายละเอียดเพิ่มเติม
-        </Text>
-        <View style={tw`mb-4`}>
-          <View style={tw`flex-row items-start mb-3`}>
-            <Icon name="car" size={20} color="#4CAF50" style={tw`mr-4 mt-1`} />
-            <Text style={[tw`text-lg text-black flex-1 leading-5`, styles.customFont]}>
-              บริการ: {selectedItem.vehicle_type || "ไม่ระบุ"}
-            </Text>
-          </View>
-          <View style={tw`flex-row items-start mb-3`}>
-            <Icon name="calendar-alt" size={20} color="#3B82F6" style={tw`mr-4 mt-1`} />
-            <Text style={[tw`text-lg text-black flex-1 leading-5`, styles.customFont]}>
-              วันที่: {formatThaiDate(selectedItem.date)}
-            </Text>
-          </View>
-          <View style={tw`flex-row items-start mb-3`}>
-            <Icon name="info-circle" size={20} color="#FF9800" style={tw`mr-4 mt-1`} />
-            <Text style={[tw`text-lg text-black flex-1 leading-5`, styles.customFont]}>
-              สถานะ: {mapServiceStatus(selectedItem.service_status)}
-            </Text>
-          </View>
-          <View style={tw`flex-row items-start mb-3`}>
-            <Icon name="money-bill-wave" size={20} color="#4CAF50" style={tw`mr-4 mt-1`} />
-            <Text style={[tw`text-lg text-black flex-1 leading-5`, styles.customFont]}>
-              ค่าบริการ: {formatNumberWithCommas(selectedItem.service_charge)} บาท
-            </Text>
-          </View>
-          <View style={tw`flex-row items-start mb-3`}>
-            <Icon name="map-marker-alt" size={20} color="#E91E63" style={tw`mr-4 mt-1`} />
-            <Text style={[tw`text-lg text-black flex-1 leading-5`, styles.customFont]}>
-              ต้นทาง: {selectedItem.origin || "ไม่ระบุ"}
-            </Text>
-          </View>
-          <View style={tw`flex-row items-start`}>
-            <Icon name="flag-checkered" size={20} color="#60B876" style={tw`mr-4 mt-1`} />
-            <Text style={[tw`text-lg text-black flex-1 leading-5`, styles.customFont]}>
-              ปลายทาง: {selectedItem.destination || "ไม่ระบุ"}
-            </Text>
-          </View>
-        </View>
-        <TouchableOpacity
-          style={tw`bg-[#60B876] rounded px-4 py-2 mt-4`}
-          onPress={() => setModalVisible(false)}
+      {selectedItem && (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
         >
-          <Text style={tw`text-white text-center text-lg`}>ปิด</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  </Modal>
-)}
-
-
-
+          <View
+            style={tw`flex-1 justify-center items-center bg-black bg-opacity-50 `}
+          >
+            <View
+              style={[
+                tw`bg-white rounded-lg p-6 w-11/12`,
+                { maxHeight: "90%" },
+              ]}
+            >
+              <Text
+                style={[
+                  tw`text-2xl font-bold mb-4 text-black`,
+                  styles.customFont,
+                ]}
+              >
+                รายละเอียดเพิ่มเติม
+              </Text>
+              <View style={tw`mb-4`}>
+                <View style={tw`flex-row items-start mb-3  justify-center`}>
+                  <Icon
+                    name="car"
+                    size={20}
+                    color="black"
+                    style={tw`mr-4 mt-1`}
+                  />
+                  <Text
+                    style={[
+                      tw`text-lg items-center text-black flex-1`,
+                      styles.customFont,
+                    ]}
+                  >
+                    บริการ: {selectedItem.vehicle_type || "ไม่ระบุ"}
+                  </Text>
+                </View>
+                <View style={tw`flex-row items-start mb-3`}>
+                  <Icon
+                    name="calendar-alt"
+                    size={20}
+                    color="#3B82F6"
+                    style={tw`mr-4 mt-1`}
+                  />
+                  <Text
+                    style={[
+                      tw`text-lg text-black flex-1 `,
+                      styles.customFont,
+                    ]}
+                  >
+                    วันที่: {formatThaiDate(selectedItem.date)}
+                  </Text>
+                </View>
+                <View style={tw`flex-row items-start mb-3`}>
+                  <Icon
+                    name="info-circle"
+                    size={20}
+                    color="#FF9800"
+                    style={tw`mr-4 mt-1`}
+                  />
+                  <Text
+                    style={[
+                      tw`text-lg text-black flex-1 `,
+                      styles.customFont,
+                    ]}
+                  >
+                    สถานะ: {mapServiceStatus(selectedItem.service_status)}
+                  </Text>
+                </View>
+                <View style={tw`flex-row items-start mb-3`}>
+                  <Icon
+                    name="money-bill-wave"
+                    size={20}
+                    color="#4CAF50"
+                    style={tw`mr-4 mt-1`}
+                  />
+                  <Text
+                    style={[
+                      tw`text-lg text-black flex-1 `,
+                      styles.customFont,
+                    ]}
+                  >
+                    ค่าบริการ:{" "}
+                    {formatNumberWithCommas(selectedItem.service_charge)} บาท
+                  </Text>
+                </View>
+                <View style={tw`flex-row items-start mb-3`}>
+                  <Icon
+                    name="map-marker-alt"
+                    size={20}
+                    color="#E91E63"
+                    style={tw`mr-4 mt-1`}
+                  />
+                  <Text
+                    style={[
+                      tw`text-lg text-black flex-1`,
+                      styles.customFont,
+                    ]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    ต้นทาง: {selectedItem.origin || "ไม่ระบุ"}
+                  </Text>
+                </View>
+                <View style={tw`flex-row items-start`}>
+                  <Icon
+                    name="flag-checkered"
+                    size={20}
+                    color="#60B876"
+                    style={tw`mr-4 mt-1`}
+                  />
+                  <Text
+                    style={[
+                      tw`text-lg text-black flex-1 `,
+                      styles.customFont,
+                    ]}
+                    numberOfLines={1}
+            ellipsizeMode="tail"
+                  >
+                    ปลายทาง: {selectedItem.destination || "ไม่ระบุ"}
+                  </Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                style={tw`bg-[#60B876] rounded px-4 py-2 mt-4`}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={tw`text-white text-center text-lg`}>ปิด</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 };

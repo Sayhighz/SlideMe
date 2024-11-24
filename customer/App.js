@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, View  } from "react-native";
 import { useFonts } from "expo-font";
 
 import { UserProvider } from "./UserContext";
@@ -36,6 +36,8 @@ import Bookmarklist from "./pages/addressPage/Bookmarklist";
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
+
+
 function HomeStack() {
   return (
     <Stack.Navigator
@@ -47,7 +49,7 @@ function HomeStack() {
         shadowOpacity: 0,
       }}
     >
-      <Stack.Screen name="HomePage" component={Home} />
+      <Stack.Screen name="HomePage" component={Home} options={{ headerShown: false }} style={{ flex: 1}}/>
       <Stack.Screen name="Mapdetail" component={MapDetail} />
       <Stack.Screen
         name="MapPage"
@@ -110,12 +112,12 @@ function UserProfileStack() {
       <Stack.Screen
         name="userHistoryPage"
         component={HistoryPage}
-        options={{ title: "ประวัติการใช้บริการ" }}
+        options={{ title: "กลับ" }}
       />
       <Stack.Screen
         name="editProfile"
         component={EditProfile}
-        options={{ title: "แก้ไขข้อมูลผู้ใช้" }}
+        options={{ title: "แก้ไขข้อมูล" }}
       />
       <Stack.Screen
         name="addressPage"
