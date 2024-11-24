@@ -18,6 +18,7 @@ import { useRoute } from "@react-navigation/native";
 import { UserContext } from "../../UserContext";
 import { IP_ADDRESS } from "../../config";
 
+
 function Home({ navigation }) {
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
@@ -71,10 +72,10 @@ function Home({ navigation }) {
       <View style={[tw`flex-1 items-center justify-center `]}>
         {/* Main Content */}
         <View style={tw`flex-1 w-full items-center mt-7`}>
-          <Text style={tw`flex-1 text-xl font-bold `}>
+          <Text style={tw`flex-1 text-xl font-bold mb-4`}>
             Welcome, {userData?.first_name || userData?.phone_number}!
           </Text>
-          <View style={tw`flex-5 justify-center`}>
+          <View style={tw`flex-5 justify-center shadow-xl`}>
             <TouchableOpacity
               style={tw``}
               onPress={() => navigation.navigate("Order")}
@@ -82,7 +83,7 @@ function Home({ navigation }) {
               <LinearGradient
                 colors={["#3DE183", "#60B876", "#6CA97C"]}
                 style={[
-                  tw`rounded-lg items-center justify-center`,
+                  tw`flex-1 rounded-lg items-center justify-center border border-gray-300`,
                   {
                     width: responsiveWidth,
                     height: height * 0.23,
@@ -90,18 +91,21 @@ function Home({ navigation }) {
                   },
                 ]}
               >
+                <View style={[tw`flex-1 items-center justify-center `] }>
+                
                 <Text
-                  style={[styles.globalText, tw`text-white text-4xl font-bold`]}
+                  style={[styles.globalText, tw`text-white text-4xl font-bold p-1 `] }
                 >
-                  SLIDE ME
+                 เรียกบริการ
                 </Text>
-                <Text style={[styles.globalText, tw`text-white text-xl`]}>
-                  Service
+                <Text style={[styles.globalText, tw`text-white text-4xl p-1`]}>
+                  รถสไลด์
                 </Text>
+                </View>
               </LinearGradient>
             </TouchableOpacity>
           </View>
-          <View style={[tw`flex-row flex-6 justify-between ` , {width : responsiveWidth}]}> 
+          <View style={[tw`flex-row flex-6 justify-between mt-4` , {width : responsiveWidth}]}> 
             
               <TouchableOpacity
                 style={[
@@ -137,13 +141,13 @@ function Home({ navigation }) {
 
         {/* Swiper for Ads Banner (placed above bottom navbar) */}
         <View
-          style={[tw``, { width: responsiveWidth, height: responsiveHeight }]}
+          style={[tw`mb-5`, { width: responsiveWidth, height: responsiveHeight }]}
         >
           <Swiper
             autoplay
             showsPagination
             loop
-            style={tw`rounded-lg`}
+            style={tw`rounded-lg `}
             activeDotColor="#60B876"
           >
             {(ads || []).map((ad) => (
@@ -151,7 +155,7 @@ function Home({ navigation }) {
                 key={ad.id}
                 style={[
                   { height: height * 0.17 },
-                  tw`flex items-center justify-center w-full`,
+                  tw`flex-1 items-center justify-center w-full `,
                 ]}
               >
                 <Image
