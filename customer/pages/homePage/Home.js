@@ -14,6 +14,7 @@ import tw from "twrnc";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRoute } from "@react-navigation/native";
 import { UserContext } from "../../UserContext";
+import { IP_ADDRESS } from "../../config";
 
 function Home({ navigation }) {
   const { width, height } = Dimensions.get("window");
@@ -39,6 +40,32 @@ function Home({ navigation }) {
       <Text style={tw`text-lg font-semibold text-center`}>{title}</Text>
     </TouchableOpacity>
   );
+
+  const order_status = async () => {
+    try {
+      const response = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/order_status/${userData.user_id}`
+      );
+      const data = await response.json();
+      console.log("order_status:", data);
+      if (data.Status) {
+        navigation.navigate("viewOrder", {
+          driverProfile: {
+            chooseDriver: {
+              request_id: data.Result.request_id,
+              id: data.Result.accepted_driver_id,
+              customer_id_request: userData.user_id,
+            },
+          },
+        })
+      }
+      else if(data.Message === "No accepted records found for customer_id") {
+        Alert.alert("ไม่มี Order ที่กำลังทำงานอยู่");
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   const route = useRoute();
   const selectedLabel = route.params?.selectedLabel || "ไม่ระบุ";
@@ -98,7 +125,7 @@ function Home({ navigation }) {
 
                   tw`rounded-lg items-center justify-center bg-[#60B876]`,
                 ]}
-                onPress={() => navigation.navigate("viewOrder")}
+                onPress={() => order_status()}
               >
                 <Text
                   style={[styles.globalText, tw`text-2xl font-bold text-white`]}
