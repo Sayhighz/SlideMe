@@ -166,7 +166,7 @@ const PaymentMethodsListScreen = ({ navigation }) => {
       />
 
       <TouchableOpacity
-        style={tw`bg-green-600 p-3 rounded mt-5`}
+        style={tw`bg-[#60B876] p-3 rounded mt-5`}
         onPress={() => navigation.navigate('AddPaymentMethod')}
       >
         <Text style={[tw`text-white text-center text-lg`, styles.customFont]}>
