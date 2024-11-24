@@ -274,7 +274,7 @@ export default function ViewOrder({ navigation }) {
                   longitudeDelta: 0.0521,
                 }}
               >
-                <Marker coordinate={origin} title="origin" description="origin">
+                <Marker coordinate={origin} title="ต้นทาง" description={origin.name}>
                   <MaterialIcons
                     name="location-pin"
                     size={35}
@@ -285,8 +285,8 @@ export default function ViewOrder({ navigation }) {
 
                 <Marker
                   coordinate={destination}
-                  title="destination"
-                  description="destination"
+                  title="ปลายทาง"
+                  description={destination.name}
                 >
                   <MaterialIcons
                     name="location-pin"
@@ -298,8 +298,8 @@ export default function ViewOrder({ navigation }) {
 
                 <Marker
                   coordinate={driverLocation}
-                  title="driverLocation"
-                  description="driverLocation"
+                  title="คนขับ"
+                  description={driverInformation.name}
                 >
                   <MaterialIcons
                     name="location-pin"
