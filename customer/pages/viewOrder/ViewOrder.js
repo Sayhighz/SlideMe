@@ -42,10 +42,6 @@ export default function ViewOrder({ navigation }) {
 
   const [alertComfirm, setAlertConfirm] = useState(false);
 
-  const driverProfile = route.params?.driverProfile.chooseDriver || "ไม่ระบุ";
-  const originLocation = route.params?.originLocation || "ไม่ระบุ";
-  const destinationLocation = route.params?.destinationLocation || "ไม่ระบุ";
-
   const driver_id = route.params?.driverProfile.chooseDriver.id || "ไม่ระบุ";
   const customer_id_request =
     route.params?.driverProfile.chooseDriver.customer_id_request || "ไม่ระบุ";
@@ -53,7 +49,7 @@ export default function ViewOrder({ navigation }) {
     route.params?.driverProfile.chooseDriver.request_id || "ไม่ระบุ";
 
   useEffect(() => {
-    console.log("route.params:", route.params.driverProfile);
+    console.log("route.params:", route.params || "ไม่ระบุ");
   }, [route.params]);
 
   const formatDateToThaiTimezone = (dateString) => {
@@ -77,12 +73,13 @@ export default function ViewOrder({ navigation }) {
   useEffect(() => {
     console.log("driver_id:", driver_id);
     console.log("customer_id_request:", customer_id_request);
-  }, [driver_id, customer_id_request]);
+    console.log("request_id:", request_id);
+  }, [driver_id, customer_id_request, request_id]);
 
   const fetchOrderDetails = async () => {
     try {
       const response = await axios.get(
-        `http://${IP_ADDRESS}:3000/auth/fetch_driver_info/${customer_id_request}/${driver_id}/${route.params.driverProfile.request_id}`
+        `http://${IP_ADDRESS}:3000/auth/fetch_driver_info/${customer_id_request}/${driver_id}/${request_id}`
       );
 
       if (response.data.Status && response.data.Result.length > 0) {

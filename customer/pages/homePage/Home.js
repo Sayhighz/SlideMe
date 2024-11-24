@@ -1,4 +1,4 @@
-import React, { useState , useContext } from "react";
+import React, { useState, useContext } from "react";
 import {
   Text,
   View,
@@ -8,6 +8,7 @@ import {
   Dimensions,
   Modal,
   FlatList,
+  Alert,
 } from "react-native";
 import { Card } from "react-native-paper";
 import Swiper from "react-native-swiper";
@@ -15,6 +16,7 @@ import tw from "twrnc";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRoute } from "@react-navigation/native";
 import { UserContext } from "../../UserContext";
+import { IP_ADDRESS } from "../../config";
 
 function Home({ navigation }) {
   const { width, height } = Dimensions.get("window");
@@ -22,7 +24,6 @@ function Home({ navigation }) {
   const responsiveHeight = height * 0.2;
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { userData } = useContext(UserContext); // Access userData from UserContext
- 
 
   const handleOpenModal = () => {
     setIsModalVisible(true);
@@ -55,15 +56,44 @@ function Home({ navigation }) {
     { id: 3, image: "https://via.placeholder.com/300x150.png?text=Ad+3" },
   ];
 
+  const order_status = async () => {
+    try {
+      const response = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/order_status/${userData.user_id}`
+      );
+      const data = await response.json();
+      console.log("order_status:", data);
+      if (data.Status) {
+        navigation.navigate("viewOrder", {
+          driverProfile: {
+            chooseDriver: {
+              request_id: data.Result.request_id,
+              id: data.Result.accepted_driver_id,
+              customer_id_request: userData.user_id,
+            },
+          },
+        })
+      }
+      else if(data.Message === "No accepted records found for customer_id") {
+        Alert.alert("ไม่มี order")
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   return (
     <>
       <View style={tw`flex-1 items-center justify-between `}>
         {/* Main Content */}
         <View style={tw`relative w-full items-center`}>
-
-        <Text style={tw`text-xl font-bold mt-4`}>
-        Welcome, {userData?.username || userData?.first_name || userData?.phone_number}!
-      </Text>
+          <Text style={tw`text-xl font-bold mt-4`}>
+            Welcome,{" "}
+            {userData?.username ||
+              userData?.first_name ||
+              userData?.phone_number}
+            !
+          </Text>
           <TouchableOpacity
             style={tw`mt-3`}
             onPress={() => navigation.navigate("Order")}
@@ -92,7 +122,7 @@ function Home({ navigation }) {
                 { width: responsiveWidth, height: height * 0.16, padding: 10 },
                 tw`rounded-lg items-center justify-center mt-3 `,
               ]}
-              onPress={() => navigation.navigate("viewOrder")}
+              onPress={() => order_status()}
             >
               <LinearGradient
                 colors={["#3DE183", "#60B876", "#6CA97C"]}
@@ -139,10 +169,7 @@ function Home({ navigation }) {
 
         {/* Swiper for Ads Banner (placed above bottom navbar) */}
         <View
-          style={[
-            tw``,
-            { width: responsiveWidth, height: responsiveHeight },
-          ]}
+          style={[tw``, { width: responsiveWidth, height: responsiveHeight }]}
         >
           <Swiper
             autoplay

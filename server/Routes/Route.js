@@ -1465,6 +1465,33 @@ router.get("/driver/profitToday", (req, res) => {
   });
 });
 
+router.get("/order_status/:user_id", (req, res) => {
+  const { user_id } = req.params
+  const sql = `
+    SELECT request_id, accepted_driver_id, status
+    FROM servicerequests
+    WHERE customer_id = ? AND status = 'accepted'
+    ORDER BY request_time DESC
+    LIMIT 1
+  `;
+
+  con.query(sql, [user_id], (err, result) => {
+    if (err) {
+      return res.status(500).json({ Status: false, Error: err.message });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({
+        Status: false,
+        Message: `No accepted records found for customer_id`,
+      });
+    }
+
+    return res.status(200).json({ Status: true, Result: result[0] });
+  });
+});
+
+
 
 
 export { router as adminRouter };
