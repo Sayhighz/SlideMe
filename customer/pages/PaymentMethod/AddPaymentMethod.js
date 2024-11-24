@@ -1,24 +1,42 @@
-import React, { useContext, useState } from 'react';
-import { View, Text, TextInput, Alert, TouchableOpacity } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import { useNavigation } from '@react-navigation/native';
-import tw from 'twrnc';
+import React, { useContext, useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Alert,
+  TouchableOpacity,
+  Modal,
+  FlatList,
+  StyleSheet,
+  Platform,
+} from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome5";
+import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
-import { UserContext } from '../../UserContext';
+import { UserContext } from "../../UserContext";
+import { useNavigation } from "@react-navigation/native";
 
 const AddPaymentMethod = ({ route }) => {
-  const navigation = useNavigation();
-  const { onRefresh } = route.params || {}; // Retrieve the onRefresh callback
-
-  const [paymentType, setPaymentType] = useState('');
-  const [accountName, setAccountName] = useState('');
-  const [accountNumber, setAccountNumber] = useState('');
-  const [expirationDate, setExpirationDate] = useState('');
-
+  const { onRefresh } = route.params || {};
   const { userData } = useContext(UserContext);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const [paymentType, setPaymentType] = useState("");
+  const [accountName, setAccountName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [expirationDate, setExpirationDate] = useState("");
+  const navigation = useNavigation();
+
+  const paymentOptions = [
+    { label: "บัตรเครดิต", value: "credit_card" },
+    { label: "บัตรเดบิต", value: "debit_card" },
+    { label: "PayPal", value: "paypal" },
+    { label: "ธนาคาร", value: "bank_transfer" },
+    { label: "อื่นๆ", value: "other" },
+  ];
 
   const handleExpirationDateChange = (input) => {
-    let formattedInput = input.replace(/\D/g, ''); // Remove non-numeric characters
+    let formattedInput = input.replace(/\D/g, "");
     if (formattedInput.length > 2) {
       formattedInput = `${formattedInput.slice(0, 2)}/${formattedInput.slice(2)}`;
     }
@@ -27,7 +45,7 @@ const AddPaymentMethod = ({ route }) => {
 
   const handleSubmit = async () => {
     if (!paymentType || !accountName || !accountNumber || !expirationDate) {
-      Alert.alert('Error', 'โปรดกรอกข้อมูลให้ครบ');
+      Alert.alert("Error", "โปรดกรอกข้อมูลให้ครบ");
       return;
     }
 
@@ -41,83 +59,120 @@ const AddPaymentMethod = ({ route }) => {
 
     try {
       const response = await fetch(`http://${IP_ADDRESS}:3000/auth/add_payment_method`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
 
       if (response.ok) {
-        console.log()
-        Alert.alert('Success', 'บันทึกช่องทางการชำระเงินสําเร็จ');
-        if (onRefresh) {
-          onRefresh(); // Call the callback to refresh data
-        }
-        navigation.goBack();
+        Alert.alert("Success", "บันทึกช่องทางการชำระเงินสําเร็จ");
+        if (onRefresh) onRefresh();
+        navigation.goBack()
       } else {
-        Alert.alert('Error', 'บันทึกช่องทางการชำระเงินไม่สําเร็จ');
+        Alert.alert("Error", "บันทึกช่องทางการชำระเงินไม่สําเร็จ");
       }
     } catch (error) {
-      Alert.alert('Error', 'An error occurred: ' + error.message);
+      Alert.alert("Error", "An error occurred: " + error.message);
     }
   };
 
+  const renderPaymentOption = ({ item }) => (
+    <TouchableOpacity
+      onPress={() => {
+        setPaymentType(item.value);
+        setModalVisible(false);
+      }}
+      style={tw`p-4 border-b border-gray-200`}
+    >
+      <Text style={[tw`text-lg`, styles.customFont]}>{item.label}</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={tw`flex-1 p-5 bg-gray-100`}>
-      <Text style={tw`text-2xl font-bold mb-5`}>เพิ่มช่องทางการชำระเงิน</Text>
+      <Text style={[tw`text-2xl font-bold mb-5`, styles.customFont]}>เพิ่มช่องทางการชำระเงิน</Text>
 
-      <Text style={tw`text-lg mt-2`}>ประเภท</Text>
-      <View style={tw`border border-gray-300 rounded mt-1`}>
-        <Picker
-          selectedValue={paymentType}
-          onValueChange={(itemValue) => setPaymentType(itemValue)}
-          style={tw`h-10`}
-        >
-          <Picker.Item label="ประเภทการชำระเงิน" value="" />
-          <Picker.Item label="บัตรเครดิต" value="credit_card" />
-          <Picker.Item label="บัตรเดบิต" value="debit_card" />
-          <Picker.Item label="PayPal" value="paypal" />
-          <Picker.Item label="ธนาคาร" value="bank_transfer" />
-          <Picker.Item label="อื่นๆ" value="other" />
-        </Picker>
-      </View>
+      <Text style={[tw`text-lg mt-2`, styles.customFont]}>ประเภท</Text>
+      <TouchableOpacity
+        style={tw`border border-gray-300 rounded mt-1 p-3 flex-row justify-between items-center`}
+        onPress={() => setModalVisible(true)}
+      >
+        <Text style={[tw`text-lg`, styles.customFont]}>
+          {paymentType ? paymentOptions.find((opt) => opt.value === paymentType)?.label : "เลือกประเภทการชำระเงิน"}
+        </Text>
+        <Icon name="chevron-down" size={16} />
+      </TouchableOpacity>
 
-      <Text style={tw`text-lg mt-4`}>ชื่อบัญชี</Text>
+      <Text style={[tw`text-lg mt-4`, styles.customFont]}>ชื่อบัญชี</Text>
       <TextInput
-        style={tw`border border-gray-300 p-2 rounded mt-1`}
+        style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
         placeholder="ชื่อบัญชี"
         value={accountName}
         onChangeText={setAccountName}
+        placeholderTextColor="#9CA3AF"
       />
 
-      <Text style={tw`text-lg mt-4`}>หมายเลขบัญชี</Text>
+      <Text style={[tw`text-lg mt-4`, styles.customFont]}>หมายเลขบัญชี</Text>
       <TextInput
-        style={tw`border border-gray-300 p-2 rounded mt-1`}
+        style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
         placeholder="เลขบัญชี"
         keyboardType="numeric"
         value={accountNumber}
         onChangeText={setAccountNumber}
+        placeholderTextColor="#9CA3AF"
       />
 
-      <Text style={tw`text-lg mt-4`}>วันหมดอายุ</Text>
+      <Text style={[tw`text-lg mt-4`, styles.customFont]}>วันหมดอายุ</Text>
       <TextInput
-        style={tw`border border-gray-300 p-2 rounded mt-1`}
+        style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
         placeholder="MM/YY"
         value={expirationDate}
         onChangeText={handleExpirationDateChange}
         maxLength={5}
         keyboardType="numeric"
+        placeholderTextColor="#9CA3AF"
       />
 
       <TouchableOpacity
         style={tw`bg-green-600 p-3 rounded mt-5`}
         onPress={handleSubmit}
       >
-        <Text style={tw`text-white text-center text-lg`}>บันทึก</Text>
+        <Text style={[tw`text-white text-center text-lg`, styles.customFont]}>บันทึก</Text>
       </TouchableOpacity>
+
+      {/* Modal for selecting payment type */}
+      <Modal visible={modalVisible} transparent={true} animationType="fade">
+        <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
+          <View style={tw`bg-white rounded-lg w-10/12`}>
+            <FlatList
+              data={paymentOptions}
+              renderItem={renderPaymentOption}
+              keyExtractor={(item) => item.value}
+            />
+            <TouchableOpacity
+              style={tw`p-4 bg-gray-300 rounded-b-lg`}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={[tw`text-center text-lg`, styles.customFont]}>ปิด</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  customFont: {
+    fontFamily: "Mitr-Regular",
+  },
+  input: {
+    fontFamily: "Mitr-Regular",
+    height: Platform.select({ ios: 40, android: 50 }),
+    color: "#000",
+  },
+});
 
 export default AddPaymentMethod;
