@@ -125,7 +125,7 @@ function UserProfileStack() {
       <Stack.Screen
         name="addMapFav"
         component={Addmap}
-        options={{ title: "เพิ่มบุ๊คมาร์ก" }}
+        options={{ title: "เพิ่มบุ๊คมาร์ก" , headerShown: false}}
       />
       <Stack.Screen
         name="Bookmarklist"

@@ -122,7 +122,9 @@ export default function PaymentPage({ navigation }) {
               setTabIndex(0);
             }}
           >
-            <Text>Credit / Debit</Text>
+            <Text>บัตรเครดิต /</Text>
+            <Text>บัตรเดบิต</Text>
+
           </Pressable>
           <Pressable
             style={[
@@ -223,7 +225,7 @@ export default function PaymentPage({ navigation }) {
           <Pressable
             style={tw`flex-1 items-center h-full justify-center border-2 mx-4 border-dashed rounded-lg mt-4`}
           >
-            <Text>Add Payment Method</Text>
+            <Text>เพิ่มวิธีการชำระเงิน</Text>
           </Pressable>
         )}
         {tabIndex === 1 && (
@@ -247,7 +249,7 @@ export default function PaymentPage({ navigation }) {
         )}
       </View>
       <View style={tw`flex-1 mx-4 mt-4`}>
-        <Text>ORDER SUMMARY</Text>
+        <Text style={tw`text-lg font-bold`}>รายการออเดอร์</Text>
         <View style={tw`flex-3 bg-gray-200 p-2 mt-4 rounded-lg`}>
           <View style={tw`flex-4 justify-between`}>
             <View style={tw`flex-row justify-between`}>
@@ -258,36 +260,36 @@ export default function PaymentPage({ navigation }) {
               </View>
             </View>
             <View style={tw`flex-row justify-between`}>
-              <Text>DELIVERY CHARGE</Text>
+              <Text>ราคาข้อเสนอ</Text>
               <Text>
                 <Text style={tw`font-bold text-[#E33F3F]`}>{driverPrice}</Text>{" "}
-                THB
+                บาท
               </Text>
             </View>
             <View style={tw`flex-row justify-between`}>
-              <Text>FEE</Text>
+              <Text>ค่าธรรมเนียม</Text>
               <Text>
-                <Text style={tw`font-bold text-[#E33F3F]`}>{feePrice}</Text> THB
+                <Text style={tw`font-bold text-[#E33F3F]`}>{feePrice}</Text> บาท
               </Text>
             </View>
             <View style={tw`flex-row justify-between`}>
-              <Text>DISCOUNT</Text>
+              <Text>ส่วนลด</Text>
               <Text>
                 <Text style={tw`font-bold text-[#60B876]`}>
                   {discount === 0 ? "0" : discount}
                 </Text>{" "}
-                THB
+                บาท
               </Text>
             </View>
           </View>
           <View style={tw`flex-2 justify-center`}>
             <View style={tw`flex-row justify-between`}>
-              <Text style={tw`text-xl font-bold`}>TOTAL</Text>
+              <Text style={tw`text-xl font-bold`}>ยอดรวม</Text>
               <Text style={tw`text-xl font-bold`}>
                 <Text style={tw`font-bold text-[#E33F3F]`}>
                   {totalPrice}
                 </Text>{" "}
-                THB
+                บาท
               </Text>
             </View>
           </View>
@@ -303,7 +305,7 @@ export default function PaymentPage({ navigation }) {
                 }
               }}
             >
-              <Text>PAY NOW</Text>
+              <Text>จ่ายเงิน</Text>
             </Pressable>
           </View>
         ) : (

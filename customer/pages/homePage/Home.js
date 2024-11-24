@@ -75,7 +75,7 @@ function Home({ navigation }) {
         })
       }
       else if(data.Message === "No accepted records found for customer_id") {
-        Alert.alert("ไม่มี order")
+        Alert.alert("ไม่มี Order ที่กำลังทำงานอยู่");
       }
     } catch (error) {
       console.error("Error fetching data:", error);

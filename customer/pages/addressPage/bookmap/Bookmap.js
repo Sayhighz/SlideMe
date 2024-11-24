@@ -11,6 +11,7 @@ import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
+import axios from "axios";
 
 const Bookmap = ({ navigation, label }) => {
   const route = useRoute();
@@ -69,17 +70,16 @@ const Bookmap = ({ navigation, label }) => {
   //ระบุสถานที่
   const getAddressFromCoords = async (latitude, longitude) => {
     try {
-      let response = await Location.reverseGeocodeAsync({
-        latitude,
-        longitude,
-      });
-      if (response.length > 0) {
-        const place = response[0];
-        const address = `${place.name !== null ? place.name + "," : ""}${
-          place.street !== null ? place.street + "," : ""
-        }${place.city !== null ? place.city + "," : ""}${
-          place.region !== null ? place.region + "," : ""
-        }${place.country !== null ? place.country : ""}`;
+      const API_KEY = GOOGLE_MAPS_API_KEY; // ใส่ API Key ของคุณ
+      const response = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&language=th&key=${API_KEY}`
+      );
+
+      console.log("API Response:", response.data);
+
+      if (response.data.results.length > 0) {
+        const address = response.data.results[0].formatted_address;
+        console.log("Address in Thai:", address);
 
         if (!confirmOrigin.length) {
           setOriginAddress(address);
@@ -153,7 +153,7 @@ const Bookmap = ({ navigation, label }) => {
   };
 
   return (
-    <SafeAreaView style={tw`flex-1 relative`}>
+    <SafeAreaView style={tw`flex-1`} edges={["top", "left", "right"]}>
       <Modal transparent={true} visible={openModal}>
         <View style={tw`flex-1 justify-center items-center`}>
           <View style={tw`bg-[#FDFFFD] w-4/5 h-1/3 flex rounded-lg p-3`}>
@@ -194,7 +194,12 @@ const Bookmap = ({ navigation, label }) => {
                       (setConfirmOrigin(originAddress), setOpenModal(false));
                 }}
               >
-                <Text style={[styles.globalText ,tw`text-lg font-bold text-[#FDFFFD]`]}>
+                <Text
+                  style={[
+                    styles.globalText,
+                    tw`text-lg font-bold text-[#FDFFFD]`,
+                  ]}
+                >
                   ยืนยัน
                 </Text>
               </Pressable>
@@ -202,55 +207,8 @@ const Bookmap = ({ navigation, label }) => {
           </View>
         </View>
       </Modal>
-      <View style={tw`flex-1 flex-row z-10 absolute bg-[#FDFFFD] top-5`}>
-        <TouchableOpacity
-          onPress={() => {
-            if (confirmOrigin.length) {
-              setConfirmOrigin([]);
-              setConfirmDestination([]);
-              setDestination([]);
-            } else {
-              navigation.goBack();
-            }
-          }}
-        >
-          {/* <MaterialIcons name="arrow-back" size={24} color="black" /> */}
-        </TouchableOpacity>
 
-        <View style={tw`flex-9`}>
-          <GooglePlacesAutocomplete
-            //ต้องขอ api
-            styles={tw`bg-[#FDFFFD]`}
-            fetchDetails={true}
-            placeholder={confirmOrigin.length ? "ปลายทาง" : "ต้นทาง"}
-            minLength={2}
-            debounce={400}
-            onPress={(data, details = null) => {
-              if (confirmOrigin.length) {
-                let destinationCordinates = {
-                  latitude: details?.geometry?.location.lat,
-                  longitude: details?.geometry?.location.lng,
-                };
-                setDestination(destinationCordinates);
-              } else {
-                let originCordinates = {
-                  latitude: details?.geometry?.location.lat,
-                  longitude: details?.geometry?.location.lng,
-                };
-                setOrigin(originCordinates);
-              }
-            }}
-            query={{
-              key: GOOGLE_MAPS_API_KEY,
-              language: "th",
-            }}
-            onFail={(error) => console.log(error)}
-            onNotFound={() => console.log("ไม่พบสถานที่")}
-          />
-        </View>
-      </View>
-
-      <View style={tw`flex-3`}>
+      <View style={tw`flex-3 relative`}>
         <Map
           setDestination={setDestination}
           setOrigin={setOrigin}
@@ -260,8 +218,64 @@ const Bookmap = ({ navigation, label }) => {
           confirmOrigin={confirmOrigin}
           confirmDestination={confirmDestination}
         />
-      </View>
 
+        <View
+          style={[
+            tw` flex-1 flex-row z-10 w-full absolute top-2 justify-center items-center `,
+          ]}
+        >
+          <View
+            style={tw` flex-row w-11/12 rounded-lg bg-[#FDFFFD] border border-gray-200`}
+          >
+            <View style={tw`flex-1 justify-center items-center`}>
+              <TouchableOpacity
+                onPress={() => {
+                  if (confirmOrigin.length) {
+                    setConfirmOrigin([]);
+                    setConfirmDestination([]);
+                    setDestination([]);
+                  } else {
+                    navigation.goBack();
+                  }
+                }}
+              >
+                <MaterialIcons name="arrow-back" size={24} color="black" />
+              </TouchableOpacity>
+            </View>
+            <View style={tw`flex-9`}>
+              <GooglePlacesAutocomplete
+                //ต้องขอ api
+                styles={tw`bg-[#FDFFFD]`}
+                fetchDetails={true}
+                placeholder={confirmOrigin.length ? "ปลายทาง" : "ต้นทาง"}
+                minLength={2}
+                debounce={400}
+                onPress={(data, details = null) => {
+                  if (confirmOrigin.length) {
+                    let destinationCordinates = {
+                      latitude: details?.geometry?.location.lat,
+                      longitude: details?.geometry?.location.lng,
+                    };
+                    setDestination(destinationCordinates);
+                  } else {
+                    let originCordinates = {
+                      latitude: details?.geometry?.location.lat,
+                      longitude: details?.geometry?.location.lng,
+                    };
+                    setOrigin(originCordinates);
+                  }
+                }}
+                query={{
+                  key: GOOGLE_MAPS_API_KEY,
+                  language: "th",
+                }}
+                onFail={(error) => console.log(error)}
+                onNotFound={() => console.log("ไม่พบสถานที่")}
+              />
+            </View>
+          </View>
+        </View>
+      </View>
       <View
         style={tw`flex-1 bg-[#FDFFFD] p-3 border border-[#FDFFFD] rounded-t-3xl`}
       >
