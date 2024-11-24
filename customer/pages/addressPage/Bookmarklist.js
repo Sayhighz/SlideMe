@@ -105,6 +105,7 @@ const BookmarkList = ({ navigation }) => {
           address_id: item.address_id,
         });
       }}
+      style={[{ height: height * 0.26 }]}
     >
       <View
         style={tw`flex-1 bg-white p-4 mb-4 rounded-lg border border-gray-300 shadow-sm`}
