@@ -7,6 +7,7 @@ import {
   Dimensions,
   Alert,
   Modal,
+  StyleSheet
 } from "react-native";
 import tw from "twrnc"; // Import twrnc
 import { Ionicons } from "@expo/vector-icons";
@@ -108,15 +109,15 @@ const BookmarkList = ({ navigation }) => {
       style={[{ height: height * 0.26 }]}
     >
       <View
-        style={tw`flex-1 bg-white p-4 mb-4 rounded-lg border border-gray-300 shadow-sm`}
+        style={tw`flex-1 bg-white p-4 mb-2 rounded-lg border border-gray-300 shadow-sm`}
       >
         <View style={tw`flex-row items-center justify-between`}>
           <Text
-            style={tw`text-xl font-semibold ml-2`}
+            style={[tw`text-lg font-semibold ml-2` , styles.globalText]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            ชื่อ : {item.save_name}
+            ชื่อรายการ : {item.save_name}
           </Text>
           <TouchableOpacity
     onPress={() => {
@@ -128,29 +129,29 @@ const BookmarkList = ({ navigation }) => {
     <MaterialIcons name="delete" size={24} color="red" />
   </TouchableOpacity>
         </View>
-        <View style={tw`flex-row flex-1 items-center mb-2`}>
+        <View style={tw`flex-row flex-1 items-center`}>
           <MaterialIcons name="location-pin" size={25} color="red" />
           <Text
-            style={tw`text-sm font-semibold p-1`}
+            style={tw`text-sm font-semibold flex-1 text-gray-600`}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            {item.location_from}
+            : {item.location_from}
           </Text>
         </View>
-        <View style={tw`flex-row flex-1 items-center mb-3`}>
+        <View style={tw`flex-row flex-1 items-center`}>
           <MaterialIcons name="location-pin" size={24} color="green" />
           <Text
-            style={tw`text-sm font-semibold p-1`}
+            style={tw`text-sm font-semibold flex-1 text-gray-600`}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            {item.location_to}
+            : {item.location_to}
           </Text>
         </View>
-        <View style={tw`flex-row flex-1 items-center mb-2 `}>
+        <View style={tw`flex-row flex-1 items-center `}>
           <MaterialIcons name="directions-car" size={24} color="black" />
-          <Text style={tw`text-sm font-semibold p-1`}>{item.vahicle_type}</Text>
+          <Text style={tw`text-sm font-semibold text-gray-600`}>: {item.vahicle_type}</Text>
         </View>
         
         
@@ -206,9 +207,9 @@ const BookmarkList = ({ navigation }) => {
         <View
           style={tw`flex-1 justify-center items-center bg-gray-800 bg-opacity-75`}
         >
-          <View style={tw`bg-white w-4/5 p-4 rounded-lg`}>
-            <Text style={tw`text-lg font-semibold text-center mb-4`}>
-              Are you sure you want to delete this bookmark?
+          <View style={tw`bg-white  p-4 rounded-lg`}>
+            <Text style={[styles.globalText,tw`text-lg font-semibold text-center mb-4`]}>
+              คุณต้องการลบรายการโปรดนี้ใช่หรือไม่?
             </Text>
             <View style={tw`flex-row justify-around`}>
               <TouchableOpacity
@@ -217,7 +218,7 @@ const BookmarkList = ({ navigation }) => {
                 onPress={() => setModalVisible(false)}
               >
                 <Text style={tw`text-lg font-semibold text-gray-500`}>
-                  Cancel
+                  ยกเลิก
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -229,7 +230,7 @@ const BookmarkList = ({ navigation }) => {
                   }
                 }}
               >
-                <Text style={tw`text-lg font-semibold text-red-500`}>Delete</Text>
+                <Text style={tw`text-lg font-semibold text-red-500`}>ใช่</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -238,5 +239,12 @@ const BookmarkList = ({ navigation }) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+    globalText: {
+      fontFamily: "Mitr-Regular",
+    }
+})
+
 
 export default BookmarkList;
