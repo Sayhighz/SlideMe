@@ -6,11 +6,9 @@ import {
   Image,
   StyleSheet,
   Dimensions,
-  Modal,
-  FlatList,
   Alert,
   SafeAreaView,
-  Alert,
+  
 } from "react-native";
 import { Card } from "react-native-paper";
 import Swiper from "react-native-swiper";
@@ -27,23 +25,6 @@ function Home({ navigation }) {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { userData } = useContext(UserContext); // Access userData from UserContext
-
-  const handleOpenModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalVisible(false);
-  };
-
-  const Card = ({ title, onPress }) => (
-    <TouchableOpacity
-      onPress={onPress}
-      style={tw`w-4/5 mx-2 bg-gray-200 rounded-lg p-5 shadow`}
-    >
-      <Text style={tw`text-lg font-semibold text-center`}>{title}</Text>
-    </TouchableOpacity>
-  );
 
   const order_status = async () => {
     try {
