@@ -163,7 +163,7 @@ const Bookmap = ({ navigation, label }) => {
               </Text>
             </View>
             <View style={tw`flex-1`}>
-              <Text style={styles.globalText}>
+              <Text style={[styles.globalText, tw`font-bold text-sm`]}>
                 {confirmOrigin.length
                   ? "สถานที่ปลายทาง : " + destinationAddress
                   : "สถานที่ต้นทาง :" + originAddress}
@@ -182,7 +182,7 @@ const Bookmap = ({ navigation, label }) => {
                     tw`text-lg font-bold text-[#FDFFFD]`,
                   ]}
                 >
-                  Cancel
+                  ยกเลิก
                 </Text>
               </Pressable>
               <Pressable
@@ -194,8 +194,8 @@ const Bookmap = ({ navigation, label }) => {
                       (setConfirmOrigin(originAddress), setOpenModal(false));
                 }}
               >
-                <Text style={tw`text-lg font-bold text-[#FDFFFD]`}>
-                  Confirm
+                <Text style={[styles.globalText ,tw`text-lg font-bold text-[#FDFFFD]`]}>
+                  ยืนยัน
                 </Text>
               </Pressable>
             </View>
@@ -222,7 +222,7 @@ const Bookmap = ({ navigation, label }) => {
             //ต้องขอ api
             styles={tw`bg-[#FDFFFD]`}
             fetchDetails={true}
-            placeholder={confirmOrigin.length ? "Destination" : "Origin"}
+            placeholder={confirmOrigin.length ? "ปลายทาง" : "ต้นทาง"}
             minLength={2}
             debounce={400}
             onPress={(data, details = null) => {
@@ -267,7 +267,7 @@ const Bookmap = ({ navigation, label }) => {
       >
         <View style={tw`flex-1 justify-around`}>
           <Text style={[styles.globalText, tw`text-xl font-bold mb-1`]}>
-            {confirmOrigin.length ? "Destination" : "Origin"}
+            {confirmOrigin.length ? "ปลายทาง" : "ต้นทาง"}
           </Text>
           <Text style={styles.globalText}>
             {confirmOrigin.length ? destinationAddress : originAddress}
@@ -283,7 +283,7 @@ const Bookmap = ({ navigation, label }) => {
             <Text
               style={[styles.globalText, tw`text-[#FDFFFD] text-xl font-bold`]}
             >
-              Confirm {confirmOrigin.length ? "destination" : "origin"}
+              ยืนยัน{confirmOrigin.length ? "ปลายทาง" : "ต้นทาง"}
             </Text>
           </Pressable>
         </View>
