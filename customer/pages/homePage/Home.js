@@ -10,7 +10,6 @@ import {
   FlatList,
   Alert,
   SafeAreaView,
-  Alert,
 } from "react-native";
 import { Card } from "react-native-paper";
 import Swiper from "react-native-swiper";
