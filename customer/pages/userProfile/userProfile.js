@@ -14,9 +14,6 @@ const UserProfile = ({ navigation , onLogout }) => {
   const [isModified, setIsModified] = useState(false);
   const [profileBgColor, setProfileBgColor] = useState('');
 
-  const formattedPhoneNumber = userData.phone_number?.startsWith('0')
-    ? userData.phone_number.substring(1)
-    : userData.phone_number;
 
   useEffect(() => {
     const hasChanged =
@@ -25,6 +22,12 @@ const UserProfile = ({ navigation , onLogout }) => {
       email !== userData.email;
     setIsModified(hasChanged);
   }, [firstName, lastName, email, userData]);
+
+  useEffect(() => {
+    setFirstName(userData.first_name || '');
+    setLastName(userData.last_name || '');
+    setEmail(userData.email || '');
+}, [userData]);
 
   const handleSave = async () => {
     try {
@@ -81,13 +84,6 @@ const UserProfile = ({ navigation , onLogout }) => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <SafeAreaView style={tw`flex-1 bg-gray-100`}>
-        <TouchableOpacity
-          style={tw`absolute top-3 right-3 p-2 rounded-lg ${isModified ? 'bg-green-500' : 'bg-gray-400'}`}
-          onPress={confirmSave}
-          disabled={!isModified}
-        >
-          <Text style={tw`text-white font-bold`}>บันทึก</Text>
-        </TouchableOpacity>
         {/* Profile Picture */}
         <View style={tw`items-center mt-5`}>
           <TouchableOpacity
@@ -106,52 +102,28 @@ const UserProfile = ({ navigation , onLogout }) => {
         </View>
 
         {/* User Information */}
-        <View style={tw`mx-5 mt-6`}>
-          <TextInput
-            style={tw`bg-white rounded-lg p-3 mb-3 border border-gray-300`}
-            value={firstName}
-            onChangeText={setFirstName}
-            placeholder="ชื่อ"
-          />
-          <TextInput
-            style={tw`bg-white rounded-lg p-3 mb-3 border border-gray-300`}
-            value={lastName}
-            onChangeText={setLastName}
-            placeholder="นามสกุล"
-          />
-          <TextInput
-            style={tw`bg-white rounded-lg p-3 mb-3 border border-gray-300`}
-            value={email}
-            onChangeText={setEmail}
-            placeholder="อีเมล"
-            keyboardType="email-address"
-          />
-          <View style={tw`flex-row items-center`}>
-            <View style={tw`mr-2 border border-gray-300 rounded-lg p-2 bg-white`}>
-              <Text style={tw`text-lg text-gray-800`}>🇹🇭 +66</Text>
-            </View>
-            <View style={tw`flex-1 border border-gray-300 rounded-lg bg-gray-200`}>
-              <TextInput
-                style={tw`p-2 text-gray-800`}
-                value={formattedPhoneNumber}
-                placeholder="เบอร์โทรศัพท์"
-                editable={false}
-              />
-            </View>
-          </View>
-        </View>
+       {/* User Information */}
+<View style={tw`mx-5 mt-6`}>
+    <Text style={tw`text-gray-600 font-bold mb-3`}>ชื่อจริง</Text>
+    <View style={tw`bg-white rounded-lg p-3 mb-3 border border-gray-300`}>
+        <Text style={tw`text-gray-700`}>{firstName || 'ไม่ระบุ'}</Text>
+    </View>
 
-        {/* Connect Accounts */}
-        <View style={tw`mx-5 mt-6`}>
-          <Text style={tw`text-gray-600 font-bold mb-3`}>บัญชีอื่นที่เชื่อมต่อ</Text>
-          <View style={tw`flex-row justify-between items-center mb-3`}>
-            <Text>Facebook</Text>
-            <Switch value={false} onValueChange={() => { }} />
-          </View>
-        </View>
+    <Text style={tw`text-gray-600 font-bold mb-3`}>นามสกุล</Text>
+    <View style={tw`bg-white rounded-lg p-3 mb-3 border border-gray-300`}>
+        <Text style={tw`text-gray-700`}>{lastName || 'ไม่ระบุ'}</Text>
+    </View>
+</View>
+
 
         {/* Action Buttons */}
         <View style={tw`mx-5 mt-6`}>
+        <TouchableOpacity
+            style={tw`bg-green-500 py-3 rounded-lg mb-3`}
+            onPress={() => navigation.navigate('editProfile')}
+          >
+            <Text style={tw`text-white text-center font-bold`}>แก้ไขข้อมูลผู้ใช้</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             style={tw`bg-green-500 py-3 rounded-lg mb-3`}
             onPress={() => navigation.navigate('Bookmarklist')}

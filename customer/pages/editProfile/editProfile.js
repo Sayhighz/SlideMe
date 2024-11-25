@@ -1,84 +1,93 @@
-import React, { useState , useContext } from 'react'
-import { View, Text, TouchableOpacity , TextInput , StyleSheet , Alert} from 'react-native'
+import React, { useState, useContext } from 'react'
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert } from 'react-native'
 import { IP_ADDRESS } from '../../config'
 import tw from 'twrnc'
 import { UserContext } from '../../UserContext'
 
 const EditProfile = ({ navigation }) => {
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
-  const [username , setUsername] = useState('')
+  const { userData, setUserData } = useContext(UserContext);
+  const [firstName, setFirstName] = useState(userData.first_name || '');
+  const [lastName, setLastName] = useState(userData.last_name || '');
+  const [email, setEmail] = useState(userData.email || '');
+  const [username, setUsername] = useState('')
   const [userId, setUserId] = useState('1');
-  const { userData } = useContext(UserContext);
 
-  const handleSave = async () => {
-    if ( !firstName || !lastName || !email) {
-      Alert.alert('Error', 'Please fill in all the fields.');
-      return;
-    }
-  
-    try {
-      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/edit_profile`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          first_name: firstName,
-          last_name: lastName,
-          user_id: userData.user_id,
-        }),
-      });
-  
-      if (!response.ok) {
-        const errorText = await response.text(); // Read error response
-        console.error('Error:', errorText);
-        Alert.alert('Error', `HTTP Error: ${response.status}`);
-        return;
-      }
-  
-      let result;
-      try {
-        result = await response.json();
-      } catch (jsonError) {
-        const errorText = await response.text(); // Read raw response for debugging
-        console.error('Error Parsing JSON:', errorText);
-        Alert.alert('Error', 'Invalid JSON response from server.');
-        return;
-      }
-  
-      if (result.Status) {
-        Alert.alert('Success', 'Profile updated successfully.');
-        navigation.goBack(); // Navigate back on success
-      } else {
-        Alert.alert('Error', result.Error || 'Failed to update profile.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      Alert.alert('Error', error.message || 'An error occurred.');
-    }
+  const formattedPhoneNumber = userData.phone_number?.startsWith('0')
+    ? userData.phone_number.substring(1)
+    : userData.phone_number;
+
+    const confirmAndSave = () => {
+      Alert.alert(
+          'ยืนยันการบันทึก',
+          'คุณต้องการบันทึกข้อมูลหรือไม่?',
+          [
+              {
+                  text: 'ยกเลิก',
+                  style: 'cancel',
+              },
+              {
+                  text: 'ตกลง',
+                  onPress: handleSave, // Call the actual save function
+              },
+          ],
+          { cancelable: true }
+      );
   };
+
+    const handleSave = async () => {
+      try {
+          const response = await fetch(`http://${IP_ADDRESS}:3000/auth/edit_profile`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                  first_name: firstName,
+                  last_name: lastName,
+                  email,
+                  user_id: userData.user_id,
+              }),
+          });
+  
+          if (!response.ok) {
+              Alert.alert('Error', `HTTP Error: ${response.status}`);
+              return;
+          }
+  
+          const result = await response.json();
+          if (result.Status) {
+              // Update the context with the new data
+              setUserData((prev) => ({ ...prev, first_name: firstName, last_name: lastName, email }));
+              Alert.alert('Success', 'บันทึกข้อมูลสำเร็จ');
+              navigation.goBack(); // Return to UserProfile
+          } else {
+              Alert.alert('Error', result.Error || 'ไม่สามารถบันทึกข้อมูลได้');
+          }
+      } catch (error) {
+          Alert.alert('Error', error.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+      }
+  };
+  
+
   return (
     <View style={tw`flex-1 p-5 bg-gray-100 justify-center items-center`}>
-      <Text style={[styles.globalText , tw`text-xl font-bold mb-5`]}>แก้ไขข้อมูลผู้ใช้</Text>
+      <Text style={[styles.globalText, tw`text-xl font-bold mb-5`]}>แก้ไขข้อมูลผู้ใช้</Text>
 
-     
+
       <TextInput
-        style={[styles.globalText , tw`w-full h-12 border border-gray-300 bg-white rounded-lg px-3 mb-3`]}
+        style={[styles.globalText, tw`w-full h-12 border border-gray-300 bg-white rounded-lg px-3 mb-3`]}
         placeholder={userData.first_name || "ชื่อ"}
         value={firstName}
         onChangeText={setFirstName}
         autoCapitalize='none'
         autoCompleteType='off'
         autoCorrect={false}
-        
+
       />
-      
+
 
       <TextInput
-        style={[styles.globalText , tw`w-full h-12 border border-gray-300 bg-white rounded-lg px-3 mb-3`]}
+        style={[styles.globalText, tw`w-full h-12 border border-gray-300 bg-white rounded-lg px-3 mb-3`]}
         placeholder={userData.last_name || "นามสกุล"}
         value={lastName}
         onChangeText={setLastName}
@@ -88,7 +97,7 @@ const EditProfile = ({ navigation }) => {
       />
 
       <TextInput
-        style={[styles.globalText , tw`w-full h-12 border border-gray-300 bg-white rounded-lg px-3 mb-5`]}
+        style={[styles.globalText, tw`w-full h-12 border border-gray-300 bg-white rounded-lg px-3 mb-3`]}
         placeholder={userData.email || "อีเมล"}
         value={email}
         onChangeText={setEmail}
@@ -98,6 +107,20 @@ const EditProfile = ({ navigation }) => {
         autoCorrect={false}
       />
 
+      <View style={tw`flex-row items-center mb-4`}>
+        <View style={tw`mr-2 border border-gray-300 rounded-lg p-2 bg-white`}>
+          <Text style={tw`text-lg text-gray-800`}>🇹🇭 +66</Text>
+        </View>
+        <View style={tw`flex-1 border border-gray-300 rounded-lg bg-gray-200`}>
+          <TextInput
+            style={tw`p-2 text-gray-800`}
+            value={formattedPhoneNumber}
+            placeholder="เบอร์โทรศัพท์"
+            editable={false}
+          />
+        </View>
+      </View>
+
       <View style={tw`flex-row w-full justify-between`}>
         <TouchableOpacity
           style={tw`bg-red-500 w-1/2 h-12 rounded-lg justify-center mr-2 w-30`} // ใช้ mr-2 เพื่อเว้นระยะ
@@ -105,14 +128,14 @@ const EditProfile = ({ navigation }) => {
             navigation.goBack()
           }}
         >
-          <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>ยกเลิก</Text>
+          <Text style={[styles.globalText, tw`text-white text-center font-bold`]}>ยกเลิก</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={tw`bg-green-500 w-1/2 h-12 rounded-lg justify-center ml-2 w-30`} // ใช้ ml-2 เพื่อเว้นระยะ
-          onPress={handleSave}
+          onPress={confirmAndSave}
         >
-          <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>บันทึก</Text>
+          <Text style={[styles.globalText, tw`text-white text-center font-bold`]}>บันทึก</Text>
         </TouchableOpacity>
       </View>
     </View>
