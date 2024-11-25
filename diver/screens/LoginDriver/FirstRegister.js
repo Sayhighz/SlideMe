@@ -14,6 +14,7 @@ import {
 import RNPickerSelect from 'react-native-picker-select';
 import tw from 'twrnc';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { IP_ADDRESS } from "../../config";
 
 const FirstRegister = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -36,9 +37,32 @@ const FirstRegister = ({ navigation }) => {
     { label: 'รถสไลด์ฉุกเฉิน', value: 'emergency_slide' },
   ];
 
-  const handleRegisterPress = () => {
+  const checkPhoneNumberExists = async (phone) => {
+    try {
+      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/check_user_phone`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone_number: phone }),
+      });
+      const data = await response.json();
+      return data.Exists;
+    } catch (error) {
+      Alert.alert('Error', 'Unable to check phone number');
+      console.error(error);
+      return false;
+    }
+  };
+  
+
+  const handleRegisterPress = async  () => {
     if (phoneNumber.length !== 10 || isNaN(phoneNumber)) {
       Alert.alert('ข้อผิดพลาด', 'กรุณากรอกเบอร์โทรศัพท์ที่มีความยาว 10 ตัวเลข');
+      return;
+    }
+
+    const phoneExists = await checkPhoneNumberExists(phoneNumber);
+    if (phoneExists) {
+      Alert.alert('ข้อผิดพลาด', 'เบอร์โทรนี้ถูกใช้ไปแล้ว');
       return;
     }
 
