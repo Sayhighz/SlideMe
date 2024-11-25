@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import tw from "twrnc";
 import { useRoute, useNavigation } from "@react-navigation/native";
+import Icon from "react-native-vector-icons/MaterialIcons";
 import MapView, { Marker } from "react-native-maps";
 import { IP_ADDRESS } from "../../config";
 
@@ -65,6 +66,11 @@ export default function JobWorking_Dropoff_Screen() {
     }
   };
 
+  const handleChat = () => {
+    navigation.navigate("ChatScreen", { room_id: request_id });
+  };
+
+
   // Handle confirmation button
   const handleConfirmation = () => {
     navigation.navigate("CarUploadDropOffConfirmation", { request_id });
@@ -102,13 +108,26 @@ export default function JobWorking_Dropoff_Screen() {
         {/* Customer Information */}
         {offer ? (
           <View style={tw`p-4 bg-white shadow-md border border-gray-200 rounded-lg mb-4`}>
-            <View style={tw`flex-row justify-between mb-2`}>
-              <Text style={[styles.globalText, tw`text-gray-800`]}>คุณ {offer.customer_name}</Text>
-              <TouchableOpacity onPress={() => handleCall(offer.customer_phone)}>
-                <Text style={[styles.globalText, tw`text-blue-600`]}>ติดต่อ</Text>
+          <View style={tw`flex-row justify-between items-center mb-2`}>
+            <Text style={[styles.globalText, tw`text-gray-800`]}>คุณ {offer.customer_name}</Text>
+
+            {/* ปุ่มโทรและปุ่มแชท */}
+            <View style={tw`flex-row items-center`}>
+              <TouchableOpacity
+                style={tw`bg-blue-500 w-7 h-7 rounded-full flex items-center justify-center mx-1`}
+                onPress={() => handleCall(offer.customer_phone)}
+              >
+                <Icon name="call" size={15} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={tw`bg-green-500 w-7 h-7 rounded-full flex items-center justify-center mx-1`}
+                onPress={handleChat}
+              >
+                <Icon name="chat" size={15} color="white" />
               </TouchableOpacity>
             </View>
           </View>
+        </View>
         ) : (
           <Text style={[styles.globalText, tw`text-center text-gray-500`]}>ไม่พบข้อมูลลูกค้า</Text>
         )}
@@ -148,7 +167,7 @@ export default function JobWorking_Dropoff_Screen() {
             </Text>
             <Text style={[styles.globalText, tw`text-gray-700`]}>รายละเอียดเพิ่มเติม</Text>
             <Text style={[styles.globalText, tw`text-gray-400 mb-4`]}>
-              {offer.customer_message || ""}
+              {offer.customer_message || "ไม่มีรายละเอียดจากลูกค้า"}
             </Text>
           </View>
         )}

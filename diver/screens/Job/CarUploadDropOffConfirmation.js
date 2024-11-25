@@ -6,12 +6,15 @@ import {
   SafeAreaView,
   Image,
   Alert,
+  StyleSheet,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import tw from "twrnc";
 import * as ImagePicker from "expo-image-picker";
 import { IP_ADDRESS } from "../../config";
+import ConfirmationDialog from "../../componnets/ConfirmationDialog";
 
 const CarUploadDropOffConfirmation = () => {
   const navigation = useNavigation();
@@ -25,7 +28,8 @@ const CarUploadDropOffConfirmation = () => {
     left: null,
     right: null,
   });
-  const [buttonEnabled, setButtonEnabled] = useState(false); // State for button enable/disable
+  const [buttonEnabled, setButtonEnabled] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   // Function to handle image selection
   const handleImageSelection = async (label) => {
@@ -55,7 +59,7 @@ const CarUploadDropOffConfirmation = () => {
     const allImagesUploaded = Object.values(images).every((uri) => uri !== null);
 
     if (allImagesUploaded) {
-      const timer = setTimeout(() => setButtonEnabled(true), 3000); // Enable after 2000ms
+      const timer = setTimeout(() => setButtonEnabled(true), 3000);
       return () => clearTimeout(timer);
     } else {
       setButtonEnabled(false);
@@ -83,9 +87,9 @@ const CarUploadDropOffConfirmation = () => {
             style={tw`mb-2`}
           />
         )}
-        <Text style={[styles.globalText, tw`text-gray-400`]}>อัพโหลด</Text>
+        <Text style={[styles.globalFont,tw`text-gray-400`]}>อัพโหลด</Text>
         <Text
-          style={[styles.globalText, tw`text-base text-center text-black font-bold`]}
+          style={[styles.globalFont,tw`text-base text-center text-black font-bold`]}
         >
           {displayName}
         </Text>
@@ -93,7 +97,7 @@ const CarUploadDropOffConfirmation = () => {
     </TouchableOpacity>
   );
 
-  // Handle confirmation process
+  // Handle image upload and request completion
   const handleConfirmation = async () => {
     const imageUris = Object.values(images).filter((uri) => uri !== null);
 
@@ -123,7 +127,6 @@ const CarUploadDropOffConfirmation = () => {
     });
 
     try {
-      // Upload images
       const uploadResponse = await fetch(
         `http://${IP_ADDRESS}:3000/auth/upload_after_service`,
         {
@@ -135,8 +138,8 @@ const CarUploadDropOffConfirmation = () => {
       const uploadResult = await uploadResponse.json();
       if (uploadResult.Status) {
         Alert.alert("สำเร็จ", "อัพโหลดรูปภาพสำเร็จ");
+        await AsyncStorage.removeItem(`chat_${request_id}`);
 
-        // Complete request
         const completeResponse = await fetch(
           `http://${IP_ADDRESS}:3000/auth/complete_request`,
           {
@@ -164,6 +167,11 @@ const CarUploadDropOffConfirmation = () => {
     }
   };
 
+  // Show confirmation dialog
+  const confirmAction = () => {
+    setIsModalVisible(true);
+  };
+
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
       {/* Header */}
@@ -171,7 +179,7 @@ const CarUploadDropOffConfirmation = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} color="black" />
         </TouchableOpacity>
-        <Text style={[styles.globalText, tw`text-2xl font-bold ml-4`]}>ยืนยันการส่งรถ</Text>
+        <Text style={[styles.globalFont,tw`text-2xl font-bold ml-4`]}>ยืนยันการส่งรถ</Text>
       </View>
 
       {/* Content */}
@@ -186,25 +194,38 @@ const CarUploadDropOffConfirmation = () => {
 
         {/* Confirm Button */}
         <TouchableOpacity
-          onPress={handleConfirmation}
+          onPress={confirmAction}
           style={[
             tw`p-4 rounded-lg mt-4 items-center`,
             buttonEnabled ? tw`bg-[#60B876]` : tw`bg-gray-400`,
           ]}
           disabled={!buttonEnabled}
         >
-          <Text style={[styles.globalText, tw`text-white text-base font-bold`]}>ยืนยันการส่งรถ</Text>
+          <Text style={[styles.globalFont, tw`text-white text-base font-bold`]}>
+            ยืนยันการส่งรถ
+          </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        visible={isModalVisible}
+        title="ยืนยันการอัพโหลด"
+        message="คุณแน่ใจหรือไม่ว่าต้องการอัพโหลดรูปภาพเหล่านี้และดำเนินการเสร็จสิ้น?"
+        onConfirm={() => {
+          setIsModalVisible(false);
+          handleConfirmation();
+        }}
+        onCancel={() => setIsModalVisible(false)}
+      />
     </SafeAreaView>
   );
 };
 
-// Global styles
-const styles = {
-  globalText: {
+const styles = StyleSheet.create({
+  globalFont: {
     fontFamily: "Mitr-Regular",
   },
-};
+});
 
 export default CarUploadDropOffConfirmation;

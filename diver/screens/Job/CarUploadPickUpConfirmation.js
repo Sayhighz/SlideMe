@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, Image, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, SafeAreaView, Image, Alert, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from 'twrnc';
 import * as ImagePicker from 'expo-image-picker';
 import { IP_ADDRESS } from '../../config';
+import ConfirmationDialog from '../../componnets/ConfirmationDialog';
 
 const CarUploadPickUpConfirmation = () => {
   const navigation = useNavigation();
@@ -19,6 +20,7 @@ const CarUploadPickUpConfirmation = () => {
   });
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [isDelayOver, setIsDelayOver] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   // Update button state based on uploaded images
   useEffect(() => {
@@ -71,7 +73,7 @@ const CarUploadPickUpConfirmation = () => {
       style={tw`flex-1 bg-gray-100 rounded-lg p-4 m-2 shadow`}
       onPress={() => handleImageSelection(label)}
     >
-      <View style={tw`items-center m-auto`}>
+      <View style={[styles.globalFont,tw`items-center m-auto`]}>
         {images[label] ? (
           <Image
             source={{ uri: images[label] }}
@@ -81,8 +83,8 @@ const CarUploadPickUpConfirmation = () => {
         ) : (
           <Icon name="cloud-upload-outline" size={32} color="gray" style={tw`mb-2`} />
         )}
-        <Text style={[styles.globalText, tw`text-gray-400`]}>อัพโหลด</Text>
-        <Text style={[styles.globalText, tw`text-base text-center text-black font-bold`]}>
+        <Text style={[styles.globalFont,tw`text-gray-400`]}>อัพโหลด</Text>
+        <Text style={[styles.globalFont,tw`text-base text-center text-black font-bold`]}>
           {displayName}
         </Text>
       </View>
@@ -140,6 +142,10 @@ const CarUploadPickUpConfirmation = () => {
     }
   };
 
+  const confirmAction = () => {
+    setIsModalVisible(true);
+  };
+
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
       {/* Header */}
@@ -147,7 +153,7 @@ const CarUploadPickUpConfirmation = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} color="black" />
         </TouchableOpacity>
-        <Text style={[styles.globalText, tw`text-2xl font-bold ml-4`]}>ยืนยันการรับรถ</Text>
+        <Text style={[styles.globalFont,tw`text-2xl font-bold ml-4`]}>ยืนยันการรับรถ</Text>
       </View>
 
       {/* Content */}
@@ -162,27 +168,36 @@ const CarUploadPickUpConfirmation = () => {
 
         {/* Confirm Button */}
         <TouchableOpacity
-          onPress={handleConfirmation}
+          onPress={confirmAction}
           style={[
             tw`p-4 rounded-lg mt-4 items-center`,
             isButtonDisabled ? tw`bg-gray-400` : tw`bg-[#60B876]`,
           ]}
           disabled={isButtonDisabled}
         >
-          <Text style={[styles.globalText, tw`text-white text-base font-bold`]}>
-            ยืนยันการรับรถ
-          </Text>
+          <Text style={[styles.globalFont,tw`text-white text-base font-bold`]}>ยืนยันการรับรถ</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        visible={isModalVisible}
+        title="ยืนยันการอัพโหลด"
+        message="คุณแน่ใจหรือไม่ว่าต้องการอัพโหลดรูปภาพเหล่านี้?"
+        onConfirm={() => {
+          setIsModalVisible(false);
+          handleConfirmation();
+        }}
+        onCancel={() => setIsModalVisible(false)}
+      />
     </SafeAreaView>
   );
 };
 
-// Global styles
-const styles = {
-  globalText: {
-    fontFamily: 'Mitr-Regular',
-  },
-};
+const styles = StyleSheet.create({
+  globalFont: {
+    fontFamily: "Mitr-Regular",
+  }
+});
 
 export default CarUploadPickUpConfirmation;

@@ -4,10 +4,51 @@ import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
 import fs from "fs"; // Added fs import
+import http from "http";
+import { Server } from 'socket.io';
+
 
 const router = express.Router();
 const uploadsDir = path.resolve("uploads");
 router.use("/uploads", express.static(uploadsDir));
+
+const server = http.createServer(router);
+const io = new Server(server, {
+  cors: {
+    origin: "*", // ปรับตามความต้องการ
+    methods: ["GET", "POST"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  // ให้ผู้ใช้เข้าห้อง
+  socket.on("joinRoom", (roomName) => {
+    socket.join(roomName);
+    console.log(`User ${socket.id} joined room: ${roomName}`);
+  });
+
+  // รับข้อความจาก Client
+  socket.on("sendMessage", (data) => {
+    const { roomName, message } = data;
+    console.log(`Message received in room ${roomName}:`, message);
+
+    // ส่งข้อความกลับไปยังทุกคนในห้อง
+    io.to(roomName).emit("receiveMessage", { message, sender: socket.id });
+  });
+
+  // เมื่อผู้ใช้ตัดการเชื่อมต่อ
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
+
+// เริ่มเซิร์ฟเวอร์
+const PORT = 4000;
+server.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
 
 // Configure multer storage settings
 const storage = multer.diskStorage({
@@ -699,7 +740,7 @@ router.post("/cancle_offer", (req, res) => {
 });
 
 router.get("/getRequestDetailForDriver", (req, res) => {
-  const request_id = req.query.request_id || 0;
+  const request_id = req.query.request_id || null;
 
   const sql = `
 SELECT DISTINCT
@@ -707,6 +748,7 @@ SELECT DISTINCT
     s.pickup_lat,
     s.pickup_long,
     s.location_from,
+    s.customer_message,
     s.dropoff_lat,
     s.dropoff_long,
     s.location_to,

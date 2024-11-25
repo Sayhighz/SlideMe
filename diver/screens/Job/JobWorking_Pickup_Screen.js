@@ -13,6 +13,7 @@ import {
 import tw from "twrnc";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import MapView, { Marker } from "react-native-maps";
+import Icon from "react-native-vector-icons/MaterialIcons"; // ใช้ MaterialIcons
 import { IP_ADDRESS } from "../../config";
 
 export default function JobWorking_Pickup_Screen() {
@@ -20,47 +21,9 @@ export default function JobWorking_Pickup_Screen() {
   const navigation = useNavigation();
   const { request_id } = route.params || {};
 
-  const [offer, setOffer] = useState(null); // State for offer details
-  const [loading, setLoading] = useState(true); // State for loading indicator
-  const [error, setError] = useState(null); // State for error handling
-
-  const handleCancelRequest = async (requestId) => {
-    try {
-      // Confirm before canceling the job
-      Alert.alert(
-        "ยกเลิกงาน",
-        "คุณต้องการยกเลิกงานนี้หรือไม่?",
-        [
-          { text: "ยกเลิก", style: "cancel" },
-          {
-            text: "ยืนยัน",
-            onPress: async () => {
-              // Make the POST request
-              const response = await fetch(`http://${IP_ADDRESS}:3000/auth/driver/cancel_request`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ request_id: requestId }),
-              });
-  
-              const data = await response.json();
-              if (data.Status) {
-                navigation.navigate("HomeMain");
-                Alert.alert("สำเร็จ", "งานถูกยกเลิกเรียบร้อยแล้ว");
-                // Navigate to HomeMain screen
-              } else {
-                Alert.alert("ข้อผิดพลาด", data.Error || "ไม่สามารถยกเลิกงานได้");
-              }
-            },
-          },
-        ]
-      );
-    } catch (error) {
-      Alert.alert("ข้อผิดพลาด", "เกิดข้อผิดพลาดในการยกเลิกงาน");
-      console.error("Cancel Request Error:", error);
-    }
-  };  
+  const [offer, setOffer] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     // Fetch offer details
@@ -73,7 +36,7 @@ export default function JobWorking_Pickup_Screen() {
         if (data && data.Status && data.Result.length > 0) {
           setOffer(data.Result[0]);
         } else {
-          setOffer(null); // No data found
+          setOffer(null);
         }
       } catch (err) {
         setError("ไม่สามารถดึงข้อมูลได้");
@@ -103,9 +66,9 @@ export default function JobWorking_Pickup_Screen() {
     }
   };
 
-  // Handle confirmation button
-  const handleConfirmation = () => {
-    navigation.navigate("CarUploadPickUpConfirmation", { request_id });
+  // Navigate to ChatScreen
+  const handleChat = () => {
+    navigation.navigate("ChatScreen", { room_id: request_id });
   };
 
   // Render loading indicator
@@ -143,11 +106,24 @@ export default function JobWorking_Pickup_Screen() {
         {/* Customer Information */}
         {offer ? (
           <View style={tw`p-4 bg-white shadow-md border border-gray-200 rounded-lg mb-4`}>
-            <View style={tw`flex-row justify-between mb-2`}>
+            <View style={tw`flex-row justify-between items-center mb-2`}>
               <Text style={[styles.globalText, tw`text-gray-800`]}>คุณ {offer.customer_name}</Text>
-              <TouchableOpacity onPress={() => handleCall(offer.customer_phone)}>
-                <Text style={[styles.globalText, tw`text-blue-600`]}>ติดต่อ</Text>
-              </TouchableOpacity>
+
+              {/* ปุ่มโทรและปุ่มแชท */}
+              <View style={tw`flex-row items-center`}>
+                <TouchableOpacity
+                  style={tw`bg-blue-500 w-7 h-7 rounded-full flex items-center justify-center mx-1`}
+                  onPress={() => handleCall(offer.customer_phone)}
+                >
+                  <Icon name="call" size={15} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={tw`bg-green-500 w-7 h-7 rounded-full flex items-center justify-center mx-1`}
+                  onPress={handleChat}
+                >
+                  <Icon name="chat" size={15} color="white" />
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         ) : (
@@ -189,7 +165,7 @@ export default function JobWorking_Pickup_Screen() {
             </Text>
             <Text style={[styles.globalText, tw`text-gray-700`]}>รายละเอียดเพิ่มเติม</Text>
             <Text style={[styles.globalText, tw`text-gray-400 mb-4`]}>
-              {offer.customer_message || ""}
+              {offer.customer_message || "ไม่มีรายละเอียดจากลูกค้า"}
             </Text>
           </View>
         )}
@@ -198,7 +174,7 @@ export default function JobWorking_Pickup_Screen() {
       {/* Confirmation Button */}
       <View style={tw`absolute bottom-0 left-0 right-0 bg-white p-4`}>
         <TouchableOpacity
-          onPress={handleConfirmation}
+          onPress={() => navigation.navigate("CarUploadPickUpConfirmation", { request_id })}
           style={tw`bg-[#60B876] rounded p-2 items-center`}
         >
           <Text style={[styles.globalText, tw`text-white font-bold text-lg`]}>ยืนยันถึงที่หมาย</Text>

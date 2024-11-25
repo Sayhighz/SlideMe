@@ -29,10 +29,10 @@ export default function HomeScreen({ route }) {
 
   // Sample notices for Swiper
   const notice = [
-    { id: 1, title: "แจ้งเตือนที่ 1", description: "โปรดอ่าน" },
-    { id: 2, title: "แจ้งเตือนที่ 2", description: "ข่าวสาร" },
-    { id: 3, title: "แจ้งเตือนที่ 3", description: "แจ้งเตือน" },
-  ];
+    { id: 1, image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads1.png` },
+    { id: 2, image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads2.png` },
+    { id: 3, image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads3.png` },
+  ];  
 
   useFocusEffect(
     React.useCallback(() => {
@@ -281,9 +281,11 @@ export default function HomeScreen({ route }) {
               key={ad.id}
               style={tw`flex items-center justify-center w-full h-full`}
             >
-              <Text style={[styles.globalText, tw`text-gray-600 text-xl`]}>
-                {ad.description}
-              </Text>
+              <Image
+                source={{ uri: ad.image }}
+                style={tw`w-full h-full`}
+                resizeMode="cover"
+              />
             </View>
           ))}
         </Swiper>

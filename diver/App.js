@@ -29,6 +29,7 @@ import ThirdRegister from "./screens/LoginDriver/ThirdRegister";
 import FourthRegister from "./screens/LoginDriver/FourthRegister";
 import FifthRegister from "./screens/LoginDriver/FifthRegister";
 import SixRegister from "./screens/LoginDriver/SixRegister";
+import ChatScreen from "./screens/chat/ChatScreen";
 
 // Initialize Stack and Tab Navigators
 const Stack = createStackNavigator();
@@ -59,6 +60,11 @@ function HomeStackNavigator({ userData }) {
       <Stack.Screen
         name="JobWorking_Pickup"
         component={JobWorking_Pickup_Screen}
+        initialParams={{ userData }}
+      />
+      <Stack.Screen
+        name="ChatScreen"
+        component={ChatScreen}
         initialParams={{ userData }}
       />
       <Stack.Screen
