@@ -6,7 +6,7 @@ import tw from 'twrnc';
 import { UserContext } from '../../UserContext';
 import { IP_ADDRESS } from '../../config';
 
-const UserProfile = ({ navigation , onLogout }) => {
+const UserProfile = ({ navigation, onLogout }) => {
   const { userData, setUserData } = useContext(UserContext);
   const [firstName, setFirstName] = useState(userData.first_name || '');
   const [lastName, setLastName] = useState(userData.last_name || '');
@@ -27,7 +27,7 @@ const UserProfile = ({ navigation , onLogout }) => {
     setFirstName(userData.first_name || '');
     setLastName(userData.last_name || '');
     setEmail(userData.email || '');
-}, [userData]);
+  }, [userData]);
 
   const handleSave = async () => {
     try {
@@ -102,23 +102,22 @@ const UserProfile = ({ navigation , onLogout }) => {
         </View>
 
         {/* User Information */}
-       {/* User Information */}
-<View style={tw`mx-5 mt-6`}>
-    <Text style={tw`text-gray-600 font-bold mb-3`}>ชื่อจริง</Text>
-    <View style={tw`bg-white rounded-lg p-3 mb-3 border border-gray-300`}>
-        <Text style={tw`text-gray-700`}>{firstName || 'ไม่ระบุ'}</Text>
-    </View>
+        {/* User Information */}
+        {/* User Information */}
+        <View style={tw`mx-5 mt-6`}>
+          <Text style={tw`text-gray-600 font-bold text-lg text-center`}>ชื่อผู้ใช้</Text>
+          <View style={tw`flex-row items-center p-3 mb-3 justify-center`}>
+            <Text style={tw`text-black text-lg mr-2 font-bold `}>{firstName || 'ไม่ระบุ'}</Text>
+            <Text style={tw`text-black text-lg font-bold`}>{lastName || 'ไม่ระบุ'}</Text>
+          </View>
 
-    <Text style={tw`text-gray-600 font-bold mb-3`}>นามสกุล</Text>
-    <View style={tw`bg-white rounded-lg p-3 mb-3 border border-gray-300`}>
-        <Text style={tw`text-gray-700`}>{lastName || 'ไม่ระบุ'}</Text>
-    </View>
-</View>
+        </View>
+
 
 
         {/* Action Buttons */}
         <View style={tw`mx-5 mt-6`}>
-        <TouchableOpacity
+          <TouchableOpacity
             style={tw`bg-green-500 py-3 rounded-lg mb-3`}
             onPress={() => navigation.navigate('editProfile')}
           >
