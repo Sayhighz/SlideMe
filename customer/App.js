@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { ActivityIndicator, View } from "react-native";
 import { useFonts } from "expo-font";
 
-import { UserContext } from '../customer/UserContext';
+import { UserContext } from "../customer/UserContext";
 import { UserProvider } from "./UserContext";
 import {
   BorderlessButton,
@@ -37,8 +37,6 @@ import Bookmarklist from "./pages/addressPage/Bookmarklist";
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-
-
 function HomeStack() {
   return (
     <Stack.Navigator
@@ -50,7 +48,12 @@ function HomeStack() {
         shadowOpacity: 0,
       }}
     >
-      <Stack.Screen name="HomePage" component={Home} options={{ headerShown: false }} style={{ flex: 1 }} />
+      <Stack.Screen
+        name="HomePage"
+        component={Home}
+        options={{ headerShown: false }}
+        style={{ flex: 1 }}
+      />
       <Stack.Screen name="Mapdetail" component={MapDetail} />
       <Stack.Screen
         name="MapPage"
@@ -93,7 +96,6 @@ const UserProfileTab = ({ onLogout }) => {
   return <UserProfileStack onLogout={onLogout} />;
 };
 
-
 function UserProfileStack({ onLogout }) {
   return (
     <Stack.Navigator
@@ -105,13 +107,8 @@ function UserProfileStack({ onLogout }) {
         shadowOpacity: 0,
       }}
     >
-        <Stack.Screen
-        name="UserProfile"
-        options={{
-          title: "โปรไฟล์ผู้ใช้",
-        }}
-      >
-        {() => <UserProfile onLogout={onLogout} />}
+      <Stack.Screen name="UserProfile" options={{ title: "โปรไฟล์ผู้ใช้" }}>
+        {(props) => <UserProfile {...props} onLogout={onLogout} />}
       </Stack.Screen>
       <Stack.Screen
         name="PaymentMethodsStack"
@@ -162,7 +159,6 @@ function AuthStack({ onLogin }) {
     </Stack.Navigator>
   );
 }
-
 
 const AppContent = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -236,13 +232,9 @@ const AppContent = () => {
             component={MessageBoxScreen}
             options={{ title: "กล่องข้อความ" }}
           />
-          <Tab.Screen
-            name="โปรไฟล์ผู้ใช้"
-            options={{ headerShown: false }}
-          >
+          <Tab.Screen name="โปรไฟล์ผู้ใช้" options={{ headerShown: false }}>
             {() => <UserProfileTab onLogout={handleLogout} />}
           </Tab.Screen>
-
         </Tab.Navigator>
       ) : (
         <AuthStack onLogin={handleLogin} />

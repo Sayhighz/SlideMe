@@ -6,7 +6,7 @@ import tw from 'twrnc';
 import { UserContext } from '../../UserContext';
 import { IP_ADDRESS } from '../../config';
 
-const UserProfile = ({ navigation,onLogout }) => {
+const UserProfile = ({ navigation , onLogout }) => {
   const { userData, setUserData } = useContext(UserContext);
   const [firstName, setFirstName] = useState(userData.first_name || '');
   const [lastName, setLastName] = useState(userData.last_name || '');
