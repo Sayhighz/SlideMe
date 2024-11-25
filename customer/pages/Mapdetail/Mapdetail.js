@@ -74,16 +74,6 @@ export default function Mapdetail({ navigation }) {
     
     <SafeAreaView style={tw`bg-white relative flex-1`}>
       <View style={tw`p-4 flex-1`}>
-        {/* <View style={tw`flex-row`}>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.goBack();
-            }}
-          >
-            <MaterialIcons name="arrow-back" size={24} color="black" />
-          </TouchableOpacity>
-          <Text style={tw`ml-3 text-lg font-bold`}>Map Details</Text>
-        </View> */}
 
         {/* Pickup Location Input */}
         <View style={tw`p-4 flex-row items-center`}>
@@ -130,6 +120,7 @@ export default function Mapdetail({ navigation }) {
             style={[styles.globalText , tw`flex-1 p-2 text-gray-700`]}
             placeholder="Enter pickup location"
             value={confirmOrigin.length ? confirmOrigin : "สถานที่รับรถ"} 
+            editable={false}
          />
              
         </View>
@@ -146,6 +137,7 @@ export default function Mapdetail({ navigation }) {
             style={[styles.globalText , tw`flex-1 p-2 text-gray-700`]}
             placeholder="Enter destination"
             value={confirmDestination.length ? confirmDestination : "สถานที่ส่งรถ"}
+            editable={false}
           />
           {console.log(confirmDestination)}
         </View>

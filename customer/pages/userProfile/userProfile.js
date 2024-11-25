@@ -104,8 +104,8 @@ const UserProfile = ({ navigation, onLogout }) => {
         {/* User Information */}
         {/* User Information */}
         {/* User Information */}
-        <View style={tw`mx-5 mt-6`}>
-          <Text style={tw`text-gray-600 font-bold text-lg text-center`}>ชื่อผู้ใช้</Text>
+        <View style={tw`mx-5`}>
+          {/* <Text style={tw`text-gray-600 font-bold text-lg text-center`}></Text> */}
           <View style={tw`flex-row items-center p-3 mb-3 justify-center`}>
             <Text style={tw`text-black text-lg mr-2 font-bold `}>{firstName || 'ไม่ระบุ'}</Text>
             <Text style={tw`text-black text-lg font-bold`}>{lastName || 'ไม่ระบุ'}</Text>
