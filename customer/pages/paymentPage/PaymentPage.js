@@ -129,8 +129,8 @@ export default function PaymentPage({ navigation }) {
               setTabIndex(0);
             }}
           >
-            <Text>บัตรเครดิต /</Text>
-            <Text>บัตรเดบิต</Text>
+            <Text style={styles.globalText}>บัตรเครดิต /</Text>
+            <Text style={styles.globalText}>บัตรเดบิต</Text>
           </Pressable>
           <Pressable
             style={[
@@ -143,7 +143,7 @@ export default function PaymentPage({ navigation }) {
               setTabIndex(1);
             }}
           >
-            <Text>Mobile Banking</Text>
+            <Text style={styles.globalText}>Mobile Banking</Text>
           </Pressable>
         </View>
         {tabIndex === 0 && (
@@ -211,7 +211,7 @@ export default function PaymentPage({ navigation }) {
                   </View>
 
                   <View style={tw`flex-5`}>
-                    <Text style={tw`text-lg font-bold`}>
+                    <Text style={[styles.globalText,tw`text-lg font-bold`]}>
                       {item.account_name}
                     </Text>
                     <Text style={tw`text-sm mt-2`}>{"**** "}{item.card_number}</Text>

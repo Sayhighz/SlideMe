@@ -20,6 +20,7 @@ import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
 import { IP_ADDRESS } from "../../config";
 import MapViewDirections from "react-native-maps-directions";
 import { UserContext } from "../../UserContext";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const ChooseOffer = ({ navigation, route }) => {
   const fee = 200;
@@ -299,6 +300,12 @@ const ChooseOffer = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={tw`flex-1`}>
+              <View style={tw`p-4 flex-row items-center`}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Icon name="arrow-left" size={24} color="black" />
+          </TouchableOpacity>
+          <Text style={[styles.globalText, tw`text-2xl font-bold ml-4`]}>เลือกข้อเสนอ</Text>
+        </View>
       <Modal transparent={true} visible={openModal}>
         <View style={tw`flex-1 justify-center items-center`}>
           <View style={tw`bg-gray-200 w-4/5 h-1/3 flex rounded-lg p-3`}>
@@ -521,14 +528,14 @@ const ChooseOffer = ({ navigation, route }) => {
                   </Text>
                   <View style={tw`flex-3 justify-around items-center h-full`}>
                     <Text style={[styles.globalText, tw`font-bold`]}>
-                      <Text style={tw`text-red-700`}>
+                      <Text style={[styles.globalText,tw`text-red-700`]}>
                         {item.distance
                           ? (item.distance / 1000).toFixed(2)
                           : "-"}
                         {" กม."}
                       </Text>
                     </Text>
-                    <Text style={tw`font-bold `}>
+                    <Text style={[styles,tw`font-bold`]}>
                       <Text style={tw`text-red-700`}>
                         {item.durationText}
                         {" นาที"}{" "}
@@ -556,7 +563,7 @@ const ChooseOffer = ({ navigation, route }) => {
               >
                 <MaterialIcons name="local-shipping" size={35} color="gray" />
               </Animated.View>
-              <Text style={tw`text-lg font-bold mt-5`}>กําลังรอคนขับ...</Text>
+              <Text style={[styles.globalText,tw`text-lg font-bold mt-5`]}>กําลังรอคนขับ...</Text>
             </View>
           )}
         </View>

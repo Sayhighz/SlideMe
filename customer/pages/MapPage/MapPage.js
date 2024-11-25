@@ -83,14 +83,14 @@ const MapPage = ({ navigation }) => {
     <SafeAreaView style={tw`flex-1`} edges={['top', 'left', 'right']}>
       <Modal transparent={true} visible={openModal}>
         <View style={tw`flex-1 justify-center items-center`}>
-          <View style={tw`bg-[#FDFFFD] w-4/5 h-1/3 flex rounded-lg p-3`}>
+          <View style={tw`bg-[#FDFFFD] w-4/5 h-1/3 flex rounded-lg p-5 shadow-md`}>
             <View style={tw`flex-1 justify-center`}>
               <Text style={[styles.globalText, tw`font-bold text-lg`]}>
-                ยืนยันสถานที่ {confirmOrigin.length ? "ปลายทาง" : "ต้นทาง"}
+                ยืนยัน{confirmOrigin.length ? "ปลายทาง" : "ต้นทาง"}
               </Text>
             </View>
             <View style={tw`flex-1`}>
-              <Text style={styles.globalText}>
+              <Text style={[styles.globalText, tw`text-gray-600`]}>
                 {confirmOrigin.length
                   ? "สถานที่ปลายทาง : " + destinationAddress
                   : "สถานที่ต้นทาง :" + originAddress}
@@ -98,7 +98,7 @@ const MapPage = ({ navigation }) => {
             </View>
             <View style={tw`flex-1 flex-row justify-around items-center`}>
               <Pressable
-                style={tw`bg-red-500 p-3 rounded-lg`}
+                style={tw`bg-red-500 p-1 px-5 rounded`}
                 onPress={() => {
                   setOpenModal(false);
                 }}
@@ -109,11 +109,11 @@ const MapPage = ({ navigation }) => {
                     tw`text-lg font-bold text-[#FDFFFD]`,
                   ]}
                 >
-                  Cancel
+                  ยกเลิก
                 </Text>
               </Pressable>
               <Pressable
-                style={tw`bg-[#60B876] p-3 rounded-lg`}
+                style={tw`bg-[#60B876] p-1 px-5 rounded`}
                 onPress={() => {
                   confirmOrigin.length
                     ? setConfirmDestination(destinationAddress)
@@ -121,8 +121,8 @@ const MapPage = ({ navigation }) => {
                       (setConfirmOrigin(originAddress), setOpenModal(false));
                 }}
               >
-                <Text style={tw`text-lg font-bold text-[#FDFFFD]`}>
-                  Confirm
+                <Text style={[styles.globalText,tw`text-lg font-bold text-[#FDFFFD]`]}>
+                  ยืนยัน
                 </Text>
               </Pressable>
             </View>
@@ -203,9 +203,9 @@ const MapPage = ({ navigation }) => {
       >
         <View style={tw`flex-1 justify-around`}>
           <Text style={[styles.globalText, tw`text-xl font-bold mb-1`]}>
-            {confirmOrigin.length ? "ปลายทาง" : "ต้นทาง"}
+            {confirmOrigin.length ? "จุดส่งรถ" : "จุดรับรถ"}
           </Text>
-          <Text style={styles.globalText}>
+          <Text style={[styles.globalText, tw`text-gray-600`]}>
             {confirmOrigin.length ? destinationAddress : originAddress}
           </Text>
         </View>
@@ -219,7 +219,7 @@ const MapPage = ({ navigation }) => {
             <Text
               style={[styles.globalText, tw`text-[#FDFFFD] text-xl font-bold`]}
             >
-              ยืนยัน{confirmOrigin.length ? "ปลายทาง" : "ต้นทาง"}
+              ยืนยัน{confirmOrigin.length ? "จุดส่งรถ" : "จุดรับรถ"}
             </Text>
           </Pressable>
         </View>

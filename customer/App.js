@@ -48,20 +48,15 @@ function HomeStack() {
         shadowOpacity: 0,
       }}
     >
-      <Stack.Screen
-        name="HomePage"
-        component={Home}
-        options={{ headerShown: false }}
-        style={{ flex: 1 }}
-      />
-      <Stack.Screen name="Mapdetail" component={MapDetail} />
+      <Stack.Screen name="HomePage" component={Home} options={{ headerShown: false }} style={{ flex: 1}}/>
+      <Stack.Screen name="Mapdetail" component={MapDetail} options={{ headerShown: false }}/>
       <Stack.Screen
         name="MapPage"
         component={MapPage}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name="Order" component={Order} />
-      <Stack.Screen name="ChooseOffer" component={ChooseOffer} />
+      <Stack.Screen name="Order" component={Order}  options={{ headerShown: false }}/>
+      <Stack.Screen name="ChooseOffer" component={ChooseOffer} options={{ headerShown: false }}/>
       <Stack.Screen name="payment" component={PaymentPage} />
       <Stack.Screen name="viewOrder" component={ViewOrder} />
       <Stack.Screen name="Rating" component={Rating} />
@@ -220,17 +215,17 @@ const AppContent = () => {
           <Tab.Screen
             name="Home"
             component={HomeStack}
-            options={{ headerShown: false }}
+            options={{ headerShown: false,title: "หน้าหลัก" }}
           />
           <Tab.Screen
             name="ประวัติการใช้บริการ"
             component={HistoryPage}
-            options={{ title: "ประวัติการใช้บริการ" }}
+            options={{ headerShown: false,title: "ประวัติการใช้บริการ" }}
           />
           <Tab.Screen
             name="กล่องข้อความ"
             component={MessageBoxScreen}
-            options={{ title: "กล่องข้อความ" }}
+            options={{ headerShown: false,title: "กล่องข้อความ" }}
           />
           <Tab.Screen name="โปรไฟล์ผู้ใช้" options={{ headerShown: false }}>
             {() => <UserProfileTab onLogout={handleLogout} />}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Modal, Button, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Modal, Button, ActivityIndicator, StyleSheet, SafeAreaView } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from 'twrnc';
 import { IP_ADDRESS } from "../../config";
@@ -43,7 +43,7 @@ const MessageBoxScreen = () => {
         }
       } catch (error) {
         console.error('Error fetching messages:', error);
-        setMessages([]); // Optionally display a fallback UI message
+        setMessages([]);
       } finally {
         setLoading(false);
       }
@@ -100,93 +100,98 @@ const MessageBoxScreen = () => {
   );
 
   return (
-    <View style={tw`flex-1 bg-gray-100`}>
-      <View style={tw`flex-row justify-around bg-[#60B876] p-3`}>
-        <TouchableOpacity
-          style={filter === 'all' ? tw`border-b-2 border-white` : tw`opacity-70`}
-          onPress={() => setFilter('all')}
-        >
-          <View style={tw`flex-row items-center`}>
-            <Icon name="filter-variant" size={20} color="white" style={tw`mr-2`} />
-            <Text style={[styles.globalText, tw`text-white text-lg`]}>ทั้งหมด</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={filter === 'discount' ? tw`border-b-2 border-white` : tw`opacity-70`}
-          onPress={() => setFilter('discount')}
-        >
-          <View style={tw`flex-row items-center`}>
-            <Icon name="tag" size={20} color="white" style={tw`mr-2`} />
-            <Text style={[styles.globalText, tw`text-white text-lg`]}>คูปองส่วนลด</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={filter === 'news' ? tw`border-b-2 border-white` : tw`opacity-70`}
-          onPress={() => setFilter('news')}
-        >
-          <View style={tw`flex-row items-center`}>
-            <Icon name="newspaper" size={20} color="white" style={tw`mr-2`} />
-            <Text style={[styles.globalText, tw`text-white text-lg`]}>ข่าวสาร</Text>
-          </View>
-        </TouchableOpacity>
+    <SafeAreaView style={tw`flex-1 bg-gray-100`}>
+      {/* Filter Buttons */}
+      <View style={tw`bg-[#60B876]`}>
+        <View style={tw`flex-row justify-around p-3`}>
+          <TouchableOpacity
+            style={filter === 'all' ? tw`border-b-2 border-white` : tw`opacity-70`}
+            onPress={() => setFilter('all')}
+          >
+            <View style={tw`flex-row items-center`}>
+              <Icon name="filter-variant" size={20} color="white" style={tw`mr-2`} />
+              <Text style={[styles.globalText, tw`text-white text-lg`]}>ทั้งหมด</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={filter === 'discount' ? tw`border-b-2 border-white` : tw`opacity-70`}
+            onPress={() => setFilter('discount')}
+          >
+            <View style={tw`flex-row items-center`}>
+              <Icon name="tag" size={20} color="white" style={tw`mr-2`} />
+              <Text style={[styles.globalText, tw`text-white text-lg`]}>คูปองส่วนลด</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={filter === 'news' ? tw`border-b-2 border-white` : tw`opacity-70`}
+            onPress={() => setFilter('news')}
+          >
+            <View style={tw`flex-row items-center`}>
+              <Icon name="newspaper" size={20} color="white" style={tw`mr-2`} />
+              <Text style={[styles.globalText, tw`text-white text-lg`]}>ข่าวสาร</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
 
+      {/* Content Section */}
       <View style={tw`p-5`}>
         {loading ? (
           <ActivityIndicator color="#60B876" />
         ) : (
           <FlatList
-          data={filteredMessages}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderItem}
-          contentContainerStyle={tw`pb-15`}
+            data={filteredMessages}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderItem}
+            contentContainerStyle={tw`pb-15`}
           />
         )}
       </View>
 
+      {/* Modal for Message Details */}
       <Modal
-  animationType="fade"
-  transparent={true}
-  visible={modalVisible}
-  onRequestClose={closeModal}
->
-  <View style={tw`flex-1 justify-center items-center bg-gray-800 bg-opacity-50`}>
-    <View style={tw`w-11/12 bg-white p-5 rounded`}>
-      {selectedMessage && (
-        <>
-          <View style={tw`flex-row items-center mb-4`}>
-            <View
-              style={[
-                tw`items-center justify-center mr-3`,
-                {
-                  width: 50,
-                  height: 50,
-                  borderRadius: 25,
-                  backgroundColor: selectedMessage.type === 'discount' ? '#fef3c7' : '#e0f2fe',
-                },
-              ]}
-            >
-              <Icon
-                name={selectedMessage.type === 'discount' ? 'tag' : 'newspaper'}
-                size={30}
-                color={selectedMessage.type === 'discount' ? '#f59e0b' : '#3b82f6'}
-              />
-            </View>
-            <Text style={[styles.globalText, tw`text-2xl font-bold`]}>{selectedMessage.title}</Text>
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={closeModal}
+      >
+        <View style={tw`flex-1 justify-center items-center bg-gray-800 bg-opacity-50`}>
+          <View style={tw`w-11/12 bg-white p-5 rounded`}>
+            {selectedMessage && (
+              <>
+                <View style={tw`flex-row items-center`}>
+                  <View
+                    style={[
+                      tw`items-center justify-center mr-3`,
+                      {
+                        width: 50,
+                        height: 50,
+                        borderRadius: 25,
+                        backgroundColor: selectedMessage.type === 'discount' ? '#fef3c7' : '#e0f2fe',
+                      },
+                    ]}
+                  >
+                    <Icon
+                      name={selectedMessage.type === 'discount' ? 'tag' : 'newspaper'}
+                      size={30}
+                      color={selectedMessage.type === 'discount' ? '#f59e0b' : '#3b82f6'}
+                    />
+                  </View>
+                  <Text style={[styles.globalText, tw`text-2xl font-bold`]}>{selectedMessage.title}</Text>
+                </View>
+                <Text style={[styles.globalText, tw`text-lg mb-5`]}>{selectedMessage.message}</Text>
+                {selectedMessage.type === 'discount' && (
+                  <Text style={[styles.globalText, tw`text-lg mb-5 text-green-600 font-bold`]}>
+                    โค้ดส่วนลด: {selectedMessage.discount_code}
+                  </Text>
+                )}
+                <Button title="Close" color={'#60B876'} onPress={closeModal} />
+              </>
+            )}
           </View>
-          <Text style={[styles.globalText, tw`text-lg mb-5`]}>{selectedMessage.message}</Text>
-          {selectedMessage.type === 'discount' && (
-            <Text style={[styles.globalText, tw`text-lg mb-5 text-green-600 font-bold`]}>
-              โค้ดส่วนลด: {selectedMessage.discount_code}
-            </Text>
-          )}
-          <Button title="Close" color={'#60B876'} onPress={closeModal} />
-        </>
-      )}
-    </View>
-  </View>
-</Modal>
-</View>
+        </View>
+      </Modal>
+    </SafeAreaView>
   );
 };
 
