@@ -834,7 +834,10 @@ router.get("/drivers/chooseoffer", (req, res) => {
 
 router.get("/get_payments_method", (req, res) => {
   const { user_id } = req.query; // Fetch user_id from the query
-  const sql = `SELECT payment_type, card_number, account_name FROM paymentmethods WHERE user_id = ?`; // Use WHERE to filter by user_id
+  const sql = `
+    SELECT payment_type, card_number, account_name , status
+    FROM paymentmethods 
+    WHERE user_id = ? AND status = 'active'`; // Use WHERE to filter by user_id
   con.query(sql, [user_id], (err, result) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
