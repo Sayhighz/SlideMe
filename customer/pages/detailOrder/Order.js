@@ -22,6 +22,7 @@ import { Provider as PaperProvider } from "react-native-paper";
 import { IP_ADDRESS } from "../../config";
 import { ScrollView } from "react-native-gesture-handler";
 import { UserContext } from "../../UserContext";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
 dayjs.locale("th");
@@ -75,7 +76,7 @@ export default function Order({ navigation, bookmark }) {
     // Prepare the request payload using bookmark data
 
     if (!confirmOrigin) {
-      alert("Pickup location is missing. Please select a pickup location.");
+      alert("จากตําแหน่งต้องไม่เว้นว่าง, กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
     }
 
@@ -190,7 +191,7 @@ export default function Order({ navigation, bookmark }) {
       <Modal
         visible={showPicker}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setShowPicker(false)} // Close modal when requested
       >
         <View
@@ -238,7 +239,7 @@ export default function Order({ navigation, bookmark }) {
                 ]}
               >
                 <Text style={tw`text-blue-500 text-lg font-medium text-center`}>
-                  Clear
+                  ล้างข้อมูล
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -249,7 +250,7 @@ export default function Order({ navigation, bookmark }) {
                 ]}
               >
                 <Text style={tw`text-white text-lg font-semibold text-center`}>
-                  OK
+                  ยันยีน
                 </Text>
               </TouchableOpacity>
             </View>
@@ -261,13 +262,13 @@ export default function Order({ navigation, bookmark }) {
 
   const renderAndroidDatePicker = () => {
     return (
-      <Modal visible={showModal} transparent={true} animationType="slide">
+      <Modal visible={showModal} transparent={true} animationType="fade">
         <View
           style={tw`flex-1 justify-center items-center bg-[rgba(0,0,0,0.5)]`}
         >
           <View style={tw`w-75 p-5 bg-white rounded-lg`}>
             <Text style={tw`text-center text-lg font-semibold mb-4`}>
-              Select Date and Time
+              โปรดเลือกวันและเวลา
             </Text>
 
             {/* Button to Open Date Picker */}
@@ -323,7 +324,7 @@ export default function Order({ navigation, bookmark }) {
               onPress={() => setShowModal(false)}
               style={tw`mt-4 p-2 bg-red-500 rounded-lg`}
             >
-              <Text style={tw`text-white text-center`}>Close</Text>
+              <Text style={tw`text-white text-center`}>ปิดหน้าต่าง</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -343,10 +344,10 @@ export default function Order({ navigation, bookmark }) {
   };
 
   const route = useRoute();
-  const origin = route.params?.origin || "ไม่ระบุ";
-  const destination = route.params?.destination || "ไม่ระบุ";
-  const confirmOrigin = route.params?.confirmOrigin || "ไม่ระบุ";
-  const confirmDestination = route.params?.confirmDestination || "ไม่ระบุ";
+  const origin = route.params?.origin || "โปรดระบุต้นทาง";
+  const destination = route.params?.destination || "โปรดระบุปลายทาง";
+  const confirmOrigin = route.params?.confirmOrigin;
+  const confirmDestination = route.params?.confirmDestination;
 
   const formatDate = (rawDate) => {
     //     let date = new Date(rawDate);
@@ -441,11 +442,11 @@ export default function Order({ navigation, bookmark }) {
 
       if (responseData && responseData.request_id) {
         Alert.alert(
-          "Request submitted successfully!",
+          "คุณได้ส่งคําร้องเรียบร้อยแล้ว",
           "",
           [
             {
-              text: "OK",
+              text: "ตกลง",
               onPress: () => {
                 navigation.navigate("ChooseOffer", {
                   request_id: responseData.request_id,
@@ -457,7 +458,7 @@ export default function Order({ navigation, bookmark }) {
           { cancelable: false }
         );
       } else {
-        alert("Request submitted, but no request ID was returned.");
+        alert("คำร้องส่งไม่สําเร็จ กรุณาลองใหม่อีกครั้ง");
       }
     } catch (error) {
       console.error("Error submitting request:", error);
@@ -465,71 +466,87 @@ export default function Order({ navigation, bookmark }) {
     }
   };
 
+  const truncateText = (text, maxLength = 30) => {
+    if (!text) return "";
+    if (text.length > maxLength) {
+      return text.substring(0, maxLength) + "...";
+    }
+    return text;
+  };
+  
+
   return (
     <PaperProvider>
       <View style={tw`flex-1 items-center`}>
         <View style={tw`flex-1 mt-2`}>
-          {/* Subtitle */}
-
-          <Text style={[styles.globalText, tw`text-[grey]`]}>
-            ต้องการให้รถสไลด์ไปส่งที่ไหน​ ?
+        <View style={tw`p-4 pt-16 flex-row items-center`}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="arrow-left" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={[styles.globalText, tw`text-2xl font-bold ml-4`]}>ต้องการให้ไปส่งที่ไหน?</Text>
+      </View>
+      <TouchableOpacity
+        style={[
+          { width: responsiveWidth, height: height * 0.11 },
+          tw`p-2 mb-4 mt-10 justify-around bg-white rounded-lg border border-gray-300 shadow-xl `,
+        ]}
+        onPress={() => navigation.navigate("Mapdetail")}
+      >
+        {/* Origin Row */}
+        <View style={[tw`flex-row px-4 items-center`]}>
+          <MaterialIcons name="place" size={24} color="red" />
+          <Text style={[styles.globalText, tw`text-black ml-2`]}>ต้นทาง </Text>
+          <Text style={[styles.globalText, tw`text-gray-500 ml-1`]}>
+            {truncateText(confirmOrigin) || "โปรดระบุต้นทาง"}
           </Text>
-          <TouchableOpacity
-            style={[
-              { width: responsiveWidth, height: height * 0.11 },
-              tw`p-2 mb-4 mt-1 justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876]`,
-            ]}
-            onPress={() => navigation.navigate("Mapdetail")}
-          >
-            <View style={[tw`flex-row px-4`]}>
-              <MaterialIcons name="place" size={24} color="red" />
-              <Text
-                style={styles.globalText}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                ต้นทาง : {confirmOrigin}
-              </Text>
-            </View>
-            <View style={tw`flex-row px-4`}>
-              <MaterialIcons name="place" size={24} color="green" />
-              <Text
-                style={styles.globalText}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                ปลายทาง : {confirmDestination}
-              </Text>
-            </View>
-          </TouchableOpacity>
+        </View>
 
-          <View style={tw`flex items-center justify-center`}>
-            <TouchableOpacity
-              onPress={() =>
-                Platform.OS === "ios" ? setShowPicker(true) : setShowModal(true)
-                
-              }
-              style={[
-                { width: responsiveWidth, height: height * 0.13 },
-                tw`flex items-center justify-center bg-white p-4 rounded-lg border border-[#60B876]  shadow-xl shadow-[#60B876]`,
-              ]}
-            >
-              <MaterialIcons name="date-range" size={35} color="red" />
-              <Text
-                style={[
-                  styles.globalText,
-                  tw`flex text-center bg-white p-2 border-[#60B876] w-79  text-lg`,
-                ]}
-                // onPressIn={
-                //   Platform.OS === "ios" ? toggleDatePicker : handleDateChange
-                // }
-              >
-                {formattedDate === ""
-                  ? "เลือกวันเวลาที่ต้องการ"
-                  : `${formattedDate} ${formattedTime}`}
-              </Text>
-            </TouchableOpacity>
-          </View>
+        {/* Divider Line */}
+        <View style={tw`border-t border-gray-300 my-2`} />
+
+        {/* Destination Row */}
+        <View style={[tw`flex-row px-4 items-center`]}>
+          <MaterialIcons name="place" size={24} color="green" />
+          <Text style={[styles.globalText, tw`text-black ml-2`]}>ปลายทาง </Text>
+          <Text style={[styles.globalText, tw`text-gray-500 ml-1`]}>
+            {truncateText(confirmDestination) || "โปรดระบุปลายทาง"}
+          </Text>
+        </View>
+      </TouchableOpacity>
+
+      <View style={tw`flex items-center justify-center`}>
+  <TouchableOpacity
+    onPress={() =>
+      Platform.OS === "ios" ? setShowPicker(true) : setShowModal(true)
+    }
+    style={[
+      { width: responsiveWidth, height: height * 0.13 },
+      tw`flex-col items-center bg-white p-4 rounded-lg border border-gray-300`,
+    ]}
+  >
+    {/* Icon */}
+    <MaterialIcons
+      name="date-range"
+      size={35}
+      color="#60B876"
+      style={tw`mb-2`} // Adds spacing below the icon
+    />
+
+    {/* Text */}
+    <Text
+      style={[
+        styles.globalText,
+        tw`text-gray-700 text-lg text-center`, // Center-align the text
+      ]}
+    >
+      {formattedDate === ""
+        ? "โปรดระบุวันเวลาที่ต้องการ"
+        : `${formattedDate}`}
+    </Text>
+  </TouchableOpacity>
+</View>
+
+
           {Platform.OS === "ios" && showPicker && renderIOSDatePicker()}
           {Platform.OS === "android" && renderAndroidDatePicker()}
 
@@ -543,7 +560,7 @@ export default function Order({ navigation, bookmark }) {
                   onPress={() => setMenuVisible(true)}
                   style={[
                     { width: responsiveWidth, height: height * 0.13 },
-                    tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876] mb-4`,
+                    tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-gray-300 shadow-xl mb-4`,
                   ]}
                 >
                   <FontAwesome5
@@ -552,8 +569,8 @@ export default function Order({ navigation, bookmark }) {
                     color="black"
                     style={tw`mb-2`}
                   />
-                  <Text style={[styles.globalText, tw`text-lg`]}>
-                    {category ? category : "ประเภทของรถสไลด์"}
+                  <Text style={[styles.globalText, tw`text-lg text-gray-700`]}>
+                    {category ? category : "เลือกประเภทรถสไลด์"}
                   </Text>
                 </TouchableOpacity>
               }
@@ -571,24 +588,37 @@ export default function Order({ navigation, bookmark }) {
           </View>
 
           <View>
-            <TouchableOpacity
+          <TouchableOpacity
+            style={[
+              { width: responsiveWidth, height: height * 0.14 },
+              tw`flex-row items-center bg-white rounded-lg border border-gray-300 h-13 shadow-xl p-4`,
+            ]}
+            onPress={handlePress}
+          >
+            {/* Icon */}
+            <MaterialIcons
+              name="message"
+              size={24}
+              color="#60B876" // Delivery app green
+              style={tw`mr-3`} // Adds spacing to the right of the icon
+            />
+
+            {/* Text */}
+            <Text
               style={[
-                { width: responsiveWidth, height: height * 0.14 },
-                tw` justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876] p-1`,
+                styles.globalText,
+                tw`flex-1 text-gray-600 text-sm text-left`, // Adjusted for proper alignment
               ]}
-              onPress={handlePress}
             >
-              <Text
-                style={[styles.globalText, tw` bg-white text-center text-lg`]}
-              >
-                {moreDetail ? moreDetail : "รายละเอียดเพิ่มเติม . . ."}
-              </Text>
-            </TouchableOpacity>
+              {moreDetail ? moreDetail : "ข้อความถึงคนขับ..."}
+            </Text>
+          </TouchableOpacity>
+
 
             <Modal
               transparent={true}
               visible={showModal2}
-              animationType="slide"
+              animationType="fade"
               onRequestClose={() => setShowModal2(false)}
             >
               <View
@@ -598,9 +628,9 @@ export default function Order({ navigation, bookmark }) {
                   <TextInput
                     style={[
                       styles.globalText,
-                      tw`border p-2 mb-4 bg-white rounded-lg h-40`,
+                      tw`p-2 mb-4 bg-white rounded-lg border border-gray-300 h-40 shadow-lg`,
                     ]}
-                    placeholder="รายละเอียดเพิ่มเติม . . ."
+                    placeholder="รายละเอียดเพิ่มเติม..."
                     mode="outlined"
                     value={preMoreDetail}
                     onChangeText={setPreMoreDetail}
@@ -619,7 +649,7 @@ export default function Order({ navigation, bookmark }) {
                       }
                       style={tw`bg-red-500 rounded-lg px-4 py-2`}
                     >
-                      <Text>{preMoreDetail ? "Clear" : "Close"}</Text>
+                      <Text style={[styles.globalText,tw`text-white w-10 text-center`]}>{preMoreDetail ? "ล้างข้อมูล" : "ปิด"}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -627,7 +657,7 @@ export default function Order({ navigation, bookmark }) {
                       onPress={handleRequestSubmit}
                       style={tw`bg-[#60B876] rounded-lg px-4 py-2`}
                     >
-                      <Text>Submit</Text>
+                      <Text style={[styles.globalText,tw`text-white w-10 text-center`]}>ยันยัน</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -635,21 +665,20 @@ export default function Order({ navigation, bookmark }) {
             </Modal>
           </View>
 
-          <View style={tw`flex items-center mt-3 justify-between`}>
+          <View style={tw`absolute top-32 right-[-17px]`}>
             <TouchableOpacity
               onPress={openModal}
-              style={[
-                { height: height * 0.07, width: responsiveWidth },
-                tw` justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876] p-1 `,
-              ]}
+              style={tw`w-14 h-14 bg-[#60B876] rounded-full items-center justify-center shadow-xl`}
             >
-              <Text
-                style={[styles.globalText, tw` bg-white text-center text-lg`]}
-              >
-                เลือกที่อยู่ในรายการโปรด
-              </Text>
+              {/* Icon */}
+              <MaterialIcons
+                name="favorite"
+                size={30}
+                color="white"
+              />
             </TouchableOpacity>
           </View>
+
           <Modal
             animationType="slide"
             transparent={true}
@@ -759,22 +788,23 @@ export default function Order({ navigation, bookmark }) {
                     tw`bg-red-400 rounded-lg p-3 mt-4`,
                   ]}
                 >
-                  <Text style={styles.closeButtonText}>Close Modal</Text>
+                  <Text style={styles.closeButtonText}>ปิด</Text>
                 </TouchableOpacity>
               </View>
             </View>
           </Modal>
 
-          <View style={tw``}>
-            <View style={tw`flex items-center justify-center`}>
+          <View style={tw`flex-1`}>
+            {/* Other Content */}
+            <View style={tw`absolute bottom-0 w-full p-4`}>
               <TouchableOpacity
-                style={tw`items-center justify-center mt-4 w-50 h-12 bg-[#60B876] rounded-full `}
+                style={tw`items-center justify-center w-full h-12 bg-[#60B876] rounded`}
                 onPress={handleSubmitRequest}
               >
                 <Text
                   style={[
                     styles.globalText,
-                    tw`text-white text-xl font-semibold `,
+                    tw`text-white text-xl font-semibold`,
                   ]}
                 >
                   ยืนยัน

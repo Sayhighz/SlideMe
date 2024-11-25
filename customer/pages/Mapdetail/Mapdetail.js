@@ -12,6 +12,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
 import { UserContext } from "../../UserContext";
 import { useRoute } from "@react-navigation/native";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const locations = [
   {
@@ -85,7 +86,40 @@ export default function Mapdetail({ navigation }) {
         </View> */}
 
         {/* Pickup Location Input */}
-        <View style={tw`flex-row items-center mt-4 bg-gray-200 rounded-lg`}>
+        <View style={tw`p-4 flex-row items-center`}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Icon name="arrow-left" size={24} color="black" />
+          </TouchableOpacity>
+          <Text style={[styles.globalText, tw`text-2xl font-bold ml-4`]}>เลือกสถานที่รับ-ส่งรถ</Text>
+        </View>
+        <View >
+          <TouchableOpacity
+            style={tw`flex-row items-center justify-between mt-6 p-4 bg-white shadow-md border border-gray-300 rounded-lg`}
+            onPress={() => {
+              navigation.navigate("MapPage");
+            }}
+          >
+          <View style={tw`flex items-center justify-center`}>
+            {/* Icon and Text Container */}
+            <View style={tw`flex-row items-center`}>
+              {/* Icon */}
+              <MaterialIcons name="map" size={24} color="black" style={tw`mr-2`} />
+
+              {/* Text */}
+              <Text
+                style={[
+                  styles.globalText,
+                  tw`text-gray-700 text-lg`,
+                ]}
+              >
+                เลือกสถานที่
+              </Text>
+            </View>
+          </View>
+            <MaterialIcons name="chevron-right" size={24} color="gray" />
+          </TouchableOpacity>
+        </View>
+        <View style={tw`flex-row items-center mt-4 rounded-lg`}>
           <MaterialIcons
             name="location-pin"
             size={24}
@@ -101,7 +135,7 @@ export default function Mapdetail({ navigation }) {
         </View>
 
         {/* Destination Location Input */}
-        <View style={tw`flex-row items-center mt-4 bg-gray-200 rounded-lg`}>
+        <View style={tw`flex-row items-center rounded-lg`}>
           <MaterialIcons
             name="location-pin"
             size={24}
@@ -111,25 +145,9 @@ export default function Mapdetail({ navigation }) {
           <TextInput
             style={[styles.globalText , tw`flex-1 p-2 text-gray-700`]}
             placeholder="Enter destination"
-            value={confirmDestination.length ? confirmDestination : "สถานที่ปลายทาง"}
+            value={confirmDestination.length ? confirmDestination : "สถานที่ส่งรถ"}
           />
           {console.log(confirmDestination)}
-        </View>
-        <View >
-          <TouchableOpacity
-            style={tw`flex-row items-center justify-between mt-6 p-4 bg-gray-100 rounded-lg`}
-            onPress={() => {
-              navigation.navigate("MapPage");
-            }}
-          >
-            <View style={tw`flex-row items-center`}>
-              <MaterialIcons name="map" size={24} color="black" />
-              <Text style={[styles.globalText , tw`ml-3 text-gray-800 text-lg`]}>
-                เลือกสถานที่
-              </Text>
-            </View>
-            <MaterialIcons name="chevron-right" size={24} color="gray" />
-          </TouchableOpacity>
         </View>
         {/* Divider */}
         <View style={tw`border-b border-gray-300 my-4`} />
@@ -156,7 +174,7 @@ export default function Mapdetail({ navigation }) {
           </View>
         
         <TouchableOpacity 
-          style={tw`absolute bottom-4 self-center bg-white border-2 border-[#60B876] p-4 rounded-full bg-[#60B876]`}
+          style={tw`absolute bottom-4 self-center bg-white border-2 border-[#60B876] w-full rounded bg-[#60B876]`}
             onPress={() => {
               navigation.navigate("Order",{
                 origin,
@@ -166,7 +184,7 @@ export default function Mapdetail({ navigation }) {
               });
             }}
         >
-          <Text style={[ styles.globalText, tw`text-xl font-bold text-white`]}>
+          <Text style={[ styles.globalText, tw`text-xl font-bold p-1 text-center text-white`]}>
             ยืนยัน
           </Text>
         </TouchableOpacity>

@@ -12,7 +12,7 @@ import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
 import { UserContext } from "../../UserContext";
 
-// Utility function to format date to Thai format
+// Utility functions
 const formatThaiDate = (dateString) => {
   const monthsThai = [
     "ม.ค.",
@@ -28,16 +28,13 @@ const formatThaiDate = (dateString) => {
     "พ.ย.",
     "ธ.ค.",
   ];
-
   const date = new Date(dateString);
   const day = date.getDate();
   const month = monthsThai[date.getMonth()];
   const year = date.getFullYear() + 543 - 2500;
-
   return `${day} ${month} ${year}`;
 };
 
-// Function to map service status to Thai labels
 const mapServiceStatus = (status) => {
   switch (status) {
     case "completed":
@@ -49,7 +46,6 @@ const mapServiceStatus = (status) => {
   }
 };
 
-// Function to determine icon and background color for service status
 const getStatusIcon = (status) => {
   switch (status) {
     case "completed":
@@ -61,7 +57,6 @@ const getStatusIcon = (status) => {
   }
 };
 
-// Function to format number with commas
 const formatNumberWithCommas = (number) => {
   return number
     ? number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -72,6 +67,7 @@ const HistoryPage = () => {
   const [filter, setFilter] = useState("all");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [filterMenuVisible, setFilterMenuVisible] = useState(false);
   const [serviceHistoryData, setServiceHistoryData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -104,6 +100,15 @@ const HistoryPage = () => {
     if (filter === "canceled") return item.service_status === "canceled";
     return true;
   });
+
+  const toggleFilterMenu = () => {
+    setFilterMenuVisible(!filterMenuVisible);
+  };
+
+  const applyFilter = (selectedFilter) => {
+    setFilter(selectedFilter);
+    setFilterMenuVisible(false);
+  };
 
   const openModal = (item) => {
     if (!item) {
@@ -161,7 +166,7 @@ const HistoryPage = () => {
   if (loading) {
     return (
       <View style={tw`flex-1 justify-center items-center`}>
-        <Text>Loading...</Text>
+        <Text>กำลังโหลดรายการ...</Text>
       </View>
     );
   }
@@ -175,7 +180,63 @@ const HistoryPage = () => {
   }
 
   return (
-    <View style={tw`flex-1 bg-gray-100`}>
+    <View style={tw`flex-1 bg-gray-100 mt-20`}>
+      <Text
+        style={[
+          styles.customFont,tw`text-3xl font-bold text-left mt-3 mb-3 ml-6 text-gray-800`,
+      ]}>
+        ประวัติการใช้บริการ
+      </Text>
+      {/* Filter Button */}
+      <TouchableOpacity
+        style={[
+          tw`absolute z-50 bottom-6 right-6 bg-white rounded-full shadow`,
+          { width: 60, height: 60, justifyContent: "center", alignItems: "center" },
+        ]}
+        onPress={toggleFilterMenu}
+      >
+        <Icon name="filter" size={24} color="#60B876" />
+      </TouchableOpacity>
+
+      {/* Filter Menu Modal */}
+      <Modal
+        transparent={true}
+        visible={filterMenuVisible}
+        animationType="fade"
+        onRequestClose={toggleFilterMenu}
+      >
+        <TouchableOpacity
+          style={tw`flex-1 bg-black bg-opacity-50`}
+          onPress={toggleFilterMenu}
+        />
+        <View
+          style={tw`absolute bottom-20 right-6 bg-white rounded-lg shadow p-4`}
+        >
+          <TouchableOpacity
+            style={tw`flex-row items-center mb-2`}
+            onPress={() => applyFilter("all")}
+          >
+            <Icon name="list" size={20} color="#60B876" style={tw`mr-2`} />
+            <Text style={tw`text-black text-lg`}>ทั้งหมด</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={tw`flex-row items-center mb-2`}
+            onPress={() => applyFilter("completed")}
+          >
+            <Icon name="check-circle" size={20} color="#28a745" style={tw`mr-2`} />
+            <Text style={tw`text-black text-lg`}>สำเร็จ</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={tw`flex-row items-center`}
+            onPress={() => applyFilter("canceled")}
+          >
+            <Icon name="times-circle" size={20} color="#dc3545" style={tw`mr-2`} />
+            <Text style={tw`text-black text-lg`}>ยกเลิก</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+      {/* FlatList */}
       <FlatList
         data={filteredData}
         renderItem={renderItem}
@@ -196,121 +257,24 @@ const HistoryPage = () => {
             style={tw`flex-1 justify-center items-center bg-black bg-opacity-50 `}
           >
             <View
-              style={[
-                tw`bg-white rounded-lg p-6 w-11/12`,
-                { maxHeight: "90%" },
-              ]}
+              style={[tw`bg-white rounded-lg p-6 w-11/12`, { maxHeight: "90%" }]}
             >
-              <Text
-                style={[
-                  tw`text-2xl font-bold mb-4 text-black`,
-                  styles.customFont,
-                ]}
-              >
+              <Text style={[tw`text-2xl font-bold mb-4`, styles.customFont]}>
                 รายละเอียดเพิ่มเติม
               </Text>
-              <View style={tw`mb-4`}>
-                <View style={tw`flex-row items-start mb-3  justify-center`}>
-                  <Icon
-                    name="car"
-                    size={20}
-                    color="black"
-                    style={tw`mr-4 mt-1`}
-                  />
-                  <Text
-                    style={[
-                      tw`text-lg items-center text-black flex-1`,
-                      styles.customFont,
-                    ]}
-                  >
-                    บริการ: {selectedItem.vehicle_type || "ไม่ระบุ"}
-                  </Text>
-                </View>
-                <View style={tw`flex-row items-start mb-3`}>
-                  <Icon
-                    name="calendar-alt"
-                    size={20}
-                    color="#3B82F6"
-                    style={tw`mr-4 mt-1`}
-                  />
-                  <Text
-                    style={[
-                      tw`text-lg text-black flex-1 `,
-                      styles.customFont,
-                    ]}
-                  >
-                    วันที่: {formatThaiDate(selectedItem.date)}
-                  </Text>
-                </View>
-                <View style={tw`flex-row items-start mb-3`}>
-                  <Icon
-                    name="info-circle"
-                    size={20}
-                    color="#FF9800"
-                    style={tw`mr-4 mt-1`}
-                  />
-                  <Text
-                    style={[
-                      tw`text-lg text-black flex-1 `,
-                      styles.customFont,
-                    ]}
-                  >
-                    สถานะ: {mapServiceStatus(selectedItem.service_status)}
-                  </Text>
-                </View>
-                <View style={tw`flex-row items-start mb-3`}>
-                  <Icon
-                    name="money-bill-wave"
-                    size={20}
-                    color="#4CAF50"
-                    style={tw`mr-4 mt-1`}
-                  />
-                  <Text
-                    style={[
-                      tw`text-lg text-black flex-1 `,
-                      styles.customFont,
-                    ]}
-                  >
-                    ค่าบริการ:{" "}
-                    {formatNumberWithCommas(selectedItem.service_charge)} บาท
-                  </Text>
-                </View>
-                <View style={tw`flex-row items-start mb-3`}>
-                  <Icon
-                    name="map-marker-alt"
-                    size={20}
-                    color="#E91E63"
-                    style={tw`mr-4 mt-1`}
-                  />
-                  <Text
-                    style={[
-                      tw`text-lg text-black flex-1`,
-                      styles.customFont,
-                    ]}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    ต้นทาง: {selectedItem.origin || "ไม่ระบุ"}
-                  </Text>
-                </View>
-                <View style={tw`flex-row items-start`}>
-                  <Icon
-                    name="flag-checkered"
-                    size={20}
-                    color="#60B876"
-                    style={tw`mr-4 mt-1`}
-                  />
-                  <Text
-                    style={[
-                      tw`text-lg text-black flex-1 `,
-                      styles.customFont,
-                    ]}
-                    numberOfLines={1}
-            ellipsizeMode="tail"
-                  >
-                    ปลายทาง: {selectedItem.destination || "ไม่ระบุ"}
-                  </Text>
-                </View>
+              <View>
+                <Text style={[tw`text-lg`, styles.customFont]}>
+                  บริการ: {selectedItem.vehicle_type || "ไม่ระบุ"}
+                </Text>
+                <Text style={[tw`text-lg`, styles.customFont]}>
+                  วันที่: {formatThaiDate(selectedItem.date)}
+                </Text>
+                <Text style={[tw`text-lg`, styles.customFont]}>
+                  สถานะ: {mapServiceStatus(selectedItem.service_status)}
+                </Text>
+                <Text style={[tw`text-lg`, styles.customFont]}>
+                  ค่าบริการ: {formatNumberWithCommas(selectedItem.service_charge)} บาท
+                </Text>
               </View>
               <TouchableOpacity
                 style={tw`bg-[#60B876] rounded px-4 py-2 mt-4`}
@@ -329,7 +293,7 @@ const HistoryPage = () => {
 const styles = StyleSheet.create({
   customFont: {
     fontFamily: "Mitr-Regular",
-    flexWrap: "wrap", // Ensure text wraps if it exceeds the container
+    flexWrap: "wrap",
   },
 });
 
