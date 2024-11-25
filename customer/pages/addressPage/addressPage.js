@@ -38,7 +38,7 @@ const AddressPage = ({ navigation }) => {
 
   const route = useRoute();
   const address = route.params?.address_id || "ไม่ระบุ";
-  const vehicle_type = route.params?.category || "ประเภทของรถสไลด์"
+  const vehicle_type = route.params?.category || "ประเภทของรถสไลด์";
   const save_name = route.params?.nameBookMark || "ไม่ระบุ";
   const origin_lat = route.params?.origin_lat || "ไม่ระบุ";
   const origin_long = route.params?.origin_long || "ไม่ระบุ";
@@ -49,8 +49,7 @@ const AddressPage = ({ navigation }) => {
 
   useEffect(() => {
     console.log(save_name);
-   
-  }, [save_name , confirmOrigin , confirmDestination , category]);
+  }, [save_name, confirmOrigin, confirmDestination, category]);
   const handleSave = async () => {
     if (!nameBookMark || !confirmOrigin || !confirmDestination || !category) {
       Alert.alert("Error", "Please fill all the required fields.");
@@ -65,15 +64,12 @@ const AddressPage = ({ navigation }) => {
       pickup_long: origin_long,
       location_to: confirmDestination,
       dropoff_lat: destination_lat,
-      dropoff_long:  destination_long,
+      dropoff_long: destination_long,
       vahicle_type: category,
       address_id: address,
     };
 
-    if (
-      save_name !== "ไม่ระบุ"
-      
-    ) {
+    if (save_name !== "ไม่ระบุ") {
       try {
         const response = await fetch(
           `http://${IP_ADDRESS}:3000/auth/customer/edit_address`,
@@ -83,16 +79,15 @@ const AddressPage = ({ navigation }) => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify(payload),
-            
           }
         );
 
         const data = await response.json();
-        console.log(payload)
+        console.log(payload);
 
         if (response.ok && data.Status) {
-          Alert.alert("Success", "Bookmark Edit successfully!" , [
-            {text: "OK", onPress: () => navigation.navigate("Bookmarklist")},
+          Alert.alert("Success", "Bookmark Edit successfully!", [
+            { text: "OK", onPress: () => navigation.navigate("Bookmarklist") },
           ]);
           // navigation.navigate("Bookmarklist");
         } else {
@@ -173,25 +168,33 @@ const AddressPage = ({ navigation }) => {
                 { width: responsiveWidth, height: height * 0.12 },
                 tw`p-2 mb-4 mt-1 justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876]`,
               ]}
-              onPress={() => navigation.navigate("addMapFav" , {save_name,category,address})}
+              onPress={() =>
+                navigation.navigate("addMapFav", {
+                  save_name,
+                  category,
+                  address,
+                })
+              }
               // onPress={() => navigation.navigate("Mapdetail")}
             >
               <View style={[tw`flex-row px-4`]}>
                 <MaterialIcons name="place" size={24} color="red" />
-                <Text style={styles.globalText}>
-                  ต้นทาง :{" "}
-                  {confirmOrigin.length > 25
-                    ? confirmOrigin.slice(0, 25) + "..."
-                    : confirmOrigin}
+                <Text
+                  style={styles.globalText}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  ต้นทาง : {confirmOrigin}
                 </Text>
               </View>
               <View style={tw`flex-row px-4`}>
                 <MaterialIcons name="place" size={24} color="green" />
-                <Text style={styles.globalText}>
-                  ปลายทาง :{" "}
-                  {confirmDestination.length > 25
-                    ? confirmDestination.slice(0, 25) + "..."
-                    : confirmDestination}
+                <Text
+                  style={styles.globalText}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  ปลายทาง : {confirmDestination}
                 </Text>
               </View>
             </TouchableOpacity>

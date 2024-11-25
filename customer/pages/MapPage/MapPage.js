@@ -168,7 +168,7 @@ const MapPage = ({ navigation }) => {
                 //ต้องขอ api
                 styles={tw`bg-[#FDFFFD]`}
                 fetchDetails={true}
-                placeholder={confirmOrigin.length ? "Destination" : "Origin"}
+                placeholder={confirmOrigin.length ? "ปลายทาง" : "ต้นทาง"}
                 minLength={2}
                 debounce={400}
                 onPress={(data, details = null) => {
@@ -203,7 +203,7 @@ const MapPage = ({ navigation }) => {
       >
         <View style={tw`flex-1 justify-around`}>
           <Text style={[styles.globalText, tw`text-xl font-bold mb-1`]}>
-            {confirmOrigin.length ? "Destination" : "Origin"}
+            {confirmOrigin.length ? "ปลายทาง" : "ต้นทาง"}
           </Text>
           <Text style={styles.globalText}>
             {confirmOrigin.length ? destinationAddress : originAddress}
@@ -219,7 +219,7 @@ const MapPage = ({ navigation }) => {
             <Text
               style={[styles.globalText, tw`text-[#FDFFFD] text-xl font-bold`]}
             >
-              Confirm {confirmOrigin.length ? "Destination" : "Origin"}
+              ยืนยัน{confirmOrigin.length ? "ปลายทาง" : "ต้นทาง"}
             </Text>
           </Pressable>
         </View>

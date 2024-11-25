@@ -67,7 +67,7 @@ const EditProfile = ({ navigation }) => {
      
       <TextInput
         style={[styles.globalText , tw`w-full h-12 border border-gray-300 bg-white rounded-lg px-3 mb-3`]}
-        placeholder='ชื่อ'
+        placeholder={userData.first_name || "ชื่อ"}
         value={firstName}
         onChangeText={setFirstName}
         autoCapitalize='none'
@@ -79,7 +79,7 @@ const EditProfile = ({ navigation }) => {
 
       <TextInput
         style={[styles.globalText , tw`w-full h-12 border border-gray-300 bg-white rounded-lg px-3 mb-3`]}
-        placeholder='นามสกุล'
+        placeholder={userData.last_name || "นามสกุล"}
         value={lastName}
         onChangeText={setLastName}
         autoCapitalize='none'
@@ -89,7 +89,7 @@ const EditProfile = ({ navigation }) => {
 
       <TextInput
         style={[styles.globalText , tw`w-full h-12 border border-gray-300 bg-white rounded-lg px-3 mb-5`]}
-        placeholder='อีเมล'
+        placeholder={userData.email || "อีเมล"}
         value={email}
         onChangeText={setEmail}
         keyboardType='email-address'

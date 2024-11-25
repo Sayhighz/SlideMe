@@ -17,10 +17,24 @@ const MessageBoxScreen = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch(`http://${IP_ADDRESS}:3000/api/getAllNotifications`);
+        const response = await fetch(`http://${IP_ADDRESS}:3000/auth/getAllNotifications`);
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('The requested resource was not found. Please check the endpoint.');
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          const textResponse = await response.text();
+          throw new Error(`Unexpected response type: ${contentType}. Response: ${textResponse}`);
+        }
+  
         const data = await response.json();
         console.log('Fetched data:', data);
-
+  
         if (data.Status && Array.isArray(data.Result)) {
           setMessages(data.Result);
         } else {
@@ -29,15 +43,15 @@ const MessageBoxScreen = () => {
         }
       } catch (error) {
         console.error('Error fetching messages:', error);
-        setMessages([]);
+        setMessages([]); // Optionally display a fallback UI message
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchMessages();
   }, []);
-
+  
   const filteredMessages = messages.filter((message) => {
     if (filter === 'all') return true;
     return message.type === filter;
@@ -56,15 +70,30 @@ const MessageBoxScreen = () => {
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => openModal(item)}>
       <View style={tw`flex-row items-center p-4 bg-white mb-2 rounded shadow`}>
-        <Icon
-          name={item.type === 'discount' ? 'tag' : 'newspaper'}
-          size={30}
-          color={item.type === 'discount' ? '#f59e0b' : '#3b82f6'}
-          style={tw`mr-3`}
-        />
-        <View>
-          <Text style={tw`text-lg font-bold`}>{item.title}</Text>
-          <Text style={tw`text-sm mt-2`}>{item.message}</Text>
+        <View
+          style={[
+            tw`items-center justify-center mr-3`,
+            {
+              width: 50,
+              height: 50,
+              borderRadius: 25,
+              backgroundColor: item.type === 'discount' ? '#fef3c7' : '#e0f2fe',
+            },
+          ]}
+        >
+          <Icon
+            name={item.type === 'discount' ? 'tag' : 'newspaper'}
+            size={30}
+            color={item.type === 'discount' ? '#f59e0b' : '#3b82f6'}
+          />
+        </View>
+        <View style={tw`flex-1`}>
+          <Text style={tw`text-lg font-bold`} numberOfLines={1} ellipsizeMode="tail">
+            {item.title}
+          </Text>
+          <Text style={tw`text-sm mt-2`} numberOfLines={3} ellipsizeMode="tail">
+            {item.message}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -72,24 +101,33 @@ const MessageBoxScreen = () => {
 
   return (
     <View style={tw`flex-1 bg-gray-100`}>
-      <View style={tw`flex-row justify-around bg-green-600 p-3`}>
+      <View style={tw`flex-row justify-around bg-[#60B876] p-3`}>
         <TouchableOpacity
           style={filter === 'all' ? tw`border-b-2 border-white` : tw`opacity-70`}
           onPress={() => setFilter('all')}
         >
-          <Text style={[styles.globalText, tw`text-white text-lg`]}>ทั้งหมด</Text>
+          <View style={tw`flex-row items-center`}>
+            <Icon name="filter-variant" size={20} color="white" style={tw`mr-2`} />
+            <Text style={[styles.globalText, tw`text-white text-lg`]}>ทั้งหมด</Text>
+          </View>
         </TouchableOpacity>
         <TouchableOpacity
           style={filter === 'discount' ? tw`border-b-2 border-white` : tw`opacity-70`}
           onPress={() => setFilter('discount')}
         >
-          <Text style={[styles.globalText, tw`text-white text-lg`]}>คูปองส่วนลด</Text>
+          <View style={tw`flex-row items-center`}>
+            <Icon name="tag" size={20} color="white" style={tw`mr-2`} />
+            <Text style={[styles.globalText, tw`text-white text-lg`]}>คูปองส่วนลด</Text>
+          </View>
         </TouchableOpacity>
         <TouchableOpacity
           style={filter === 'news' ? tw`border-b-2 border-white` : tw`opacity-70`}
           onPress={() => setFilter('news')}
         >
-          <Text style={[styles.globalText, tw`text-white text-lg`]}>ข่าวสาร</Text>
+          <View style={tw`flex-row items-center`}>
+            <Icon name="newspaper" size={20} color="white" style={tw`mr-2`} />
+            <Text style={[styles.globalText, tw`text-white text-lg`]}>ข่าวสาร</Text>
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -98,35 +136,57 @@ const MessageBoxScreen = () => {
           <ActivityIndicator color="#60B876" />
         ) : (
           <FlatList
-            data={filteredMessages}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={renderItem}
+          data={filteredMessages}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={tw`pb-15`}
           />
         )}
       </View>
 
       <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={closeModal}
-      >
-        <View style={tw`flex-1 justify-center items-center bg-gray-800 bg-opacity-50`}>
-          <View style={tw`w-11/12 bg-white p-5 rounded`}>
-            {selectedMessage && (
-              <>
-                <Text style={[styles.globalText, tw`text-2xl font-bold mb-3`]}>{selectedMessage.title}</Text>
-                <Text style={[styles.globalText, tw`text-lg mb-5`]}>{selectedMessage.message}</Text>
-                {selectedMessage.type === 'discount' && (
-                  <Text style={[styles.globalText, tw`text-lg mb-5 text-green-600`]}>โค้ดส่วนลด: {selectedMessage.discount_code}</Text>
-                )}
-                <Button title="Close" color={'#60B876'} onPress={closeModal} />
-              </>
-            )}
+  animationType="fade"
+  transparent={true}
+  visible={modalVisible}
+  onRequestClose={closeModal}
+>
+  <View style={tw`flex-1 justify-center items-center bg-gray-800 bg-opacity-50`}>
+    <View style={tw`w-11/12 bg-white p-5 rounded`}>
+      {selectedMessage && (
+        <>
+          <View style={tw`flex-row items-center mb-4`}>
+            <View
+              style={[
+                tw`items-center justify-center mr-3`,
+                {
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
+                  backgroundColor: selectedMessage.type === 'discount' ? '#fef3c7' : '#e0f2fe',
+                },
+              ]}
+            >
+              <Icon
+                name={selectedMessage.type === 'discount' ? 'tag' : 'newspaper'}
+                size={30}
+                color={selectedMessage.type === 'discount' ? '#f59e0b' : '#3b82f6'}
+              />
+            </View>
+            <Text style={[styles.globalText, tw`text-2xl font-bold`]}>{selectedMessage.title}</Text>
           </View>
-        </View>
-      </Modal>
+          <Text style={[styles.globalText, tw`text-lg mb-5`]}>{selectedMessage.message}</Text>
+          {selectedMessage.type === 'discount' && (
+            <Text style={[styles.globalText, tw`text-lg mb-5 text-green-600 font-bold`]}>
+              โค้ดส่วนลด: {selectedMessage.discount_code}
+            </Text>
+          )}
+          <Button title="Close" color={'#60B876'} onPress={closeModal} />
+        </>
+      )}
     </View>
+  </View>
+</Modal>
+</View>
   );
 };
 

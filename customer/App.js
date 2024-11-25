@@ -1,7 +1,6 @@
-// Customer
 import React, { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, View  } from "react-native";
 import { useFonts } from "expo-font";
 
 import { UserProvider } from "./UserContext";
@@ -37,18 +36,20 @@ import Bookmarklist from "./pages/addressPage/Bookmarklist";
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
+
+
 function HomeStack() {
   return (
     <Stack.Navigator
       screenOptions={{
         headerStyle: { backgroundColor: "#3DE183" },
         headerTintColor: "black",
+        headerTitleStyle: { fontFamily: "Mitr-Regular", fontSize: 18 },
         borderBottomWidth: 0,
         shadowOpacity: 0,
-        
       }}
     >
-      <Stack.Screen name="HomePage" component={Home} />
+      <Stack.Screen name="HomePage" component={Home} options={{ headerShown: false }} style={{ flex: 1}}/>
       <Stack.Screen name="Mapdetail" component={MapDetail} />
       <Stack.Screen
         name="MapPage"
@@ -66,7 +67,13 @@ function HomeStack() {
 
 function PaymentMethodsStack() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: "#3DE183" },
+        headerTintColor: "black",
+        headerTitleStyle: { fontFamily: "Mitr-Regular", fontSize: 18 },
+      }}
+    >
       <Stack.Screen
         name="PaymentMethodsList"
         component={PaymentMethodsListScreen}
@@ -83,13 +90,15 @@ function PaymentMethodsStack() {
 
 function UserProfileStack() {
   return (
-    <Stack.Navigator screenOptions={{
-      headerStyle: { backgroundColor: "#3DE183" },
-      headerTintColor: "black",
-      borderBottomWidth: 0,
-      shadowOpacity: 0,
-      fontSize: 16
-    }}>
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: "#3DE183" },
+        headerTintColor: "black",
+        headerTitleStyle: { fontFamily: "Mitr-Regular", fontSize: 18 },
+        borderBottomWidth: 0,
+        shadowOpacity: 0,
+      }}
+    >
       <Stack.Screen
         name="UserProfile"
         component={UserProfile}
@@ -103,12 +112,12 @@ function UserProfileStack() {
       <Stack.Screen
         name="userHistoryPage"
         component={HistoryPage}
-        options={{ title: "ประวัติการใช้บริการ" }}
+        options={{ title: "กลับ" }}
       />
       <Stack.Screen
         name="editProfile"
         component={EditProfile}
-        options={{ title: "แก้ไขข้อมูลผู้ใช้" }}
+        options={{ title: "แก้ไขข้อมูล" }}
       />
       <Stack.Screen
         name="addressPage"
@@ -118,13 +127,12 @@ function UserProfileStack() {
       <Stack.Screen
         name="addMapFav"
         component={Addmap}
-        options={{ title: "เพิ่มบุ๊คมาร์ก" }}
+        options={{ title: "เพิ่มบุ๊คมาร์ก" , headerShown: false}}
       />
       <Stack.Screen
         name="Bookmarklist"
         component={Bookmarklist}
         options={{ title: "Bookmark" }}
-
       />
     </Stack.Navigator>
   );
@@ -150,7 +158,7 @@ const AppContent = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [fontsLoaded] = useFonts({
-    "Mitr-Regular": require("./assets/fonts/Mitr-Regular.ttf"), // Ensure you have the font file
+    "Mitr-Regular": require("./assets/fonts/Mitr-Regular.ttf"),
   });
 
   if (!fontsLoaded) {
@@ -166,7 +174,6 @@ const AppContent = () => {
   };
 
   return (
-    
     <NavigationContainer>
       {isLoggedIn ? (
         <Tab.Navigator
@@ -178,14 +185,11 @@ const AppContent = () => {
                 case "Home":
                   iconName = "home";
                   break;
-                case "Map":
-                  iconName = "map";
-                  break;
                 case "ประวัติการใช้บริการ":
                   iconName = "history";
                   break;
-                case "การแจ้งเตือน":
-                  iconName = "bell";
+                case "กล่องข้อความ":
+                  iconName = "email";
                   break;
                 case "โปรไฟล์ผู้ใช้":
                   iconName = "account";
@@ -198,6 +202,7 @@ const AppContent = () => {
             },
             tabBarActiveTintColor: "#60B876",
             tabBarInactiveTintColor: "#555D65",
+            tabBarLabelStyle: { fontFamily: "Mitr-Regular", fontSize: 12 },
           })}
         >
           <Tab.Screen
@@ -211,9 +216,9 @@ const AppContent = () => {
             options={{ title: "ประวัติการใช้บริการ" }}
           />
           <Tab.Screen
-            name="การแจ้งเตือน"
+            name="กล่องข้อความ"
             component={MessageBoxScreen}
-            options={{ title: "การแจ้งเตือน" }}
+            options={{ title: "กล่องข้อความ" }}
           />
           <Tab.Screen
             name="โปรไฟล์ผู้ใช้"

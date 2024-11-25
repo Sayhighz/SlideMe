@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
 import tw from 'twrnc';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import EditPaymentMethodModal from './EditPaymentMethodModal';
 import { useIsFocused } from '@react-navigation/native';
 import { IP_ADDRESS } from "../../config";
@@ -20,10 +21,8 @@ const PaymentMethodsListScreen = ({ navigation }) => {
 
   const { userData } = useContext(UserContext);
 
-  // Hook to detect when the screen is focused
   const isFocused = useIsFocused();
 
-  // Define the translatePaymentType function
   const translatePaymentType = (type) => {
     const typeMap = {
       credit_card: 'บัตรเครดิต',
@@ -33,6 +32,17 @@ const PaymentMethodsListScreen = ({ navigation }) => {
       other: 'อื่นๆ',
     };
     return typeMap[type] || type;
+  };
+
+  const getPaymentIcon = (type) => {
+    const iconMap = {
+      credit_card: { icon: 'credit-card', color: '#007bff' },
+      debit_card: { icon: 'credit-card', color: '#28a745' },
+      paypal: { icon: 'paypal', color: '#003087' },
+      bank_transfer: { icon: 'university', color: '#6f42c1' },
+      other: { icon: 'question-circle', color: '#ffc107' },
+    };
+    return iconMap[type] || { icon: 'question-circle', color: '#6c757d' };
   };
 
   const fetchPaymentMethods = async () => {
@@ -90,28 +100,51 @@ const PaymentMethodsListScreen = ({ navigation }) => {
       )
     );
     closeModal();
-    fetchPaymentMethods(); // Refresh data after editing a payment method
+    fetchPaymentMethods();
   };
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => openModal(item)}>
-      <View style={tw`p-4 bg-white mb-2 rounded shadow`}>
-        <Text style={tw`text-lg font-bold`}>{translatePaymentType(item.payment_type)}</Text>
-        <Text style={tw`text-sm`}>{item.account_name}</Text>
-        <Text style={tw`text-sm`}>
-          บัญชี: {item.card_number ? `**** ${item.card_number}` : item.account_name || 'ไม่พบข้อมูล'}
-        </Text>
-        {item.expiration_date && (
-          <Text style={tw`text-sm`}>วันหมดอายุ: {item.expiration_date}</Text>
-        )}
-      </View>
-    </TouchableOpacity>
-  );
+  const renderItem = ({ item }) => {
+    const { icon, color } = getPaymentIcon(item.payment_type);
+
+    return (
+      <TouchableOpacity onPress={() => openModal(item)}>
+        <View style={tw`p-4 bg-white mb-2 rounded shadow flex-row items-center`}>
+          <View
+            style={[
+              tw`items-center justify-center mr-4`,
+              {
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: `${color}20`, // Light shade of the icon color
+              },
+            ]}
+          >
+            <Icon name={icon} size={20} color={color} />
+          </View>
+          <View>
+            <Text style={[tw`text-lg font-bold`, styles.customFont]}>
+              {translatePaymentType(item.payment_type)}
+            </Text>
+            <Text style={[tw`text-sm`, styles.customFont]}>{item.account_name}</Text>
+            <Text style={[tw`text-sm`, styles.customFont]}>
+              บัญชี: {item.card_number ? `**** ${item.card_number}` : 'ไม่พบข้อมูล'}
+            </Text>
+            {item.expiration_date && (
+              <Text style={[tw`text-sm`, styles.customFont]}>
+                วันหมดอายุ: {item.expiration_date}
+              </Text>
+            )}
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
       <View style={tw`flex-1 justify-center items-center`}>
-        <ActivityIndicator  color="#0000ff" />
+        <ActivityIndicator color="#0000ff" />
       </View>
     );
   }
@@ -133,10 +166,12 @@ const PaymentMethodsListScreen = ({ navigation }) => {
       />
 
       <TouchableOpacity
-        style={tw`bg-green-600 p-3 rounded mt-5`}
+        style={tw`bg-[#60B876] p-3 rounded mt-5`}
         onPress={() => navigation.navigate('AddPaymentMethod')}
       >
-        <Text style={tw`text-white text-center text-lg`}>เพิ่มช่องทางการชำระเงิน</Text>
+        <Text style={[tw`text-white text-center text-lg`, styles.customFont]}>
+          เพิ่มช่องทางการชำระเงิน
+        </Text>
       </TouchableOpacity>
 
       <EditPaymentMethodModal
@@ -157,5 +192,11 @@ const PaymentMethodsListScreen = ({ navigation }) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  customFont: {
+    fontFamily: 'Mitr-Regular',
+  },
+});
 
 export default PaymentMethodsListScreen;

@@ -53,11 +53,11 @@ const ChooseOffer = ({ navigation, route }) => {
   });
 
   const dataDropdown = [
-    { label: "1 km", value: "1000" },
-    { label: "5 km", value: "5000" },
-    { label: "10 km", value: "10000" },
-    { label: "20 km", value: "20000" },
-    { label: "30 km", value: "30000" },
+    { label: "1 กม.", value: "1000" },
+    { label: "5 กม.", value: "5000" },
+    { label: "10 กม.", value: "10000" },
+    { label: "20 กม.", value: "20000" },
+    { label: "30 กม.", value: "30000" },
   ];
 
   const animatedValue = useRef(new Animated.Value(0)).current;
@@ -385,7 +385,7 @@ const ChooseOffer = ({ navigation, route }) => {
                 latitude: originLocation.latitude,
                 longitude: originLocation.longitude,
               }}
-              title="Origin"
+              title="ต้นทาง"
               description={originLocation.name}
             >
               <MaterialIcons
@@ -401,7 +401,7 @@ const ChooseOffer = ({ navigation, route }) => {
                 latitude: destinationLocation.latitude,
                 longitude: destinationLocation.longitude,
               }}
-              title="Destination"
+              title="ปลายทาง"
               description={destinationLocation.name}
             >
               <MaterialIcons
@@ -525,7 +525,7 @@ const ChooseOffer = ({ navigation, route }) => {
                         {item.distance
                           ? (item.distance / 1000).toFixed(2)
                           : "-"}
-                        {" km"}
+                        {" กม."}
                       </Text>
                     </Text>
                     <Text style={tw`font-bold `}>
