@@ -12,6 +12,7 @@ const UserProfile = ({ navigation }) => {
   const [lastName, setLastName] = useState(userData.last_name || '');
   const [email, setEmail] = useState(userData.email || '');
   const [isModified, setIsModified] = useState(false);
+  const [profileBgColor, setProfileBgColor] = useState('');
 
   const formattedPhoneNumber = userData.phone_number?.startsWith('0')
     ? userData.phone_number.substring(1)
@@ -57,6 +58,14 @@ const UserProfile = ({ navigation }) => {
     }
   };
 
+  const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#FF8C33'];
+
+  useEffect(() => {
+    // Randomly select a color on component mount
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    setProfileBgColor(randomColor);
+  }, []); // Empty dependency array ensures this runs only once on mount
+
   const confirmSave = () => {
     Alert.alert(
       'ยืนยันการบันทึก',
@@ -82,8 +91,15 @@ const UserProfile = ({ navigation }) => {
         {/* Profile Picture */}
         <View style={tw`items-center mt-8`}>
           <TouchableOpacity
-            style={tw`w-32 h-32 bg-[#56a0d3] rounded-full items-center justify-center`}
-            onPress={() => {}}
+            style={[
+              tw`w-32 h-32 rounded-full items-center justify-center`,
+              { backgroundColor: profileBgColor },
+            ]}
+            onPress={() => {
+              // Optionally change color on press
+              const newColor = colors[Math.floor(Math.random() * colors.length)];
+              setProfileBgColor(newColor);
+            }}
           >
             <Ionicons name="person" size={70} color="white" />
           </TouchableOpacity>
@@ -130,7 +146,7 @@ const UserProfile = ({ navigation }) => {
           <Text style={tw`text-gray-600 font-bold mb-3`}>บัญชีอื่นที่เชื่อมต่อ</Text>
           <View style={tw`flex-row justify-between items-center mb-3`}>
             <Text>Facebook</Text>
-            <Switch value={false} onValueChange={() => {}} />
+            <Switch value={false} onValueChange={() => { }} />
           </View>
         </View>
 
