@@ -57,9 +57,9 @@ function HomeStack() {
       />
       <Stack.Screen name="Order" component={Order}  options={{ headerShown: false }}/>
       <Stack.Screen name="ChooseOffer" component={ChooseOffer} options={{ headerShown: false }}/>
-      <Stack.Screen name="payment" component={PaymentPage} />
-      <Stack.Screen name="viewOrder" component={ViewOrder} />
-      <Stack.Screen name="Rating" component={Rating} />
+      <Stack.Screen name="payment" component={PaymentPage}  options={{ headerShown: false }}/>
+      <Stack.Screen name="viewOrder" component={ViewOrder} options={{ headerShown: false }}/>
+      <Stack.Screen name="Rating" component={Rating} options={{ headerShown: false }}/>
     </Stack.Navigator>
   );
 }

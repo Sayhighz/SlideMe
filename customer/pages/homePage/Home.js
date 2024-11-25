@@ -61,11 +61,11 @@ function Home({ navigation }) {
       <View style={[tw`flex-1 items-center justify-center `]}>
         {/* Main Content */}
         <View style={tw`flex-1 w-full items-center mt-5`}>
-          <Text style={[styles.globalText,tw`text-left text-sm mb-[-20px] mt-5 flex-1 font-bold text-gray-500`]}>
+          <Text style={[styles.globalText,tw`text-left text-sm mb-[-20px] mt-5  flex-1 font-bold text-gray-500`]}>
             สวัสดี
           </Text>
     
-          <Text style={[styles.globalText,tw`flex-1 text-2xl font-bold mb-4 text-[#60B876]`]}>
+          <Text style={[styles.globalText,tw`flex-1 text-2xl font-bold mt-2 mb-4 text-[#60B876]`]}>
             {userData?.first_name || userData?.phone_number}!
           </Text>
           <View style={tw`flex-5 justify-center shadow-xl`}>

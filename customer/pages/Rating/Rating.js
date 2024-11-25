@@ -137,20 +137,26 @@ const Rating = ({ navigation }) => {
   };
 
   return (
-    <View style={tw`flex-1 p-4 items-center`}>
+    <View style={tw`flex-1 p-4 items-center mt-15`}>
       <Text style={tw`text-2xl mb-2 mt-2 text-center`}>Rate and Review</Text>
       <View
         style={[
           tw`flex bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md `,
         ]}
       >
+        
+
         <Text style={styles.globalText}>{`คนขับ: ${truncateText(
           serviceData.first_name
         )} ${truncateText(serviceData.last_name)}`}</Text>
-        <Text style={styles.globalText}>
+        <View style={tw`flex-row items-center`}> 
+          
+        <Text style={[styles.globalText]} >
           {`คะแนน: ${serviceData.average_rating?.toFixed(1)}`}
-          <MaterialIcons name="star" size={17} color="orange" />
         </Text>
+          <MaterialIcons name="star" size={17} color="orange"/>
+        </View>
+        
         <Text style={styles.globalText}>
           {`ราคา: ${serviceData.price}`} บาท
         </Text>
