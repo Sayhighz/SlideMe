@@ -6,7 +6,7 @@ import tw from 'twrnc';
 import { UserContext } from '../../UserContext';
 import { IP_ADDRESS } from '../../config';
 
-const UserProfile = ({ navigation }) => {
+const UserProfile = ({ navigation,onLogout }) => {
   const { userData, setUserData } = useContext(UserContext);
   const [firstName, setFirstName] = useState(userData.first_name || '');
   const [lastName, setLastName] = useState(userData.last_name || '');
@@ -89,7 +89,7 @@ const UserProfile = ({ navigation }) => {
           <Text style={tw`text-white font-bold`}>บันทึก</Text>
         </TouchableOpacity>
         {/* Profile Picture */}
-        <View style={tw`items-center mt-8`}>
+        <View style={tw`items-center mt-5`}>
           <TouchableOpacity
             style={[
               tw`w-32 h-32 rounded-full items-center justify-center`,
@@ -166,7 +166,7 @@ const UserProfile = ({ navigation }) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={tw`bg-red-500 py-3 rounded-lg`}
-            onPress={() => navigation.navigate('HistoryPage')}
+            onPress={onLogout}
           >
             <Text style={tw`text-white text-center font-bold`}>ออกจากระบบ</Text>
           </TouchableOpacity>

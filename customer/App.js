@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { ActivityIndicator, View  } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { useFonts } from "expo-font";
 
+import { UserContext } from '../customer/UserContext';
 import { UserProvider } from "./UserContext";
 import {
   BorderlessButton,
@@ -49,7 +50,7 @@ function HomeStack() {
         shadowOpacity: 0,
       }}
     >
-      <Stack.Screen name="HomePage" component={Home} options={{ headerShown: false }} style={{ flex: 1}}/>
+      <Stack.Screen name="HomePage" component={Home} options={{ headerShown: false }} style={{ flex: 1 }} />
       <Stack.Screen name="Mapdetail" component={MapDetail} />
       <Stack.Screen
         name="MapPage"
@@ -88,7 +89,12 @@ function PaymentMethodsStack() {
   );
 }
 
-function UserProfileStack() {
+const UserProfileTab = ({ onLogout }) => {
+  return <UserProfileStack onLogout={onLogout} />;
+};
+
+
+function UserProfileStack({ onLogout }) {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -99,11 +105,14 @@ function UserProfileStack() {
         shadowOpacity: 0,
       }}
     >
-      <Stack.Screen
+        <Stack.Screen
         name="UserProfile"
-        component={UserProfile}
-        options={{ title: "โปรไฟล์ผู้ใช้" }}
-      />
+        options={{
+          title: "โปรไฟล์ผู้ใช้",
+        }}
+      >
+        {() => <UserProfile onLogout={onLogout} />}
+      </Stack.Screen>
       <Stack.Screen
         name="PaymentMethodsStack"
         component={PaymentMethodsStack}
@@ -127,7 +136,7 @@ function UserProfileStack() {
       <Stack.Screen
         name="addMapFav"
         component={Addmap}
-        options={{ title: "เพิ่มบุ๊คมาร์ก" , headerShown: false}}
+        options={{ title: "เพิ่มบุ๊คมาร์ก", headerShown: false }}
       />
       <Stack.Screen
         name="Bookmarklist"
@@ -154,8 +163,10 @@ function AuthStack({ onLogin }) {
   );
 }
 
+
 const AppContent = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { clearUserData } = useContext(UserContext);
 
   const [fontsLoaded] = useFonts({
     "Mitr-Regular": require("./assets/fonts/Mitr-Regular.ttf"),
@@ -168,6 +179,11 @@ const AppContent = () => {
       </View>
     );
   }
+  const handleLogout = () => {
+    clearUserData(); // Clear user data
+    setIsLoggedIn(false); // Set login state to false
+    console.log("User logged out successfully"); // Debugging log
+  };
 
   const handleLogin = () => {
     setIsLoggedIn(true);
@@ -222,9 +238,11 @@ const AppContent = () => {
           />
           <Tab.Screen
             name="โปรไฟล์ผู้ใช้"
-            component={UserProfileStack}
             options={{ headerShown: false }}
-          />
+          >
+            {() => <UserProfileTab onLogout={handleLogout} />}
+          </Tab.Screen>
+
         </Tab.Navigator>
       ) : (
         <AuthStack onLogin={handleLogin} />
