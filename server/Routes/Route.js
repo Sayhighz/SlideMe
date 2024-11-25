@@ -23,32 +23,33 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  // ให้ผู้ใช้เข้าห้อง
-  socket.on("joinRoom", (roomName) => {
-    socket.join(roomName);
-    console.log(`User ${socket.id} joined room: ${roomName}`);
+  // Handle joining a room
+  socket.on("joinRoom", (room_id) => {
+    if (room_id) {
+      socket.join(room_id); // Join the specified room
+      console.log(`User ${socket.id} joined room: ${room_id}`);
+    } else {
+      console.error("Room ID is undefined or missing.");
+    }
   });
 
-  // รับข้อความจาก Client
-  socket.on("sendMessage", (data) => {
-    const { roomName, message } = data;
-    console.log(`Message received in room ${roomName}:`, message);
-
-    // ส่งข้อความกลับไปยังทุกคนในห้อง
-    io.to(roomName).emit("receiveMessage", { message, sender: socket.id });
+  // Handle receiving a message
+  socket.on("sendMessage", ({ room_id, message }) => {
+    if (room_id) {
+      console.log(`Message received in room ${room_id}: ${message}`);
+      // Broadcast message to everyone in the room except the sender
+      io.to(room_id).emit("receiveMessage", { message, sender: "other" });
+    } else {
+      console.error("Room ID is undefined or missing when sending a message.");
+    }
   });
 
-  // เมื่อผู้ใช้ตัดการเชื่อมต่อ
+  // Handle user disconnect
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });
 });
 
-// เริ่มเซิร์ฟเวอร์
-const PORT = 4000;
-server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
 
 // Configure multer storage settings
 const storage = multer.diskStorage({
