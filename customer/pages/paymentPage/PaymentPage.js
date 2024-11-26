@@ -5,6 +5,7 @@ import {
   Text,
   View,
   StyleSheet,
+  Alert,
 } from "react-native";
 import React, { useEffect, useState, useContext } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -44,7 +45,7 @@ export default function PaymentPage({ navigation }) {
 
   useEffect(() => {
     setTotalPrice(driverPrice + feePrice - discount);
-  }, [driverPrice, discount]);
+  }, [driverPrice, discount, paymentMethods]);
 
   useEffect(() => {
     const fetchPaymentMethods = async () => {
@@ -59,7 +60,7 @@ export default function PaymentPage({ navigation }) {
     };
 
     fetchPaymentMethods();
-  }, []);
+  }, [tabIndex]);
 
   const updateData = async () => {
     console.log("updateData", route.params);
@@ -98,10 +99,9 @@ export default function PaymentPage({ navigation }) {
           price: totalPrice,
         }
       );
-
       navigation.navigate("viewOrder", { driverProfile: route.params });
-
       if (response.data.Status) {
+  
         console.log(
           "Service request updated successfully:",
           response.data.Message
@@ -211,10 +211,13 @@ export default function PaymentPage({ navigation }) {
                   </View>
 
                   <View style={tw`flex-5`}>
-                    <Text style={[styles.globalText,tw`text-lg font-bold`]}>
+                    <Text style={[styles.globalText, tw`text-lg font-bold`]}>
                       {item.account_name}
                     </Text>
-                    <Text style={tw`text-sm mt-2`}>{"**** "}{item.card_number}</Text>
+                    <Text style={tw`text-sm mt-2`}>
+                      {"**** "}
+                      {item.card_number}
+                    </Text>
                   </View>
                 </Pressable>
               );
@@ -222,11 +225,12 @@ export default function PaymentPage({ navigation }) {
           />
         )}
         {tabIndex === 0 && (
-          <Pressable
+          <TouchableOpacity
             style={tw`flex-1 items-center h-full justify-center border-2 mx-4 border-dashed rounded-lg mt-4`}
+            onPress={() => navigation.navigate("AddMethod")}
           >
             <Text>เพิ่มวิธีการชำระเงิน</Text>
-          </Pressable>
+          </TouchableOpacity>
         )}
         {tabIndex === 1 && (
           <View style={tw`flex-4 mx-4 mb-4`}>
@@ -284,7 +288,7 @@ export default function PaymentPage({ navigation }) {
         </View>
         {tabIndex === 0 ? (
           <View style={tw`flex-1 justify-center items-center`}>
-            <Pressable
+            <TouchableOpacity
               style={tw`justify-center w-1/2 h-2/3 items-center border-2 rounded-lg bg-[#60B876] border-[#60B876]`}
               onPress={() => {
                 if (choosePaymentMethod !== "") {
@@ -293,7 +297,7 @@ export default function PaymentPage({ navigation }) {
               }}
             >
               <Text>จ่ายเงิน</Text>
-            </Pressable>
+            </TouchableOpacity>
           </View>
         ) : (
           <View style={tw`flex-1`}></View>

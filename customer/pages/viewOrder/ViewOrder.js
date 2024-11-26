@@ -394,13 +394,6 @@ export default function ViewOrder({ navigation }) {
             <View style={tw`flex-1 justify-center items-center`}>
               <Pressable
                 style={tw`flex-1 bg-gray-300 justify-center rounded-lg items-center w-1/3`}
-                onPress={() => {
-                  navigation.navigate("Rating", {
-                    requestId: request_id,
-                    driverId: driver_id,
-                    customer_id_request: customer_id_request,
-                  });
-                }}
               >
                 <MaterialIcons name="close" size={24} color="red" />
                 <Text styles={[styles.globalText, tw`text-xl`]}>ยกเลิก</Text>

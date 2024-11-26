@@ -51,7 +51,7 @@ const UserProfile = ({ navigation, onLogout }) => {
 
       const result = await response.json();
       if (result.Status) {
-        setUserData({ ...userData, first_name: firstName, last_name: lastName, email });
+        setUserData({ ...userData, first_name: firstName, last_name: lastName, email  ,  phone_number: userData.phone_number});
         Alert.alert('Success', 'บันทึกข้อมูลสำเร็จ');
       } else {
         Alert.alert('Error', result.Error || 'ไม่สามารถบันทึกข้อมูลได้');
@@ -107,8 +107,8 @@ const UserProfile = ({ navigation, onLogout }) => {
         <View style={tw`mx-5`}>
           {/* <Text style={tw`text-gray-600 font-bold text-lg text-center`}></Text> */}
           <View style={tw`flex-row items-center p-3 mb-3 justify-center`}>
-            <Text style={tw`text-black text-lg mr-2 font-bold `}>{firstName || 'ไม่ระบุ'}</Text>
-            <Text style={tw`text-black text-lg font-bold`}>{lastName || 'ไม่ระบุ'}</Text>
+            <Text style={tw`text-black text-lg mr-2 font-bold `}>{firstName || userData.phone_number || ''}</Text>
+            <Text style={tw`text-black text-lg font-bold`}>{lastName || ''}</Text>
           </View>
 
         </View>

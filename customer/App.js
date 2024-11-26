@@ -34,6 +34,7 @@ import ChooseOffer from "./pages/chooseOffer/ChooseOffer";
 import Addmap from "./pages/addressPage/bookmap/Bookmap";
 import Bookmarklist from "./pages/addressPage/Bookmarklist";
 import ChatScreen from "./pages/chat/ChatScreen";
+import AddMethod from "./pages/paymentPage/AddMethod";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -60,8 +61,10 @@ function HomeStack() {
       <Stack.Screen name="ChatScreen" component={ChatScreen} options={{ headerShown: false }}/>
       <Stack.Screen name="ChooseOffer" component={ChooseOffer} options={{ headerShown: false }}/>
       <Stack.Screen name="payment" component={PaymentPage}  options={{ headerShown: false }}/>
+      <Stack.Screen name="AddMethod" component={AddMethod} options={{ headerShown: false }}/>
       <Stack.Screen name="viewOrder" component={ViewOrder} options={{ headerShown: false }}/>
       <Stack.Screen name="Rating" component={Rating} options={{ headerShown: false }}/>
+
     </Stack.Navigator>
   );
 }

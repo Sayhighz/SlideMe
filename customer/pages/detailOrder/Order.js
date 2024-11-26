@@ -650,7 +650,7 @@ export default function Order({ navigation, bookmark }) {
                       }
                       style={tw`bg-red-500 rounded-lg px-4 py-2`}
                     >
-                      <Text style={[styles.globalText,tw`text-white w-10 text-center`]}>{preMoreDetail ? "ล้างข้อมูล" : "ปิด"}</Text>
+                      <Text style={[styles.globalText,tw`text-white w-10 text-center`]}>{preMoreDetail ? "ลบ" : "ปิด"}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
