@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -7,69 +7,73 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   StyleSheet,
+  Animated,
 } from "react-native";
 import io from "socket.io-client";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
-import Icon from "react-native-vector-icons/MaterialCommunityIcons"; // Icon library
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 
 const socket = io(`http://${IP_ADDRESS}:4000`);
 
 export default function ChatScreen({ route }) {
-  const { room_id } = route.params; // รับ room_id จาก Screen อื่น
+  const { room_id } = route.params;
+  const user_id = "customer"; // Current user ID
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [atBottom, setAtBottom] = useState(true); // Check if user is at the bottom
+  const [newMessage, setNewMessage] = useState(false); // Show new message indicator
   const navigation = useNavigation();
+  const flatListRef = useRef(null); // Ref for FlatList
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Animation for new message notification
 
-  // Key สำหรับจัดเก็บข้อความใน AsyncStorage
+  // Key for AsyncStorage
   const storageKey = `chat_messages_${room_id}`;
 
   useEffect(() => {
-    // เข้าร่วมห้องเมื่อ Component Mount
-    socket.emit("joinRoom", room_id);
+    // Join room on component mount
+    socket.emit("joinRoom", { room_id, user_id });
 
-    // รับข้อความจากเซิร์ฟเวอร์
+    // Listen for incoming messages
     socket.on("receiveMessage", (data) => {
-      const newMessage = data.message;
       setMessages((prevMessages) => {
         const updatedMessages = [...prevMessages, data];
-        saveMessagesToStorage(updatedMessages); // บันทึกข้อความลง AsyncStorage
+        saveMessagesToStorage(updatedMessages); // Save to AsyncStorage
         return updatedMessages;
       });
+
+      // Show "new message" animation if not at bottom
+      if (!atBottom) {
+        setNewMessage(true);
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+      }
     });
 
-    // โหลดข้อความจาก AsyncStorage
+    // Load messages from AsyncStorage
     loadMessagesFromStorage();
 
     return () => {
-      socket.off("receiveMessage");
+      socket.off("receiveMessage"); // Clean up listener
     };
-  }, [room_id]);
+  }, [room_id, user_id, atBottom]);
 
   const sendMessage = () => {
     if (message.trim()) {
-      const newMessage = {
-        sender: "self",
-        message,
-      };
+      // Emit the message to the server
+      socket.emit("sendMessage", { room_id, user_id, message });
 
-      // ส่งข้อความไปยังเซิร์ฟเวอร์
-      socket.emit("sendMessage", { room_id, message });
-
-      // เพิ่มข้อความของตัวเองลงใน state และ AsyncStorage
-      setMessages((prevMessages) => {
-        const updatedMessages = [...prevMessages, newMessage];
-        saveMessagesToStorage(updatedMessages); // บันทึกข้อความลง AsyncStorage
-        return updatedMessages;
-      });
-
-      setMessage(""); // เคลียร์ข้อความในช่อง Input
+      // Clear input field
+      setMessage("");
     }
   };
 
-  // บันทึกข้อความลง AsyncStorage
+  // Save messages to AsyncStorage
   const saveMessagesToStorage = async (messages) => {
     try {
       await AsyncStorage.setItem(storageKey, JSON.stringify(messages));
@@ -78,7 +82,7 @@ export default function ChatScreen({ route }) {
     }
   };
 
-  // โหลดข้อความจาก AsyncStorage
+  // Load messages from AsyncStorage
   const loadMessagesFromStorage = async () => {
     try {
       const cachedMessages = await AsyncStorage.getItem(storageKey);
@@ -90,64 +94,110 @@ export default function ChatScreen({ route }) {
     }
   };
 
+  const handleScroll = (event) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const bottom =
+      layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
+
+    setAtBottom(bottom);
+    if (bottom) {
+      setNewMessage(false); // Hide new message indicator when at bottom
+    }
+  };
+
+  const scrollToBottom = () => {
+    flatListRef.current?.scrollToEnd({ animated: true });
+    setAtBottom(true);
+    setNewMessage(false);
+  };
+
   return (
     <KeyboardAvoidingView style={tw`flex-1 bg-[#f5f7fa]`} behavior="padding">
+      {/* Header */}
       <View style={tw`p-4 pt-10 flex-row items-center`}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} color="black" />
         </TouchableOpacity>
-        <Text style={tw`text-2xl font-bold ml-4`}>ติดต่อลูกค้า</Text>
+        <Text style={[styles.globalText, tw`text-2xl font-bold ml-4`]}>แชทกับคนขับ</Text>
       </View>
-    {/* Message List */}
-    <FlatList
-      data={messages}
-      renderItem={({ item }) => (
-        <View
-          style={[
-            tw`m-2 rounded-xl max-w-3/4 px-4 py-3 shadow-sm`,
-            item.sender === "self"
-              ? tw`bg-[#60B876] self-end`
-              : tw`bg-white self-start border border-gray-200`,
-          ]}
-        >
-          <Text
+
+      {/* Message List */}
+      <FlatList
+        data={messages}
+        ref={flatListRef} // Ref for scrolling
+        onScroll={handleScroll} // Handle scroll events
+        renderItem={({ item }) => (
+          <View
             style={[
-                [styles.globalText,tw`text-sm`],
-              item.sender === "self" ? tw`text-white` : tw`text-gray-700`,
+              tw`m-2 rounded-xl max-w-3/4 px-4 py-3 shadow-sm`,
+              item.sender === user_id
+                ? tw`bg-[#60B876] self-end`
+                : tw`bg-white self-start border border-gray-200`,
             ]}
           >
-            {item.message}
-          </Text>
-        </View>
-      )}
-      keyExtractor={(item, index) => index.toString()}
-      style={tw`flex-1 px-4`}
-      contentContainerStyle={tw`py-2`}
-    />
-
-    {/* Input and Action Buttons */}
-    <View style={tw`flex-row items-center p-3 bg-white border-t border-gray-200`}>
-
-      {/* Input */}
-      <TextInput
-        style={[styles.globalText,tw`flex-1 bg-gray-100 px-4 py-3 mx-2 rounded-full border border-gray-300`]}
-        value={message}
-        onChangeText={setMessage}
-        placeholder="พิมพ์ข้อความ..."
-        placeholderTextColor="#999"
+            <Text
+              style={[
+                styles.globalText,
+                tw`text-sm`,
+                item.sender === user_id ? tw`text-white` : tw`text-gray-700`,
+              ]}
+            >
+              {item.message}
+            </Text>
+          </View>
+        )}
+        keyExtractor={(item, index) => index.toString()}
+        style={tw`flex-1 px-4`}
+        contentContainerStyle={tw`py-2`}
       />
 
-      {/* Send Icon */}
-      <TouchableOpacity style={tw`p-3 bg-[#60B876] rounded-full`} onPress={sendMessage}>
-        <Icon name="send" size={24} color="#fff" />
-      </TouchableOpacity>
-    </View>
-  </KeyboardAvoidingView>
+      {/* New Message Notification */}
+      {newMessage && !atBottom && (
+        <Animated.View
+          style={[
+            tw`absolute bottom-23  left-33 bg-red-600 px-4 py-2 rounded-full`,
+            { opacity: fadeAnim },
+          ]}
+        >
+          <Text style={[styles.globalText, tw`text-white text-sm`]}>ข้อความใหม่!</Text>
+        </Animated.View>
+      )}
+
+      {/* Scroll to Bottom Icon */}
+      {!atBottom && (
+        <TouchableOpacity
+          style={tw`absolute bottom-20 right-4 bg-gray-700 p-3 rounded-full`}
+          onPress={scrollToBottom}
+        >
+          <Icon name="chevron-down" size={24} color="#fff" />
+        </TouchableOpacity>
+      )}
+
+      {/* Input and Action Buttons */}
+      <View style={tw`flex-row items-center p-3 bg-white border-t border-gray-200`}>
+        {/* Input */}
+        <TextInput
+          style={[
+            styles.globalText,
+            tw`flex-1 bg-gray-100 px-4 py-3 mx-2 rounded-full border border-gray-300`,
+          ]}
+          value={message}
+          onChangeText={setMessage}
+          placeholder="พิมพ์ข้อความ..."
+          placeholderTextColor="#999"
+        />
+
+        {/* Send Icon */}
+        <TouchableOpacity style={tw`p-3 bg-[#60B876] rounded-full`} onPress={sendMessage}>
+          <Icon name="send" size={24} color="#fff" />
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-    globalText: {
-      fontFamily: "Mitr-Regular",
-    },
-  });
+  globalText: {
+    fontFamily: "Mitr-Regular",
+  },
+});

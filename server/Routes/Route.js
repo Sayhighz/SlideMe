@@ -3,51 +3,58 @@ import con from "../utils/db.js";
 import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
-import fs from "fs"; // Added fs import
+import fs from "fs";
 import http from "http";
-import { Server } from 'socket.io';
+import { Server } from "socket.io";
 
-
-const router = express.Router();
+const router = express.Router(); // Changed from `router` to `app`
 const uploadsDir = path.resolve("uploads");
 router.use("/uploads", express.static(uploadsDir));
 
+// Create HTTP server and Socket.IO instance
 const server = http.createServer(router);
 const io = new Server(server, {
   cors: {
-    origin: "*", // ปรับตามความต้องการ
+    origin: "http://localhost:4000", // Adjust based on frontend domain
     methods: ["GET", "POST"],
   },
 });
 
+// Socket.IO logic for handling rooms, users, and messages
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  // Handle joining a room
-  socket.on("joinRoom", (room_id) => {
-    if (room_id) {
-      socket.join(room_id); // Join the specified room
-      console.log(`User ${socket.id} joined room: ${room_id}`);
+  // Event for joining a specific room with user_id
+  socket.on("joinRoom", ({ room_id, user_id }) => {
+    if (room_id && user_id) {
+      socket.join(room_id); // User joins the specified room
+      console.log(`User ${user_id} (Socket ID: ${socket.id}) joined room: ${room_id}`);
     } else {
-      console.error("Room ID is undefined or missing.");
+      console.error("Room ID or User ID is undefined or missing.");
     }
   });
 
-  // Handle receiving a message
-  socket.on("sendMessage", ({ room_id, message }) => {
-    if (room_id) {
-      console.log(`Message received in room ${room_id}: ${message}`);
-      // Broadcast message to everyone in the room except the sender
-      io.to(room_id).emit("receiveMessage", { message, sender: "other" });
+  // Event for sending a message to a specific room
+  socket.on("sendMessage", ({ room_id, user_id, message }) => {
+    if (room_id && user_id && message) {
+      console.log(`Message from User ${user_id} in room ${room_id}: ${message}`);
+      // Emit the message to all users in the room
+      io.to(room_id).emit("receiveMessage", { message, sender: user_id });
     } else {
-      console.error("Room ID is undefined or missing when sending a message.");
+      console.error("Room ID, User ID, or message is undefined or missing.");
     }
   });
 
-  // Handle user disconnect
+  // Event for user disconnection
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });
+});
+
+// Start the server
+const PORT = 4000; // Define the port
+server.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
 
 
