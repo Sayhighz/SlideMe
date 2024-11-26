@@ -250,7 +250,7 @@ export default function Order({ navigation, bookmark }) {
                 ]}
               >
                 <Text style={tw`text-white text-lg font-semibold text-center`}>
-                  ยันยีน
+                  ยืนยัน
                 </Text>
               </TouchableOpacity>
             </View>

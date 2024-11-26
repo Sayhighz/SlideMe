@@ -101,6 +101,7 @@ export default function PaymentPage({ navigation }) {
         }
       );
       navigation.navigate("viewOrder", { driverProfile: route.params });
+      setOpenModal(false);
       if (response.data.Status) {
   
         console.log(
@@ -119,30 +120,24 @@ export default function PaymentPage({ navigation }) {
     <SafeAreaView style={tw`flex-1 relative`}>
       <Modal visible={openModal} transparent={true}>
         <View style={[{backgroundColor: "rgba(0, 0, 0, 0.5)"} , tw`flex-1 justify-center items-center`]}>
-          <View style={tw`bg-white shadow flex rounded-lg p-3 h-40 w-2/4`}>
+          <View style={tw`bg-white shadow flex rounded-lg p-3 h-40 w-5/7`}>
             <View style={tw`flex-1 items-center justify-center`}>
               <Text style={[styles.globalText,tw`text-sm font-bold`]}>
-                คุณต้องการชำระด้วย {choosePaymentMethod.payment_type}
-              </Text>
-              <Text style={[styles.globalText,tw`text-sm font-bold`]}>
-                ชื่อ : {choosePaymentMethod.account_name}
-              </Text>
-              <Text style={[styles.globalText,tw`text-sm font-bold`]}>
-                เลขบัตร : {choosePaymentMethod.card_number}
+                คุณยืนยันการชำระเงินครั้งนี้ใช่หรือไม่
               </Text>
             </View>
             <View style={tw`flex-row flex-1 items-center justify-around`}>
               <TouchableOpacity
-                style={tw`p-2 bg-red-500 rounded-lg`}
+                style={tw`p-2 bg-red-500 rounded-lg w-15 `}
                 onPress={() => setOpenModal(false)}
               >
-                <Text style={[styles.globalText,tw`text-white`]}>ยกเลิก</Text>
+                <Text style={[styles.globalText,tw`text-white text-center`]}>ยกเลิก</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={tw`p-2 bg-green-500 rounded-lg`}
+                style={tw`p-2 bg-green-500 rounded-lg w-15`}
                 onPress={() => updateData()}
               >
-                <Text style={[styles.globalText,tw`text-white`]}>ยืนยัน</Text>
+                <Text style={[styles.globalText,tw`text-white text-center`]}>ยืนยัน</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -294,7 +289,11 @@ export default function PaymentPage({ navigation }) {
             </View>
             <View style={tw`flex-row justify-between`}>
               <Text style={styles.globalText}>ค่าธรรมเนียม</Text>
-              <Text style={[styles.globalText, tw`font-bold text-[#E33F3F]`]}>{feePrice}</Text> บาท
+              <Text style={styles.globalText}>
+
+              <Text style={[styles.globalText, tw`font-bold text-[#E33F3F]`]}>{feePrice}</Text> 
+              {" "}บาท
+              </Text>
             </View>
             <View style={tw`flex-row justify-between`}>
               <Text style={styles.globalText}>ส่วนลด</Text>
@@ -302,7 +301,7 @@ export default function PaymentPage({ navigation }) {
                 <Text style={tw`font-bold text-[#60B876]`}>
                   {discount === 0 ? "0" : discount}
                 </Text>{" "}
-                บาท
+              บาท
               </Text>
             </View>
           </View>
