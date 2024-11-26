@@ -3,11 +3,60 @@ import con from "../utils/db.js";
 import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
-import fs from "fs"; // Added fs import
+import fs from "fs";
+import http from "http";
+import { Server } from "socket.io";
 
-const router = express.Router();
+const router = express.Router(); // Changed from `router` to `app`
 const uploadsDir = path.resolve("uploads");
 router.use("/uploads", express.static(uploadsDir));
+
+// Create HTTP server and Socket.IO instance
+const server = http.createServer(router);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:4000", // Adjust based on frontend domain
+    methods: ["GET", "POST"],
+  },
+});
+
+// Socket.IO logic for handling rooms, users, and messages
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  // Event for joining a specific room with user_id
+  socket.on("joinRoom", ({ room_id, user_id }) => {
+    if (room_id && user_id) {
+      socket.join(room_id); // User joins the specified room
+      console.log(`User ${user_id} (Socket ID: ${socket.id}) joined room: ${room_id}`);
+    } else {
+      console.error("Room ID or User ID is undefined or missing.");
+    }
+  });
+
+  // Event for sending a message to a specific room
+  socket.on("sendMessage", ({ room_id, user_id, message }) => {
+    if (room_id && user_id && message) {
+      console.log(`Message from User ${user_id} in room ${room_id}: ${message}`);
+      // Emit the message to all users in the room
+      io.to(room_id).emit("receiveMessage", { message, sender: user_id });
+    } else {
+      console.error("Room ID, User ID, or message is undefined or missing.");
+    }
+  });
+
+  // Event for user disconnection
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
+
+// Start the server
+const PORT = 4000; // Define the port
+server.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
+
 
 // Configure multer storage settings
 const storage = multer.diskStorage({
@@ -699,7 +748,7 @@ router.post("/cancle_offer", (req, res) => {
 });
 
 router.get("/getRequestDetailForDriver", (req, res) => {
-  const request_id = req.query.request_id || 0;
+  const request_id = req.query.request_id || null;
 
   const sql = `
 SELECT DISTINCT
@@ -707,6 +756,7 @@ SELECT DISTINCT
     s.pickup_lat,
     s.pickup_long,
     s.location_from,
+    s.customer_message,
     s.dropoff_lat,
     s.dropoff_long,
     s.location_to,

@@ -33,6 +33,7 @@ import AddressPage from "./pages/addressPage/addressPage";
 import ChooseOffer from "./pages/chooseOffer/ChooseOffer";
 import Addmap from "./pages/addressPage/bookmap/Bookmap";
 import Bookmarklist from "./pages/addressPage/Bookmarklist";
+import ChatScreen from "./pages/chat/ChatScreen";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -56,6 +57,7 @@ function HomeStack() {
         options={{ headerShown: false }}
       />
       <Stack.Screen name="Order" component={Order}  options={{ headerShown: false }}/>
+      <Stack.Screen name="ChatScreen" component={ChatScreen} options={{ headerShown: false }}/>
       <Stack.Screen name="ChooseOffer" component={ChooseOffer} options={{ headerShown: false }}/>
       <Stack.Screen name="payment" component={PaymentPage}  options={{ headerShown: false }}/>
       <Stack.Screen name="viewOrder" component={ViewOrder} options={{ headerShown: false }}/>

@@ -4,15 +4,16 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
+  Alert,
 } from "react-native";
 import tw from "twrnc";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { IP_ADDRESS } from "../../config";
+import ConfirmationDialog from "../../componnets/ConfirmationDialog";
 
 export default function JobDetailScreen({ route, navigation }) {
   // Destructure route parameters
@@ -22,6 +23,7 @@ export default function JobDetailScreen({ route, navigation }) {
 
   // State for the offered price
   const [offeredPrice, setOfferedPrice] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   // Handle submitting the offer price
   const handleOfferSubmit = async () => {
@@ -48,7 +50,6 @@ export default function JobDetailScreen({ route, navigation }) {
 
       const result = await response.json();
       if (response.ok) {
-        Alert.alert("สำเร็จ", "เสนอราคาสำเร็จ");
         navigation.navigate("HomeMain");
       } else {
         Alert.alert("ข้อผิดพลาด", result.message || "เสนอราคาไม่สำเร็จ");
@@ -69,6 +70,15 @@ export default function JobDetailScreen({ route, navigation }) {
   const handlePriceChange = (text) => {
     const formattedText = formatNumberWithCommas(text);
     setOfferedPrice(formattedText);
+  };
+
+  // Show confirmation modal
+  const confirmOfferSubmit = () => {
+    if (!offeredPrice) {
+      Alert.alert("ข้อผิดพลาด", "โปรดกรอกราคาที่ต้องการ");
+      return;
+    }
+    setIsModalVisible(true);
   };
 
   return (
@@ -135,13 +145,25 @@ export default function JobDetailScreen({ route, navigation }) {
         {/* Submit Offer Button */}
         <TouchableOpacity
           style={tw`bg-[#60B876] rounded p-2 mt-6 items-center`}
-          onPress={handleOfferSubmit}
+          onPress={confirmOfferSubmit}
         >
           <Text style={[styles.globalText, tw`text-white font-bold text-lg`]}>
             ยื่นข้อเสนอ
           </Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        visible={isModalVisible}
+        title="ยืนยันการเสนอราคา"
+        message={`คุณต้องการเสนอราคา ${offeredPrice} ใช่หรือไม่?`}
+        onConfirm={() => {
+          setIsModalVisible(false);
+          handleOfferSubmit();
+        }}
+        onCancel={() => setIsModalVisible(false)}
+      />
     </KeyboardAvoidingView>
   );
 }

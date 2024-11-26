@@ -215,6 +215,10 @@ export default function ViewOrder({ navigation }) {
     getDriverLocation();
   }, []);
 
+  const handleChat = () => {
+    navigation.navigate("ChatScreen", { room_id: request_id });
+  };
+
   return (
     <SafeAreaView style={tw`flex-1 relative `}>
       <View style={tw`flex-2`}>
@@ -381,6 +385,7 @@ export default function ViewOrder({ navigation }) {
               </Pressable>
               <Pressable
                 style={tw`flex-1 bg-gray-300 justify-center rounded-lg items-center w-1/3 mx-4`}
+                onPress={handleChat}
               >
                 <MaterialIcons name="chat" size={24} color="black" />
                 <Text styles={[styles.globalText, tw`text-xl`]}>ข้อความ</Text>
