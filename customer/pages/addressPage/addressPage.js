@@ -135,6 +135,14 @@ const AddressPage = ({ navigation }) => {
     setMenuVisible(false); // Close the menu after selecting a category
   };
 
+  const truncateText = (text, maxLength = 30) => {
+    if (!text) return "";
+    if (text.length > maxLength) {
+      return text.substring(0, maxLength) + "...";
+    }
+    return text;
+  };
+
   return (
     <>
       <SafeAreaView
@@ -180,8 +188,9 @@ const AddressPage = ({ navigation }) => {
               <View style={[tw`flex-row px-4 items-center`]}>
           <MaterialIcons name="place" size={24} color="red" />
           <Text style={[styles.globalText, tw`text-black ml-2`]}>ต้นทาง </Text>
-          <Text style={[styles.globalText, tw`text-gray-500 ml-1`]}>
-            {(confirmOrigin) || "โปรดระบุต้นทาง"}
+          <Text style={[styles.globalText, tw`text-gray-500 ml-1`]}
+          >
+            {truncateText(confirmOrigin) || "โปรดระบุต้นทาง"}
           </Text>
         </View>
 
@@ -189,12 +198,15 @@ const AddressPage = ({ navigation }) => {
         <View style={tw`border-t border-gray-300 my-2`} />
 
         {/* Destination Row */}
-        <View style={[tw`flex-row px-4 items-center`]}>
+        <View style={[tw`flex-row px-4 items-center `]}>
           <MaterialIcons name="place" size={24} color="green" />
           <Text style={[styles.globalText, tw`text-black ml-2`]}>ปลายทาง </Text>
-          <Text style={[styles.globalText, tw`text-gray-500 ml-1`]}
+          <Text style={[styles.globalText, tw`text-gray-500 ml-1` ]
+            
+          }
+         
           >
-            {(confirmDestination) || "โปรดระบุปลายทาง"}
+            {truncateText(confirmDestination) || "โปรดระบุปลายทาง"}
           </Text>
         </View>
             </TouchableOpacity>
