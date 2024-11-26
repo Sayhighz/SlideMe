@@ -20,7 +20,7 @@ import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
 import { IP_ADDRESS } from "../../config";
 import MapViewDirections from "react-native-maps-directions";
 import { UserContext } from "../../UserContext";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const ChooseOffer = ({ navigation, route }) => {
   const fee = 200;
@@ -30,6 +30,8 @@ const ChooseOffer = ({ navigation, route }) => {
   const [chooseDriver, setChooseDriver] = useState({});
 
   const [openModal, setOpenModal] = useState(false);
+
+  const [openModalCancel, setOpenModalCancel] = useState(false);
 
   const [filteredOffer, setFilteredOffer] = useState([]);
 
@@ -243,8 +245,6 @@ const ChooseOffer = ({ navigation, route }) => {
     });
     return sortOffersByDistance(filteredOffers); // เรียงข้อมูลทันที
   };
-  
-  
 
   const calculateAccurateRouteDistance = async (offers) => {
     const promises = offers.map(async (item) => {
@@ -261,7 +261,7 @@ const ChooseOffer = ({ navigation, route }) => {
         return { ...item, distance: null, duration: null, durationText: null };
       }
     });
-  
+
     const results = await Promise.all(promises);
     setSortedFilteredOffer(results);
     return sortOffersByDistance(results); // เรียงลำดับ
@@ -300,12 +300,48 @@ const ChooseOffer = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={tw`flex-1`}>
-              <View style={tw`p-4 flex-row items-center`}>
+      <Modal transparent={true} visible={openModalCancel} >
+        <View style={[{backgroundColor: "rgba(0, 0, 0, 0.5)"} , tw`flex-1 justify-center items-center`]}>
+          <View style={tw`bg-white shadow flex rounded-lg p-3 h-40 w-2/4`}>
+            <View style={tw`flex-1 items-center justify-center`}>
+              <Text style={[styles.globalText,tw`text-sm font-bold text-red-600`]}>
+                คุณต้องการยกเลิกข้อเสนอ
+              </Text>
+              <Text style={[styles.globalText,tw`text-sm font-bold text-red-600`]}>นี้หรือไม่</Text>
+            </View>
+            <View style={tw`flex-row flex-1 items-center justify-around`}>
+              <TouchableOpacity
+                style={tw`p-2 bg-red-500 rounded-lg`}
+                onPress={() => setOpenModalCancel(false)}
+              >
+                <Text style={[styles.globalText,tw`text-white`]}>ยกเลิก</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={tw`p-2 bg-green-500 rounded-lg`}
+                onPress={() => {}}
+              >
+                <Text style={[styles.globalText,tw`text-white`]}>ยืนยัน</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      <View style={tw`p-4 flex-row items-center justify-between `}>
+        <View style={tw`flex-row items-center`}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Icon name="arrow-left" size={24} color="black" />
           </TouchableOpacity>
-          <Text style={[styles.globalText, tw`text-2xl font-bold ml-4`]}>เลือกข้อเสนอ</Text>
+          <Text style={[styles.globalText, tw`text-2xl font-bold ml-4 mt-1`]}>
+            เลือกข้อเสนอ
+          </Text>
         </View>
+        <TouchableOpacity
+          onPress={() => setOpenModalCancel(true)}
+          style={tw`p-2 bg-red-600 rounded-lg`}
+        >
+          <Text>ยกเลิก</Text>
+        </TouchableOpacity>
+      </View>
       <Modal transparent={true} visible={openModal}>
         <View style={tw`flex-1 justify-center items-center`}>
           <View style={tw`bg-gray-200 w-4/5 h-1/3 flex rounded-lg p-3`}>
@@ -477,7 +513,7 @@ const ChooseOffer = ({ navigation, route }) => {
                 onChange={(item) => {
                   const newRadius = parseInt(item.value, 10);
                   setRadiusInMeters(newRadius);
-              
+
                   // กรองและเรียงข้อมูลทันที
                   const filtered = filterOffersByRadius(offer, newRadius);
                   calculateAccurateRouteDistance(filtered).then((results) => {
@@ -485,7 +521,6 @@ const ChooseOffer = ({ navigation, route }) => {
                     setSortedFilteredOffer(sorted); // อัปเดตข้อมูลเรียงเสร็จแล้ว
                   });
                 }}
-              
               />
             ) : null}
           </View>
@@ -499,7 +534,7 @@ const ChooseOffer = ({ navigation, route }) => {
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={[
-                    tw`flex-row items-center p-2 my-2 rounded shadow w-full justify-between h-20`,
+                    tw`flex-row items-center p-2 my-2 rounded shadow w-90 justify-between h-20`,
                     chooseDriver.id === item.id
                       ? tw`bg-[#60B876]`
                       : tw`bg-white`,
@@ -512,43 +547,57 @@ const ChooseOffer = ({ navigation, route }) => {
                     }
                   }}
                 >
-                  <Text style={[styles.globalText, tw` font-bold flex-5`]}>
-                    {item.name}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.globalText,
-                      tw` font-bold flex-3 text-center`,
-                    ]}
-                  >
-                    <Text style={tw`text-red-700`}>
-                      {item.price + fee}
+                  <View style={tw`flex-3 justify-between`}>
+                    <View style={tw`flex-row flex-1 items-center justify-center`}>
+                      <Text
+                        style={[
+                          styles.globalText,
+                          tw`text-gray-600 font-bold `,
+                        ]}
+                      >
+                        คนขับ : {item.name}
+                      </Text>
+                        <MaterialIcons name="star" size={24} color="orange" />
+                        <Text
+                          style={[
+                            styles.globalText,
+                            tw`text-gray-600  flex-1 font-bold`,
+                          ]}
+                        >{item.rating ? item.rating : "-"}</Text>
+                    </View>
+                    <View style={tw`flex-1 justify-center`}>
+
+                    <Text style={[styles.globalText, tw` font-bold`]}>
+                      ราคา :
+                      <Text style={tw`text-red-700`}> {item.price + fee}</Text>
+                      {" บาท"}{" "}
                     </Text>
-                    {" บาท"}
-                  </Text>
-                  <View style={tw`flex-3 justify-around items-center h-full`}>
-                    <Text style={[styles.globalText, tw`font-bold`]}>
-                      <Text style={[styles.globalText,tw`text-red-700`]}>
+                    </View>
+                  </View>
+
+                  <View
+                    style={[styles.globalText, tw`flex-2 items-center justify-between`]}
+                  >
+                    <View style={tw`flex-1 justify-center`}>
+
+                    <Text style={tw`text-gray-600 font-bold items-center`}>
+                      ระยะทาง : {""}
+                      <Text style={tw`text-red-700`}>
                         {item.distance
                           ? (item.distance / 1000).toFixed(2)
                           : "-"}
-                        {" กม."}
                       </Text>
+                      {" กม."}
                     </Text>
-                    <Text style={[styles,tw`font-bold`]}>
-                      <Text style={tw`text-red-700`}>
-                        {item.durationText}
-                        {" นาที"}{" "}
-                      </Text>
+                          </View>
+                          <View style={tw`flex-1 justify-center items-center`}>
+
+                    <Text style={tw`text-gray-600 font-bold`}>
+                      เวลาที่ใช้ : {""}
+                      <Text style={tw`text-red-700`}>{item.durationText}</Text>
+                      {" นาที"}
                     </Text>
-                  </View>
-                  <View style={tw`flex-2 flex-row justify-center items-center`}>
-                    <MaterialIcons name="star" size={24} color="yellow" />
-                    <Text
-                      style={[styles.globalText, tw` font-bold text-center`]}
-                    >
-                      {item.rating ? item.rating : "-"}
-                    </Text>
+                          </View>
                   </View>
                 </TouchableOpacity>
               )}
@@ -563,7 +612,9 @@ const ChooseOffer = ({ navigation, route }) => {
               >
                 <MaterialIcons name="local-shipping" size={35} color="gray" />
               </Animated.View>
-              <Text style={[styles.globalText,tw`text-lg font-bold mt-5`]}>กําลังรอคนขับ...</Text>
+              <Text style={[styles.globalText, tw`text-lg font-bold mt-5`]}>
+                กําลังรอคนขับ...
+              </Text>
             </View>
           )}
         </View>
