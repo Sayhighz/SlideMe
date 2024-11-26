@@ -318,7 +318,7 @@ const ChooseOffer = ({ navigation, route }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={tw`p-2 bg-green-500 rounded-lg`}
-                onPress={() => {}}
+                onPress={() => navigation.goBack()}
               >
                 <Text style={[styles.globalText,tw`text-white`]}>ยืนยัน</Text>
               </TouchableOpacity>
