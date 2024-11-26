@@ -496,7 +496,7 @@ export default function Order({ navigation, bookmark }) {
         <View style={[tw`flex-row px-4 items-center`]}>
           <MaterialIcons name="place" size={24} color="red" />
           <Text style={[styles.globalText, tw`text-black ml-2`]}>ต้นทาง </Text>
-          <Text style={[styles.globalText, tw`text-gray-500 ml-1 bo`]}
+          <Text style={[styles.globalText, tw`text-gray-500 ml-1`]}
           >
             {truncateText(confirmOrigin) || "โปรดระบุต้นทาง"}
           </Text>
