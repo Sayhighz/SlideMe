@@ -599,7 +599,7 @@ const ChooseOffer = ({ navigation, route }) => {
                   >
                     <View style={tw`flex-1 justify-center`}>
 
-                    <Text style={tw`text-gray-600 font-bold items-center`}>
+                    <Text style={[styles.globalText , tw`text-gray-600 font-bold items-center`]}>
                       ระยะทาง : {""}
                       <Text style={tw`text-red-700`}>
                         {item.distance
@@ -611,7 +611,7 @@ const ChooseOffer = ({ navigation, route }) => {
                           </View>
                           <View style={tw`flex-1 justify-center items-center`}>
 
-                    <Text style={tw`text-gray-600 font-bold`}>
+                    <Text style={[ styles.globalText ,tw`text-gray-600 font-bold`]}>
                       เวลาที่ใช้ : {""}
                       <Text style={tw`text-red-700`}>{item.durationText}</Text>
                       {" นาที"}
