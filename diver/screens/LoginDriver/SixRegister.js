@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import tw from 'twrnc';
 import { IP_ADDRESS } from '../../config';
+import SubmitButton from '../../componnets/SubmitButton';
 
 const SixRegister = ({ navigation, route }) => {
   const {
@@ -112,18 +113,8 @@ const SixRegister = ({ navigation, route }) => {
           </View>
         </ScrollView>
 
-        {/* Fixed Register Button */}
-        <View style={tw`absolute bottom-4 left-4 right-4`}>
-          <TouchableOpacity
-            style={tw`bg-[#60B876] w-full p-4 rounded-lg`}
-            onPress={handleRegister}
-          >
-            <Text style={[styles.globalText, tw`text-lg font-bold text-center text-white`]}>
-              สมัคร
-            </Text>
-          </TouchableOpacity>
-        </View>
       </KeyboardAvoidingView>
+      <SubmitButton onPress={handleRegister} title="ยืนยัน" />
     </SafeAreaView>
   );
 };

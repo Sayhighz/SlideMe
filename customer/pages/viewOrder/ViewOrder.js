@@ -19,6 +19,7 @@ import MapViewDirections from "react-native-maps-directions";
 import * as Location from "expo-location";
 import axios from "axios";
 import { IP_ADDRESS } from "../../config";
+import HeaderWithBackButton from "../../components/HeaderWithBackButton";
 
 export default function ViewOrder({ navigation }) {
   const styles = StyleSheet.create({
@@ -226,7 +227,10 @@ export default function ViewOrder({ navigation }) {
   };
 
   return (
+    <>
+    <HeaderWithBackButton showBackButton={true} title="รายละเอียด" onPress={() => navigation.navigate("HomePage")} />
     <SafeAreaView style={tw`flex-1 relative `}>
+
       <View style={tw`flex-2`}>
         <View style={tw`flex-2`}>
           <View style={tw`flex-1`}>
@@ -235,7 +239,7 @@ export default function ViewOrder({ navigation }) {
               <Text style={[styles.globalText, tw`text-sm`]}>{request}</Text>
             </View>
             <View
-              style={tw`flex-4 justify-around mx-4 bg-white shadow-lg border border-gray-300 mb-5 rounded-lg`}
+              style={tw`flex-4 justify-around mx-4 bg-white shadow-lg border border-gray-300 mb-5 p-1 rounded-lg`}
             >
               <View style={tw`flex-1 flex-row items-center w-full`}>
                 <MaterialIcons name="location-pin" size={24} color="blue" />
@@ -438,5 +442,6 @@ export default function ViewOrder({ navigation }) {
         </View>
       </View>
     </SafeAreaView>
+    </>
   );
 }

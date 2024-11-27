@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 import tw from 'twrnc';
 import Icon from 'react-native-vector-icons/Ionicons';
+import SubmitButton from '../../componnets/SubmitButton';
+import HeaderWithBackButton from '../../componnets/HeaderWithBackButton';
 
 const SecondRegister = ({ navigation, route }) => {
   const [name, setName] = useState('');
@@ -72,6 +74,12 @@ const SecondRegister = ({ navigation, route }) => {
   };
 
   return (
+    <>
+    <HeaderWithBackButton
+      showBackButton={true}
+      title="ขั้นตอนที่ 1 จาก 3"
+      onPress={handleBackPress}
+    />
     <SafeAreaView style={tw`flex-1 bg-white`}>
       <KeyboardAvoidingView
         style={tw`flex-1`}
@@ -82,20 +90,13 @@ const SecondRegister = ({ navigation, route }) => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Back Button */}
-          <View style={tw`absolute top-10 left-4 z-50 mt-5`}>
-            <TouchableOpacity onPress={handleBackPress}>
-              <Icon name="arrow-back" size={28} color="#000" />
-            </TouchableOpacity>
-          </View>
 
           {/* Form Content */}
-          <View style={tw`flex-1 mt-11 ml-3`}>
-            <Text style={[styles.globalText, tw`text-xl font-bold ml-5 mb-2`]}>ขั้นตอนที่ 1 จาก 3</Text>
+          <View style={tw`flex-1 ml-3`}>
             <Text style={[styles.globalText, tw`text-3xl font-bold mb-4`]}>สร้างบัญชีของคุณ</Text>
             <Text style={[styles.globalText, tw`text-lg mb-2`]}>ข้อมูลทั่วไป</Text>
 
-            <Text style={[styles.globalText, tw`text-sm text-red-500`]}>*จำเป็น</Text>
+            <Text style={[styles.globalText, tw`text-sm`]}>ชื่อ (ตามบัตรประชาชน)*</Text>
             <TextInput
               placeholder="ชื่อ (ตามบัตรประชาชน)"
               style={[styles.input, tw`mb-4`]}
@@ -103,7 +104,7 @@ const SecondRegister = ({ navigation, route }) => {
               onChangeText={setName}
             />
 
-            <Text style={[styles.globalText, tw`text-sm text-red-500`]}>*จำเป็น</Text>
+            <Text style={[styles.globalText, tw`text-sm`]}>นามสกุล (ตามบัตรประชาชน)*</Text>
             <TextInput
               placeholder="นามสกุล (ตามบัตรประชาชน)"
               style={[styles.input, tw`mb-4`]}
@@ -111,7 +112,7 @@ const SecondRegister = ({ navigation, route }) => {
               onChangeText={setLastName}
             />
 
-            <Text style={[styles.globalText, tw`text-sm text-red-500`]}>*จำเป็น</Text>
+            <Text style={[styles.globalText, tw`text-sm`]}>เลขประจำตัวประชาชน*</Text>
             <TextInput
               placeholder="เลขประจำตัวประชาชน"
               style={[styles.input, tw`mb-4`]}
@@ -120,7 +121,7 @@ const SecondRegister = ({ navigation, route }) => {
               onChangeText={setIdNumber}
             />
 
-            <Text style={[styles.globalText, tw`text-sm text-red-500`]}>*จำเป็น</Text>
+            <Text style={[styles.globalText, tw`text-sm`]}>วันเกิด (YYYY-MM-DD)*</Text>
             <TextInput
               placeholder="วันเกิด (YYYY-MM-DD)"
               style={[styles.input, tw`mb-4`]}
@@ -129,9 +130,9 @@ const SecondRegister = ({ navigation, route }) => {
               maxLength={10}
             />
 
-            <Text style={[styles.globalText, tw`text-sm text-red-500`]}>*จำเป็น</Text>
+            <Text style={[styles.globalText, tw`text-sm`]}>วันที่หมดอายุใบขับขี่ (YYYY-MM-DD)*</Text>
             <TextInput
-              placeholder="วันที่บัตรมีผลอายุ (YYYY-MM-DD)"
+              placeholder="วันที่หมดอายุใบขับขี่ (YYYY-MM-DD)"
               style={[styles.input, tw`mb-4`]}
               value={idExpiryDate}
               onChangeText={(value) => setIdExpiryDate(enforceDateFormat(value))}
@@ -140,7 +141,7 @@ const SecondRegister = ({ navigation, route }) => {
 
             {/* New Section for Vehicle Information */}
             <Text style={[styles.globalText, tw`text-lg mb-4`]}>เพิ่มข้อมูลยานพาหนะ</Text>
-            <Text style={[styles.globalText, tw`text-sm text-red-500`]}>*จำเป็น</Text>
+            <Text style={[styles.globalText, tw`text-sm`]}>ป้ายทะเบียนรถ*</Text>
             <TextInput
               placeholder="ป้ายทะเบียนรถ"
               style={[styles.input, tw`mb-4`]}
@@ -150,18 +151,10 @@ const SecondRegister = ({ navigation, route }) => {
           </View>
           <View style={tw`h-20`}></View>
         </ScrollView>
-
-        {/* Fixed Next Button */}
-        <View style={tw`absolute bottom-4 left-4 right-4`}>
-          <TouchableOpacity
-            style={tw`w-full bg-[#60B876] rounded-full p-4`}
-            onPress={handleNextPress}
-          >
-            <Text style={[styles.globalText, tw`text-center text-lg font-bold text-white`]}>ถัดไป</Text>
-          </TouchableOpacity>
-        </View>
       </KeyboardAvoidingView>
+      <SubmitButton onPress={handleNextPress} title="ถัดไป" />
     </SafeAreaView>
+    </>
   );
 };
 

@@ -15,15 +15,18 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import MapView, { Marker } from "react-native-maps";
 import Icon from "react-native-vector-icons/MaterialIcons"; // ใช้ MaterialIcons
 import { IP_ADDRESS } from "../../config";
+import SubmitButton from "../../componnets/SubmitButton";
+import ConfirmationDialog from "../../componnets/ConfirmationDialog";
 
 export default function JobWorking_Pickup_Screen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { request_id } = route.params || {};
+  const { request_id, workStatus } = route.params || {};
 
   const [offer, setOffer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     // Fetch offer details
@@ -55,6 +58,14 @@ export default function JobWorking_Pickup_Screen() {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&travelmode=driving`;
     Linking.openURL(url);
   };
+
+  const checkWorkSatus = () => {
+    if (workStatus) {
+      navigation.navigate("JobWorking_Dropoff", { request_id });
+    }else{
+      navigation.navigate("CarUploadPickUpConfirmation", { request_id })
+    }
+  }
 
   // Handle calling customer
   const handleCall = (phoneNumber) => {
@@ -89,6 +100,10 @@ export default function JobWorking_Pickup_Screen() {
     );
   }
 
+  const confirmAction = () => {
+    setIsModalVisible(true);
+  };
+
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
       {/* Scrollable content */}
@@ -96,10 +111,10 @@ export default function JobWorking_Pickup_Screen() {
         {/* Header Section */}
         <View style={tw`flex-row justify-between my-7`}>
           <TouchableOpacity onPress={() => Alert.alert("ยกเลิก", "กรุณาติดต่อผู้ดูแลระบบสำหรับปัญหานี้")}>
-            <Text style={[styles.globalText, tw`text-lg text-[#60B876] font-bold`]}>ยกเลิกงาน</Text>
+            <Text style={[styles.globalText, tw`text-lg text-[#60B876]`]}>ยกเลิกงาน</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => Alert.alert("แจ้งปัญหา", "กรุณาติดต่อผู้ดูแลระบบสำหรับปัญหานี้")}>
-            <Text style={[styles.globalText, tw`text-lg text-[#60B876] font-bold`]}>แจ้งปัญหา</Text>
+            <Text style={[styles.globalText, tw`text-lg text-[#60B876]`]}>แจ้งปัญหา</Text>
           </TouchableOpacity>
         </View>
 
@@ -112,13 +127,13 @@ export default function JobWorking_Pickup_Screen() {
               {/* ปุ่มโทรและปุ่มแชท */}
               <View style={tw`flex-row items-center`}>
                 <TouchableOpacity
-                  style={tw`bg-blue-500 w-7 h-7 rounded-full flex items-center justify-center mx-1`}
+                  style={tw`bg-[#60B876] w-7 h-7 rounded-full flex items-center justify-center mx-1`}
                   onPress={() => handleCall(offer.customer_phone)}
                 >
                   <Icon name="call" size={15} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={tw`bg-green-500 w-7 h-7 rounded-full flex items-center justify-center mx-1`}
+                  style={tw`bg-[#60B876] w-7 h-7 rounded-full flex items-center justify-center mx-1`}
                   onPress={handleChat}
                 >
                   <Icon name="chat" size={15} color="white" />
@@ -170,16 +185,20 @@ export default function JobWorking_Pickup_Screen() {
           </View>
         )}
       </ScrollView>
+      <ConfirmationDialog
+      visible={isModalVisible}
+      title={workStatus === undefined ? "ยืนยันถึงจุดรับรถ" : "ยืนยันการรับรถ"}
+      message={workStatus === undefined ? "คุณต้องการยืนยันถึงจุดรับรถใช่หรือไม่?" : "คุณต้องการยืนยันการรับรถใช่หรือไม่?"}
+      onConfirm={() => {
+        setIsModalVisible(false);
+        checkWorkSatus();
+      }}
+      onCancel={() => setIsModalVisible(false)}
+    />
 
       {/* Confirmation Button */}
-      <View style={tw`absolute bottom-0 left-0 right-0 bg-white p-4`}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("CarUploadPickUpConfirmation", { request_id })}
-          style={tw`bg-[#60B876] rounded p-2 items-center`}
-        >
-          <Text style={[styles.globalText, tw`text-white font-bold text-lg`]}>ยืนยันถึงที่หมาย</Text>
-        </TouchableOpacity>
-      </View>
+        <SubmitButton onPress={confirmAction} title={workStatus === undefined ? "ยืนยันถึงจุดรับรถ" : "ยืนยันการรับรถ"} />
+
     </SafeAreaView>
   );
 }

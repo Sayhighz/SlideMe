@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, Image, Alert, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, SafeAreaView, Image, Alert, StyleSheet,ScrollView } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from 'twrnc';
 import * as ImagePicker from 'expo-image-picker';
 import { IP_ADDRESS } from '../../config';
 import ConfirmationDialog from '../../componnets/ConfirmationDialog';
+import SubmitButton from '../../componnets/SubmitButton';
+import HeaderWithBackButton from '../../componnets/HeaderWithBackButton';
 
 const CarUploadPickUpConfirmation = () => {
   const navigation = useNavigation();
@@ -70,7 +72,7 @@ const CarUploadPickUpConfirmation = () => {
   // Render upload box component
   const renderUploadBox = (label, displayName) => (
     <TouchableOpacity
-      style={tw`flex-1 bg-gray-100 rounded-lg p-4 m-2 shadow`}
+      style={tw`flex-1 bg-white border border-gray-300 rounded-lg p-4 m-2 shadow-md`}
       onPress={() => handleImageSelection(label)}
     >
       <View style={[styles.globalFont,tw`items-center m-auto`]}>
@@ -131,8 +133,7 @@ const CarUploadPickUpConfirmation = () => {
 
       const result = await response.json();
       if (result.Status) {
-        Alert.alert('สำเร็จ', 'อัพโหลดรูปภาพสำเร็จ');
-        navigation.navigate('JobWorking_Dropoff', { request_id });
+        navigation.navigate('JobWorking_Pickup', { request_id, workStatus: true });
       } else {
         Alert.alert('ข้อผิดพลาด', result.Error || 'การอัพโหลดรูปภาพล้มเหลว');
       }
@@ -147,50 +148,50 @@ const CarUploadPickUpConfirmation = () => {
   };
 
   return (
-    <SafeAreaView style={tw`flex-1 bg-white`}>
-      {/* Header */}
-      <View style={tw`p-4 pt-10 flex-row items-center`}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={[styles.globalFont,tw`text-2xl font-bold ml-4`]}>ยืนยันการรับรถ</Text>
+    <>
+    {/* Header */}
+    <HeaderWithBackButton
+      showBackButton={true}
+      title="อัพโหลดรูปภาพ"
+      onPress={() => navigation.goBack()}
+    />
+  <SafeAreaView style={tw`flex-1 bg-white`}>
+    
+
+    {/* Scrollable Upload Boxes Section */}
+    <ScrollView contentContainerStyle={tw`p-4 flex-1`}>
+      {/* Upload Boxes */}
+      {renderUploadBox('front', 'ด้านหน้ารถ')}
+      {renderUploadBox('back', 'ด้านหลังรถ')}
+      <View style={tw`flex-row justify-between mt-4`}>
+        {renderUploadBox('left', 'ด้านข้างรถ (ซ้าย)')}
+        {renderUploadBox('right', 'ด้านข้างรถ (ขวา)')}
       </View>
+      <View style={tw`h-20`}></View>
+    </ScrollView>
 
-      {/* Content */}
-      <View style={tw`p-4 flex-1`}>
-        {/* Upload Boxes */}
-        {renderUploadBox('front', 'ด้านหน้ารถ')}
-        {renderUploadBox('back', 'ด้านหลังรถ')}
-        <View style={tw`flex-row justify-between mt-4`}>
-          {renderUploadBox('left', 'ด้านข้างรถ (ซ้าย)')}
-          {renderUploadBox('right', 'ด้านข้างรถ (ขวา)')}
-        </View>
+    {/* Confirmation Dialog */}
+    <ConfirmationDialog
+      visible={isModalVisible}
+      title="ยืนยันการอัพโหลด"
+      message="คุณแน่ใจหรือไม่ว่าต้องการอัพโหลดรูปภาพเหล่านี้?"
+      onConfirm={() => {
+        setIsModalVisible(false);
+        handleConfirmation();
+      }}
+      onCancel={() => setIsModalVisible(false)}
+    />
 
-        {/* Confirm Button */}
-        <TouchableOpacity
-          onPress={confirmAction}
-          style={[
-            tw`p-4 rounded-lg mt-4 items-center`,
-            isButtonDisabled ? tw`bg-gray-400` : tw`bg-[#60B876]`,
-          ]}
-          disabled={isButtonDisabled}
-        >
-          <Text style={[styles.globalFont,tw`text-white text-base font-bold`]}>ยืนยันการรับรถ</Text>
-        </TouchableOpacity>
-      </View>
+    {/* Submit Button */}
+    <SubmitButton 
+      onPress={confirmAction} 
+      title="ยืนยันการอัพโหลด" 
+      disabled={isButtonDisabled} 
+    />
+  </SafeAreaView>
+    </>
 
-      {/* Confirmation Dialog */}
-      <ConfirmationDialog
-        visible={isModalVisible}
-        title="ยืนยันการอัพโหลด"
-        message="คุณแน่ใจหรือไม่ว่าต้องการอัพโหลดรูปภาพเหล่านี้?"
-        onConfirm={() => {
-          setIsModalVisible(false);
-          handleConfirmation();
-        }}
-        onCancel={() => setIsModalVisible(false)}
-      />
-    </SafeAreaView>
+
   );
 };
 

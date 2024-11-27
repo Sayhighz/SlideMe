@@ -15,6 +15,8 @@ import {
 import tw from 'twrnc';
 import { MaterialIcons } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/Ionicons';
+import SubmitButton from '../../componnets/SubmitButton';
+import HeaderWithBackButton from '../../componnets/HeaderWithBackButton';
 
 const ThirdRegister = ({ navigation, route }) => {
   const [isTestModalVisible, setTestModalVisible] = useState(false);
@@ -45,6 +47,8 @@ const ThirdRegister = ({ navigation, route }) => {
   };
 
   return (
+    <>
+      <HeaderWithBackButton showBackButton={true} title="ขั้นตอนที่ 2 จาก 3" onPress={handleBackPress}/>
     <SafeAreaView style={tw`flex-1 bg-white`}>
       <KeyboardAvoidingView
         style={tw`flex-1`}
@@ -55,16 +59,8 @@ const ThirdRegister = ({ navigation, route }) => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Back Button */}
-          <View style={tw`absolute top-10 left-4 z-50`}>
-            <TouchableOpacity onPress={handleBackPress}>
-              <Icon name="arrow-back" size={28} color="#000" />
-            </TouchableOpacity>
-          </View>
-
           {/* Main Content */}
-          <View style={tw`mt-8`}>
-            <Text style={[styles.globalText, tw`text-xl font-bold ml-9 mb-2`]}>ขั้นตอนที่ 2 จาก 3</Text>
+          <View style={tw``}>
             <Text style={[styles.globalText, tw`text-2xl font-bold mb-4`]}>อบรมและทำแบบทดสอบ</Text>
             <View style={tw`bg-black h-60 w-full rounded-lg mb-10 justify-center items-center`}>
               <Icon name="videocam-outline" size={40} color="#fff" />
@@ -90,21 +86,7 @@ const ThirdRegister = ({ navigation, route }) => {
           </View>
         </ScrollView>
 
-        {/* Fixed Next Button */}
-        <View style={tw`absolute bottom-4 left-4 right-4`}>
-          <TouchableOpacity
-            style={[
-              tw`w-full rounded p-4`,
-              isTestCompleted ? tw`bg-[#60B876]` : tw`bg-gray-400`,
-            ]}
-            onPress={handleNextPress}
-            disabled={!isTestCompleted} // Disable button if test is not completed
-          >
-            <Text style={[styles.globalText, tw`text-center text-lg font-bold text-white`]}>
-              ถัดไป
-            </Text>
-          </TouchableOpacity>
-        </View>
+      
 
         {/* Modal for Test */}
         <Modal visible={isTestModalVisible} animationType="slide" transparent={true}>
@@ -118,7 +100,9 @@ const ThirdRegister = ({ navigation, route }) => {
           </View>
         </Modal>
       </KeyboardAvoidingView>
+      <SubmitButton title="ถัดไป" onPress={handleNextPress} disabled={!isTestCompleted}/>
     </SafeAreaView>
+    </>
   );
 };
 

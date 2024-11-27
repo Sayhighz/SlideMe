@@ -14,6 +14,8 @@ import {
 import tw from 'twrnc';
 import Icon from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
+import SubmitButton from '../../componnets/SubmitButton';
+import HeaderWithBackButton from '../../componnets/HeaderWithBackButton';
 
 const FourthRegister = ({ navigation, route }) => {
   const [images, setImages] = useState({
@@ -51,10 +53,10 @@ const FourthRegister = ({ navigation, route }) => {
 
   const renderUploadButton = (label, displayName) => (
     <TouchableOpacity
-      style={tw`bg-gray-200 w-full p-4 rounded-lg mb-4`}
+      style={tw`bg-white shadow-md border border-gray-300 w-full p-4 rounded-lg mb-4`}
       onPress={() => handleImageSelection(label)}
     >
-      <View style={tw`items-center`}>
+      <View style={tw`items-center flex-row`}>
         {images[label] ? (
           <Image
             source={{ uri: images[label] }}
@@ -62,7 +64,7 @@ const FourthRegister = ({ navigation, route }) => {
             resizeMode="cover"
           />
         ) : (
-          <Icon name="cloud-upload-outline" size={32} color="gray" style={tw`mb-2`} />
+          <Icon name="cloud-upload-outline" size={32} color="gray" style={tw`mb-2 mr-5`} />
         )}
         <Text style={[styles.globalText, tw`text-lg font-bold text-center`]}>{displayName}</Text>
       </View>
@@ -70,6 +72,8 @@ const FourthRegister = ({ navigation, route }) => {
   );
 
   return (
+    <>
+    <HeaderWithBackButton showBackButton={true} title="ขั้นตอนที่ 3" onPress={() => navigation.navigate('ThirdRegister')} />
     <SafeAreaView style={tw`flex-1 bg-white`}>
       <KeyboardAvoidingView
         style={tw`flex-1`}
@@ -79,15 +83,8 @@ const FourthRegister = ({ navigation, route }) => {
           contentContainerStyle={tw`p-4 justify-start mx-auto w-10/12`}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Back Button */}
-          <View style={tw`absolute top-12 left-4 z-50`}>
-            <TouchableOpacity onPress={() => navigation.navigate('ThirdRegister')}>
-              <Icon name="arrow-back" size={28} color="#000" />
-            </TouchableOpacity>
-          </View>
 
           {/* Page Title */}
-          <Text style={[styles.globalText, tw`text-xl font-bold mb-2 mt-8 ml-11`]}>ขั้นตอนที่ 3 จาก 3</Text>
           <Text style={[styles.globalText, tw`text-2xl font-bold mb-6`]}>อัพโหลดไฟล์เอกสาร</Text>
 
           {/* Render upload buttons */}
@@ -99,22 +96,12 @@ const FourthRegister = ({ navigation, route }) => {
           {renderUploadButton('bankBookPhoto', 'รูปสมุดธนาคาร')}
           <View style={tw`h-20`}></View>
         </ScrollView>
-
-        {/* Fixed Next Button */}
-        <View style={tw`absolute bottom-4 left-4 right-4`}>
-          <TouchableOpacity
-            style={tw`w-full bg-[#60B876] p-4 rounded`}
-            onPress={() => navigation.navigate('FifthRegister', {
-              ...route.params, // Pass data from ThirdRegister.js
-            })}
-          >
-            <Text style={[styles.globalText, tw`text-lg text-white font-bold text-center`]}>
-              ยืนยันการส่งข้อมูล
-            </Text>
-          </TouchableOpacity>
-        </View>
       </KeyboardAvoidingView>
+      <SubmitButton onPress={() => navigation.navigate('FifthRegister', {
+              ...route.params,
+            })} title="ยืนยันการส่งข้อมูล" />
     </SafeAreaView>
+    </>
   );
 };
 

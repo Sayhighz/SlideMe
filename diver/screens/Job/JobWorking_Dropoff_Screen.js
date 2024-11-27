@@ -15,15 +15,18 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import MapView, { Marker } from "react-native-maps";
 import { IP_ADDRESS } from "../../config";
+import SubmitButton from "../../componnets/SubmitButton";
+import ConfirmationDialog from "../../componnets/ConfirmationDialog";
 
 export default function JobWorking_Dropoff_Screen() {
   const route = useRoute();
   const navigation = useNavigation(); // Access navigation
-  const { request_id } = route.params || {};
+  const { request_id, workStatus } = route.params || {};
 
   const [offer, setOffer] = useState(null); // State for offer details
   const [loading, setLoading] = useState(true); // State for loading indicator
   const [error, setError] = useState(null); // State for error handling
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     // Fetch offer details
@@ -50,6 +53,33 @@ export default function JobWorking_Dropoff_Screen() {
     }
   }, [request_id]);
 
+  const complete_request = async () => {
+    try {
+      const response = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/complete_request`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            request_id: request_id
+          }),
+        }
+      );
+
+      const result = await response.json();
+      if (response.ok) {
+        navigation.navigate("HomeMain");
+      } else {
+        Alert.alert("ข้อผิดพลาด", result.message || "ไ่ม่สามารถจบงานได้");
+      }
+    } catch (error) {
+      Alert.alert("ข้อผิดพลาด", "เกิดข้อผิดพลาดในการจบงาน");
+      console.error(error);
+    }
+  };
+
   // Open Google Maps for navigation
   const openGoogleMaps = (latitude, longitude) => {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&travelmode=driving`;
@@ -70,6 +100,16 @@ export default function JobWorking_Dropoff_Screen() {
     navigation.navigate("ChatScreen", { room_id: request_id });
   };
 
+  const checkWorkSatus = () => {
+    if (workStatus) {
+      complete_request();
+      navigation.navigate("HomeTab");
+    }else{
+      navigation.navigate("CarUploadDropOffConfirmation", { request_id })
+    }
+  }
+
+  
 
   // Handle confirmation button
   const handleConfirmation = () => {
@@ -93,6 +133,10 @@ export default function JobWorking_Dropoff_Screen() {
       </View>
     );
   }
+
+  const confirmAction = () => {
+    setIsModalVisible(true);
+  };
 
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
@@ -172,16 +216,18 @@ export default function JobWorking_Dropoff_Screen() {
           </View>
         )}
       </ScrollView>
+      <ConfirmationDialog
+      visible={isModalVisible}
+      title={workStatus === undefined ? "ยืนยันถึงจุดส่งรถ" : "ยืนยันการส่งรถและจบงาน"}
+      message={workStatus === undefined ? "คุณต้องการยืนยันถึงจุดส่งรถใช่หรือไม่?" : "คุณต้องการยืนยันการส่งรถและจบงานใช่หรือไม่?"}
+      onConfirm={() => {
+        setIsModalVisible(false);
+        checkWorkSatus();
+      }}
+      onCancel={() => setIsModalVisible(false)}
+    />
 
-      {/* Confirmation Button */}
-      <View style={tw`absolute bottom-0 left-0 right-0 bg-white p-4`}>
-        <TouchableOpacity
-          onPress={handleConfirmation}
-          style={tw`bg-[#60B876] rounded p-2 items-center`}
-        >
-          <Text style={[styles.globalText, tw`text-white font-bold text-lg`]}>ยืนยันถึงที่หมาย</Text>
-        </TouchableOpacity>
-      </View>
+      <SubmitButton onPress={confirmAction} title={workStatus === undefined ? "ยืนยันถึงจุดส่งรถ" : "ยืนยันการส่งรถและจบงาน"} />
     </SafeAreaView>
   );
 }

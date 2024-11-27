@@ -52,12 +52,16 @@ export default function HomeScreen({ route }) {
           setProfitToday(0);
         }
       };
-  
-      fetchProfitToday();
+
+      // Set interval for fetching every 5 seconds
+      const intervalId = setInterval(fetchProfitToday, 5000);
+
+      // Clean up interval on unmount or when component loses focus
+      return () => clearInterval(intervalId);
     }, [userData?.driver_id])
   );
 
-  // Fetch offers when the screen gains focus
+  // Fetch offers every 5 seconds
   useFocusEffect(
     React.useCallback(() => {
       const fetchOffers = async () => {
@@ -81,8 +85,11 @@ export default function HomeScreen({ route }) {
         }
       };
 
-      fetchOffers();
-      setNotificationKey((prevKey) => prevKey + 1); // Update the key to reload NotificationRequest
+      // Set interval for fetching every 5 seconds
+      const intervalId = setInterval(fetchOffers, 5000);
+
+      // Clean up interval on unmount or when component loses focus
+      return () => clearInterval(intervalId);
     }, [userData?.driver_id])
   );
 

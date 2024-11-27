@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import tw from 'twrnc';
 import { MaterialIcons } from '@expo/vector-icons';
+import SubmitButton from '../../componnets/SubmitButton';
 
 const FifthRegister = ({ navigation, route }) => {
   const initialItems = [
@@ -54,7 +55,7 @@ const FifthRegister = ({ navigation, route }) => {
         {items.map((item, index) => (
           <TouchableOpacity
             key={index}
-            style={tw`bg-gray-200 w-full p-4 rounded-lg mb-4 flex-row justify-between items-center`}
+            style={tw`bg-white shadow-md border border-gray-300 w-full p-4 rounded-lg mb-4 flex-row justify-between items-center`}
             disabled
           >
             <Text style={[styles.globalText, tw`text-lg font-bold`]}>{item.label}</Text>
@@ -69,22 +70,16 @@ const FifthRegister = ({ navigation, route }) => {
       </ScrollView>
 
       {/* Fixed Complete Button */}
-      <View style={tw`absolute bottom-4 left-4 right-4`}>
+
         {allApproved && (
-          <TouchableOpacity
-            style={tw`bg-[#60B876] w-full p-4 rounded-lg`}
+          <SubmitButton
             onPress={() =>
               navigation.navigate('SixRegister', {
                 ...route.params,
-              })
-            }
-          >
-            <Text style={[styles.globalText, tw`text-lg font-bold text-center text-white`]}>
-              เสร็จสิ้น
-            </Text>
-          </TouchableOpacity>
+              })}
+            title="เสร็จสิ้น"
+          />
         )}
-      </View>
     </SafeAreaView>
   );
 };
