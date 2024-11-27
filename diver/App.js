@@ -235,7 +235,7 @@ export default function App() {
               headerShown: false,
               tabBarStyle: [
                 shouldHideTabBar ? { display: "none" } : {},
-                tw`bg-white border-t border-gray-300 shadow-md h-13`,
+                tw`bg-white border-t border-gray-300 shadow-md h-21`,
               ],
               tabBarIcon: ({ color, size }) => {
                 let iconName;

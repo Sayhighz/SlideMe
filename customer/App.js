@@ -49,19 +49,52 @@ function HomeStack() {
         shadowOpacity: 0,
       }}
     >
-      <Stack.Screen name="HomePage" component={Home} options={{ headerShown: false }} style={{ flex: 1}}/>
-      <Stack.Screen name="Mapdetail" component={MapDetail} options={{ headerShown: false }}/>
+      <Stack.Screen
+        name="HomePage"
+        component={Home}
+        options={{ headerShown: false }}
+        style={{ flex: 1 }}
+      />
+      <Stack.Screen
+        name="Mapdetail"
+        component={MapDetail}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="MapPage"
         component={MapPage}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name="Order" component={Order}  options={{ headerShown: false }}/>
-      <Stack.Screen name="ChatScreen" component={ChatScreen} options={{ headerShown: false }}/>
-      <Stack.Screen name="ChooseOffer" component={ChooseOffer} options={{ headerShown: false }}/>
-      <Stack.Screen name="payment" component={PaymentPage}  options={{ headerShown: false }}/>
-      <Stack.Screen name="viewOrder" component={ViewOrder} options={{ headerShown: false }}/>
-      <Stack.Screen name="Rating" component={Rating} options={{ headerShown: false }}/>
+      <Stack.Screen
+        name="Order"
+        component={Order}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ChatScreen"
+        component={ChatScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ChooseOffer"
+        component={ChooseOffer}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="payment"
+        component={PaymentPage}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="viewOrder"
+        component={ViewOrder}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Rating"
+        component={Rating}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }
@@ -182,52 +215,111 @@ const AppContent = () => {
     setIsLoggedIn(true);
   };
 
+  // <Tab.Navigator
+  //   screenOptions={({ route }) => ({
+  //     tabBarIcon: ({ color, size }) => {
+  //       let iconName;
+
+  //       switch (route.name) {
+  //         case "Home":
+  //           iconName = "home";
+  //           break;
+  //         case "ประวัติการใช้บริการ":
+  //           iconName = "history";
+  //           break;
+  //         case "กล่องข้อความ":
+  //           iconName = "email";
+  //           break;
+  //         case "โปรไฟล์ผู้ใช้":
+  //           iconName = "account";
+  //           break;
+  //         default:
+  //           iconName = "circle";
+  //       }
+
+  //       return <Icon name={iconName} size={size} color={color} />;
+  //     },
+  //     tabBarActiveTintColor: "#60B876",
+  //     tabBarInactiveTintColor: "#555D65",
+  //     tabBarLabelStyle: { fontFamily: "Mitr-Regular", fontSize: 12 },
+  //   })}
+  // >
   return (
     <NavigationContainer>
       {isLoggedIn ? (
         <Tab.Navigator
-          screenOptions={({ route }) => ({
-            tabBarIcon: ({ color, size }) => {
-              let iconName;
+          screenOptions={({ route, navigation }) => {
+            const hiddenScreens = [
+              "Mapdetail", 
+              "MapPage", 
+              "Order", 
+              "ChatScreen", 
+              "ChooseOffer",
+              "PaymentPage", 
+              "Rating", 
+              "PaymentMethodsList", 
+              "AddPaymentMethod", 
+              "editProfile", 
+              "addressPage", 
+              "addMapFav", 
+              "Bookmarklist"
+            ];
 
-              switch (route.name) {
-                case "Home":
-                  iconName = "home";
-                  break;
-                case "ประวัติการใช้บริการ":
-                  iconName = "history";
-                  break;
-                case "กล่องข้อความ":
-                  iconName = "email";
-                  break;
-                case "โปรไฟล์ผู้ใช้":
-                  iconName = "account";
-                  break;
-                default:
-                  iconName = "circle";
-              }
+            // Check if any of the hidden screens is currently active
+            const shouldHideTabBar = navigation
+              .getState()
+              .routes.some((r) =>
+                r.state?.routes
+                  ? r.state.routes.some((sr) => hiddenScreens.includes(sr.name))
+                  : hiddenScreens.includes(r.name)
+              );
 
-              return <Icon name={iconName} size={size} color={color} />;
-            },
-            tabBarActiveTintColor: "#60B876",
-            tabBarInactiveTintColor: "#555D65",
-            tabBarLabelStyle: { fontFamily: "Mitr-Regular", fontSize: 12 },
-          })}
+            return {
+              headerShown: false,
+              tabBarStyle: [
+                shouldHideTabBar ? { display: "none" } : {},
+                tw`bg-white border-t border-gray-300 shadow-md h-21`,
+              ],
+              tabBarIcon: ({ color, size }) => {
+                let iconName;
+                switch (route.name) {
+                  case "Home":
+                    iconName = "home";
+                    break;
+                  case "ประวัติการใช้บริการ":
+                    iconName = "history";
+                    break;
+                  case "กล่องข้อความ":
+                    iconName = "email";
+                    break;
+                  case "โปรไฟล์ผู้ใช้":
+                    iconName = "account";
+                    break;
+                  default:
+                    iconName = "circle";
+                }
+                return <Icon name={iconName} size={size} color={color} />;
+              },
+              tabBarActiveTintColor: "#60B876",
+              tabBarInactiveTintColor: "#555D65",
+              tabBarLabelStyle: { fontFamily: "Mitr-Regular", fontSize: 12 },
+            };
+          }}
         >
           <Tab.Screen
             name="Home"
             component={HomeStack}
-            options={{ headerShown: false,title: "หน้าหลัก" }}
+            options={{ headerShown: false, title: "หน้าหลัก" }}
           />
           <Tab.Screen
             name="ประวัติการใช้บริการ"
             component={HistoryPage}
-            options={{ headerShown: false,title: "ประวัติการใช้บริการ" }}
+            options={{ headerShown: false, title: "ประวัติการใช้บริการ" }}
           />
           <Tab.Screen
             name="กล่องข้อความ"
             component={MessageBoxScreen}
-            options={{ headerShown: false,title: "กล่องข้อความ" }}
+            options={{ headerShown: false, title: "กล่องข้อความ" }}
           />
           <Tab.Screen name="โปรไฟล์ผู้ใช้" options={{ headerShown: false }}>
             {() => <UserProfileTab onLogout={handleLogout} />}

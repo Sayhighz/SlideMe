@@ -8,8 +8,10 @@ import {
   Dimensions,
   Alert,
   SafeAreaView,
+  Modal,
+  FlatList,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons"; // Importing MaterialIcons for icons
+import { MaterialIcons } from "@expo/vector-icons";
 import Swiper from "react-native-swiper";
 import tw from "twrnc";
 import { LinearGradient } from "expo-linear-gradient";
@@ -21,8 +23,123 @@ function Home({ navigation }) {
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
 
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [bookmarks, setBookmarks] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { userData } = useContext(UserContext);
+  
+  const fetchBookmarks = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/customer/getuserbookmarks?user_id=${userData.user_id}`
+      );
+      const data = await response.json();
+      if (data.Status) {
+        setBookmarks(data.Result);
+      } else {
+        console.error(data.Error);
+      }
+    } catch (error) {
+      console.error("Error fetching bookmarks:", error.message);
+    }
+    setLoading(false);
+  };
+
+  const handleRequestFromBookmark = async (selectedBookmark) => {
+    if (false) {
+      alert("จากตําแหน่งต้องไม่เว้นว่าง, กรุณากรอกข้อมูลให้ครบถ้วน");
+      return;
+    }
+
+    const requestData = {
+      customer_id: userData.user_id,
+      request_time: formatDateToMySQL(new Date()),
+      pickup_lat: selectedBookmark.pickup_lat,
+      pickup_long: selectedBookmark.pickup_long,
+      location_from: selectedBookmark.location_from,
+      dropoff_lat: selectedBookmark.dropoff_lat,
+      dropoff_long: selectedBookmark.dropoff_long,
+      location_to: selectedBookmark.location_to,
+      vehicle_type: selectedBookmark.vahicle_type,
+      booking_time: formatDateToMySQL(new Date()),
+      customer_message: null,
+    };
+
+    console.log("Request data:", requestData);
+
+    try {
+      const response = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/add_request`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      console.log("Response data:", responseData);
+
+      if (responseData && responseData.request_id) {
+        Alert.alert(
+          "Request submitted successfully!",
+          "",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                navigation.navigate(
+                  "ChooseOffer",
+                  {
+                    request_id: responseData.request_id,
+                  },
+                  setModalVisible(false)
+                );
+              },
+            },
+          ],
+          { cancelable: false }
+        );
+      } else {
+        alert("Request submitted, but no request ID was returned.");
+      }
+    } catch (error) {
+      console.error("Error submitting request:", error);
+      alert("Failed to submit the request. Please try again.");
+    }
+  };
+
+  const openModal = () => {
+    setModalVisible(true);
+    fetchBookmarks();
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
+  const formatDateToMySQL = (date) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const hours = String(d.getHours()).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+    const seconds = String(d.getSeconds()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
+  function truncateText(text, maxLength = 28) {
+    if (!text) return "";
+    return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+  }
 
   const order_status = async () => {
     try {
@@ -59,15 +176,14 @@ function Home({ navigation }) {
   return (
     <SafeAreaView style={tw`flex-1`} edges={["top", "left", "right"]}>
       <View style={[tw`flex-1 items-center justify-center `]}>
-        {/* Main Content */}
-        <View style={tw`flex-1 w-full items-center mt-5`}>
-          <Text style={[styles.globalText,tw`text-left text-sm mb-[-20px] mt-5  flex-1 font-bold text-gray-500`]}>
+        <View style={tw`flex-1 w-full items-center mt-3`}>
+          <Text style={[styles.globalText, tw`text-left text-sm mb-[-20px] flex-1 text-gray-500`]}>
             สวัสดี
           </Text>
-    
-          <Text style={[styles.globalText,tw`flex-1 text-2xl font-bold mt-2 mb-4 text-[#60B876]`]}>
+          <Text style={[styles.globalText, tw`flex-1 text-2xl mt-2 mb-4 text-[#60B876]`]}>
             {userData?.first_name || userData?.phone_number}!
           </Text>
+
           <View style={tw`flex-5 justify-center shadow-xl`}>
             <TouchableOpacity
               style={tw``}
@@ -91,72 +207,81 @@ function Home({ navigation }) {
                   style={tw`mr-3`}
                 />
                 <View>
-                  <Text
-                    style={[
-                      styles.globalText,
-                      tw`text-white text-xl font-light`,
-                    ]}
-                  >
+                  <Text style={[styles.globalText, tw`text-white text-xl font-light`]}>
                     เรียกบริการ
                   </Text>
-                  <Text
-                    style={[
-                      styles.globalText,
-                      tw`text-white text-3xl font-bold`,
-                    ]}
-                  >
+                  <Text style={[styles.globalText, tw`text-white text-3xl`]}>
                     รถสไลด์
                   </Text>
                 </View>
               </LinearGradient>
             </TouchableOpacity>
           </View>
+
           <View
+        style={[
+          tw`flex-row flex-6 justify-between mt-4`,
+          { width: responsiveWidth },
+        ]}
+      >
+        {/* ปุ่มติดตามสถานะ */}
+        <TouchableOpacity
+          style={[
+            { width: width * 0.29, height: width * 0.29 }, // ลดความสูงลง 10%
+            tw`rounded-lg items-center justify-center bg-white shadow-md`,
+          ]}
+          onPress={() => order_status()}
+        >
+          <MaterialIcons name="track-changes" size={40} color="#60B876" />
+          <Text
             style={[
-              tw`flex-row flex-6 justify-between mt-4`,
-              { width: responsiveWidth },
+              styles.globalText,
+              tw`text-base text-[#60B876] mt-2`,
             ]}
           >
-            {/* ติดตามสถานะ Button */}
-            <TouchableOpacity
-              style={[
-                { width: width * 0.42, height: width * 0.42 },
-                tw`rounded-lg items-center justify-center bg-white shadow-md`,
-              ]}
-              onPress={() => order_status()}
-            >
-              <MaterialIcons name="track-changes" size={50} color="#60B876" />
-              <Text
-                style={[
-                  styles.globalText,
-                  tw`text-base font-bold text-[#60B876] mt-2`,
-                ]}
-              >
-                ติดตามสถานะ
-              </Text>
-            </TouchableOpacity>
+            ติดตามสถานะ
+          </Text>
+        </TouchableOpacity>
 
-            {/* ติดต่อเรา Button */}
-            <TouchableOpacity
-              style={[
-                { width: width * 0.42, height: width * 0.42 },
-                tw`rounded-lg items-center justify-center bg-white shadow-md`,
-              ]}
-            >
-              <MaterialIcons name="call" size={50} color="#60B876" />
-              <Text
-                style={[
-                  styles.globalText,
-                  tw`text-base font-bold text-[#60B876] mt-2`,
-                ]}
-              >
-                ติดต่อเรา
-              </Text>
-            </TouchableOpacity>
-          </View>
+        {/* ปุ่มติดต่อเรา */}
+        <TouchableOpacity
+          style={[
+            { width: width * 0.29, height: width * 0.29 }, // ลดความสูงลง 10%
+            tw`rounded-lg items-center justify-center bg-white shadow-md`,
+          ]}
+        >
+          <MaterialIcons name="call" size={40} color="#60B876" />
+          <Text
+            style={[
+              styles.globalText,
+              tw`text-base text-[#60B876] mt-2`,
+            ]}
+          >
+            ติดต่อเรา
+          </Text>
+        </TouchableOpacity>
+
+        {/* ปุ่มเปิดรายการบันทึก พร้อมไอคอน */}
+        <TouchableOpacity
+          onPress={openModal}
+          style={[
+            { width: width * 0.29, height: width * 0.29 }, // ลดความสูงลง 10%
+            tw`rounded-lg items-center justify-center bg-white shadow-md`,
+          ]}
+        >
+          <MaterialIcons name="list" size={40} color="#60B876" />
+          <Text
+            style={[
+              styles.globalText,
+              tw`text-base text-[#60B876] mt-2`,
+            ]}
+          >
+            รายการบันทึก
+          </Text>
+        </TouchableOpacity>
+      </View>
         </View>
 
-        {/* Swiper for Ads Banner */}
         <View
           style={[tw`mb-15`, { width: responsiveWidth, height: height * 0.2 }]}
         >
@@ -181,6 +306,7 @@ function Home({ navigation }) {
                     width: responsiveWidth,
                     height: height * 0.2,
                     resizeMode: "cover",
+                    borderRadius: 10,
                   }}
                 />
               </View>
@@ -188,6 +314,123 @@ function Home({ navigation }) {
           </Swiper>
         </View>
       </View>
+
+      <Modal
+            animationType="fade"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)} // Close modal on back press
+          >
+            <View style={styles.modalOverlay}>
+              <View
+                style={[
+                  styles.modalContent,
+                  tw`rounded-lg `,
+                  { height: height * 0.7 },
+                ]}
+              >
+                <View
+                  style={tw`flex bg-white rounded-lg border border-[#60B876] p-2 w-7/12 shadow-2xl bg-[#60B876]`}
+                >
+                  <Text
+                    style={[
+                      styles.modalText,
+                      styles.globalText,
+                      tw`text-xl  text-center text-white items-center`,
+                    ]}
+                  >
+                    รายการโปรด
+                  </Text>
+                </View>
+                {loading ? (
+                  <Text style={[styles.globalText, tw`text-center`]}>
+                    ไม่พบข้อมูล
+                  </Text>
+                ) : (
+                  <FlatList
+                    data={bookmarks}
+                    keyExtractor={(item) => item.address_id.toString()}
+                    renderItem={({ item }) => (
+                      <View
+                        style={[
+                          styles.bookmarkItem,
+                          tw`flex  justify-between mt-3 p-2 border border-gray-300 rounded-lg `,
+                          { width: width * 0.69 },
+                        ]}
+                      >
+                        <TouchableOpacity
+  style={tw`flex justify-between`}
+  onPress={() => handleRequestFromBookmark(item)}
+>
+  <Text
+    style={[
+      tw`text-base font-semibold text-center `,
+      styles.globalText,
+    ]}
+  >
+    {item.save_name}
+  </Text>
+
+  <View style={tw`flex-row items-center mb-2 p-1`}>
+    <MaterialIcons
+      name="directions-car"
+      size={21}
+      color="black"
+    />
+    <Text
+      style={[styles.globalText, tw`text-gray-500 ml-1`]}
+      numberOfLines={1}
+      ellipsizeMode="tail"
+    >
+      : {item.vahicle_type}
+    </Text>
+  </View>
+
+  <View style={tw`flex-row items-center mb-2 p-1`}>
+    <MaterialIcons
+      name="location-pin"
+      size={21}
+      color="red"
+    />
+    <Text
+      style={[styles.globalText, tw`text-gray-500 ml-1`]}
+      ellipsizeMode="tail"
+    >
+      : {truncateText(item.location_from)}
+    </Text>
+  </View>
+
+  <View style={[tw`flex-row items-center mb-2 p-1`, { paddingRight: 10 }]}>
+    <MaterialIcons
+      name="location-pin"
+      size={21}
+      color="green"
+    />
+    <Text
+      style={[styles.globalText, tw`text-gray-500 ml-1`]}
+      ellipsizeMode="tail"
+    >
+      : {truncateText(item.location_to)}
+    </Text>
+  </View>
+</TouchableOpacity>
+
+                      </View>
+                    )}
+                  />
+                )}
+                <TouchableOpacity
+                  onPress={closeModal}
+                  style={[
+                    styles.globalText,
+                    tw`bg-red-400 rounded-lg p-3 mt-4 px-20`,
+                  ]}
+                >
+                  <Text style={[styles.globalText, tw`text-white text-center`]}>ปิด</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
     </SafeAreaView>
   );
 }
@@ -195,6 +438,24 @@ function Home({ navigation }) {
 const styles = StyleSheet.create({
   globalText: {
     fontFamily: "Mitr-Regular",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Ensures the overlay appears
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });
 

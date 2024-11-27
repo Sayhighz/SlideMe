@@ -23,6 +23,7 @@ import { IP_ADDRESS } from "../../config";
 import { ScrollView } from "react-native-gesture-handler";
 import { UserContext } from "../../UserContext";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import SubmitButton from "../../components/SubmitButton";
 
 
 dayjs.locale("th");
@@ -483,12 +484,13 @@ export default function Order({ navigation, bookmark }) {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} color="black" />
         </TouchableOpacity>
-        <Text style={[styles.globalText, tw`text-2xl font-bold ml-4`]}>ต้องการให้ไปส่งที่ไหน?</Text>
+        <Text style={[styles.globalText, tw`text-2xl ml-4`]}>กรอกข้อมูลการบริการ</Text>
       </View>
+      <Text style={[styles.globalText, tw`text-sm ml-4 text-gray-500`]}>คุณต้องการให้ไปส่งที่ไหน?</Text>
       <TouchableOpacity
         style={[
           { width: responsiveWidth, height: height * 0.11 },
-          tw`p-2 mb-4 mt-10 justify-around bg-white rounded-lg border border-gray-300 shadow-xl `,
+          tw`p-2 mb-4 mt-1 justify-around bg-white rounded-lg border border-gray-300 shadow-xl `,
         ]}
         onPress={() => navigation.navigate("Mapdetail")}
       >
@@ -648,173 +650,29 @@ export default function Order({ navigation, bookmark }) {
                           ? setPreMoreDetail("")
                           : setShowModal2(false)
                       }
-                      style={tw`bg-red-500 rounded-lg px-4 py-2`}
+                      style={tw`bg-red-500 rounded-lg w-25 py-2`}
                     >
-                      <Text style={[styles.globalText,tw`text-white w-10 text-center`]}>{preMoreDetail ? "ล้างข้อมูล" : "ปิด"}</Text>
+                      <Text style={[styles.globalText,tw`text-white text-center`]}>{preMoreDetail ? "ล้างข้อมูล" : "ปิด"}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
                       title="Submit"
                       onPress={handleRequestSubmit}
-                      style={tw`bg-[#60B876] rounded-lg px-4 py-2`}
+                      style={tw`bg-[#60B876] rounded-lg w-25 py-2`}
                     >
-                      <Text style={[styles.globalText,tw`text-white w-10 text-center`]}>ยันยัน</Text>
+                      <Text style={[styles.globalText,tw`text-white text-center`]}>ยันยัน</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
               </View>
             </Modal>
           </View>
-
-          <View style={tw`absolute top-32 right-[-17px]`}>
-            <TouchableOpacity
-              onPress={openModal}
-              style={tw`w-14 h-14 bg-[#60B876] rounded-full items-center justify-center shadow-xl`}
-            >
-              {/* Icon */}
-              <MaterialIcons
-                name="favorite"
-                size={30}
-                color="white"
-              />
-            </TouchableOpacity>
-          </View>
-
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => setModalVisible(false)} // Close modal on back press
-          >
-            <View style={styles.modalOverlay}>
-              <View
-                style={[
-                  styles.modalContent,
-                  tw`rounded-lg `,
-                  { height: height * 0.7 },
-                ]}
-              >
-                <View
-                  style={tw`flex bg-white rounded-lg border border-[#60B876] p-2 w-7/12 shadow-2xl bg-[#60B876]`}
-                >
-                  <Text
-                    style={[
-                      styles.modalText,
-                      styles.globalText,
-                      tw`text-xl font-bold  text-center text-white items-center`,
-                    ]}
-                  >
-                    รายการโปรด
-                  </Text>
-                </View>
-                {loading ? (
-                  <Text style={[styles.globalText, tw`text-center`]}>
-                    ไม่พบข้อมูล
-                  </Text>
-                ) : (
-                  <FlatList
-                    data={bookmarks}
-                    keyExtractor={(item) => item.address_id.toString()}
-                    renderItem={({ item }) => (
-                      <View
-                        style={[
-                          styles.bookmarkItem,
-                          tw`flex  justify-between mt-3 p-2 border border-[#60B876] rounded-lg `,
-                          { width: width * 0.69 },
-                        ]}
-                      >
-                        <TouchableOpacity
-                          style={tw`flex  justify-between`}
-                          onPress={() => handleRequestFromBookmark(item)}
-                        >
-                          <Text
-                            style={[
-                              tw`text-base font-semibold text-center `,
-                              styles.globalText,
-                            ]}
-                          >
-                            {item.save_name}
-                          </Text>
-                          <View style={tw`flex-row items-center mb-2 p-1`}>
-                            <MaterialIcons
-                              name="directions-car"
-                              size={21}
-                              color="black"
-                            />
-                            <Text
-                              style={[styles.globalText, tw`text-gray-500 ml-1`]}
-                              numberOfLines={1}
-                              ellipsizeMode="tail"
-                            >
-                              : {item.vahicle_type}
-                            </Text>
-                          </View>
-                          <View style={tw`flex-row items-center mb-2 p-1`}>
-                            <MaterialIcons
-                              name="location-pin"
-                              size={21}
-                              color="red"
-                            />
-                            <Text
-                              style={[styles.globalText, tw`text-gray-500 ml-1`]}
-                              numberOfLines={1}
-                              ellipsizeMode="tail"
-                            >
-                              : {item.location_from}
-                            </Text>
-                          </View>
-                          <View style={tw`flex-row items-center p-1`}>
-                            <MaterialIcons
-                              name="location-pin"
-                              size={21}
-                              color="green"
-                            />
-                            <Text
-                              style={[styles.globalText, tw`text-gray-500 ml-1`]}
-                              numberOfLines={1}
-                              ellipsizeMode="tail"
-                            >
-                              : {item.location_to}
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                  />
-                )}
-                <TouchableOpacity
-                  onPress={closeModal}
-                  style={[
-                    styles.closeButton,
-                    tw`bg-red-400 rounded-lg p-3 mt-4`,
-                  ]}
-                >
-                  <Text style={styles.closeButtonText}>ปิด</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-
-          <View style={tw`flex-1`}>
-            {/* Other Content */}
-            <View style={tw`absolute bottom-0 w-full p-4`}>
-              <TouchableOpacity
-                style={tw`items-center justify-center w-full h-12 bg-[#60B876] rounded`}
-                onPress={handleSubmitRequest}
-              >
-                <Text
-                  style={[
-                    styles.globalText,
-                    tw`text-white text-xl font-semibold`,
-                  ]}
-                >
-                  ยืนยัน
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
         </View>
       </View>
+      <SubmitButton
+        onPress={handleSubmitRequest}
+        title="ยืนยัน"
+      />
     </PaperProvider>
   );
 }

@@ -60,7 +60,7 @@ const getStatusIcon = (status) => {
 const formatNumberWithCommas = (number) => {
   return number
     ? number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-    : "ไม่ระบุ";
+    : "0";
 };
 
 const HistoryPage = () => {

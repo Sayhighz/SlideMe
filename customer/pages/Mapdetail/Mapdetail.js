@@ -1,4 +1,4 @@
-import React  , { useContext } from "react";
+import React, { useContext } from "react";
 import {
   View,
   Text,
@@ -6,13 +6,14 @@ import {
   FlatList,
   TouchableOpacity,
   SafeAreaView,
-  StyleSheet
+  StyleSheet,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
 import { UserContext } from "../../UserContext";
 import { useRoute } from "@react-navigation/native";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import SubmitButton from "../../components/SubmitButton";
 
 const locations = [
   {
@@ -50,7 +51,8 @@ const locations = [
     title: "International Continuing Education Center, Sripatum",
     address: "Phahonyothin Road, Sena Nikhom, Chatuchak, ",
     distance: "32.0 km",
-  },  {
+  },
+  {
     id: "7",
     title: "International Continuing Education Center, Sripatum",
     address: "Phahonyothin Road, Sena Nikhom, Chatuchak, ",
@@ -59,53 +61,58 @@ const locations = [
 ];
 
 export default function Mapdetail({ navigation }) {
-
   const route = useRoute();
-  
-  const origin = route.params?.origin || <Text style={styles.globalText}>ไม่ระบุ</Text>;
-  const destination = route.params?.destination || <Text style={styles.globalText}>ไม่ระบุ</Text>;
-  const confirmOrigin = route.params?.confirmOrigin || <Text style={styles.globalText}>ไม่ระบุ</Text>;
-  const confirmDestination = route.params?.confirmDestination || <Text style={styles.globalText}>ไม่ระบุ</Text>;
-  const {  userData } = useContext(UserContext);
+
+  const origin = route.params?.origin || (
+    <Text style={styles.globalText}>ไม่ระบุ</Text>
+  );
+  const destination = route.params?.destination || (
+    <Text style={styles.globalText}>ไม่ระบุ</Text>
+  );
+  const confirmOrigin = route.params?.confirmOrigin || (
+    <Text style={styles.globalText}>ไม่ระบุ</Text>
+  );
+  const confirmDestination = route.params?.confirmDestination || (
+    <Text style={styles.globalText}>ไม่ระบุ</Text>
+  );
+  const { userData } = useContext(UserContext);
 
   return (
-
-    
-    
     <SafeAreaView style={tw`bg-white relative flex-1`}>
       <View style={tw`p-4 flex-1`}>
-
         {/* Pickup Location Input */}
         <View style={tw`p-4 flex-row items-center`}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Icon name="arrow-left" size={24} color="black" />
           </TouchableOpacity>
-          <Text style={[styles.globalText, tw`text-2xl font-bold ml-4`]}>เลือกสถานที่รับ-ส่งรถ</Text>
+          <Text style={[styles.globalText, tw`text-2xl font-bold ml-4`]}>
+            เลือกสถานที่รับ-ส่งรถ
+          </Text>
         </View>
-        <View >
+        <View>
           <TouchableOpacity
             style={tw`flex-row items-center justify-between mt-6 p-4 bg-white shadow-md border border-gray-300 rounded-lg`}
             onPress={() => {
               navigation.navigate("MapPage");
             }}
           >
-          <View style={tw`flex items-center justify-center`}>
-            {/* Icon and Text Container */}
-            <View style={tw`flex-row items-center`}>
-              {/* Icon */}
-              <MaterialIcons name="map" size={24} color="black" style={tw`mr-2`} />
+            <View style={tw`flex items-center justify-center`}>
+              {/* Icon and Text Container */}
+              <View style={tw`flex-row items-center`}>
+                {/* Icon */}
+                <MaterialIcons
+                  name="map"
+                  size={24}
+                  color="black"
+                  style={tw`mr-2`}
+                />
 
-              {/* Text */}
-              <Text
-                style={[
-                  styles.globalText,
-                  tw`text-gray-700 text-lg`,
-                ]}
-              >
-                เลือกสถานที่
-              </Text>
+                {/* Text */}
+                <Text style={[styles.globalText, tw`text-gray-700 text-lg`]}>
+                  เลือกสถานที่
+                </Text>
+              </View>
             </View>
-          </View>
             <MaterialIcons name="chevron-right" size={24} color="gray" />
           </TouchableOpacity>
         </View>
@@ -117,12 +124,11 @@ export default function Mapdetail({ navigation }) {
             style={tw`ml-2`}
           />
           <TextInput
-            style={[styles.globalText , tw`flex-1 p-2 text-gray-700`]}
+            style={[styles.globalText, tw`flex-1 p-2 text-gray-700`]}
             placeholder="Enter pickup location"
-            value={confirmOrigin.length ? confirmOrigin : "สถานที่รับรถ"} 
+            value={confirmOrigin.length ? confirmOrigin : "สถานที่รับรถ"}
             editable={false}
-         />
-             
+          />
         </View>
 
         {/* Destination Location Input */}
@@ -134,9 +140,11 @@ export default function Mapdetail({ navigation }) {
             style={tw`ml-2`}
           />
           <TextInput
-            style={[styles.globalText , tw`flex-1 p-2 text-gray-700`]}
+            style={[styles.globalText, tw`flex-1 p-2 text-gray-700`]}
             placeholder="Enter destination"
-            value={confirmDestination.length ? confirmDestination : "สถานที่ส่งรถ"}
+            value={
+              confirmDestination.length ? confirmDestination : "สถานที่ส่งรถ"
+            }
             editable={false}
           />
           {console.log(confirmDestination)}
@@ -147,51 +155,48 @@ export default function Mapdetail({ navigation }) {
         {/* Location List */}
         <View style={tw` h-5/12`}>
           <FlatList
-          data={locations}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-            style={tw`flex-row justify-between items-center py-2 border-b border-gray-200`}
-            >
+            data={locations}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={tw`flex-row justify-between items-center py-2 border-b border-gray-200`}
+              >
                 <View>
-                  <Text style={[styles.globalText ,tw`font-semibold text-gray-800`]}>
+                  <Text
+                    style={[styles.globalText, tw`font-semibold text-gray-800`]}
+                  >
                     {item.title}
                   </Text>
-                  <Text style={[styles.globalText , tw`text-sm text-gray-500`]}>{item.address}</Text>
+                  <Text style={[styles.globalText, tw`text-sm text-gray-500`]}>
+                    {item.address}
+                  </Text>
                 </View>
-                <Text style={[styles.globalText , tw`text-gray-700`]}>{item.distance}</Text>
+                <Text style={[styles.globalText, tw`text-gray-700`]}>
+                  {item.distance}
+                </Text>
               </TouchableOpacity>
             )}
-            />
-          </View>
-        
-        <TouchableOpacity 
-          style={tw`absolute bottom-4 self-center bg-white border-2 border-[#60B876] w-full rounded bg-[#60B876]`}
-            onPress={() => {
-              navigation.navigate("Order",{
-                origin,
-                destination,
-                confirmOrigin,
-                confirmDestination,
-              });
-            }}
-        >
-          <Text style={[ styles.globalText, tw`text-xl font-bold p-1 text-center text-white`]}>
-            ยืนยัน
-          </Text>
-        </TouchableOpacity>
-        
-      </View>
+          />
+        </View>
 
-    
+      </View>
+        <SubmitButton
+          onPress={() => {
+            navigation.navigate("Order", {
+              origin,
+              destination,
+              confirmOrigin,
+              confirmDestination,
+            });
+          }}
+          title="ยืนยัน"
+        />
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   globalText: {
-    fontFamily: 'Mitr-Regular', 
+    fontFamily: "Mitr-Regular",
   },
 });
-
-

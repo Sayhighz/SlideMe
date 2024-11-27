@@ -88,10 +88,10 @@ const MessageBoxScreen = () => {
           />
         </View>
         <View style={tw`flex-1`}>
-          <Text style={tw`text-lg font-bold`} numberOfLines={1} ellipsizeMode="tail">
+          <Text style={[styles.globalText,tw`text-lg`]} numberOfLines={1} ellipsizeMode="tail">
             {item.title}
           </Text>
-          <Text style={tw`text-sm mt-2`} numberOfLines={3} ellipsizeMode="tail">
+          <Text style={[styles.globalText,tw`text-sm mt-2 text-gray-600`]} numberOfLines={3} ellipsizeMode="tail">
             {item.message}
           </Text>
         </View>
@@ -177,11 +177,11 @@ const MessageBoxScreen = () => {
                       color={selectedMessage.type === 'discount' ? '#f59e0b' : '#3b82f6'}
                     />
                   </View>
-                  <Text style={[styles.globalText, tw`text-2xl font-bold`]}>{selectedMessage.title}</Text>
+                  <Text style={[styles.globalText, tw`text-2xl`]}>{selectedMessage.title}</Text>
                 </View>
                 <Text style={[styles.globalText, tw`text-lg mb-5`]}>{selectedMessage.message}</Text>
                 {selectedMessage.type === 'discount' && (
-                  <Text style={[styles.globalText, tw`text-lg mb-5 text-green-600 font-bold`]}>
+                  <Text style={[styles.globalText, tw`text-lg mb-5 text-green-600`]}>
                     โค้ดส่วนลด: {selectedMessage.discount_code}
                   </Text>
                 )}

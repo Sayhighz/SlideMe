@@ -13,6 +13,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 import axios from "axios";
 import { UserContext } from "../../UserContext";
+import SubmitButton from "../../components/SubmitButton";
 
 const MapPage = ({ navigation }) => {
   const route = useRoute();
@@ -199,9 +200,9 @@ const MapPage = ({ navigation }) => {
       </View>
 
       <View
-        style={tw`flex-1 bg-[#FDFFFD] p-3 border border-[#FDFFFD] rounded-t-3xl`}
+        style={tw`flex-1 bg-[#FDFFFD] p-3 border border-[#FDFFFD] rounded-t-3xl mb-10`}
       >
-        <View style={tw`flex-1 justify-around`}>
+        <View style={tw`flex-1 justify-around pb-4`}>
           <Text style={[styles.globalText, tw`text-xl font-bold mb-1`]}>
             {confirmOrigin.length ? "จุดส่งรถ" : "จุดรับรถ"}
           </Text>
@@ -210,20 +211,14 @@ const MapPage = ({ navigation }) => {
           </Text>
         </View>
         <View style={tw`flex-1 justify-end items-center `}>
-          <Pressable
-            style={tw`border border-[#60B876] rounded-lg w-9/10 h-3/5 justify-center items-center bg-[#60B876]`}
-            onPress={() => {
-              setOpenModal(true);
-            }}
-          >
-            <Text
-              style={[styles.globalText, tw`text-[#FDFFFD] text-xl font-bold`]}
-            >
-              ยืนยัน{confirmOrigin.length ? "จุดส่งรถ" : "จุดรับรถ"}
-            </Text>
-          </Pressable>
         </View>
       </View>
+        <SubmitButton
+          onPress={() => {
+            setOpenModal(true);
+          }}
+          title={`ยืนยัน${confirmOrigin.length ? "จุดส่งรถ" : "จุดรับรถ"}`}
+        />
     </SafeAreaView>
   );
 };
