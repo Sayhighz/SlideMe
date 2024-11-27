@@ -21,6 +21,13 @@ import axios from "axios";
 import { IP_ADDRESS } from "../../config";
 
 export default function ViewOrder({ navigation }) {
+
+  const styles = StyleSheet.create({
+    globalText: {
+      fontFamily: "Mitr-Regular",
+    },
+  });
+  
   const route = useRoute();
 
   const [origin, setOrigin] = useState({});
@@ -393,13 +400,18 @@ export default function ViewOrder({ navigation }) {
             </View>
             <View style={tw`flex-1 justify-center items-center`}>
               <Pressable
-                style={tw`flex-1 bg-gray-300 justify-center rounded-lg items-center w-1/3`}
-                onPress={() => {
-                  navigation.navigate("Rating", {
-                    requestId: request_id,
-                    driverId: driver_id,
-                    customer_id_request: customer_id_request,
-                  });
+                style={tw`flex-1 bg-gray-300 justify-center rounded-lg items-center w-1/3 mb-1`}
+                onPress={()=>{
+                  Alert.alert(
+                    "ฟังก์ชั่นนี้ยังไม่พร้อมใช้งาน",
+                    "",
+                    [
+                      {
+                        text: "OK",
+                      },
+                    ],
+                    { cancelable: false }
+                  );
                 }}
               >
                 <MaterialIcons name="close" size={24} color="red" />
@@ -413,8 +425,3 @@ export default function ViewOrder({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  globalText: {
-    fontFamily: "Mitr-Regular",
-  },
-});

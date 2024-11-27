@@ -5,6 +5,8 @@ import {
   Text,
   View,
   StyleSheet,
+  Alert,
+  Modal,
 } from "react-native";
 import React, { useEffect, useState, useContext } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -31,6 +33,8 @@ export default function PaymentPage({ navigation }) {
 
   const [tabIndex, setTabIndex] = useState(0);
 
+  const [openModal, setOpenModal] = useState(false);
+
   const route = useRoute();
 
   const { userData } = useContext(UserContext);
@@ -44,7 +48,7 @@ export default function PaymentPage({ navigation }) {
 
   useEffect(() => {
     setTotalPrice(driverPrice + feePrice - discount);
-  }, [driverPrice, discount]);
+  }, [driverPrice, discount, paymentMethods]);
 
   useEffect(() => {
     const fetchPaymentMethods = async () => {
@@ -59,11 +63,9 @@ export default function PaymentPage({ navigation }) {
     };
 
     fetchPaymentMethods();
-  }, []);
+  }, [tabIndex]);
 
   const updateData = async () => {
-    console.log("updateData", route.params);
-
     const { request_id } = route.params.chooseDriver;
     const chosen_driver_id = route.params.chooseDriver.id;
 
@@ -98,10 +100,10 @@ export default function PaymentPage({ navigation }) {
           price: totalPrice,
         }
       );
-
       navigation.navigate("viewOrder", { driverProfile: route.params });
-
+      setOpenModal(false);
       if (response.data.Status) {
+  
         console.log(
           "Service request updated successfully:",
           response.data.Message
@@ -116,6 +118,31 @@ export default function PaymentPage({ navigation }) {
 
   return (
     <SafeAreaView style={tw`flex-1 relative`}>
+      <Modal visible={openModal} transparent={true}>
+        <View style={[{backgroundColor: "rgba(0, 0, 0, 0.5)"} , tw`flex-1 justify-center items-center`]}>
+          <View style={tw`bg-white shadow flex rounded-lg p-3 h-40 w-5/7`}>
+            <View style={tw`flex-1 items-center justify-center`}>
+              <Text style={[styles.globalText,tw`text-sm font-bold`]}>
+                คุณยืนยันการชำระเงินครั้งนี้ใช่หรือไม่
+              </Text>
+            </View>
+            <View style={tw`flex-row flex-1 items-center justify-around`}>
+              <TouchableOpacity
+                style={tw`p-2 bg-red-500 rounded-lg w-15 `}
+                onPress={() => setOpenModal(false)}
+              >
+                <Text style={[styles.globalText,tw`text-white text-center`]}>ยกเลิก</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={tw`p-2 bg-green-500 rounded-lg w-15`}
+                onPress={() => updateData()}
+              >
+                <Text style={[styles.globalText,tw`text-white text-center`]}>ยืนยัน</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <View style={tw`flex-1`}>
         <View style={tw`flex-1 flex-row justify-around my-4`}>
           <Pressable
@@ -143,7 +170,7 @@ export default function PaymentPage({ navigation }) {
               setTabIndex(1);
             }}
           >
-            <Text style={styles.globalText}>Mobile Banking</Text>
+            <Text style={styles.globalText}>พร้อมเพย์</Text>
           </Pressable>
         </View>
         {tabIndex === 0 && (
@@ -211,10 +238,13 @@ export default function PaymentPage({ navigation }) {
                   </View>
 
                   <View style={tw`flex-5`}>
-                    <Text style={[styles.globalText,tw`text-lg font-bold`]}>
+                    <Text style={[styles.globalText, tw`text-lg font-bold`]}>
                       {item.account_name}
                     </Text>
-                    <Text style={tw`text-sm mt-2`}>{"**** "}{item.card_number}</Text>
+                    <Text style={[styles.globalText, tw`text-sm mt-2`]}>
+                      {"**** "}
+                      {item.card_number}
+                    </Text>
                   </View>
                 </Pressable>
               );
@@ -222,11 +252,12 @@ export default function PaymentPage({ navigation }) {
           />
         )}
         {tabIndex === 0 && (
-          <Pressable
+          <TouchableOpacity
             style={tw`flex-1 items-center h-full justify-center border-2 mx-4 border-dashed rounded-lg mt-4`}
+            onPress={() => navigation.navigate("AddMethod")}
           >
-            <Text>เพิ่มวิธีการชำระเงิน</Text>
-          </Pressable>
+            <Text style={styles.globalText}>เพิ่มวิธีการชำระเงิน</Text>
+          </TouchableOpacity>
         )}
         {tabIndex === 1 && (
           <View style={tw`flex-4 mx-4 mb-4`}>
@@ -239,44 +270,46 @@ export default function PaymentPage({ navigation }) {
         )}
       </View>
       <View style={tw`flex-1 mx-4 mt-4`}>
-        <Text style={tw`text-lg font-bold`}>รายการออเดอร์</Text>
+        <Text style={[styles.globalText, tw`text-lg font-bold`]}>รายการออเดอร์</Text>
         <View style={tw`flex-3 bg-gray-200 p-2 mt-4 rounded-lg`}>
           <View style={tw`flex-4 justify-between`}>
             <View style={tw`flex-row justify-between`}>
-              <Text style={tw`flex-9 text-lg font-bold`}>{driverName}</Text>
+              <Text style={[styles.globalText, tw`flex-9 text-lg font-bold`]}>{driverName}</Text>
               <View style={tw`flex-1 flex-row justify-end items-center`}>
                 <MaterialIcons name="star" size={24} color="yellow" />
-                <Text style={tw` font-bold text-center`}>{driverRating}</Text>
+                <Text style={[styles.globalText, tw` font-bold text-center`]}>{driverRating}</Text>
               </View>
             </View>
             <View style={tw`flex-row justify-between`}>
-              <Text>ราคาข้อเสนอ</Text>
-              <Text>
-                <Text style={tw`font-bold text-[#E33F3F]`}>{driverPrice}</Text>{" "}
+              <Text style={styles.globalText}>ราคาข้อเสนอ</Text>
+              <Text style={styles.globalText}>
+                <Text style={[styles.globalText, tw`font-bold text-[#E33F3F]`]}>{driverPrice}</Text>{" "}
                 บาท
               </Text>
             </View>
             <View style={tw`flex-row justify-between`}>
-              <Text>ค่าธรรมเนียม</Text>
-              <Text>
-                <Text style={tw`font-bold text-[#E33F3F]`}>{feePrice}</Text> บาท
+              <Text style={styles.globalText}>ค่าธรรมเนียม</Text>
+              <Text style={styles.globalText}>
+
+              <Text style={[styles.globalText, tw`font-bold text-[#E33F3F]`]}>{feePrice}</Text> 
+              {" "}บาท
               </Text>
             </View>
             <View style={tw`flex-row justify-between`}>
-              <Text>ส่วนลด</Text>
-              <Text>
+              <Text style={styles.globalText}>ส่วนลด</Text>
+              <Text style={styles.globalText}>
                 <Text style={tw`font-bold text-[#60B876]`}>
                   {discount === 0 ? "0" : discount}
                 </Text>{" "}
-                บาท
+              บาท
               </Text>
             </View>
           </View>
           <View style={tw`flex-2 justify-center`}>
             <View style={tw`flex-row justify-between`}>
-              <Text style={tw`text-xl font-bold`}>ยอดรวม</Text>
-              <Text style={tw`text-xl font-bold`}>
-                <Text style={tw`font-bold text-[#E33F3F]`}>{totalPrice}</Text>{" "}
+              <Text style={[styles.globalText, tw`text-xl font-bold`]}>ยอดรวม</Text>
+              <Text style={[styles.globalText, tw`text-xl font-bold`]}>
+                <Text style={[styles.globalText, tw`font-bold text-[#E33F3F]`]}>{totalPrice}</Text>{" "}
                 บาท
               </Text>
             </View>
@@ -284,16 +317,17 @@ export default function PaymentPage({ navigation }) {
         </View>
         {tabIndex === 0 ? (
           <View style={tw`flex-1 justify-center items-center`}>
-            <Pressable
+            <TouchableOpacity
               style={tw`justify-center w-1/2 h-2/3 items-center border-2 rounded-lg bg-[#60B876] border-[#60B876]`}
               onPress={() => {
                 if (choosePaymentMethod !== "") {
-                  updateData();
+                  // updateData();
+                  setOpenModal(true);
                 }
               }}
             >
-              <Text>จ่ายเงิน</Text>
-            </Pressable>
+              <Text style={styles.globalText}>จ่ายเงิน</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <View style={tw`flex-1`}></View>

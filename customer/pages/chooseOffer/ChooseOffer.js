@@ -318,7 +318,7 @@ const ChooseOffer = ({ navigation, route }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={tw`p-2 bg-green-500 rounded-lg`}
-                onPress={() => {}}
+                onPress={() => navigation.goBack()}
               >
                 <Text style={[styles.globalText,tw`text-white`]}>ยืนยัน</Text>
               </TouchableOpacity>
@@ -343,7 +343,7 @@ const ChooseOffer = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
       <Modal transparent={true} visible={openModal}>
-        <View style={tw`flex-1 justify-center items-center`}>
+        <View style={[tw`flex-1 justify-center items-center ` , {backgroundColor: "rgba(0, 0, 0, 0.5)"}]}>
           <View style={tw`bg-gray-200 w-4/5 h-1/3 flex rounded-lg p-3`}>
             <View style={tw`flex-2`}>
               <View style={tw`flex-1 justify-between`}>
@@ -522,7 +522,26 @@ const ChooseOffer = ({ navigation, route }) => {
                   });
                 }}
               />
-            ) : null}
+            ) : <Dropdown
+            style={tw`h-3/4 w-2/4 rounded-lg px-3 bg-white`}
+            data={dataDropdown}
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            placeholder="Radius"
+            value={radiusInMeters.toString()}
+            onChange={(item) => {
+              const newRadius = parseInt(item.value, 10);
+              setRadiusInMeters(newRadius);
+
+              // กรองและเรียงข้อมูลทันที
+              const filtered = filterOffersByRadius(offer, newRadius);
+              calculateAccurateRouteDistance(filtered).then((results) => {
+                const sorted = sortOffersByDistance(results); // เรียงข้อมูล
+                setSortedFilteredOffer(sorted); // อัปเดตข้อมูลเรียงเสร็จแล้ว
+              });
+            }}
+          />}
           </View>
         </View>
         <View style={tw`flex-8 items-center`}>
@@ -580,7 +599,7 @@ const ChooseOffer = ({ navigation, route }) => {
                   >
                     <View style={tw`flex-1 justify-center`}>
 
-                    <Text style={tw`text-gray-600 font-bold items-center`}>
+                    <Text style={[styles.globalText , tw`text-gray-600 font-bold items-center`]}>
                       ระยะทาง : {""}
                       <Text style={tw`text-red-700`}>
                         {item.distance
@@ -592,7 +611,7 @@ const ChooseOffer = ({ navigation, route }) => {
                           </View>
                           <View style={tw`flex-1 justify-center items-center`}>
 
-                    <Text style={tw`text-gray-600 font-bold`}>
+                    <Text style={[ styles.globalText ,tw`text-gray-600 font-bold`]}>
                       เวลาที่ใช้ : {""}
                       <Text style={tw`text-red-700`}>{item.durationText}</Text>
                       {" นาที"}
