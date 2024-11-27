@@ -1268,7 +1268,23 @@ router.post("/login", (req, res) => {
       .json({ Status: false, Error: "กรุณาใส่เบอร์โทรศัพท์และรหัสผ่าน" });
   }
 
-  const sql = "SELECT * FROM users WHERE phone_number = ?";
+  const sql = `
+    select
+    u.user_id,
+    u.phone_number,
+    u.email,
+    u.username,
+    u.password,
+    u.first_name,
+    u.last_name,
+    u.role,
+    AVG(r.rating) AS average_rating
+  from
+    users u
+  left join reviews r on
+    u.user_id = r.driver_id
+  where
+    phone_number = ?`;
   con.query(sql, [phone_number], (err, results) => {
     if (err) {
       return res.status(500).json({ Status: false, Error: "Database error" });
@@ -1306,6 +1322,7 @@ router.post("/login", (req, res) => {
         role: user.role,
         first_name: user.first_name,
         last_name: user.last_name,
+        average_rating: user.average_rating,
       },
     });
   });

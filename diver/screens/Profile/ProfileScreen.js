@@ -11,32 +11,27 @@ import {
 } from "react-native";
 import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 export default function ProfileScreen({ navigation, userData, onLogout }) {
   console.log("userData", userData);
 
   const handleLogout = () => {
-    Alert.alert(
-      "ยืนยันการออกจากระบบ",
-      "คุณแน่ใจว่าต้องการออกจากระบบหรือไม่?",
-      [
-        {
-          text: "ยกเลิก",
-          style: "cancel",
+    Alert.alert("ยืนยันการออกจากระบบ", "คุณแน่ใจว่าต้องการออกจากระบบหรือไม่?", [
+      {
+        text: "ยกเลิก",
+        style: "cancel",
+      },
+      {
+        text: "ยืนยัน",
+        onPress: () => {
+          if (typeof onLogout === "function") {
+            onLogout();
+          }
         },
-        {
-          text: "ยืนยัน",
-          onPress: () => {
-            if (typeof onLogout === "function") {
-              onLogout();
-            }
-          },
-        },
-      ]
-    );
+      },
+    ]);
   };
-  
-  
 
   return (
     <SafeAreaView
@@ -58,15 +53,23 @@ export default function ProfileScreen({ navigation, userData, onLogout }) {
             สวัสดี!
           </Text>
           <Text
-            style={[
-              styles.globalText,
-              tw`text-2xl font-bold text-green-600`,
-            ]}
+            style={[styles.globalText, tw`text-2xl font-bold text-[#60B876]`]}
           >
             {`${userData?.first_name || "ไม่พบข้อมูล"} ${
               userData?.last_name || ""
             }`}
           </Text>
+          <View style={tw`flex-row items-center`}>
+            <MaterialIcons
+              name="star"
+              size={24}
+              color="orange"
+              style={tw`mr-1`}
+            />
+            <Text style={[styles.globalText, tw`text-lg text-gray-700`]}>
+              {userData?.average_rating || "0.0"}
+            </Text>
+          </View>
         </View>
       </View>
 

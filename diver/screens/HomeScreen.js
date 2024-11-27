@@ -16,6 +16,7 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import Swiper from "react-native-swiper";
 import { IP_ADDRESS } from "../config";
 import NotificationRequest from "./NotificationRequest";
+import { MaterialIcons } from "@expo/vector-icons";
 
 export default function HomeScreen({ route }) {
   const navigation = useNavigation();
@@ -29,10 +30,19 @@ export default function HomeScreen({ route }) {
 
   // Sample notices for Swiper
   const notice = [
-    { id: 1, image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads1.png` },
-    { id: 2, image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads2.png` },
-    { id: 3, image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads3.png` },
-  ];  
+    {
+      id: 1,
+      image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads1.png`,
+    },
+    {
+      id: 2,
+      image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads2.png`,
+    },
+    {
+      id: 3,
+      image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads3.png`,
+    },
+  ];
 
   useFocusEffect(
     React.useCallback(() => {
@@ -42,7 +52,11 @@ export default function HomeScreen({ route }) {
             `http://${IP_ADDRESS}:3000/auth/driver/profitToday?driver_id=${userData?.driver_id}`
           );
           const data = await response.json();
-          if (data.Status && Array.isArray(data.Result) && data.Result.length > 0) {
+          if (
+            data.Status &&
+            Array.isArray(data.Result) &&
+            data.Result.length > 0
+          ) {
             setProfitToday(data.Result[0].profit_today); // Update profit today
           } else {
             setProfitToday(0); // Default to 0 if no data
@@ -126,7 +140,10 @@ export default function HomeScreen({ route }) {
         );
         setModalVisible(false);
       } else {
-        Alert.alert("ข้อผิดพลาด", result.message || "ไม่สามารถยกเลิกข้อเสนอได้");
+        Alert.alert(
+          "ข้อผิดพลาด",
+          result.message || "ไม่สามารถยกเลิกข้อเสนอได้"
+        );
       }
     } catch (error) {
       Alert.alert("ข้อผิดพลาด", "เกิดข้อผิดพลาดขณะยกเลิกข้อเสนอ");
@@ -137,10 +154,10 @@ export default function HomeScreen({ route }) {
   const formatCurrency = (number) => {
     // Default to 0 if the number is null, undefined, or not a valid number
     if (number == null || isNaN(number)) return "฿0.00";
-    return `฿${Number(number).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+    return `฿${Number(number)
+      .toFixed(2)
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
   };
-  
-
 
   // Utility to truncate long text
   const truncateText = (text, maxLength = 8) => {
@@ -194,12 +211,21 @@ export default function HomeScreen({ route }) {
                   สวัสดี!
                 </Text>
                 <Text
-                  style={[styles.globalText, tw`text-2xl font-bold text-[#60B876]`]}
+                  style={[
+                    styles.globalText,
+                    tw`text-2xl font-bold text-[#60B876]`,
+                  ]}
                 >
                   {`${userData?.first_name || "ไม่พบข้อมูล"} ${
                     userData?.last_name || ""
                   }`}
                 </Text>
+                <View style={tw`flex-row items-center`}>
+                  <MaterialIcons name="star" size={24} color="orange" style={tw`mr-1`}/>
+                <Text style={[styles.globalText, tw`text-lg text-gray-700`]}>
+                  {userData?.average_rating || "0.0"}
+                </Text>
+                </View>
               </View>
             </View>
             <View
@@ -207,16 +233,24 @@ export default function HomeScreen({ route }) {
             >
               <View style={tw`items-center`}>
                 <Text
-                  style={[styles.globalText, tw`text-2xl font-bold text-[#60B876]`]}
+                  style={[
+                    styles.globalText,
+                    tw`text-2xl font-bold text-[#60B876]`,
+                  ]}
                 >
                   {formatCurrency(profitToday)}
                 </Text>
-                <Text style={[styles.globalText, tw`text-gray-600`]}>รายได้วันนี้</Text>
+                <Text style={[styles.globalText, tw`text-gray-600`]}>
+                  รายได้วันนี้
+                </Text>
               </View>
             </View>
             <View style={tw`w-19/20 mx-auto mt-4 p-4`}>
               <Text
-                style={[styles.globalText, tw`text-gray-600 text-xl mb-2 text-center`]}
+                style={[
+                  styles.globalText,
+                  tw`text-gray-600 text-xl mb-2 text-center`,
+                ]}
               >
                 รายการเสนอราคา
               </Text>
@@ -250,7 +284,9 @@ export default function HomeScreen({ route }) {
                 </Text>
               </View>
               <View style={tw`flex-1 justify-center items-end`}>
-                <Text style={[styles.globalText, tw`text-blue-500 text-xs`]}>ราคาที่เสนอ</Text>
+                <Text style={[styles.globalText, tw`text-blue-500 text-xs`]}>
+                  ราคาที่เสนอ
+                </Text>
                 <Text style={[styles.globalText, tw`text-xs mt-1`]}>
                   {item.offered_price
                     ? `฿${formatNumberWithCommas(item.offered_price)}`
@@ -317,12 +353,16 @@ export default function HomeScreen({ route }) {
                   <Icon name="map-marker" size={20} color="green" />
                   ต้นทาง:
                 </Text>
-                <Text style={[styles.globalText, tw`text-gray-400 mb-3`]}>{selectedOffer.location_from}</Text>
+                <Text style={[styles.globalText, tw`text-gray-400 mb-3`]}>
+                  {selectedOffer.location_from}
+                </Text>
                 <Text style={[styles.globalText]}>
                   <Icon name="map-marker" size={20} color="red" />
                   ปลายทาง:
                 </Text>
-                <Text style={[styles.globalText, tw`text-gray-400 `]}>{selectedOffer.location_to}</Text>
+                <Text style={[styles.globalText, tw`text-gray-400 `]}>
+                  {selectedOffer.location_to}
+                </Text>
                 <Text style={[styles.globalText, tw`mb-1`]}>
                   ประเภท: {selectedOffer.vehicle_type}
                 </Text>
@@ -363,7 +403,11 @@ export default function HomeScreen({ route }) {
             offersData.length >= 2 && tw`bg-gray-400`,
           ]}
           disabled={offersData.length >= 2}
-          onPress={() => navigation.navigate("JobsScreen", { driver_id: userData?.driver_id })}
+          onPress={() =>
+            navigation.navigate("JobsScreen", {
+              driver_id: userData?.driver_id,
+            })
+          }
         >
           <Text style={[styles.globalText, tw`text-white font-bold text-lg`]}>
             ค้นหางาน

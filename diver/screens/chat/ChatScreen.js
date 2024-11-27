@@ -15,6 +15,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
 import { useNavigation } from "@react-navigation/native";
+import HeaderWithBackButton from "../../componnets/HeaderWithBackButton";
 
 const socket = io(`http://${IP_ADDRESS}:4000`);
 
@@ -114,12 +115,11 @@ export default function ChatScreen({ route }) {
   return (
     <KeyboardAvoidingView style={tw`flex-1 bg-[#f5f7fa]`} behavior="padding">
       {/* Header */}
-      <View style={tw`p-4 pt-10 flex-row items-center`}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={[styles.globalText, tw`text-2xl font-bold ml-4`]}>แชทกับลูกค้า</Text>
-      </View>
+      <HeaderWithBackButton
+      showBackButton={true}
+        title="แชทกับลูกค้า"
+        onPress={() => navigation.goBack()}
+      />
 
       {/* Message List */}
       <FlatList

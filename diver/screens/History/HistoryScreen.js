@@ -22,16 +22,6 @@ export default function HistoryScreen({ userData }) {
   const [selectedStatus, setSelectedStatus] = useState("all");
 
   // Fetch job history every time the screen is focused
-  useFocusEffect(
-    useCallback(() => {
-      fetchJobHistory();
-    }, [])
-  );
-
-  useEffect(() => {
-    filterHistory();
-  }, [selectedStatus, jobHistory]);
-
   const fetchJobHistory = async () => {
     try {
       const response = await fetch(
@@ -40,7 +30,7 @@ export default function HistoryScreen({ userData }) {
       const data = await response.json();
       if (data.Status) {
         setJobHistory(data.Result);
-        setFilteredHistory(data.Result);
+        setFilteredHistory(data.Result); // Assuming you want to update both
       } else {
         console.error("ไม่สามารถดึงประวัติการทำงานได้:", data.Error);
       }
@@ -48,6 +38,30 @@ export default function HistoryScreen({ userData }) {
       console.error("เกิดข้อผิดพลาดในการดึงข้อมูล:", error);
     }
   };
+
+  // Call fetchJobHistory every 5 seconds
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchJobHistory();
+    }, 5000); // 5000ms = 5 seconds
+
+    // Cleanup interval when component unmounts
+    return () => clearInterval(intervalId);
+  }, []);
+
+  // Filter the job history based on selected status
+  useEffect(() => {
+    filterHistory();
+  }, [selectedStatus, jobHistory]);
+
+
+  // Focus effect to reload the history when the screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      fetchJobHistory();
+    }, [])
+  );
+
 
   const filterHistory = () => {
     if (selectedStatus === "all") {
@@ -111,7 +125,7 @@ export default function HistoryScreen({ userData }) {
         <TouchableOpacity
           style={tw`p-3 bg-[#60B876] rounded`}
           onPress={() => setFilterModalVisible(true)}
-        >
+        >  
           <Icon name="filter-outline" size={24} color="white" />
         </TouchableOpacity>
       </View>

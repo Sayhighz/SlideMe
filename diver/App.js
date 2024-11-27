@@ -148,6 +148,7 @@ export default function App() {
     first_name: "",
     last_name: "",
     driver_id: null,
+    average_rating: 0,
   });
 
   // Load custom fonts
@@ -173,6 +174,7 @@ export default function App() {
       first_name: user.first_name,
       last_name: user.last_name,
       driver_id: user.user_id,
+      average_rating: user.average_rating,
     });
     setIsLoggedIn(true);
   };
@@ -184,6 +186,7 @@ export default function App() {
       first_name: "",
       last_name: "",
       driver_id: null,
+      average_rating: 0,
     });
   };
 
