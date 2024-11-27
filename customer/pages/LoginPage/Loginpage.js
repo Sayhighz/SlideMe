@@ -50,7 +50,7 @@ const dynamicFontSize = (size) => Math.max(16, (size * width) / 375);
                     <Text
               style={[
                 styles.globalText,
-                tw.style("font-bold text-center", {
+                tw.style("text-center", {
                   fontSize: dynamicFontSize(52),
                   color: "#60B876",
                   lineHeight: dynamicFontSize(58),
@@ -62,7 +62,7 @@ const dynamicFontSize = (size) => Math.max(16, (size * width) / 375);
             <Text
               style={[
                 styles.globalText,
-                tw.style("font-bold text-center", {
+                tw.style("text-center", {
                   fontSize: dynamicFontSize(80),
                   color: "#60B876",
                   lineHeight: dynamicFontSize(88),
@@ -89,7 +89,7 @@ const dynamicFontSize = (size) => Math.max(16, (size * width) / 375);
 
                         {showSignupContent ? (
                             <View style={tw`flex justify-center items-center mt-5 w-full`}>
-                                <Text style={[styles.globalText, tw`text-xl font-bold text-white text-center `]}>
+                                <Text style={[styles.globalText, tw`text-xl text-white text-center `]}>
                                     เรียกรถสไลด์ได้ง่าย ๆ ในไม่กี่คลิก!
                                 </Text>
                                 <TouchableOpacity
@@ -98,10 +98,10 @@ const dynamicFontSize = (size) => Math.max(16, (size * width) / 375);
                                 // accessible={true}
                                 // accessibilityLabel="Start Using"
                                 >
-                                    <Text style={[styles.globalText, tw`font-bold text-white text-lg text-center`]}>เริ่มต้นใช้งาน</Text>
+                                    <Text style={[styles.globalText, tw`text-white text-lg text-center`]}>เริ่มต้นใช้งาน</Text>
                                 </TouchableOpacity>
 
-                                <Text style={[styles.globalText, tw`mt-2 text-xs font-bold text-white`]}>
+                                <Text style={[styles.globalText, tw`mt-2 text-xs text-white`]}>
                                     ข้อมูลติดต่อ/ช่วยเหลือ
                                 </Text>
                             </View>

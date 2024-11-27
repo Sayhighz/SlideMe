@@ -3,14 +3,14 @@ import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert } from 'reac
 import { IP_ADDRESS } from '../../config'
 import tw from 'twrnc'
 import { UserContext } from '../../UserContext'
+import HeaderWithBackButton from '../../components/HeaderWithBackButton'
+import SubmitButton from '../../components/SubmitButton'
 
 const EditProfile = ({ navigation }) => {
   const { userData, setUserData } = useContext(UserContext);
   const [firstName, setFirstName] = useState(userData.first_name || '');
   const [lastName, setLastName] = useState(userData.last_name || '');
   const [email, setEmail] = useState(userData.email || '');
-  const [username, setUsername] = useState('')
-  const [userId, setUserId] = useState('1');
 
   const formattedPhoneNumber = userData.phone_number?.startsWith('0')
     ? userData.phone_number.substring(1)
@@ -70,7 +70,9 @@ const EditProfile = ({ navigation }) => {
   
 
   return (
-    <View style={tw`flex-1 p-5 bg-gray-100 justify-center items-center`}>
+    <>
+    <HeaderWithBackButton showBackButton={true} title="แก้ไขข้อมูลผู้ใช้" onPress={() => navigation.goBack()} />
+    <View style={tw`flex-1 p-5 bg-gray-100`}>
       <Text style={[styles.globalText, tw`text-xl font-bold mb-5`]}>แก้ไขข้อมูลผู้ใช้</Text>
 
 
@@ -120,25 +122,9 @@ const EditProfile = ({ navigation }) => {
           />
         </View>
       </View>
-
-      <View style={tw`flex-row w-full justify-between`}>
-        <TouchableOpacity
-          style={tw`bg-red-500 w-1/2 h-12 rounded-lg justify-center mr-2 w-30`} // ใช้ mr-2 เพื่อเว้นระยะ
-          onPress={() => {
-            navigation.goBack()
-          }}
-        >
-          <Text style={[styles.globalText, tw`text-white text-center font-bold`]}>ยกเลิก</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={tw`bg-green-500 w-1/2 h-12 rounded-lg justify-center ml-2 w-30`} // ใช้ ml-2 เพื่อเว้นระยะ
-          onPress={confirmAndSave}
-        >
-          <Text style={[styles.globalText, tw`text-white text-center font-bold`]}>บันทึก</Text>
-        </TouchableOpacity>
-      </View>
     </View>
+    <SubmitButton onPress={confirmAndSave} title="บันทึก" />
+    </>
   )
 }
 

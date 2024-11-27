@@ -86,19 +86,19 @@ function PhoneVerify({ onLogin }) {
             <SafeAreaView style={tw`flex-1 bg-white`}>
                 <View style={tw`flex-1 justify-center items-center mt-5`}>
                     <View style={tw`p-4 items-center justify-center`}>
-                        <Text style={[ tw`text-6xl text-[#60B876] font-bold text-center`]}>SLIDE</Text>
-                        <Text style={[ tw`text-8xl text-[#60B876] font-bold text-center leading-none z-10`]}>ME</Text>
+                        <Text style={[ styles.globalText,tw`text-6xl text-[#60B876] text-center`]}>SLIDE</Text>
+                        <Text style={[ styles.globalText,tw`text-8xl text-[#60B876] text-center leading-none z-10`]}>ME</Text>
                     </View>
                 </View>
 
                 <View style={tw`flex-2 items-center p-5`}>
-                    <Text style={[styles.globalText ,tw`mb-4 font-bold text-lg`]}>กรอกรหัส OTP CODE</Text>
+                    <Text style={[styles.globalText ,tw`mb-4 text-lg`]}>กรอกรหัส OTP CODE</Text>
                     <View style={tw`flex-row justify-center mb-4`}>
                         {otp.map((code, index) => (
                             <TextInput
                                 key={index}
                                 ref={otpRefs.current[index]}
-                                style={tw`border-2 rounded-lg w-12 h-12 text-center text-lg mx-2`}
+                                style={[styles.globalText,tw`border-2 rounded-lg w-12 h-12 text-center text-lg mx-2`]}
                                 maxLength={1}
                                 keyboardType="numeric"
                                 value={code}
@@ -120,7 +120,7 @@ function PhoneVerify({ onLogin }) {
                         onPress={handleLoginClick}
                         disabled={!isOtpComplete}
                     >
-                        <Text style={[styles.globalText , tw`text-white text-center font-bold`]}>ยืนยัน</Text>
+                        <Text style={[styles.globalText , tw`text-white text-center`]}>ยืนยัน</Text>
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
@@ -130,7 +130,7 @@ function PhoneVerify({ onLogin }) {
 
 const styles = StyleSheet.create({
     globalText: {
-      fontFamily: 'Mitr-Regular', // กำหนดฟอนต์ที่คุณต้องการ
+      fontFamily: 'Mitr-Regular',
       fontSize: 16,
     },
   });

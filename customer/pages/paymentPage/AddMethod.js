@@ -77,6 +77,7 @@ const AddMethod = ({ route }) => {
       Alert.alert("Error", "An error occurred: " + error.message);
     }
   };
+  
 
   const renderPaymentOption = ({ item }) => (
     <TouchableOpacity
@@ -92,7 +93,7 @@ const AddMethod = ({ route }) => {
 
   return (
     <View style={tw`flex-1 p-5 bg-gray-100 mt-17`}>
-      <Text style={[tw`text-2xl font-bold mb-5`, styles.customFont]}>เพิ่มช่องทางการชำระเงิน</Text>
+      <Text style={[tw`text-2xl mb-5`, styles.customFont]}>เพิ่มช่องทางการชำระเงิน</Text>
 
       <Text style={[tw`text-lg mt-2`, styles.customFont]}>ประเภท</Text>
       <TouchableOpacity
@@ -119,6 +120,7 @@ const AddMethod = ({ route }) => {
         style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
         placeholder="เลขบัญชี"
         keyboardType="numeric"
+        maxLength={5}
         value={accountNumber}
         onChangeText={setAccountNumber}
         placeholderTextColor="#9CA3AF"
@@ -130,7 +132,7 @@ const AddMethod = ({ route }) => {
         placeholder="MM/YY"
         value={expirationDate}
         onChangeText={handleExpirationDateChange}
-        maxLength={5}
+        maxLength={6}
         keyboardType="numeric"
         placeholderTextColor="#9CA3AF"
       />

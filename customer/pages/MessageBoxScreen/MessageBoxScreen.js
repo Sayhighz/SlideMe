@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from 'twrnc';
 import { IP_ADDRESS } from "../../config";
 import { UserContext } from '../../UserContext';
+import HeaderWithBackButton from '../../components/HeaderWithBackButton';
 
 const MessageBoxScreen = () => {
   const [messages, setMessages] = useState([]);
@@ -100,6 +101,8 @@ const MessageBoxScreen = () => {
   );
 
   return (
+    <>
+      <HeaderWithBackButton showBackButton={false} title="กล่องข้อความ" />
     <SafeAreaView style={tw`flex-1 bg-gray-100`}>
       {/* Filter Buttons */}
       <View style={tw`bg-[#60B876]`}>
@@ -192,6 +195,7 @@ const MessageBoxScreen = () => {
         </View>
       </Modal>
     </SafeAreaView>
+    </>
   );
 };
 

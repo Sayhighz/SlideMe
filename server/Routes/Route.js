@@ -674,14 +674,22 @@ router.get("/getRequests", (req, res) => {
   });
 });
 
+// INSERT INTO driveroffers (
+//   request_id,
+//   driver_id,
+//   offered_price,
+//   offer_status
+// ) VALUES (?, ?, ?, 'pending')
+// ใส่เงื่อนไขว่าสามารถ insert ได้แต่จะต้อง s.status != cancelled โดย join table servicerequests s
+
 router.post("/offer_price", (req, res) => {
   const sql = `
-              INSERT INTO driveroffers (
-              request_id,
-              driver_id,
-              offered_price,
-              offer_status
-          ) VALUES (?, ?, ?, 'pending')
+               INSERT INTO driveroffers (
+                request_id,
+                driver_id,
+                offered_price,
+                offer_status
+              ) VALUES (?, ?, ?, 'pending')
           `;
 
   const values = [
@@ -1382,15 +1390,15 @@ router.post("/driver/edit_profile", (req, res) => {
   });
 });
 
-router.post("/driver/cancel_request", (req, res) => {
+router.post("/cancel_request", (req, res) => {
   const request_id = req.body.request_id;
 
   const sql = `
-          UPDATE servicerequests AS sr
-          JOIN driveroffers AS dof ON sr.request_id = dof.request_id
-          SET sr.status = 'cancelled',
-              dof.offer_status = 'rejected'
-          WHERE sr.request_id = ?;
+        UPDATE servicerequests sr
+        LEFT JOIN driveroffers d ON sr.request_id = d.request_id
+        SET sr.status = 'cancelled',
+            d.offer_status = CASE WHEN d.request_id IS NOT NULL THEN 'rejected' ELSE d.offer_status END
+        WHERE sr.request_id = ?;
         `;
 
   con.query(sql, [request_id], (err, result) => {

@@ -11,6 +11,7 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
 import { UserContext } from "../../UserContext";
+import HeaderWithBackButton from "../../components/HeaderWithBackButton";
 
 // Utility functions
 const formatThaiDate = (dateString) => {
@@ -39,7 +40,7 @@ const mapServiceStatus = (status) => {
   switch (status) {
     case "completed":
       return "สำเร็จ";
-    case "canceled":
+    case "cancelled":
       return "ยกเลิก";
     default:
       return "กำลังดำเนินการ";
@@ -50,7 +51,7 @@ const getStatusIcon = (status) => {
   switch (status) {
     case "completed":
       return { icon: "check-circle", color: "#28a745", bgColor: "#d4edda" };
-    case "canceled":
+    case "cancelled":
       return { icon: "times-circle", color: "#dc3545", bgColor: "#f8d7da" };
     default:
       return { icon: "hourglass-half", color: "#ffc107", bgColor: "#fff3cd" };
@@ -58,9 +59,7 @@ const getStatusIcon = (status) => {
 };
 
 const formatNumberWithCommas = (number) => {
-  return number
-    ? number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-    : "0";
+  return number ? number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "0";
 };
 
 const HistoryPage = () => {
@@ -92,12 +91,20 @@ const HistoryPage = () => {
       }
     };
 
-    fetchData();
-  }, []);
+    fetchData(); // Initial fetch
+
+    // Set interval for data refresh every 5 seconds
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 5000);
+
+    // Cleanup interval when component unmounts
+    return () => clearInterval(intervalId);
+  }, [userData.user_id]);
 
   const filteredData = serviceHistoryData.filter((item) => {
     if (filter === "completed") return item.service_status === "completed";
-    if (filter === "canceled") return item.service_status === "canceled";
+    if (filter === "cancelled") return item.service_status === "cancelled";
     return true;
   });
 
@@ -141,7 +148,7 @@ const HistoryPage = () => {
             <Icon name={icon} size={24} color={color} />
           </View>
           <View>
-            <Text style={[tw`text-lg font-semibold`, styles.customFont]}>
+            <Text style={[tw`text-lg`, styles.customFont]}>
               {item.vehicle_type || "ไม่ระบุ"}
             </Text>
             <Text style={[tw`text-gray-600`, styles.customFont]}>
@@ -180,120 +187,125 @@ const HistoryPage = () => {
   }
 
   return (
-    <View style={tw`flex-1 bg-gray-100 mt-20`}>
-      <Text
-        style={[
-          styles.customFont,tw`text-3xl font-bold text-left mt-3 mb-3 ml-6 text-gray-800`,
-      ]}>
-        ประวัติการใช้บริการ
-      </Text>
-      {/* Filter Button */}
-      <TouchableOpacity
-        style={[
-          tw`absolute z-50 bottom-6 right-6 bg-white rounded-full shadow`,
-          { width: 60, height: 60, justifyContent: "center", alignItems: "center" },
-        ]}
-        onPress={toggleFilterMenu}
-      >
-        <Icon name="filter" size={24} color="#60B876" />
-      </TouchableOpacity>
-
-      {/* Filter Menu Modal */}
-      <Modal
-        transparent={true}
-        visible={filterMenuVisible}
-        animationType="fade"
-        onRequestClose={toggleFilterMenu}
-      >
-        <TouchableOpacity
-          style={tw`flex-1 bg-black bg-opacity-50`}
-          onPress={toggleFilterMenu}
-        />
-        <View
-          style={tw`absolute bottom-20 right-6 bg-white rounded-lg shadow p-4`}
-        >
-          <TouchableOpacity
-            style={tw`flex-row items-center mb-2`}
-            onPress={() => applyFilter("all")}
-          >
-            <Icon name="list" size={20} color="#60B876" style={tw`mr-2`} />
-            <Text style={tw`text-black text-lg`}>ทั้งหมด</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={tw`flex-row items-center mb-2`}
-            onPress={() => applyFilter("completed")}
-          >
-            <Icon name="check-circle" size={20} color="#28a745" style={tw`mr-2`} />
-            <Text style={tw`text-black text-lg`}>สำเร็จ</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={tw`flex-row items-center`}
-            onPress={() => applyFilter("canceled")}
-          >
-            <Icon name="times-circle" size={20} color="#dc3545" style={tw`mr-2`} />
-            <Text style={tw`text-black text-lg`}>ยกเลิก</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-
-      {/* FlatList */}
-      <FlatList
-        data={filteredData}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => {
-          return item && item.id ? item.id.toString() : `index-${index}`;
-        }}
-        contentContainerStyle={tw`pb-15`}
+    <>
+      <HeaderWithBackButton
+        title="ประวัติการใช้บริการ"
+        showBackButton={false}
       />
-
-      {selectedItem && (
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => setModalVisible(false)}
+      <View style={tw`flex-1 bg-gray-100`}>
+        {/* Filter Button */}
+        <TouchableOpacity
+          style={[
+            tw`absolute z-50 bottom-6 right-6 bg-white rounded-full shadow`,
+            {
+              width: 60,
+              height: 60,
+              justifyContent: "center",
+              alignItems: "center",
+            },
+          ]}
+          onPress={toggleFilterMenu}
         >
+          <Icon name="filter" size={24} color="#60B876" />
+        </TouchableOpacity>
+
+        {/* Filter Menu Modal */}
+        <Modal
+          transparent={true}
+          visible={filterMenuVisible}
+          animationType="fade"
+          onRequestClose={toggleFilterMenu}
+        >
+          <TouchableOpacity
+            style={tw`flex-1 bg-black bg-opacity-50`}
+            onPress={toggleFilterMenu}
+          />
           <View
-            style={tw`flex-1 justify-center items-center bg-black bg-opacity-50 `}
+            style={tw`absolute bottom-20 right-6 bg-white rounded-lg shadow p-4`}
           >
-            <View
-              style={[tw`bg-white rounded-lg p-6 w-11/12`, { maxHeight: "90%" }]}
+            <TouchableOpacity
+              style={tw`flex-row items-center mb-2`}
+              onPress={() => applyFilter("all")}
             >
-              <Text style={[tw`text-2xl font-bold mb-4`, styles.customFont]}>
-                รายละเอียดเพิ่มเติม
-              </Text>
-              <View>
-                <Text style={[tw`text-lg`, styles.customFont]}>
-                  บริการ: {selectedItem.vehicle_type || "ไม่ระบุ"}
-                </Text>
-                <Text style={[tw`text-lg`, styles.customFont]}>
-                  วันที่: {formatThaiDate(selectedItem.date)}
-                </Text>
-                <Text style={[tw`text-lg`, styles.customFont]}>
-                  สถานะ: {mapServiceStatus(selectedItem.service_status)}
-                </Text>
-                <Text style={[tw`text-lg`, styles.customFont]}>
-                  ค่าบริการ: {formatNumberWithCommas(selectedItem.service_charge)} บาท
-                </Text>
-              </View>
-              <TouchableOpacity
-                style={tw`bg-[#60B876] rounded px-4 py-2 mt-4`}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={tw`text-white text-center text-lg`}>ปิด</Text>
-              </TouchableOpacity>
-            </View>
+              <Icon name="list" size={20} color="#60B876" style={tw`mr-2`} />
+              <Text style={tw`text-black text-lg`}>ทั้งหมด</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={tw`flex-row items-center mb-2`}
+              onPress={() => applyFilter("completed")}
+            >
+              <Icon
+                name="check-circle"
+                size={20}
+                color="#28a745"
+                style={tw`mr-2`}
+              />
+              <Text style={tw`text-black text-lg`}>สำเร็จ</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={tw`flex-row items-center`}
+              onPress={() => applyFilter("cancelled")}
+            >
+              <Icon
+                name="times-circle"
+                size={20}
+                color="#dc3545"
+                style={tw`mr-2`}
+              />
+              <Text style={tw`text-black text-lg`}>ยกเลิก</Text>
+            </TouchableOpacity>
           </View>
         </Modal>
-      )}
-    </View>
+
+        {/* FlatList */}
+        <FlatList
+          data={filteredData}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => {
+            return item && item.id ? item.id.toString() : `index-${index}`;
+          }}
+          contentContainerStyle={tw`pb-15`}
+        />
+
+        {selectedItem && (
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
+              <View style={tw`bg-white rounded-lg p-6 w-11/12`}>
+                <Text style={[styles.customFont,tw`text-xl font-bold mb-4`]}>
+                  {selectedItem.vehicle_type || "ไม่ระบุ"}
+                </Text>
+                <Text style={[styles.customFont,tw`text-gray-700 mb-4`]}>
+                  วันที่: {formatThaiDate(selectedItem.date)}
+                </Text>
+                <Text style={[styles.customFont,tw`text-gray-700 mb-4`]}>
+                  สถานะ: {mapServiceStatus(selectedItem.service_status)}
+                </Text>
+                <Text style={[styles.customFont,tw`text-gray-700 mb-4`]}>
+                  ค่าบริการ: {formatNumberWithCommas(selectedItem.service_charge)} บาท
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setModalVisible(false)}
+                  style={tw`bg-[#60B876] py-2 px-4 rounded-lg`}
+                >
+                  <Text style={[styles.customFont,tw`text-white text-center`]}>ปิดหน้าต่าง</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        )}
+      </View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   customFont: {
     fontFamily: "Mitr-Regular",
-    flexWrap: "wrap",
   },
 });
 

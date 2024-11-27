@@ -138,6 +138,12 @@ export default function JobsScreen({ route }) {
     };
 
     fetchRequests();
+
+    const intervalId = setInterval(() => {
+      fetchRequests();
+    }, 5000); // Fetch every 5 seconds
+
+    return () => clearInterval(intervalId); // Clean up the interval when the component unmounts
   }, [driver_id]);
 
   const filteredRequests = requests.filter((request) => {

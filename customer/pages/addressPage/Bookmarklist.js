@@ -15,6 +15,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { IP_ADDRESS } from "../../config";
 import { UserContext } from "../../UserContext";
 import { ActivityIndicator } from "react-native-paper";
+import HeaderWithBackButton from "../../components/HeaderWithBackButton";
 
 const BookmarkList = ({ navigation }) => {
   //   const bookmarkData = [
@@ -113,7 +114,7 @@ const BookmarkList = ({ navigation }) => {
       >
         <View style={tw`flex-row items-center justify-between`}>
           <Text
-            style={[tw`text-lg font-semibold ml-2` , styles.globalText]}
+            style={[tw`text-lg ml-2` , styles.globalText]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
@@ -132,26 +133,26 @@ const BookmarkList = ({ navigation }) => {
         <View style={tw`flex-row flex-1 items-center`}>
           <MaterialIcons name="location-pin" size={25} color="red" />
           <Text
-            style={tw`text-sm font-semibold flex-1 text-gray-600`}
+            style={[styles.globalText,tw`text-sm flex-1 text-gray-600`]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            : {item.location_from}
+             {item.location_from}
           </Text>
         </View>
         <View style={tw`flex-row flex-1 items-center`}>
           <MaterialIcons name="location-pin" size={24} color="green" />
           <Text
-            style={tw`text-sm font-semibold flex-1 text-gray-600`}
+            style={[styles.globalText,tw`text-sm flex-1 text-gray-600`]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            : {item.location_to}
+             {item.location_to}
           </Text>
         </View>
         <View style={tw`flex-row flex-1 items-center `}>
           <MaterialIcons name="directions-car" size={24} color="black" />
-          <Text style={tw`text-sm font-semibold text-gray-600`}>: {item.vahicle_type}</Text>
+          <Text style={[styles.globalText,tw`text-sm text-gray-600`]}> {item.vahicle_type}</Text>
         </View>
         
         
@@ -162,7 +163,8 @@ const BookmarkList = ({ navigation }) => {
 
   return (
     <View style={tw`flex-1 bg-gray-100`}>
-      <View style={tw`flex-row items-center justify-end mr-4 `}>
+      <HeaderWithBackButton showBackButton={true} title="รายการโปรด" onPress={() => navigation.goBack()} />
+      <View style={tw`flex-row items-center justify-end mr-4 mt-3 `}>
         <TouchableOpacity onPress={fetchBookmarks}>
           <MaterialIcons name="refresh" size={24} color="black" />
         </TouchableOpacity>
@@ -182,8 +184,8 @@ const BookmarkList = ({ navigation }) => {
           }
         ListEmptyComponent={
           <View style={tw`flex-1 items-center justify-center mt-4`}>
-            <Text style={tw`text-lg font-semibold text-gray-600`}>
-              No Bookmarks
+            <Text style={[styles.globalText,tw`text-lg text-gray-600`]}>
+              ไม่มีรายการโปรด
             </Text>
           </View>
         }
@@ -191,11 +193,11 @@ const BookmarkList = ({ navigation }) => {
 
       {/* Add New Address Button */}
       <TouchableOpacity
-        style={tw`flex-row items-center justify-center p-4 bg-white border-t border-gray-300`}
+        style={tw`flex-row items-center justify-center p-4 pb-10 bg-white border-t border-gray-300`}
         onPress={() => navigation.navigate("addressPage")}
       >
         <Ionicons name="add-circle-outline" size={24} color="black" />
-        <Text style={tw`text-lg ml-2 text-gray-800`}>เพิ่มรายการโปรด</Text>
+        <Text style={[styles.globalText,tw`text-lg ml-2 text-gray-800`]}>เพิ่มรายการโปรด</Text>
       </TouchableOpacity>
 
       <Modal
@@ -208,7 +210,7 @@ const BookmarkList = ({ navigation }) => {
           style={tw`flex-1 justify-center items-center bg-gray-800 bg-opacity-75`}
         >
           <View style={tw`bg-white  p-4 rounded-lg`}>
-            <Text style={[styles.globalText,tw`text-lg font-semibold text-center mb-4`]}>
+            <Text style={[styles.globalText,tw`text-lg text-center mb-4`]}>
               คุณต้องการลบรายการโปรดนี้ใช่หรือไม่?
             </Text>
             <View style={tw`flex-row justify-around`}>
@@ -217,7 +219,7 @@ const BookmarkList = ({ navigation }) => {
                 color="gray"
                 onPress={() => setModalVisible(false)}
               >
-                <Text style={tw`text-lg font-semibold text-gray-500`}>
+                <Text style={[styles.globalText,tw`text-lg text-gray-500`]}>
                   ยกเลิก
                 </Text>
               </TouchableOpacity>
@@ -230,7 +232,7 @@ const BookmarkList = ({ navigation }) => {
                   }
                 }}
               >
-                <Text style={tw`text-lg font-semibold text-red-500`}>ใช่</Text>
+                <Text style={[styles.globalText,tw`text-lg text-red-500`]}>ใช่</Text>
               </TouchableOpacity>
             </View>
           </View>

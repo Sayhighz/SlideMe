@@ -12,8 +12,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
 import { UserContext } from "../../UserContext";
 import { useRoute } from "@react-navigation/native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import SubmitButton from "../../components/SubmitButton";
+import HeaderWithBackButton from '../../components/HeaderWithBackButton';
 
 const locations = [
   {
@@ -78,17 +78,15 @@ export default function Mapdetail({ navigation }) {
   const { userData } = useContext(UserContext);
 
   return (
+    <>
+        <HeaderWithBackButton
+        showBackButton={true}
+        title="เลือกสถานที่รับ-ส่งรถ"
+        onPress={() => navigation.goBack()}
+      />
     <SafeAreaView style={tw`bg-white relative flex-1`}>
       <View style={tw`p-4 flex-1`}>
         {/* Pickup Location Input */}
-        <View style={tw`p-4 flex-row items-center`}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="arrow-left" size={24} color="black" />
-          </TouchableOpacity>
-          <Text style={[styles.globalText, tw`text-2xl font-bold ml-4`]}>
-            เลือกสถานที่รับ-ส่งรถ
-          </Text>
-        </View>
         <View>
           <TouchableOpacity
             style={tw`flex-row items-center justify-between mt-6 p-4 bg-white shadow-md border border-gray-300 rounded-lg`}
@@ -192,6 +190,7 @@ export default function Mapdetail({ navigation }) {
           title="ยืนยัน"
         />
     </SafeAreaView>
+    </>
   );
 }
 

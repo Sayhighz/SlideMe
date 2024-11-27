@@ -34,15 +34,14 @@ const EditPaymentMethodModal = ({
   const paymentOptions = [
     { label: "บัตรเครดิต", value: "credit_card", icon: "credit-card" },
     { label: "บัตรเดบิต", value: "debit_card", icon: "credit-card" },
-    { label: "PayPal", value: "paypal", icon: "paypal" },
-    { label: "ธนาคาร", value: "bank_transfer", icon: "university" },
-    { label: "อื่นๆ", value: "other", icon: "ellipsis-h" },
   ];
 
   const handleExpirationDateChange = (input) => {
     let formattedInput = input.replace(/\D/g, "");
     if (formattedInput.length > 2) {
-      formattedInput = `${formattedInput.slice(0, 2)}/${formattedInput.slice(2)}`;
+      formattedInput = `${formattedInput.slice(0, 2)}/${formattedInput.slice(
+        2
+      )}`;
     }
     setExpirationDate(formattedInput);
   };
@@ -63,13 +62,16 @@ const EditPaymentMethodModal = ({
     };
 
     try {
-      const response = await fetch(`http://${IP_ADDRESS}:3000/auth/update_payment_method`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/update_payment_method`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (response.ok) {
         Alert.alert("Success", "แก้ไขช่องทางการชำระเงินสําเร็จ");
@@ -95,13 +97,18 @@ const EditPaymentMethodModal = ({
           text: "ใช่",
           onPress: async () => {
             try {
-              const response = await fetch(`http://${IP_ADDRESS}:3000/auth/disable_payment_method`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ payment_method_id: Number(paymentMethodId) }),
-              });
+              const response = await fetch(
+                `http://${IP_ADDRESS}:3000/auth/disable_payment_method`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    payment_method_id: Number(paymentMethodId),
+                  }),
+                }
+              );
 
               if (response.ok) {
                 Alert.alert("Success", "ลบช่องทางการชำระเงินสําเร็จ");
@@ -135,16 +142,28 @@ const EditPaymentMethodModal = ({
 
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
     >
-      <View style={tw`flex-1 justify-center items-center bg-gray-800 bg-opacity-50`}>
+      <View
+        style={tw`flex-1 justify-center items-center bg-gray-800 bg-opacity-50`}
+      >
         <View style={tw`w-11/12 bg-white p-5 rounded`}>
-          <Text style={[tw`text-2xl font-bold mb-5`, styles.customFont]}>
-            แก้ไขช่องทางการชำระเงิน
-          </Text>
+          <View style={tw`flex-row items-center justify-between`}>
+            <TouchableOpacity
+              style={[tw`flex-row items-center p-2 mt-[-1.30rem] rounded`]}
+              onPress={onClose}
+              disabled={isSaving}
+            >
+              <Icon name="arrow-left" size={16} color="black" />
+            </TouchableOpacity>
+            <Text style={[tw`text-2xl mb-5`, styles.customFont]}>
+              แก้ไขช่องทางการชำระเงิน
+            </Text>
+            <View />
+          </View>
 
           <Text style={[tw`text-lg mt-2`, styles.customFont]}>ประเภท</Text>
           <TouchableOpacity
@@ -160,7 +179,9 @@ const EditPaymentMethodModal = ({
 
           {dropdownVisible && (
             <Modal transparent={true} animationType="fade">
-              <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
+              <View
+                style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}
+              >
                 <View style={tw`w-10/12 bg-white rounded-lg`}>
                   <FlatList
                     data={paymentOptions}
@@ -171,7 +192,9 @@ const EditPaymentMethodModal = ({
                     style={tw`p-4 bg-gray-300 rounded-b-lg`}
                     onPress={() => setDropdownVisible(false)}
                   >
-                    <Text style={[tw`text-center text-lg`, styles.customFont]}>ปิด</Text>
+                    <Text style={[tw`text-center text-lg`, styles.customFont]}>
+                      ปิด
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -186,13 +209,16 @@ const EditPaymentMethodModal = ({
             onChangeText={setAccountName}
           />
 
-          <Text style={[tw`text-lg mt-4`, styles.customFont]}>หมายเลขบัญชี</Text>
+          <Text style={[tw`text-lg mt-4`, styles.customFont]}>
+            หมายเลขบัญชี
+          </Text>
           <TextInput
             style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
             placeholder="เลขบัญชี"
             keyboardType="numeric"
             value={accountNumber}
             onChangeText={setAccountNumber}
+            maxLength={4}
           />
 
           <Text style={[tw`text-lg mt-4`, styles.customFont]}>วันหมดอายุ</Text>
@@ -207,23 +233,23 @@ const EditPaymentMethodModal = ({
 
           <View style={tw`flex-row justify-between mt-5`}>
             <TouchableOpacity
-              style={[tw`flex-row items-center p-2 rounded bg-red-600`, styles.button]}
+              style={[
+                tw`flex-row items-center p-2 rounded bg-red-600`,
+                styles.button,
+              ]}
               onPress={handleDelete}
               disabled={isSaving}
             >
               <Icon name="trash" size={16} color="white" style={tw`mr-2`} />
-              <Text style={tw`text-white text-lg`}>ลบข้อมูล</Text>
+              <Text style={[styles.customFont, tw`text-white text-lg`]}>
+                ปิดการใช้งาน
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[tw`flex-row items-center p-2 rounded bg-gray-300`, styles.button]}
-              onPress={onClose}
-              disabled={isSaving}
-            >
-              <Icon name="arrow-left" size={16} color="black" style={tw`mr-2`} />
-              <Text style={tw`text-black text-lg`}>ย้อนกลับ</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[tw`flex-row items-center p-2 rounded bg-green-600`, styles.button]}
+              style={[
+                tw`flex-row items-center p-2 rounded bg-green-600`,
+                styles.button,
+              ]}
               onPress={handleSave}
               disabled={isSaving}
             >
@@ -232,7 +258,9 @@ const EditPaymentMethodModal = ({
               ) : (
                 <>
                   <Icon name="save" size={16} color="white" style={tw`mr-2`} />
-                  <Text style={tw`text-white text-lg`}>บันทึก</Text>
+                  <Text style={[styles.customFont, tw`text-white text-lg`]}>
+                    บันทึก
+                  </Text>
                 </>
               )}
             </TouchableOpacity>

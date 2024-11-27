@@ -18,6 +18,8 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import bookmap from "./bookmap/Bookmap";
 import { IP_ADDRESS } from "../../config";
 import { UserContext } from "../../UserContext";
+import HeaderWithBackButton from "../../components/HeaderWithBackButton";
+import SubmitButton from "../../components/SubmitButton";
 
 const AddressPage = ({ navigation }) => {
   // const [houseNumber, setHouseNumber] = useState('')
@@ -145,6 +147,11 @@ const AddressPage = ({ navigation }) => {
 
   return (
     <>
+      <HeaderWithBackButton
+        showBackButton={true}
+        title="รายการโปรด"
+        onPress={() => navigation.goBack()}
+      />
       <SafeAreaView
         style={[
           tw`flex-1 bg-white items-center justify-between `,
@@ -153,13 +160,13 @@ const AddressPage = ({ navigation }) => {
       >
         <PaperProvider>
           <View style={tw` bg-white `}>
-            <Text style={[styles.globalText, tw`mt-2 mb-1 font-semibold`]}>
-              Name
+            <Text style={[styles.globalText, tw`mt-2 mb-1 ml-3 text-sm text-gray-600`]}>
+              ชื่อรายการโปรด
             </Text>
             <TextInput
               style={[
                 styles.globalText,
-                tw`w-full h-12 border border-[#60B876] bg-white rounded-lg px-3 mb-3`,
+                tw`w-full h-12 border border-gray-300 shadow-md bg-white rounded-lg px-3 mb-3`,
               ]}
               placeholder={save_name}
               mode="outlined"
@@ -168,13 +175,13 @@ const AddressPage = ({ navigation }) => {
               maxLength={20}
             />
 
-            <Text style={[styles.globalText, tw`mt-2 mb-1 font-semibold`]}>
-              Route info
+<Text style={[styles.globalText, tw`mt-2 mb-1 ml-3 text-sm text-gray-600`]}>
+              จุดรับส่ง
             </Text>
             <TouchableOpacity
               style={[
                 { width: responsiveWidth, height: height * 0.12 },
-                tw`p-2 mb-4 mt-1 justify-around bg-white rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876]`,
+                tw`p-2 mb-4 mt-1 justify-around bg-white rounded-lg border border-gray-300 shadow-md`,
               ]}
               onPress={() =>
                 navigation.navigate("addMapFav", {
@@ -221,7 +228,7 @@ const AddressPage = ({ navigation }) => {
                     onPress={() => setMenuVisible(true)}
                     style={[
                       { width: responsiveWidth, height: height * 0.12 },
-                      tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-[#60B876] shadow-xl shadow-[#60B876] mb-4`,
+                      tw`flex-col items-center justify-center bg-white p-4 rounded-lg border border-gray-300 shadow-md mb-4`,
                     ]}
                   >
                     <FontAwesome5
@@ -257,53 +264,13 @@ const AddressPage = ({ navigation }) => {
                 { height: height * 0.331 },
               ]}
             >
-              <View style={tw`flex-row items-center justify-center gap-4`}>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate("Bookmarklist")}
-                  style={[
-                    styles.globalText,
-                    tw` items-center justify-center bg-red-400 p-4 rounded-lg `,
-                    {
-                      width: width * 0.4,
-                      height: height * 0.09,
-                      marginBottom: height * 0.02,
-                    },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.globalText,
-                      tw`text-white font-bold text-lg`,
-                    ]}
-                  >
-                    ยกเลิก
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={handleSave}
-                  style={[
-                    styles.globalText,
-                    tw` items-center justify-center bg-[#60B876] p-4 rounded-lg `,
-                    {
-                      width: width * 0.4,
-                      height: height * 0.09,
-                      marginBottom: height * 0.02,
-                    },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.globalText,
-                      tw`text-white font-bold text-lg`,
-                    ]}
-                  >
-                    บันทึก
-                  </Text>
-                </TouchableOpacity>
-              </View>
             </View>
           </View>
         </PaperProvider>
+                <SubmitButton
+                  onPress={handleSave}
+                  title="บันทึก"
+                />
       </SafeAreaView>
     </>
   );

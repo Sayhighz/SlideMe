@@ -24,6 +24,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { UserContext } from "../../UserContext";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import SubmitButton from "../../components/SubmitButton";
+import HeaderWithBackButton from "../../components/HeaderWithBackButton";
 
 
 dayjs.locale("th");
@@ -479,13 +480,12 @@ export default function Order({ navigation, bookmark }) {
   return (
     <PaperProvider>
       <View style={tw`flex-1 items-center`}>
+        <HeaderWithBackButton
+        showBackButton={true}
+        title="กรอกข้อมูลการให้บริการ"
+        onPress={() => navigation.goBack()}
+      />
         <View style={tw`flex-1 mt-2`}>
-        <View style={tw`p-4 pt-16 flex-row items-center`}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={[styles.globalText, tw`text-2xl ml-4`]}>กรอกข้อมูลการบริการ</Text>
-      </View>
       <Text style={[styles.globalText, tw`text-sm ml-4 text-gray-500`]}>คุณต้องการให้ไปส่งที่ไหน?</Text>
       <TouchableOpacity
         style={[

@@ -19,6 +19,8 @@ import { IP_ADDRESS } from "../../config";
 import axios from "axios";
 import QRCode from "react-native-qrcode-svg";
 import { UserContext } from "../../UserContext";
+import HeaderWithBackButton from "../../components/HeaderWithBackButton";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function PaymentPage({ navigation }) {
   const feePrice = 200;
@@ -46,24 +48,28 @@ export default function PaymentPage({ navigation }) {
   const customer_id_request =
     route.params?.chooseDriver.customer_id_request || "ไม่ระบุ";
 
-  useEffect(() => {
-    setTotalPrice(driverPrice + feePrice - discount);
-  }, [driverPrice, discount, paymentMethods]);
-
-  useEffect(() => {
-    const fetchPaymentMethods = async () => {
-      try {
-        const response = await axios.get(
-          `http://${IP_ADDRESS}:3000/auth/get_payments_method?user_id=${userData.user_id}` // Pass the customer_id_request as user_id
-        );
-        setPaymentMethods(response.data.Result); // Assuming the response data is in the expected format
-      } catch (error) {
-        console.error("Error fetching payment methods:", error);
-      }
-    };
-
-    fetchPaymentMethods();
-  }, [tabIndex]);
+    useEffect(() => {
+      setTotalPrice(driverPrice + feePrice - discount);
+    }, [driverPrice, discount, paymentMethods]);
+  
+    // Fetch payment methods when the page is focused
+    useFocusEffect(
+      React.useCallback(() => {
+        const fetchPaymentMethods = async () => {
+          try {
+            const response = await axios.get(
+              `http://${IP_ADDRESS}:3000/auth/get_payments_method?user_id=${userData.user_id}` // Pass the customer_id_request as user_id
+            );
+            setPaymentMethods(response.data.Result); // Assuming the response data is in the expected format
+          } catch (error) {
+            console.error("Error fetching payment methods:", error);
+          }
+        };
+  
+        fetchPaymentMethods();
+      }, [userData.user_id]) // Re-fetch if user_id changes
+    );
+  
 
   const updateData = async () => {
     const { request_id } = route.params.chooseDriver;
@@ -103,7 +109,6 @@ export default function PaymentPage({ navigation }) {
       navigation.navigate("viewOrder", { driverProfile: route.params });
       setOpenModal(false);
       if (response.data.Status) {
-  
         console.log(
           "Service request updated successfully:",
           response.data.Message
@@ -117,223 +122,299 @@ export default function PaymentPage({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={tw`flex-1 relative`}>
-      <Modal visible={openModal} transparent={true}>
-        <View style={[{backgroundColor: "rgba(0, 0, 0, 0.5)"} , tw`flex-1 justify-center items-center`]}>
-          <View style={tw`bg-white shadow flex rounded-lg p-3 h-40 w-5/7`}>
-            <View style={tw`flex-1 items-center justify-center`}>
-              <Text style={[styles.globalText,tw`text-sm font-bold`]}>
-                คุณยืนยันการชำระเงินครั้งนี้ใช่หรือไม่
-              </Text>
-            </View>
-            <View style={tw`flex-row flex-1 items-center justify-around`}>
-              <TouchableOpacity
-                style={tw`p-2 bg-red-500 rounded-lg w-15 `}
-                onPress={() => setOpenModal(false)}
-              >
-                <Text style={[styles.globalText,tw`text-white text-center`]}>ยกเลิก</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={tw`p-2 bg-green-500 rounded-lg w-15`}
-                onPress={() => updateData()}
-              >
-                <Text style={[styles.globalText,tw`text-white text-center`]}>ยืนยัน</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-      <View style={tw`flex-1`}>
-        <View style={tw`flex-1 flex-row justify-around my-4`}>
-          <Pressable
+    <>
+      <HeaderWithBackButton
+        showBackButton={true}
+        title="ชําระเงิน"
+        onPress={() => navigation.goBack()}
+      />
+      <SafeAreaView style={tw`flex-1 relative`}>
+        <Modal visible={openModal} transparent={true}>
+          <View
             style={[
-              tw`w-1/3 border-2 rounded-lg items-center h-full justify-center`,
-              tabIndex === 0
-                ? tw`bg-[#60B876] border-[#60B876]`
-                : tw`bg-gray-300 border-gray-300`,
+              { backgroundColor: "rgba(0, 0, 0, 0.5)" },
+              tw`flex-1 justify-center items-center`,
             ]}
-            onPress={() => {
-              setTabIndex(0);
-            }}
           >
-            <Text style={styles.globalText}>บัตรเครดิต /</Text>
-            <Text style={styles.globalText}>บัตรเดบิต</Text>
-          </Pressable>
-          <Pressable
-            style={[
-              tw`w-1/3 border-2 rounded-lg items-center h-full justify-center`,
-              tabIndex === 1
-                ? tw`bg-[#60B876] border-[#60B876]`
-                : tw`bg-gray-300 border-gray-300`,
-            ]}
-            onPress={() => {
-              setTabIndex(1);
-            }}
-          >
-            <Text style={styles.globalText}>พร้อมเพย์</Text>
-          </Pressable>
-        </View>
-        {tabIndex === 0 && (
-          <FlatList
-            style={tw`flex-3 mx-4`}
-            data={paymentMethods}
-            keyExtractor={(item, index) => `${item.card_number || index}`}
-            renderItem={({ item, index }) => {
-              return (
-                <Pressable
-                  key={item.card_number || index}
-                  style={[
-                    tw`flex-row items-center p-4 mb-2 rounded`,
-                    choosePaymentMethod &&
-                    choosePaymentMethod.card_number === item.card_number &&
-                    choosePaymentMethod.payment_type === item.payment_type &&
-                    choosePaymentMethod.account_name === item.account_name
-                      ? tw`bg-[#60B876]`
-                      : tw`bg-white`,
-                  ]}
-                  onPress={() => {
-                    setChoosePaymentMethod(item);
-                  }}
+            <View style={tw`bg-white shadow flex rounded-lg p-3 h-40 w-5/7`}>
+              <View style={tw`flex-1 items-center justify-center`}>
+                <Text style={[styles.globalText, tw`text-sm `]}>
+                  คุณยืนยันการชำระเงินครั้งนี้ใช่หรือไม่
+                </Text>
+              </View>
+              <View style={tw`flex-row flex-1 items-center justify-around`}>
+                <TouchableOpacity
+                  style={tw`p-2 bg-red-500 rounded-lg w-15 `}
+                  onPress={() => setOpenModal(false)}
                 >
-                  <View style={tw`flex-1 items-center`}>
-                    {(() => {
-                      if (item.payment_type === "credit_card") {
-                        return (
-                          <Icon
-                            name={"credit-card"}
-                            size={20}
-                            color={"#007bff"}
-                          />
-                        );
-                      } else if (item.payment_type === "debit_card") {
-                        return (
-                          <Icon
-                            name={"credit-card"}
-                            size={20}
-                            color={"#28a745"}
-                          />
-                        );
-                      } else if (item.payment_type === "paypal") {
-                        return (
-                          <Icon name={"paypal"} size={20} color={"#003087"} />
-                        );
-                      } else if (item.payment_type === "bank_transfer") {
-                        return (
-                          <Icon
-                            name={"university"}
-                            size={20}
-                            color={"#6f42c1"}
-                          />
-                        );
-                      } else if (item.payment_type === "other") {
-                        return (
-                          <Icon
-                            name={"question-circle"}
-                            size={20}
-                            color={"#ffc107"}
-                          />
-                        );
-                      }
-                    })()}
-                  </View>
-
-                  <View style={tw`flex-5`}>
-                    <Text style={[styles.globalText, tw`text-lg font-bold`]}>
-                      {item.account_name}
-                    </Text>
-                    <Text style={[styles.globalText, tw`text-sm mt-2`]}>
-                      {"**** "}
-                      {item.card_number}
-                    </Text>
-                  </View>
-                </Pressable>
-              );
-            }}
-          />
-        )}
-        {tabIndex === 0 && (
-          <TouchableOpacity
-            style={tw`flex-1 items-center h-full justify-center border-2 mx-4 border-dashed rounded-lg mt-4`}
-            onPress={() => navigation.navigate("AddMethod")}
-          >
-            <Text style={styles.globalText}>เพิ่มวิธีการชำระเงิน</Text>
-          </TouchableOpacity>
-        )}
-        {tabIndex === 1 && (
-          <View style={tw`flex-4 mx-4 mb-4`}>
-            <View style={tw`flex-1 items-center justify-center`}>
-              <Pressable>
-                <QRCode size={200} value="http://awesome.link.qr" />
-              </Pressable>
-            </View>
-          </View>
-        )}
-      </View>
-      <View style={tw`flex-1 mx-4 mt-4`}>
-        <Text style={[styles.globalText, tw`text-lg font-bold`]}>รายการออเดอร์</Text>
-        <View style={tw`flex-3 bg-gray-200 p-2 mt-4 rounded-lg`}>
-          <View style={tw`flex-4 justify-between`}>
-            <View style={tw`flex-row justify-between`}>
-              <Text style={[styles.globalText, tw`flex-9 text-lg font-bold`]}>{driverName}</Text>
-              <View style={tw`flex-1 flex-row justify-end items-center`}>
-                <MaterialIcons name="star" size={24} color="yellow" />
-                <Text style={[styles.globalText, tw` font-bold text-center`]}>{driverRating}</Text>
+                  <Text style={[styles.globalText, tw`text-white text-center`]}>
+                    ยกเลิก
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={tw`p-2 bg-green-500 rounded-lg w-15`}
+                  onPress={() => updateData()}
+                >
+                  <Text style={[styles.globalText, tw`text-white text-center`]}>
+                    ยืนยัน
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
-            <View style={tw`flex-row justify-between`}>
-              <Text style={styles.globalText}>ราคาข้อเสนอ</Text>
-              <Text style={styles.globalText}>
-                <Text style={[styles.globalText, tw`font-bold text-[#E33F3F]`]}>{driverPrice}</Text>{" "}
-                บาท
-              </Text>
-            </View>
-            <View style={tw`flex-row justify-between`}>
-              <Text style={styles.globalText}>ค่าธรรมเนียม</Text>
-              <Text style={styles.globalText}>
-
-              <Text style={[styles.globalText, tw`font-bold text-[#E33F3F]`]}>{feePrice}</Text> 
-              {" "}บาท
-              </Text>
-            </View>
-            <View style={tw`flex-row justify-between`}>
-              <Text style={styles.globalText}>ส่วนลด</Text>
-              <Text style={styles.globalText}>
-                <Text style={tw`font-bold text-[#60B876]`}>
-                  {discount === 0 ? "0" : discount}
-                </Text>{" "}
-              บาท
-              </Text>
-            </View>
           </View>
-          <View style={tw`flex-2 justify-center`}>
-            <View style={tw`flex-row justify-between`}>
-              <Text style={[styles.globalText, tw`text-xl font-bold`]}>ยอดรวม</Text>
-              <Text style={[styles.globalText, tw`text-xl font-bold`]}>
-                <Text style={[styles.globalText, tw`font-bold text-[#E33F3F]`]}>{totalPrice}</Text>{" "}
-                บาท
-              </Text>
-            </View>
-          </View>
-        </View>
-        {tabIndex === 0 ? (
-          <View style={tw`flex-1 justify-center items-center`}>
-            <TouchableOpacity
-              style={tw`justify-center w-1/2 h-2/3 items-center border-2 rounded-lg bg-[#60B876] border-[#60B876]`}
+        </Modal>
+        <View style={tw`flex-1`}>
+          <View style={tw`flex-1 flex-row justify-around my-4`}>
+            <Pressable
+              style={[
+                tw`w-1/3 border-2 rounded-lg items-center h-full justify-center`,
+                tabIndex === 0
+                  ? tw`bg-[#60B876] shadow-lg border-[#60B876]`
+                  : tw`bg-white border-gray-300 shadow-lg`,
+              ]}
               onPress={() => {
-                if (choosePaymentMethod !== "") {
-                  // updateData();
-                  setOpenModal(true);
-                }
+                setTabIndex(0);
               }}
             >
-              <Text style={styles.globalText}>จ่ายเงิน</Text>
-            </TouchableOpacity>
+              <Text
+                style={[
+                  styles.globalText,
+                  tabIndex === 0 ? tw`text-white` : tw`text-black`, // Change text color based on tabIndex
+                ]}
+              >
+                บัตรเครดิต /
+              </Text>
+              <Text
+                style={[
+                  styles.globalText,
+                  tabIndex === 0 ? tw`text-white` : tw`text-black`, // Change text color based on tabIndex
+                ]}
+              >
+                บัตรเดบิต
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[
+                tw`w-1/3 border-2 rounded-lg items-center h-full justify-center`,
+                tabIndex === 1
+                  ? tw`bg-[#60B876] shadow-lg text-white border-[#60B876]`
+                  : tw`bg-white border-gray-300 shadow-lg`,
+              ]}
+              onPress={() => {
+                setTabIndex(1);
+              }}
+            >
+              <Text
+                style={[
+                  styles.globalText,
+                  tabIndex === 1 ? tw`text-white` : tw`text-black`, // Change text color based on tabIndex
+                ]}
+              >
+                พร้อมเพย์
+              </Text>
+            </Pressable>
           </View>
-        ) : (
-          <View style={tw`flex-1`}></View>
-        )}
-      </View>
-    </SafeAreaView>
+          {tabIndex === 0 && (
+            <FlatList
+              style={tw`flex-3 mx-4`}
+              data={paymentMethods}
+              keyExtractor={(item, index) => `${item.card_number || index}`}
+              renderItem={({ item, index }) => {
+                return (
+                  <Pressable
+                    key={item.card_number || index}
+                    style={[
+                      tw`flex-row items-center p-4 mb-2 rounded`,
+                      choosePaymentMethod &&
+                      choosePaymentMethod.card_number === item.card_number &&
+                      choosePaymentMethod.payment_type === item.payment_type &&
+                      choosePaymentMethod.account_name === item.account_name
+                        ? tw`bg-[#60B876]`
+                        : tw`bg-white`,
+                    ]}
+                    onPress={() => {
+                      setChoosePaymentMethod(item);
+                    }}
+                  >
+                    <View style={tw`flex-1 items-center`}>
+                      {(() => {
+                        if (item.payment_type === "credit_card") {
+                          return (
+                            <Icon
+                              name={"credit-card"}
+                              size={20}
+                              color={"#007bff"}
+                            />
+                          );
+                        } else if (item.payment_type === "debit_card") {
+                          return (
+                            <Icon
+                              name={"credit-card"}
+                              size={20}
+                              color={"#28a745"}
+                            />
+                          );
+                        } else if (item.payment_type === "paypal") {
+                          return (
+                            <Icon name={"paypal"} size={20} color={"#003087"} />
+                          );
+                        } else if (item.payment_type === "bank_transfer") {
+                          return (
+                            <Icon
+                              name={"university"}
+                              size={20}
+                              color={"#6f42c1"}
+                            />
+                          );
+                        } else if (item.payment_type === "other") {
+                          return (
+                            <Icon
+                              name={"question-circle"}
+                              size={20}
+                              color={"#ffc107"}
+                            />
+                          );
+                        }
+                      })()}
+                    </View>
+
+                    <View style={tw`flex-5`}>
+                      <Text
+                        style={[
+                          styles.globalText,
+                          tw`text-lg`,
+                          choosePaymentMethod &&
+                          choosePaymentMethod.card_number ===
+                            item.card_number &&
+                          choosePaymentMethod.payment_type ===
+                            item.payment_type &&
+                          choosePaymentMethod.account_name === item.account_name
+                            ? tw`text-white` // Change text color to white when selected
+                            : tw`text-black`, // Keep text color black when not selected
+                        ]}
+                      >
+                        {item.account_name}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.globalText,
+                          tw`text-sm mt-2`,
+                          choosePaymentMethod &&
+                          choosePaymentMethod.card_number ===
+                            item.card_number &&
+                          choosePaymentMethod.payment_type ===
+                            item.payment_type &&
+                          choosePaymentMethod.account_name === item.account_name
+                            ? tw`text-white` // Change text color to white when selected
+                            : tw`text-black`, // Keep text color black when not selected
+                        ]}
+                      >
+                        {"**** "}
+                        {item.card_number}
+                      </Text>
+                    </View>
+                  </Pressable>
+                );
+              }}
+            />
+          )}
+          {tabIndex === 0 && (
+            <TouchableOpacity
+              style={tw`flex-1 items-center h-full justify-center border-2 mx-4 border-dashed rounded-lg mt-4`}
+              onPress={() => navigation.navigate("AddMethod")}
+            >
+              <Text style={styles.globalText}>เพิ่มวิธีการชำระเงิน</Text>
+            </TouchableOpacity>
+          )}
+          {tabIndex === 1 && (
+            <View style={tw`flex-4 mx-4 mb-4`}>
+              <View style={tw`flex-1 items-center justify-center`}>
+                <Pressable>
+                  <QRCode size={200} value="http://awesome.link.qr" />
+                </Pressable>
+              </View>
+            </View>
+          )}
+        </View>
+        <View style={tw`flex-1 mx-4 mt-4`}>
+          <Text style={[styles.globalText, tw`text-xl`]}>รายการออเดอร์</Text>
+          <View
+            style={tw`flex-3 bg-white shadow-lg border border-gray-300 p-2 mt-4 rounded-lg`}
+          >
+            <View style={tw`flex-4 justify-between`}>
+              <View style={tw`flex-row justify-between`}>
+                <Text style={[styles.globalText, tw`flex-9 text-lg `]}>
+                  {driverName}
+                </Text>
+                <View style={tw`flex-1 flex-row justify-end items-center`}>
+                  <MaterialIcons name="star" size={24} color="orange" />
+                  <Text style={[styles.globalText, tw`text-center`]}>
+                    {driverRating}
+                  </Text>
+                </View>
+              </View>
+              <View style={tw`flex-row justify-between`}>
+                <Text style={styles.globalText}>ราคาข้อเสนอ</Text>
+                <Text style={styles.globalText}>
+                  <Text style={[styles.globalText, tw`text-[#E33F3F]`]}>
+                    {driverPrice}
+                  </Text>{" "}
+                  บาท
+                </Text>
+              </View>
+              <View style={tw`flex-row justify-between`}>
+                <Text style={styles.globalText}>ค่าธรรมเนียม</Text>
+                <Text style={styles.globalText}>
+                  <Text style={[styles.globalText, tw`text-[#E33F3F]`]}>
+                    {feePrice}
+                  </Text>{" "}
+                  บาท
+                </Text>
+              </View>
+              <View style={tw`flex-row justify-between`}>
+                <Text style={styles.globalText}>ส่วนลด</Text>
+                <Text style={styles.globalText}>
+                  <Text style={tw` text-[#60B876]`}>
+                    {discount === 0 ? "0" : discount}
+                  </Text>{" "}
+                  บาท
+                </Text>
+              </View>
+            </View>
+            <View style={tw`flex-2 justify-center`}>
+              <View style={tw`flex-row justify-between`}>
+                <Text style={[styles.globalText, tw`text-xl `]}>ยอดรวม</Text>
+                <Text style={[styles.globalText, tw`text-xl `]}>
+                  <Text style={[styles.globalText, tw` text-[#E33F3F]`]}>
+                    {totalPrice}
+                  </Text>{" "}
+                  บาท
+                </Text>
+              </View>
+            </View>
+          </View>
+          {tabIndex === 0 ? (
+            <View style={tw`flex-1 justify-center items-center`}>
+              <TouchableOpacity
+                style={tw`justify-center w-1/2 h-2/3 items-center border-2 rounded-lg bg-[#60B876] border-[#60B876]`}
+                onPress={() => {
+                  if (choosePaymentMethod !== "") {
+                    // updateData();
+                    setOpenModal(true);
+                  }
+                }}
+              >
+                <Text style={[styles.globalText, tw`text-white text-xl`]}>
+                  จ่ายเงิน
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={tw`flex-1`}></View>
+          )}
+        </View>
+      </SafeAreaView>
+    </>
   );
 }
 

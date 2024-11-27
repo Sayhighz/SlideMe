@@ -21,6 +21,7 @@ import { IP_ADDRESS } from "../../config";
 import MapViewDirections from "react-native-maps-directions";
 import { UserContext } from "../../UserContext";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import HeaderWithBackButton from "../../components/HeaderWithBackButton";
 
 const ChooseOffer = ({ navigation, route }) => {
   const fee = 200;
@@ -67,6 +68,34 @@ const ChooseOffer = ({ navigation, route }) => {
 
   const { userData } = useContext(UserContext);
   const { request_id } = route.params;
+
+  const handleCancelRequest = async () => {
+
+    try {
+      const response = await fetch(
+        `http://${IP_ADDRESS}:3000/auth/cancel_request`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            request_id: request_id
+          }),
+        }
+      );
+
+      const result = await response.json();
+      if (response.ok) {
+        navigation.navigate("HomePage");
+      } else {
+        Alert.alert("ข้อผิดพลาด", result.message || "ยกเลิกรายการไม่สําเร็จ");
+      }
+    } catch (error) {
+      Alert.alert("ข้อผิดพลาด", "เกิดข้อผิดพลาดในการยกเลิกรายการ");
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     console.log("request_id", request_id);
@@ -246,6 +275,7 @@ const ChooseOffer = ({ navigation, route }) => {
     return sortOffersByDistance(filteredOffers); // เรียงข้อมูลทันที
   };
 
+
   const calculateAccurateRouteDistance = async (offers) => {
     const promises = offers.map(async (item) => {
       try {
@@ -291,69 +321,59 @@ const ChooseOffer = ({ navigation, route }) => {
   const renderEmptyList = () => {
     return (
       <View style={tw`flex-1 justify-center items-center mt-20 h-2/2`}>
-        <Text style={[styles.globalText, tw`text-lg font-bold`]}>
+        <Text style={[styles.globalText, tw`text-lg`]}>
           ไม่มีคนขับในระยะนี้
         </Text>
       </View>
     );
   };
-
+  
   return (
+    <>
+      <HeaderWithBackButton
+        showBackButton={true}
+        title="เลือกคนขับ"
+        onPress={() => setOpenModalCancel(true)}
+      />
     <SafeAreaView style={tw`flex-1`}>
       <Modal transparent={true} visible={openModalCancel} >
         <View style={[{backgroundColor: "rgba(0, 0, 0, 0.5)"} , tw`flex-1 justify-center items-center`]}>
           <View style={tw`bg-white shadow flex rounded-lg p-3 h-40 w-2/4`}>
             <View style={tw`flex-1 items-center justify-center`}>
-              <Text style={[styles.globalText,tw`text-sm font-bold text-red-600`]}>
-                คุณต้องการยกเลิกข้อเสนอ
+              <Text style={[styles.globalText,tw`text-sm text-center text-red-600`]}>
+                คุณต้องการใช้บริการ
               </Text>
-              <Text style={[styles.globalText,tw`text-sm font-bold text-red-600`]}>นี้หรือไม่</Text>
+              <Text style={[styles.globalText,tw`text-sm text-center text-red-600`]}>นี้หรือไม่</Text>
             </View>
             <View style={tw`flex-row flex-1 items-center justify-around`}>
               <TouchableOpacity
-                style={tw`p-2 bg-red-500 rounded-lg`}
+                style={tw`p-2 bg-red-500 rounded-lg w-1/3`}
                 onPress={() => setOpenModalCancel(false)}
               >
-                <Text style={[styles.globalText,tw`text-white`]}>ยกเลิก</Text>
+                <Text style={[styles.globalText,tw`text-white text-center`]}>ไม่</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={tw`p-2 bg-green-500 rounded-lg`}
-                onPress={() => navigation.goBack()}
+                style={tw`p-2 bg-green-500 rounded-lg w-1/3`}
+                onPress={handleCancelRequest}
               >
-                <Text style={[styles.globalText,tw`text-white`]}>ยืนยัน</Text>
+                <Text style={[styles.globalText,tw`text-white text-center`]}>ยืนยัน</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
-      <View style={tw`p-4 flex-row items-center justify-between `}>
-        <View style={tw`flex-row items-center`}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="arrow-left" size={24} color="black" />
-          </TouchableOpacity>
-          <Text style={[styles.globalText, tw`text-2xl font-bold ml-4 mt-1`]}>
-            เลือกข้อเสนอ
-          </Text>
-        </View>
-        <TouchableOpacity
-          onPress={() => setOpenModalCancel(true)}
-          style={tw`p-2 bg-red-600 rounded-lg`}
-        >
-          <Text>ยกเลิก</Text>
-        </TouchableOpacity>
-      </View>
       <Modal transparent={true} visible={openModal}>
         <View style={[tw`flex-1 justify-center items-center ` , {backgroundColor: "rgba(0, 0, 0, 0.5)"}]}>
-          <View style={tw`bg-gray-200 w-4/5 h-1/3 flex rounded-lg p-3`}>
+          <View style={tw`bg-white shadow-md border border-gray-300 w-4/5 h-1/3 flex rounded-lg p-3`}>
             <View style={tw`flex-2`}>
               <View style={tw`flex-1 justify-between`}>
                 <Text
-                  style={[styles.globalText, tw`text-lg font-bold text-center`]}
+                  style={[styles.globalText, tw`text-lg text-center`]}
                 >
                   ข้อมูลคนขับ
                 </Text>
                 <View style={tw`flex-1`}>
-                  <Text style={[styles.globalText, tw`text-lg font-bold`]}>
+                  <Text style={[styles.globalText, tw`text-lg`]}>
                     {"ชื่อ : "}
                     <Text style={tw`text-lg text-green-700`}>
                       {chooseDriver.name}
@@ -361,7 +381,7 @@ const ChooseOffer = ({ navigation, route }) => {
                   </Text>
                 </View>
                 <View style={tw`flex-1`}>
-                  <Text style={[styles.globalText, tw`text-lg font-bold`]}>
+                  <Text style={[styles.globalText, tw`text-lg`]}>
                     {"ราคา : "}
                     <Text style={tw`text-lg text-red-700`}>
                       {chooseDriver.price !== null
@@ -372,13 +392,13 @@ const ChooseOffer = ({ navigation, route }) => {
                   </Text>
                 </View>
                 <View style={tw`flex-1 justify-center`}>
-                  <Text style={[styles.globalText, tw`text-lg font-bold`]}>
+                  <Text style={[styles.globalText, tw`text-lg`]}>
                     {"คะแนน : "}
                     <View>
                       <MaterialIcons name="star" size={24} color="yellow" />
                     </View>
                     <Text style={tw`text-lg text-green-700 flex-1`}>
-                      {chooseDriver.rating || "-"}
+                      {chooseDriver.rating || "0.0"}
                     </Text>
                   </Text>
                 </View>
@@ -391,7 +411,7 @@ const ChooseOffer = ({ navigation, route }) => {
                   setOpenModal(false);
                 }}
               >
-                <Text style={tw`text-lg font-bold text-[#FDFFFD]`}>ยกเลิก</Text>
+                <Text style={[styles.globalText,tw`text-lg text-[#FDFFFD]`]}>ยกเลิก</Text>
               </Pressable>
               <Pressable
                 style={tw`bg-[#60B876] p-3 rounded-lg`}
@@ -405,7 +425,7 @@ const ChooseOffer = ({ navigation, route }) => {
                     setOpenModal(false);
                 }}
               >
-                <Text style={tw`text-lg font-bold text-[#FDFFFD]`}>ยืนยัน</Text>
+                <Text style={[styles.globalText,tw`text-lg text-[#FDFFFD]`]}>ยืนยัน</Text>
               </Pressable>
             </View>
           </View>
@@ -571,7 +591,7 @@ const ChooseOffer = ({ navigation, route }) => {
                       <Text
                         style={[
                           styles.globalText,
-                          tw`text-gray-600 font-bold `,
+                          tw`text-gray-600 `,
                         ]}
                       >
                         คนขับ : {item.name}
@@ -580,13 +600,13 @@ const ChooseOffer = ({ navigation, route }) => {
                         <Text
                           style={[
                             styles.globalText,
-                            tw`text-gray-600  flex-1 font-bold`,
+                            tw`text-gray-600  flex-1`,
                           ]}
                         >{item.rating ? item.rating : "-"}</Text>
                     </View>
                     <View style={tw`flex-1 justify-center`}>
 
-                    <Text style={[styles.globalText, tw` font-bold`]}>
+                    <Text style={[styles.globalText, tw``]}>
                       ราคา :
                       <Text style={tw`text-red-700`}> {item.price + fee}</Text>
                       {" บาท"}{" "}
@@ -599,7 +619,7 @@ const ChooseOffer = ({ navigation, route }) => {
                   >
                     <View style={tw`flex-1 justify-center`}>
 
-                    <Text style={[styles.globalText , tw`text-gray-600 font-bold items-center`]}>
+                    <Text style={[styles.globalText , tw`text-gray-600 items-center`]}>
                       ระยะทาง : {""}
                       <Text style={tw`text-red-700`}>
                         {item.distance
@@ -611,7 +631,7 @@ const ChooseOffer = ({ navigation, route }) => {
                           </View>
                           <View style={tw`flex-1 justify-center items-center`}>
 
-                    <Text style={[ styles.globalText ,tw`text-gray-600 font-bold`]}>
+                    <Text style={[ styles.globalText ,tw`text-gray-600`]}>
                       เวลาที่ใช้ : {""}
                       <Text style={tw`text-red-700`}>{item.durationText}</Text>
                       {" นาที"}
@@ -631,7 +651,7 @@ const ChooseOffer = ({ navigation, route }) => {
               >
                 <MaterialIcons name="local-shipping" size={35} color="gray" />
               </Animated.View>
-              <Text style={[styles.globalText, tw`text-lg font-bold mt-5`]}>
+              <Text style={[styles.globalText, tw`text-lg mt-5`]}>
                 กําลังรอคนขับ...
               </Text>
             </View>
@@ -639,6 +659,7 @@ const ChooseOffer = ({ navigation, route }) => {
         </View>
       </View>
     </SafeAreaView>
+    </>
   );
 };
 

@@ -21,13 +21,12 @@ import axios from "axios";
 import { IP_ADDRESS } from "../../config";
 
 export default function ViewOrder({ navigation }) {
-
   const styles = StyleSheet.create({
     globalText: {
       fontFamily: "Mitr-Regular",
     },
   });
-  
+
   const route = useRoute();
 
   const [origin, setOrigin] = useState({});
@@ -231,15 +230,22 @@ export default function ViewOrder({ navigation }) {
       <View style={tw`flex-2`}>
         <View style={tw`flex-2`}>
           <View style={tw`flex-1`}>
-            <View style={tw`flex-1 flex-row justify-between px-4 items-end`}>
+            <View style={tw`flex-1 flex-row justify-between p-4 items-end`}>
               <Text style={[styles.globalText, tw`text-sm`]}>{time}</Text>
               <Text style={[styles.globalText, tw`text-sm`]}>{request}</Text>
             </View>
-            <View style={tw`flex-4 justify-around mx-4 bg-gray-200 rounded-lg`}>
+            <View
+              style={tw`flex-4 justify-around mx-4 bg-white shadow-lg border border-gray-300 mb-5 rounded-lg`}
+            >
               <View style={tw`flex-1 flex-row items-center w-full`}>
                 <MaterialIcons name="location-pin" size={24} color="blue" />
                 <Text style={[styles.globalText, tw`items-center`]}>
-                  คนขับ : {driverInformation.name}
+                  คนขับ{" "}
+                </Text>
+                <Text
+                  style={[styles.globalText, tw`items-center text-gray-600`]}
+                >
+                  {driverInformation.name}
                 </Text>
               </View>
               <View
@@ -255,6 +261,13 @@ export default function ViewOrder({ navigation }) {
                   ellipsizeMode="tail"
                 >
                   ต้นทาง : {origin.name}
+                </Text>
+                <Text
+                  style={[styles.globalText, tw`items-center flex-1`]}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {origin.name}
                 </Text>
               </View>
               <View
@@ -285,7 +298,11 @@ export default function ViewOrder({ navigation }) {
                   longitudeDelta: 0.0521,
                 }}
               >
-                <Marker coordinate={origin} title="ต้นทาง" description={origin.name}>
+                <Marker
+                  coordinate={origin}
+                  title="ต้นทาง"
+                  description={origin.name}
+                >
                   <MaterialIcons
                     name="location-pin"
                     size={35}
@@ -364,7 +381,7 @@ export default function ViewOrder({ navigation }) {
         </View>
         <View style={tw`flex-1`}>
           <Pressable
-            style={tw`flex-1 flex-row bg-gray-300 m-4 rounded-lg items-center px-4`}
+            style={tw`flex-1 flex-row bg-white shadow-md border border-gray-300 m-4 rounded-lg items-center px-4`}
           >
             <View style={tw`flex-8`}>
               <Text style={[styles.globalText, tw`text-xl`]}>
@@ -374,48 +391,47 @@ export default function ViewOrder({ navigation }) {
             <View style={tw`flex-1 flex-row items-center justify-end`}>
               <MaterialIcons name="star" size={24} color="yellow" />
               <Text style={[styles.globalText, tw`text-xl text-center`]}>
-                {driverInformation.rating}
+                {driverInformation.rating || "0.0"}
               </Text>
             </View>
           </Pressable>
           <View style={tw`flex-2`}>
             <View style={tw`flex-1 flex-row justify-around mb-4`}>
+              {/* Call Button */}
               <Pressable
-                style={tw`flex-1 bg-gray-300 justify-center rounded-lg items-center w-1/3 mx-4`}
+                style={tw`flex-1 bg-white shadow-md border border-gray-300 justify-center rounded-lg items-center mx-4 h-16`}
                 onPress={() => {
                   openURL(`tel:${driverInformation.phone}`);
                   console.log(driverInformation.phone);
                 }}
               >
                 <MaterialIcons name="call" size={24} color="green" />
-                <Text styles={styles.globalText}>โทร</Text>
+                <Text style={[styles.globalText, tw`text-xs`]}>โทร</Text>
               </Pressable>
+
+              {/* Chat Button */}
               <Pressable
-                style={tw`flex-1 bg-gray-300 justify-center rounded-lg items-center w-1/3 mx-4`}
+                style={tw`flex-1 bg-white shadow-md border border-gray-300 justify-center rounded-lg items-center mx-4 h-16`}
                 onPress={handleChat}
               >
                 <MaterialIcons name="chat" size={24} color="black" />
-                <Text styles={[styles.globalText, tw`text-xl`]}>ข้อความ</Text>
+                <Text style={[styles.globalText, tw`text-xs`]}>ข้อความ</Text>
               </Pressable>
-            </View>
-            <View style={tw`flex-1 justify-center items-center`}>
+
+              {/* Cancel Button */}
               <Pressable
-                style={tw`flex-1 bg-gray-300 justify-center rounded-lg items-center w-1/3 mb-1`}
-                onPress={()=>{
+                style={tw`flex-1 bg-white shadow-md border border-gray-300 justify-center rounded-lg items-center mx-4 h-16`}
+                onPress={() => {
                   Alert.alert(
                     "ฟังก์ชั่นนี้ยังไม่พร้อมใช้งาน",
                     "",
-                    [
-                      {
-                        text: "OK",
-                      },
-                    ],
+                    [{ text: "OK" }],
                     { cancelable: false }
                   );
                 }}
               >
                 <MaterialIcons name="close" size={24} color="red" />
-                <Text styles={[styles.globalText, tw`text-xl`]}>ยกเลิก</Text>
+                <Text style={[styles.globalText, tw`text-xs`]}>ยกเลิก</Text>
               </Pressable>
             </View>
           </View>
@@ -424,4 +440,3 @@ export default function ViewOrder({ navigation }) {
     </SafeAreaView>
   );
 }
-

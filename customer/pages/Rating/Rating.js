@@ -15,6 +15,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 import tw from "twrnc";
 import { useRoute } from "@react-navigation/native";
+import HeaderWithBackButton from "../../components/HeaderWithBackButton";
 
 const Rating = ({ navigation }) => {
   const route = useRoute();
@@ -137,8 +138,11 @@ const Rating = ({ navigation }) => {
   };
 
   return (
-    <View style={tw`flex-1 p-4 items-center mt-15`}>
-      <Text style={tw`text-2xl mb-2 mt-2 text-center`}>Rate and Review</Text>
+    <>
+    <HeaderWithBackButton showBackButton={true} title="" onPress={() => navigation.navigate("HomePage")} />
+    <View style={tw`flex-1 p-4 items-center`}>
+      <Text style={[styles.globalText,tw`text-2xl mt-2 text-center`]}>ขอบคุณที่ใช้บริการ</Text>
+      <Text style={[styles.globalText,tw`text-xl mb-2 text-center text-gray-600`]}>ให้คะแนนกับคนขับเพื่อให้การบริการดียิ่งขึ้น</Text>
       <View
         style={[
           tw`flex bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md `,
@@ -191,7 +195,7 @@ const Rating = ({ navigation }) => {
           styles.globalText,
           tw`border border-gray-300 rounded p-2 w-full mb-4 mt-2 h-20`,
         ]}
-        placeholder="Write your review here..."
+        placeholder="คำแนะนำให้คนขับ..."
         value={review}
         onChangeText={setReview}
         editable={!isSubmitting}
@@ -203,8 +207,8 @@ const Rating = ({ navigation }) => {
           onPress={handleSubmitReview}
           disabled={isSubmitting}
           style={tw`bg-${
-            isSubmitting ? "gray-400" : "green-600"
-          } text-white rounded-full p-2`}
+            isSubmitting ? "[#60B876]" : "[#60B876]"
+          } text-white rounded p-2`}
         >
           <Text style={[styles.globalText, tw`text-center text-white text-xl`]}>
             {isSubmitting ? "Submitting..." : "ส่งรีวิว"}
@@ -212,6 +216,7 @@ const Rating = ({ navigation }) => {
         </TouchableOpacity>
       </View>
     </View>
+    </>
   );
 };
 

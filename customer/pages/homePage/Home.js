@@ -27,7 +27,7 @@ function Home({ navigation }) {
   const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(false);
   const { userData } = useContext(UserContext);
-  
+
   const fetchBookmarks = async () => {
     setLoading(true);
     try {
@@ -138,7 +138,9 @@ function Home({ navigation }) {
 
   function truncateText(text, maxLength = 28) {
     if (!text) return "";
-    return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+    return text.length > maxLength
+      ? `${text.substring(0, maxLength)}...`
+      : text;
   }
 
   const order_status = async () => {
@@ -168,19 +170,38 @@ function Home({ navigation }) {
 
   const route = useRoute();
   const ads = [
-    { id: 1, image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads1.png` },
-    { id: 2, image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads2.png` },
-    { id: 3, image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads3.png` },
-  ];  
+    {
+      id: 1,
+      image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads1.png`,
+    },
+    {
+      id: 2,
+      image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads2.png`,
+    },
+    {
+      id: 3,
+      image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads3.png`,
+    },
+  ];
 
   return (
     <SafeAreaView style={tw`flex-1`} edges={["top", "left", "right"]}>
       <View style={[tw`flex-1 items-center justify-center `]}>
-        <View style={tw`flex-1 w-full items-center mt-3`}>
-          <Text style={[styles.globalText, tw`text-left text-sm mb-[-20px] flex-1 text-gray-500`]}>
+        <View style={tw`flex-1 w-full items-center mt-10`}>
+          <Text
+            style={[
+              styles.globalText,
+              tw`text-left text-sm mb-[-20px] flex-1 text-gray-500`,
+            ]}
+          >
             สวัสดี
           </Text>
-          <Text style={[styles.globalText, tw`flex-1 text-2xl mt-2 mb-4 text-[#60B876]`]}>
+          <Text
+            style={[
+              styles.globalText,
+              tw`flex-1 text-2xl mt-2 mb-4 text-[#60B876]`,
+            ]}
+          >
             {userData?.first_name || userData?.phone_number}!
           </Text>
 
@@ -207,7 +228,12 @@ function Home({ navigation }) {
                   style={tw`mr-3`}
                 />
                 <View>
-                  <Text style={[styles.globalText, tw`text-white text-xl font-light`]}>
+                  <Text
+                    style={[
+                      styles.globalText,
+                      tw`text-white text-xl font-light`,
+                    ]}
+                  >
                     เรียกบริการ
                   </Text>
                   <Text style={[styles.globalText, tw`text-white text-3xl`]}>
@@ -219,67 +245,58 @@ function Home({ navigation }) {
           </View>
 
           <View
-        style={[
-          tw`flex-row flex-6 justify-between mt-4`,
-          { width: responsiveWidth },
-        ]}
-      >
-        {/* ปุ่มติดตามสถานะ */}
-        <TouchableOpacity
-          style={[
-            { width: width * 0.29, height: width * 0.29 }, // ลดความสูงลง 10%
-            tw`rounded-lg items-center justify-center bg-white shadow-md`,
-          ]}
-          onPress={() => order_status()}
-        >
-          <MaterialIcons name="track-changes" size={40} color="#60B876" />
-          <Text
             style={[
-              styles.globalText,
-              tw`text-base text-[#60B876] mt-2`,
+              tw`flex-row flex-6 justify-between mt-4`,
+              { width: responsiveWidth },
             ]}
           >
-            ติดตามสถานะ
-          </Text>
-        </TouchableOpacity>
+            {/* ปุ่มติดตามสถานะ */}
+            <TouchableOpacity
+              style={[
+                { width: width * 0.29, height: width * 0.29 }, // ลดความสูงลง 10%
+                tw`rounded-lg items-center justify-center bg-white shadow-md`,
+              ]}
+              onPress={() => order_status()}
+            >
+              <MaterialIcons name="track-changes" size={40} color="#60B876" />
+              <Text
+                style={[styles.globalText, tw`text-base text-[#60B876] mt-2`]}
+              >
+                ติดตามสถานะ
+              </Text>
+            </TouchableOpacity>
 
-        {/* ปุ่มติดต่อเรา */}
-        <TouchableOpacity
-          style={[
-            { width: width * 0.29, height: width * 0.29 }, // ลดความสูงลง 10%
-            tw`rounded-lg items-center justify-center bg-white shadow-md`,
-          ]}
-        >
-          <MaterialIcons name="call" size={40} color="#60B876" />
-          <Text
-            style={[
-              styles.globalText,
-              tw`text-base text-[#60B876] mt-2`,
-            ]}
-          >
-            ติดต่อเรา
-          </Text>
-        </TouchableOpacity>
+            {/* ปุ่มติดต่อเรา */}
+            <TouchableOpacity
+              style={[
+                { width: width * 0.29, height: width * 0.29 }, // ลดความสูงลง 10%
+                tw`rounded-lg items-center justify-center bg-white shadow-md`,
+              ]}
+            >
+              <MaterialIcons name="call" size={40} color="#60B876" />
+              <Text
+                style={[styles.globalText, tw`text-base text-[#60B876] mt-2`]}
+              >
+                ติดต่อเรา
+              </Text>
+            </TouchableOpacity>
 
-        {/* ปุ่มเปิดรายการบันทึก พร้อมไอคอน */}
-        <TouchableOpacity
-          onPress={openModal}
-          style={[
-            { width: width * 0.29, height: width * 0.29 }, // ลดความสูงลง 10%
-            tw`rounded-lg items-center justify-center bg-white shadow-md`,
-          ]}
-        >
-          <MaterialIcons name="list" size={40} color="#60B876" />
-          <Text
-            style={[
-              styles.globalText,
-              tw`text-base text-[#60B876] mt-2`,
-            ]}
-          >
-            รายการบันทึก
-          </Text>
-        </TouchableOpacity>
-      </View>
+            {/* ปุ่มเปิดรายการบันทึก พร้อมไอคอน */}
+            <TouchableOpacity
+              onPress={openModal}
+              style={[
+                { width: width * 0.29, height: width * 0.29 }, // ลดความสูงลง 10%
+                tw`rounded-lg items-center justify-center bg-white shadow-md`,
+              ]}
+            >
+              <MaterialIcons name="list" size={40} color="#60B876" />
+              <Text
+                style={[styles.globalText, tw`text-base text-[#60B876] mt-2`]}
+              >
+                รายการโปรด
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View
@@ -316,121 +333,127 @@ function Home({ navigation }) {
       </View>
 
       <Modal
-            animationType="fade"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => setModalVisible(false)} // Close modal on back press
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)} // Close modal on back press
+      >
+        <View style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.modalContent,
+              tw`rounded-lg `,
+              { height: height * 0.7 },
+            ]}
           >
-            <View style={styles.modalOverlay}>
-              <View
+            <View
+              style={tw`flex bg-white rounded-lg border border-[#60B876] p-2 w-7/12 shadow-2xl bg-[#60B876]`}
+            >
+              <Text
                 style={[
-                  styles.modalContent,
-                  tw`rounded-lg `,
-                  { height: height * 0.7 },
+                  styles.modalText,
+                  styles.globalText,
+                  tw`text-xl  text-center text-white items-center`,
                 ]}
               >
-                <View
-                  style={tw`flex bg-white rounded-lg border border-[#60B876] p-2 w-7/12 shadow-2xl bg-[#60B876]`}
-                >
-                  <Text
+                รายการโปรด
+              </Text>
+            </View>
+            {loading ? (
+              <Text style={[styles.globalText, tw`text-center`]}>
+                ไม่พบข้อมูล
+              </Text>
+            ) : (
+              <FlatList
+                data={bookmarks}
+                keyExtractor={(item) => item.address_id.toString()}
+                renderItem={({ item }) => (
+                  <View
                     style={[
-                      styles.modalText,
-                      styles.globalText,
-                      tw`text-xl  text-center text-white items-center`,
+                      styles.bookmarkItem,
+                      tw`flex  justify-between mt-3 p-2 border border-gray-300 shadow-md rounded-lg `,
+                      { width: width * 0.69 },
                     ]}
                   >
-                    รายการโปรด
-                  </Text>
-                </View>
-                {loading ? (
-                  <Text style={[styles.globalText, tw`text-center`]}>
-                    ไม่พบข้อมูล
-                  </Text>
-                ) : (
-                  <FlatList
-                    data={bookmarks}
-                    keyExtractor={(item) => item.address_id.toString()}
-                    renderItem={({ item }) => (
-                      <View
+                    <TouchableOpacity
+                      style={tw`flex justify-between`}
+                      onPress={() => handleRequestFromBookmark(item)}
+                    >
+                      <Text
                         style={[
-                          styles.bookmarkItem,
-                          tw`flex  justify-between mt-3 p-2 border border-gray-300 rounded-lg `,
-                          { width: width * 0.69 },
+                          tw`text-base font-semibold text-center `,
+                          styles.globalText,
                         ]}
                       >
-                        <TouchableOpacity
-  style={tw`flex justify-between`}
-  onPress={() => handleRequestFromBookmark(item)}
->
-  <Text
-    style={[
-      tw`text-base font-semibold text-center `,
-      styles.globalText,
-    ]}
-  >
-    {item.save_name}
-  </Text>
+                        {item.save_name}
+                      </Text>
 
-  <View style={tw`flex-row items-center mb-2 p-1`}>
-    <MaterialIcons
-      name="directions-car"
-      size={21}
-      color="black"
-    />
-    <Text
-      style={[styles.globalText, tw`text-gray-500 ml-1`]}
-      numberOfLines={1}
-      ellipsizeMode="tail"
-    >
-      : {item.vahicle_type}
-    </Text>
-  </View>
-
-  <View style={tw`flex-row items-center mb-2 p-1`}>
-    <MaterialIcons
-      name="location-pin"
-      size={21}
-      color="red"
-    />
-    <Text
-      style={[styles.globalText, tw`text-gray-500 ml-1`]}
-      ellipsizeMode="tail"
-    >
-      : {truncateText(item.location_from)}
-    </Text>
-  </View>
-
-  <View style={[tw`flex-row items-center mb-2 p-1`, { paddingRight: 10 }]}>
-    <MaterialIcons
-      name="location-pin"
-      size={21}
-      color="green"
-    />
-    <Text
-      style={[styles.globalText, tw`text-gray-500 ml-1`]}
-      ellipsizeMode="tail"
-    >
-      : {truncateText(item.location_to)}
-    </Text>
-  </View>
-</TouchableOpacity>
-
+                      <View style={tw`flex-row items-center mb-2 p-1`}>
+                        <MaterialIcons
+                          name="directions-car"
+                          size={21}
+                          color="black"
+                        />
+                        <Text
+                          style={[styles.globalText, tw`text-gray-500 ml-1`]}
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          : {item.vahicle_type}
+                        </Text>
                       </View>
-                    )}
-                  />
+
+                      <View style={tw`flex-row items-center mb-2 p-1`}>
+                        <MaterialIcons
+                          name="location-pin"
+                          size={21}
+                          color="red"
+                        />
+                        <Text
+                          style={[styles.globalText, tw`text-gray-500 ml-1`]}
+                          ellipsizeMode="tail"
+                        >
+                          : {truncateText(item.location_from)}
+                        </Text>
+                      </View>
+
+                      <View
+                        style={[
+                          tw`flex-row items-center mb-2 p-1`,
+                          { paddingRight: 10 },
+                        ]}
+                      >
+                        <MaterialIcons
+                          name="location-pin"
+                          size={21}
+                          color="green"
+                        />
+                        <Text
+                          style={[styles.globalText, tw`text-gray-500 ml-1`]}
+                          ellipsizeMode="tail"
+                        >
+                          : {truncateText(item.location_to)}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
                 )}
-                <TouchableOpacity
-                  onPress={closeModal}
-                  style={[
-                    styles.globalText,
-                    tw`bg-red-400 rounded-lg p-3 mt-4 px-20`,
-                  ]}
-                >
-                  <Text style={[styles.globalText, tw`text-white text-center`]}>ปิด</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
+              />
+            )}
+            <TouchableOpacity
+              onPress={closeModal}
+              style={[
+                styles.globalText,
+                tw`bg-red-400 rounded-lg p-3 mt-4 px-20`,
+              ]}
+            >
+              <Text style={[styles.globalText, tw`text-white text-center`]}>
+                ปิดหน้าต่าง
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

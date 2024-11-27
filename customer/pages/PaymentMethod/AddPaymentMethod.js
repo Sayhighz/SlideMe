@@ -9,12 +9,19 @@ import {
   FlatList,
   StyleSheet,
   Platform,
+  ScrollView,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
 import { UserContext } from "../../UserContext";
 import { useNavigation } from "@react-navigation/native";
+import SubmitButton from "../../components/SubmitButton";
+import { SafeAreaView } from "react-native-safe-area-context";
+import HeaderWithBackButton from "../../components/HeaderWithBackButton";
 
 const AddPaymentMethod = ({ route }) => {
   const { onRefresh } = route.params || {};
@@ -30,9 +37,6 @@ const AddPaymentMethod = ({ route }) => {
   const paymentOptions = [
     { label: "บัตรเครดิต", value: "credit_card" },
     { label: "บัตรเดบิต", value: "debit_card" },
-    { label: "PayPal", value: "paypal" },
-    { label: "ธนาคาร", value: "bank_transfer" },
-    { label: "อื่นๆ", value: "other" },
   ];
 
   const handleExpirationDateChange = (input) => {
@@ -67,11 +71,11 @@ const AddPaymentMethod = ({ route }) => {
       });
 
       if (response.ok) {
-        Alert.alert("Success", "บันทึกช่องทางการชำระเงินสําเร็จ");
+        Alert.alert("Success", "บันทึกช่องทางการชำระเงินสำเร็จ");
         if (onRefresh) onRefresh();
-        navigation.goBack()
+        navigation.goBack();
       } else {
-        Alert.alert("Error", "บันทึกช่องทางการชำระเงินไม่สําเร็จ");
+        Alert.alert("Error", "บันทึกช่องทางการชำระเงินไม่สำเร็จ");
       }
     } catch (error) {
       Alert.alert("Error", "An error occurred: " + error.message);
@@ -91,76 +95,88 @@ const AddPaymentMethod = ({ route }) => {
   );
 
   return (
-    <View style={tw`flex-1 p-5 bg-gray-100`}>
-      <Text style={[tw`text-2xl font-bold mb-5`, styles.customFont]}>เพิ่มช่องทางการชำระเงิน</Text>
+    <>
+      <HeaderWithBackButton showBackButton={true} title="เพิ่มช่องทางการชำระเงิน" onPress={() => navigation.goBack()} />
 
-      <Text style={[tw`text-lg mt-2`, styles.customFont]}>ประเภท</Text>
-      <TouchableOpacity
-        style={tw`border border-gray-300 rounded mt-1 p-3 flex-row justify-between items-center`}
-        onPress={() => setModalVisible(true)}
+      {/* Wrap the whole content inside KeyboardAvoidingView */}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <Text style={[tw`text-lg`, styles.customFont]}>
-          {paymentType ? paymentOptions.find((opt) => opt.value === paymentType)?.label : "เลือกประเภทการชำระเงิน"}
-        </Text>
-        <Icon name="chevron-down" size={16} />
-      </TouchableOpacity>
+        <SafeAreaView style={tw`flex-1 bg-gray-100`}>
+          {/* Dismissing keyboard when tapping outside */}
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <ScrollView contentContainerStyle={tw`px-5`} keyboardShouldPersistTaps="handled">
+              <Text style={[tw`text-lg`, styles.customFont]}>ประเภท</Text>
+              <TouchableOpacity
+                style={tw`border border-gray-300 rounded p-2 flex-row justify-between items-center`}
+                onPress={() => setModalVisible(true)}
+              >
+                <Text style={[tw`text-lg`, styles.customFont]}>
+                  {paymentType
+                    ? paymentOptions.find((opt) => opt.value === paymentType)?.label
+                    : "เลือกประเภทการชำระเงิน"}
+                </Text>
+                <Icon name="chevron-down" size={16} />
+              </TouchableOpacity>
 
-      <Text style={[tw`text-lg mt-4`, styles.customFont]}>ชื่อบัญชี</Text>
-      <TextInput
-        style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
-        placeholder="ชื่อบัญชี"
-        value={accountName}
-        onChangeText={setAccountName}
-        placeholderTextColor="#9CA3AF"
-      />
+              <Text style={[tw`text-lg mt-4`, styles.customFont]}>ชื่อบัญชี</Text>
+              <TextInput
+                style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
+                placeholder="ชื่อบัญชี"
+                value={accountName}
+                onChangeText={setAccountName}
+                placeholderTextColor="#9CA3AF"
+              />
 
-      <Text style={[tw`text-lg mt-4`, styles.customFont]}>หมายเลขบัญชี</Text>
-      <TextInput
-        style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
-        placeholder="เลขบัญชี"
-        keyboardType="numeric"
-        value={accountNumber}
-        onChangeText={setAccountNumber}
-        placeholderTextColor="#9CA3AF"
-      />
+              <Text style={[tw`text-lg mt-4`, styles.customFont]}>หมายเลขบัญชี</Text>
+              <TextInput
+                style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
+                placeholder="เลขบัญชี"
+                keyboardType="numeric"
+                value={accountNumber}
+                maxLength={4}
+                onChangeText={setAccountNumber}
+                placeholderTextColor="#9CA3AF"
+              />
 
-      <Text style={[tw`text-lg mt-4`, styles.customFont]}>วันหมดอายุ</Text>
-      <TextInput
-        style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
-        placeholder="MM/YY"
-        value={expirationDate}
-        onChangeText={handleExpirationDateChange}
-        maxLength={5}
-        keyboardType="numeric"
-        placeholderTextColor="#9CA3AF"
-      />
+              <Text style={[tw`text-lg mt-4`, styles.customFont]}>วันหมดอายุ</Text>
+              <TextInput
+                style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
+                placeholder="MM/YY"
+                value={expirationDate}
+                onChangeText={handleExpirationDateChange}
+                maxLength={5}
+                keyboardType="numeric"
+                placeholderTextColor="#9CA3AF"
+              />
 
-      <TouchableOpacity
-        style={tw`bg-green-600 p-3 rounded mt-5`}
-        onPress={handleSubmit}
-      >
-        <Text style={[tw`text-white text-center text-lg`, styles.customFont]}>บันทึก</Text>
-      </TouchableOpacity>
+              {/* Submit Button */}
+            </ScrollView>
+          </TouchableWithoutFeedback>
 
-      {/* Modal for selecting payment type */}
-      <Modal visible={modalVisible} transparent={true} animationType="fade">
-        <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
-          <View style={tw`bg-white rounded-lg w-10/12`}>
-            <FlatList
-              data={paymentOptions}
-              renderItem={renderPaymentOption}
-              keyExtractor={(item) => item.value}
-            />
-            <TouchableOpacity
-              style={tw`p-4 bg-gray-300 rounded-b-lg`}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={[tw`text-center text-lg`, styles.customFont]}>ปิด</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-    </View>
+          {/* Modal for selecting payment type */}
+          <Modal visible={modalVisible} transparent={true} animationType="fade">
+            <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
+              <View style={tw`bg-white rounded-lg w-10/12`}>
+                <FlatList
+                  data={paymentOptions}
+                  renderItem={renderPaymentOption}
+                  keyExtractor={(item) => item.value}
+                />
+                <TouchableOpacity
+                  style={tw`p-4 bg-gray-300 rounded-b-lg`}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={[tw`text-center text-lg`, styles.customFont]}>ปิด</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
+      <SubmitButton onPress={handleSubmit} title="บันทึก" />
+    </>
   );
 };
 

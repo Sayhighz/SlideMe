@@ -39,6 +39,8 @@ import AddMethod from "./pages/paymentPage/AddMethod";
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
+
+
 function HomeStack() {
   return (
     <Stack.Navigator
@@ -70,7 +72,7 @@ function HomeStack() {
       <Stack.Screen name="ChatScreen" component={ChatScreen} options={{ headerShown: false }}/>
       <Stack.Screen name="ChooseOffer" component={ChooseOffer} options={{ headerShown: false }}/>
       <Stack.Screen name="payment" component={PaymentPage}  options={{ headerShown: false }}/>
-      <Stack.Screen name="AddMethod" component={AddMethod} options={{ headerShown: false }}/>
+      <Stack.Screen name="AddMethod" component={AddPaymentMethod} options={{ headerShown: false }}/>
       <Stack.Screen name="viewOrder" component={ViewOrder} options={{ headerShown: false }}/>
       <Stack.Screen name="Rating" component={Rating} options={{ headerShown: false }}/>
 
@@ -90,12 +92,12 @@ function PaymentMethodsStack() {
       <Stack.Screen
         name="PaymentMethodsList"
         component={PaymentMethodsListScreen}
-        options={{ title: "วิธีการชำระเงิน" }}
+        options={{ title: "วิธีการชำระเงิน" , headerShown: false}}
       />
       <Stack.Screen
         name="AddPaymentMethod"
         component={AddPaymentMethod}
-        options={{ title: "เพิ่มวิธีการชำระเงิน" }}
+        options={{ title: "เพิ่มวิธีการชำระเงิน" , headerShown: false}}
       />
     </Stack.Navigator>
   );
@@ -116,7 +118,7 @@ function UserProfileStack({ onLogout }) {
         shadowOpacity: 0,
       }}
     >
-      <Stack.Screen name="UserProfile" options={{ title: "โปรไฟล์ผู้ใช้" }}>
+      <Stack.Screen name="UserProfile" options={{ title: "โปรไฟล์ผู้ใช้", headerShown: false }}>
         {(props) => <UserProfile {...props} onLogout={onLogout} />}
       </Stack.Screen>
       <Stack.Screen
@@ -127,17 +129,17 @@ function UserProfileStack({ onLogout }) {
       <Stack.Screen
         name="userHistoryPage"
         component={HistoryPage}
-        options={{ title: "กลับ" }}
+        options={{ title: "กลับ", headerShown: false }}
       />
       <Stack.Screen
         name="editProfile"
         component={EditProfile}
-        options={{ title: "แก้ไขข้อมูล" }}
+        options={{ title: "แก้ไขข้อมูล", headerShown: false }}
       />
       <Stack.Screen
         name="addressPage"
         component={AddressPage}
-        options={{ title: "แก้ไขข้อมูลที่อยู่" }}
+        options={{ title: "แก้ไขข้อมูลที่อยู่", headerShown: false }}
       />
       <Stack.Screen
         name="addMapFav"
@@ -147,7 +149,7 @@ function UserProfileStack({ onLogout }) {
       <Stack.Screen
         name="Bookmarklist"
         component={Bookmarklist}
-        options={{ title: "Bookmark" }}
+        options={{ title: "Bookmark", headerShown: false }}
       />
     </Stack.Navigator>
   );
@@ -189,75 +191,43 @@ const AppContent = () => {
     setIsLoggedIn(false); // Set login state to false
     console.log("User logged out successfully"); // Debugging log
   };
-
+  
   const handleLogin = () => {
     setIsLoggedIn(true);
   };
 
-  // <Tab.Navigator
-  //   screenOptions={({ route }) => ({
-  //     tabBarIcon: ({ color, size }) => {
-  //       let iconName;
-
-  //       switch (route.name) {
-  //         case "Home":
-  //           iconName = "home";
-  //           break;
-  //         case "ประวัติการใช้บริการ":
-  //           iconName = "history";
-  //           break;
-  //         case "กล่องข้อความ":
-  //           iconName = "email";
-  //           break;
-  //         case "โปรไฟล์ผู้ใช้":
-  //           iconName = "account";
-  //           break;
-  //         default:
-  //           iconName = "circle";
-  //       }
-
-  //       return <Icon name={iconName} size={size} color={color} />;
-  //     },
-  //     tabBarActiveTintColor: "#60B876",
-  //     tabBarInactiveTintColor: "#555D65",
-  //     tabBarLabelStyle: { fontFamily: "Mitr-Regular", fontSize: 12 },
-  //   })}
-  // >
+  const hiddenScreens = [
+    "Order",
+    "ChatScreen",
+    "ChooseOffer",
+    // "ViewOrder",
+    "PaymentPage",
+    // "Rating",
+    "PaymentMethodsStack",
+    "editProfile",
+    "Bookmarklist",
+  ];
+  
   return (
     <NavigationContainer>
       {isLoggedIn ? (
         <Tab.Navigator
           screenOptions={({ route, navigation }) => {
-            const hiddenScreens = [
-              "Mapdetail", 
-              "MapPage", 
-              "Order", 
-              "ChatScreen", 
-              "ChooseOffer",
-              "PaymentPage", 
-              "Rating", 
-              "PaymentMethodsList", 
-              "AddPaymentMethod", 
-              "editProfile", 
-              "addressPage", 
-              "addMapFav", 
-              "Bookmarklist"
-            ];
-
-            // Check if any of the hidden screens is currently active
             const shouldHideTabBar = navigation
               .getState()
-              .routes.some((r) =>
-                r.state?.routes
+              .routes.some((r) => {
+                const isHidden = r.state?.routes
                   ? r.state.routes.some((sr) => hiddenScreens.includes(sr.name))
-                  : hiddenScreens.includes(r.name)
-              );
-
+                  : hiddenScreens.includes(r.name);
+  
+                return isHidden;
+              });
+  
             return {
               headerShown: false,
               tabBarStyle: [
                 shouldHideTabBar ? { display: "none" } : {},
-                tw`bg-white border-t border-gray-300 shadow-md h-21`,
+                tw`bg-white border-t border-gray-300 shadow-md`, 
               ],
               tabBarIcon: ({ color, size }) => {
                 let iconName;
@@ -277,11 +247,11 @@ const AppContent = () => {
                   default:
                     iconName = "circle";
                 }
-                return <Icon name={iconName} size={size} color={color} />;
+                return <Icon name={iconName} size={size} color={color}/>;
               },
               tabBarActiveTintColor: "#60B876",
               tabBarInactiveTintColor: "#555D65",
-              tabBarLabelStyle: { fontFamily: "Mitr-Regular", fontSize: 12 },
+              tabBarLabelStyle: { fontFamily: "Mitr-Regular", fontSize: 14 },
             };
           }}
         >
@@ -308,8 +278,8 @@ const AppContent = () => {
         <AuthStack onLogin={handleLogin} />
       )}
     </NavigationContainer>
-  );
-};
+  );  
+};  
 
 const App = () => {
   return (
