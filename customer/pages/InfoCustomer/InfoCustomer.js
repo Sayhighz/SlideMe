@@ -125,7 +125,7 @@ const InfoCustomer = ({ onLogin }) => {
                         <View style={tw`bg-white rounded-lg p-6 w-4/5`}>
                             <Text style={[styles.globalText, tw`text-xl font-bold text-center bg-[#60B879] text-white p-2 rounded-[100px]`]}> SLIDE ME </Text>
                             <Text style={[styles.globalText, tw`text-lg font-bold text-center mb-4`]}>กรอกข้อมูลส่วนตัว</Text>
-                            <Text style={[styles.globalText, tw`text-gray-800 font-bold`]}>ชื่อ:<Text style={[styles.globalText, tw`text-sm text-red-500`]}>*จำเป็น</Text></Text>
+                            <Text style={[styles.globalText, tw`text-gray-800 font-bold`]}>ชื่อ:</Text>
                             <TextInput
                                 style={tw`border bg-gray-50 rounded-lg w-full p-2 mb-4`}
                                 placeholder="กรอกชื่อจริง"
@@ -133,7 +133,7 @@ const InfoCustomer = ({ onLogin }) => {
                                 onChangeText={setName}
                                 required
                             />
-                            <Text style={[styles.globalText, tw`text-gray-800 font-bold`]}>นามสกุล:<Text style={[styles.globalText, tw`text-sm text-red-500`]}>*จำเป็น</Text></Text>
+                            <Text style={[styles.globalText, tw`text-gray-800 font-bold`]}>นามสกุล:</Text>
                             <TextInput
                                 style={tw`border rounded-lg bg-gray-50 w-full p-2 mb-4`}
                                 placeholder="กรอกนามสกุล"
@@ -148,7 +148,7 @@ const InfoCustomer = ({ onLogin }) => {
                                 onChangeText={setUserName}
                                 keyboardType='default'
                             /> */}
-                            <Text style={[styles.globalText, tw`text-gray-800 font-bold`]}>อีเมลล์:<Text style={[styles.globalText, tw`text-sm text-red-500`]}>*จำเป็น</Text></Text>
+                            <Text style={[styles.globalText, tw`text-gray-800 font-bold`]}>อีเมลล์:</Text>
                             <TextInput
                                 style={tw`border bg-gray-50 rounded-lg w-full p-2 mb-4`}
                                 placeholder="กรอกอีเมลล์"
