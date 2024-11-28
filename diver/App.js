@@ -170,7 +170,7 @@ export default function App() {
     // Alert.alert("สำเร็จ", "เข้าสู่ระบบสำเร็จ");
     setUserDataNa({
       profile_picture:
-        user.profile_picture || "photos-1732037296004-612856125.jpeg",
+        user.profile_picture || "driver_profile.jpeg",
       first_name: user.first_name,
       last_name: user.last_name,
       driver_id: user.user_id,

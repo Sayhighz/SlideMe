@@ -11,13 +11,16 @@ import {
 } from "react-native";
 import tw from "twrnc";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { IP_ADDRESS } from "../../config";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
 export default function PersonalInfoScreen({ navigation, route }) {
   const { userData = {} } = route.params || {};
   const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [driverScore, setDriverScore] = useState(0); // Driver score
 
   // Helper function to format dates
   const formatDate = (date) => {
@@ -25,6 +28,29 @@ export default function PersonalInfoScreen({ navigation, route }) {
     const formattedDate = new Date(date).toISOString().split("T")[0];
     return formattedDate;
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const driverScore = async () => {
+        try {
+          const response = await fetch(
+            `http://${IP_ADDRESS}:3000/auth/driver/score?driver_id=${userData?.driver_id}`
+          );
+          const data = await response.json();
+          if (data.Status && Array.isArray(data.Result) && data.Result.length > 0) {
+            setDriverScore(data.Result[0].Score);
+          } else {
+            setDriverScore(0);
+          }
+        } catch (error) {
+          console.error("Error fetching profit_today:", error);
+          setDriverScore(0);
+        }
+      };
+  
+      driverScore();
+    }, [userData?.driver_id])
+  );
 
   // Fetch user information
   const fetchData = async () => {
@@ -127,29 +153,27 @@ export default function PersonalInfoScreen({ navigation, route }) {
           }}
           style={tw`w-24 h-24 rounded-full border-2 border-green-400`}
         />
-        <View style={tw`ml-4`}>
-          <Text style={[styles.globalText, tw`text-sm text-gray-400`]}>
-            สวัสดี!
-          </Text>
-          <Text
-            style={[styles.globalText, tw`text-2xl font-bold text-[#60B876]`]}
-          >
-            {`${userData?.first_name || "ไม่พบข้อมูล"} ${
-              userData?.last_name || ""
-            }`}
-          </Text>
-          <View style={tw`flex-row items-center`}>
-            <Icon
-              name="star"
-              size={24}
-              color="orange"
-              style={tw`mr-1`}
-            />
-            <Text style={[styles.globalText, tw`text-lg text-gray-700`]}>
-              {userData?.average_rating ? userData?.average_rating : "0.0"}
-            </Text>
-          </View>
-        </View>
+                      <View style={tw`ml-4`}>
+                <Text style={[styles.globalText, tw`text-sm text-gray-400`]}>
+                  สวัสดี!
+                </Text>
+                <Text
+                  style={[
+                    styles.globalText,
+                    tw`text-2xl font-bold text-[#60B876]`,
+                  ]}
+                >
+                  {`${userData?.first_name || "ไม่พบข้อมูล"} ${
+                    userData?.last_name || ""
+                  }`}
+                </Text>
+                <View style={tw`flex-row items-center`}>
+                  <MaterialIcons name="star" size={24} color="orange" style={tw`mr-1`}/>
+                <Text style={[styles.globalText, tw`text-lg text-gray-700`]}>
+                {driverScore ? driverScore.toFixed(1) : "0.0"}
+                </Text>
+                </View>
+              </View>
       </View>
 
       {/* User Information */}

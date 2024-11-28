@@ -291,7 +291,7 @@ export default function JobsScreen({ route }) {
               { label: "ล่าสุด-เก่า", value: "latest" },
               { label: "เก่า-ล่าสุด", value: "oldest" },
               { label: "ระยะรับรถใกล้กับจุดส่งที่สุด", value: "shortest" },
-              { label: "ระยะส่งรถใกล้กับจุดรับที่สุด", value: "longest" },
+              { label: "ระยะส่งรถไกลกับจุดรับที่สุด", value: "longest" },
             ].map((option) => (
               <TouchableOpacity
                 key={option.value}

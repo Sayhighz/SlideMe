@@ -237,7 +237,7 @@ export default function HomeScreen({ route }) {
                 <View style={tw`flex-row items-center`}>
                   <MaterialIcons name="star" size={24} color="orange" style={tw`mr-1`}/>
                 <Text style={[styles.globalText, tw`text-lg text-gray-700`]}>
-                  {driverScore ? driverScore.toFixed(1) : "0.00"}
+                  {driverScore ? driverScore.toFixed(1) : "0.0"}
                 </Text>
                 </View>
               </View>
