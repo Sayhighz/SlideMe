@@ -52,11 +52,7 @@ export default function HomeScreen({ route }) {
             `http://${IP_ADDRESS}:3000/auth/driver/profitToday?driver_id=${userData?.driver_id}`
           );
           const data = await response.json();
-          if (
-            data.Status &&
-            Array.isArray(data.Result) &&
-            data.Result.length > 0
-          ) {
+          if (data.Status && Array.isArray(data.Result) && data.Result.length > 0) {
             setProfitToday(data.Result[0].profit_today); // Update profit today
           } else {
             setProfitToday(0); // Default to 0 if no data
@@ -66,16 +62,12 @@ export default function HomeScreen({ route }) {
           setProfitToday(0);
         }
       };
-
-      // Set interval for fetching every 5 seconds
-      const intervalId = setInterval(fetchProfitToday, 5000);
-
-      // Clean up interval on unmount or when component loses focus
-      return () => clearInterval(intervalId);
+  
+      fetchProfitToday();
     }, [userData?.driver_id])
   );
 
-  // Fetch offers every 5 seconds
+  // Fetch offers when the screen gains focus
   useFocusEffect(
     React.useCallback(() => {
       const fetchOffers = async () => {
@@ -99,13 +91,11 @@ export default function HomeScreen({ route }) {
         }
       };
 
-      // Set interval for fetching every 5 seconds
-      const intervalId = setInterval(fetchOffers, 5000);
-
-      // Clean up interval on unmount or when component loses focus
-      return () => clearInterval(intervalId);
+      fetchOffers();
+      setNotificationKey((prevKey) => prevKey + 1); // Update the key to reload NotificationRequest
     }, [userData?.driver_id])
   );
+
 
   // Handle offer press
   const handleOfferPress = (offer) => {

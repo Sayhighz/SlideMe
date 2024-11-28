@@ -223,7 +223,7 @@ export default function ViewOrder({ navigation }) {
   }, []);
 
   const handleChat = () => {
-    navigation.navigate("ChatScreen", { room_id: request_id });
+    navigation.navigate("ChatScreen", { room_id: request_id, user_name: driverInformation.name, phoneNumber: driverInformation.phone });
   };
 
   return (

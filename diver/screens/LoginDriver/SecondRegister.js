@@ -118,6 +118,7 @@ const SecondRegister = ({ navigation, route }) => {
               style={[styles.input, tw`mb-4`]}
               keyboardType="numeric"
               value={idNumber}
+              maxLength={13}
               onChangeText={setIdNumber}
             />
 
@@ -146,6 +147,7 @@ const SecondRegister = ({ navigation, route }) => {
               placeholder="ป้ายทะเบียนรถ"
               style={[styles.input, tw`mb-4`]}
               value={licensePlate}
+              maxLength={7}
               onChangeText={setLicensePlate}
             />
           </View>

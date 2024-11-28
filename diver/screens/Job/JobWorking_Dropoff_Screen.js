@@ -97,7 +97,7 @@ export default function JobWorking_Dropoff_Screen() {
   };
 
   const handleChat = () => {
-    navigation.navigate("ChatScreen", { room_id: request_id });
+    navigation.navigate("ChatScreen", { room_id: request_id, user_name: offer.customer_name, phoneNumber: offer.customer_phone });
   };
 
   const checkWorkSatus = () => {
@@ -158,7 +158,7 @@ export default function JobWorking_Dropoff_Screen() {
             {/* ปุ่มโทรและปุ่มแชท */}
             <View style={tw`flex-row items-center`}>
               <TouchableOpacity
-                style={tw`bg-blue-500 w-7 h-7 rounded-full flex items-center justify-center mx-1`}
+                style={tw`bg-green-500 w-7 h-7 rounded-full flex items-center justify-center mx-1`}
                 onPress={() => handleCall(offer.customer_phone)}
               >
                 <Icon name="call" size={15} color="white" />

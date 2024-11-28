@@ -79,7 +79,7 @@ export default function JobWorking_Pickup_Screen() {
 
   // Navigate to ChatScreen
   const handleChat = () => {
-    navigation.navigate("ChatScreen", { room_id: request_id });
+    navigation.navigate("ChatScreen", { room_id: request_id, user_name: offer.customer_name });
   };
 
   // Render loading indicator

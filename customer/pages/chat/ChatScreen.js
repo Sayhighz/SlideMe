@@ -8,19 +8,20 @@ import {
   KeyboardAvoidingView,
   StyleSheet,
   Animated,
+  Alert,
+  Linking,
 } from "react-native";
 import io from "socket.io-client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
 import { useNavigation } from "@react-navigation/native";
 import HeaderWithBackButton from "../../components/HeaderWithBackButton";
-
 const socket = io(`http://${IP_ADDRESS}:4000`);
 
 export default function ChatScreen({ route }) {
-  const { room_id } = route.params;
+  const { room_id, user_name, phoneNumber } = route.params;
   const user_id = "customer"; // Current user ID
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -112,14 +113,32 @@ export default function ChatScreen({ route }) {
     setNewMessage(false);
   };
 
+  const handleCall = (phoneNumber) => {
+    if (phoneNumber) {
+      const url = `tel:${phoneNumber}`;
+      Linking.openURL(url);
+    } else {
+      Alert.alert("หมายเลขโทรศัพท์", "หมายเลขโทรศัพท์ไม่พร้อมใช้งาน");
+    }
+  };
+
+
   return (
     <KeyboardAvoidingView style={tw`flex-1 bg-[#f5f7fa]`} behavior="padding">
       {/* Header */}
       <HeaderWithBackButton
       showBackButton={true}
-        title="แชทกับคนขับ"
+        title={`คุณ ${user_name}`}
         onPress={() => navigation.goBack()}
       />
+      <View style={tw`absolute right-7 top-15`}>
+      <TouchableOpacity
+                  style={tw`bg-[#60B876] w-10 h-10 rounded-full flex items-center justify-center mx-1`}
+                  onPress={() => handleCall(phoneNumber)}
+                >
+                  <Icon name="phone" size={15} color="white" />
+                </TouchableOpacity>
+        </View>
 
       {/* Message List */}
       <FlatList
