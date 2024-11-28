@@ -1,6 +1,6 @@
 // PhoneVerify.js
 import React, { useState, useRef, useEffect } from 'react';
-import { Text, View, TouchableOpacity, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback, Alert , StyleSheet} from 'react-native';
+import { Text, View, TouchableOpacity, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback, Alert , StyleSheet , Dimensions} from 'react-native';
 import tw from 'twrnc';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useContext } from 'react'; // Import useContext
@@ -14,6 +14,10 @@ function PhoneVerify({ onLogin }) {
     const [otp, setOtp] = useState(['', '', '', '']);
     const [generatedOtp, setGeneratedOtp] = useState(initialOtp); // Store current OTP
     const [cooldown, setCooldown] = useState(0); // Cooldown state
+
+    const { width: screenWidth } = Dimensions.get('window');
+    const { width } = Dimensions.get("window");
+    const dynamicFontSize = (size) => Math.max(16, (size * width) / 375);
 
     const otpRefs = useRef([React.createRef(), React.createRef(), React.createRef(), React.createRef()]);
 
@@ -86,8 +90,30 @@ function PhoneVerify({ onLogin }) {
             <SafeAreaView style={tw`flex-1 bg-white`}>
                 <View style={tw`flex-1 justify-center items-center mt-5`}>
                     <View style={tw`p-4 items-center justify-center`}>
-                        <Text style={[ styles.globalText,tw`text-6xl text-[#60B876] text-center`]}>SLIDE</Text>
-                        <Text style={[ styles.globalText,tw`text-8xl text-[#60B876] text-center leading-none z-10`]}>ME</Text>
+                    <Text
+              style={[
+                styles.globalText,
+                tw.style("text-center", {
+                  fontSize: dynamicFontSize(52),
+                  color: "#60B876",
+                  lineHeight: dynamicFontSize(58),
+                }),
+              ]}
+            >
+              SLIDE
+            </Text>
+            <Text
+              style={[
+                styles.globalText,
+                tw.style("text-center", {
+                  fontSize: dynamicFontSize(80),
+                  color: "#60B876",
+                  lineHeight: dynamicFontSize(88),
+                }),
+              ]}
+            >
+              ME
+            </Text>
                     </View>
                 </View>
 

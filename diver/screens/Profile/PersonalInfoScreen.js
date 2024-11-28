@@ -146,7 +146,7 @@ export default function PersonalInfoScreen({ navigation, route }) {
               style={tw`mr-1`}
             />
             <Text style={[styles.globalText, tw`text-lg text-gray-700`]}>
-              {userData?.average_rating || "0.0"}
+              {userData?.average_rating ? userData?.average_rating : "0.0"}
             </Text>
           </View>
         </View>
