@@ -22,6 +22,9 @@ const UserProfile = ({ navigation, onLogout }) => {
   const [profileBgColor, setProfileBgColor] = useState("");
 
   useEffect(() => {
+    
+  },[firstName, lastName, email]);
+  useEffect(() => {
     const randomColor = [
       "#FF5733",
       "#33FF57",
@@ -91,6 +94,7 @@ const UserProfile = ({ navigation, onLogout }) => {
                     Math.floor(Math.random() * 6)
                   ];
                 setProfileBgColor(newColor);
+                
               }}
             >
               <Ionicons name="person" size={70} color="white" />
@@ -100,10 +104,10 @@ const UserProfile = ({ navigation, onLogout }) => {
             <View>
               <View style={tw`flex-row items-center mb-2`}>
                 <Text style={[tw`text-black text-lg mr-1`, { fontFamily: "Mitr-Regular" }]}>
-                  {firstName || userData.phone_number || ""}
+                  {userData.first_name ? userData.first_name : userData.phone_number }
                 </Text>
                 <Text style={[tw`text-black text-lg`, { fontFamily: "Mitr-Regular" }]}>
-                  {lastName || ""}
+                  {userData.last_name || ""}
                 </Text>
               </View>
             </View>

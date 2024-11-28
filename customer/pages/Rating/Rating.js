@@ -156,7 +156,7 @@ const Rating = ({ navigation }) => {
         <View style={tw`flex-row items-center`}> 
           
         <Text style={[styles.globalText]} >
-          {`คะแนน: ${serviceData.average_rating?.toFixed(1)}`}
+          {`คะแนน: ${serviceData.average_rating?.toFixed(1) ? serviceData.average_rating.toFixed(1) : 0}`}
         </Text>
           <MaterialIcons name="star" size={17} color="orange"/>
         </View>
