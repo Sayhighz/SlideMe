@@ -1543,6 +1543,22 @@ router.get("/driver/profitToday", (req, res) => {
   });
 });
 
+router.get("/driver/score", (req, res) => {
+  const driver_id = req.query.driver_id;
+  const sql = `
+    select
+      AVG(r.rating) AS Score
+    from
+      reviews r
+    where
+      r.driver_id = ?
+        `;
+  con.query(sql, [driver_id], (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
+
 router.get("/order_status/:user_id", (req, res) => {
   const { user_id } = req.params
   const sql = `

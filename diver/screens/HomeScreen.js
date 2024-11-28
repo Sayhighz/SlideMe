@@ -27,6 +27,7 @@ export default function HomeScreen({ route }) {
   const { userData = {} } = route.params || {}; // User data passed via route params
   const [notificationKey, setNotificationKey] = useState(0); // Key for NotificationRequest
   const [profitToday, setProfitToday] = useState(0); // Profit today
+  const [driverScore, setDriverScore] = useState(0); // Driver score
 
   // Sample notices for Swiper
   const notice = [
@@ -64,6 +65,29 @@ export default function HomeScreen({ route }) {
       };
   
       fetchProfitToday();
+    }, [userData?.driver_id])
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const driverScore = async () => {
+        try {
+          const response = await fetch(
+            `http://${IP_ADDRESS}:3000/auth/driver/score?driver_id=${userData?.driver_id}`
+          );
+          const data = await response.json();
+          if (data.Status && Array.isArray(data.Result) && data.Result.length > 0) {
+            setDriverScore(data.Result[0].Score);
+          } else {
+            setDriverScore(0);
+          }
+        } catch (error) {
+          console.error("Error fetching profit_today:", error);
+          setDriverScore(0);
+        }
+      };
+  
+      driverScore();
     }, [userData?.driver_id])
   );
 
@@ -213,7 +237,7 @@ export default function HomeScreen({ route }) {
                 <View style={tw`flex-row items-center`}>
                   <MaterialIcons name="star" size={24} color="orange" style={tw`mr-1`}/>
                 <Text style={[styles.globalText, tw`text-lg text-gray-700`]}>
-                  {userData?.average_rating || "0.0"}
+                  {driverScore.toFixed(2) || "0.0"}
                 </Text>
                 </View>
               </View>
