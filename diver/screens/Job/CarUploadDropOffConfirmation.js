@@ -62,7 +62,7 @@ const CarUploadDropOffConfirmation = () => {
     const allImagesUploaded = Object.values(images).every((uri) => uri !== null);
 
     if (allImagesUploaded) {
-      const timer = setTimeout(() => setButtonEnabled(true), 3000);
+      const timer = setTimeout(() => setButtonEnabled(true), 3000); // 3-second delay
       return () => clearTimeout(timer);
     } else {
       setButtonEnabled(false);
@@ -156,47 +156,45 @@ const CarUploadDropOffConfirmation = () => {
   };
 
   return (
-      <>
-    {/* Header */}
-    <HeaderWithBackButton
-      showBackButton={true}
-      title="อัพโหลดรูปภาพ"
-      onPress={() => navigation.goBack()}
-    />
-  <SafeAreaView style={tw`flex-1 bg-white`}>
-    
+    <>
+      {/* Header */}
+      <HeaderWithBackButton
+        showBackButton={true}
+        title="อัพโหลดรูปภาพ"
+        onPress={() => navigation.goBack()}
+      />
+      <SafeAreaView style={tw`flex-1 bg-white`}>
+        {/* Scrollable Upload Boxes Section */}
+        <ScrollView contentContainerStyle={tw`p-4 flex-1`}>
+          {/* Upload Boxes */}
+          {renderUploadBox('front', 'ด้านหน้ารถ')}
+          {renderUploadBox('back', 'ด้านหลังรถ')}
+          <View style={tw`flex-row justify-between mt-4`}>
+            {renderUploadBox('left', 'ด้านข้างรถ (ซ้าย)')}
+            {renderUploadBox('right', 'ด้านข้างรถ (ขวา)')}
+          </View>
+          <View style={tw`h-20`}></View>
+        </ScrollView>
 
-    {/* Scrollable Upload Boxes Section */}
-    <ScrollView contentContainerStyle={tw`p-4 flex-1`}>
-      {/* Upload Boxes */}
-      {renderUploadBox('front', 'ด้านหน้ารถ')}
-      {renderUploadBox('back', 'ด้านหลังรถ')}
-      <View style={tw`flex-row justify-between mt-4`}>
-        {renderUploadBox('left', 'ด้านข้างรถ (ซ้าย)')}
-        {renderUploadBox('right', 'ด้านข้างรถ (ขวา)')}
-      </View>
-      <View style={tw`h-20`}></View>
-    </ScrollView>
+        {/* Confirmation Dialog */}
+        <ConfirmationDialog
+          visible={isModalVisible}
+          title="ยืนยันการอัพโหลด"
+          message="คุณแน่ใจหรือไม่ว่าต้องการอัพโหลดรูปภาพเหล่านี้?"
+          onConfirm={() => {
+            setIsModalVisible(false);
+            handleConfirmation();
+          }}
+          onCancel={() => setIsModalVisible(false)}
+        />
 
-    {/* Confirmation Dialog */}
-    <ConfirmationDialog
-      visible={isModalVisible}
-      title="ยืนยันการอัพโหลด"
-      message="คุณแน่ใจหรือไม่ว่าต้องการอัพโหลดรูปภาพเหล่านี้?"
-      onConfirm={() => {
-        setIsModalVisible(false);
-        handleConfirmation();
-      }}
-      onCancel={() => setIsModalVisible(false)}
-    />
-
-    {/* Submit Button */}
-    <SubmitButton 
-      onPress={confirmAction} 
-      title="ยืนยันการอัพโหลด" 
-      disabled={buttonEnabled} 
-    />
-  </SafeAreaView>
+        {/* Submit Button */}
+        <SubmitButton 
+          onPress={confirmAction} 
+          title="ยืนยันการอัพโหลด" 
+          disabled={!buttonEnabled}  // Button enabled only after 4 images are uploaded and delay
+        />
+      </SafeAreaView>
     </>
   );
 };
