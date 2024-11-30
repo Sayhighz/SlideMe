@@ -129,7 +129,7 @@ export default function ChatScreen({ route }) {
       {/* Header */}
       <HeaderWithBackButton
       showBackButton={true}
-        title={`คุณ ${user_name}`}
+        title={`คุณ ${user_name ? user_name : "ลูกค้า"}`}
         onPress={() => navigation.goBack()}
       />
       <View style={tw`absolute right-7 top-15`}>

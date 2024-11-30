@@ -395,7 +395,7 @@ const ChooseOffer = ({ navigation, route }) => {
                   <Text style={[styles.globalText, tw`text-lg`]}>
                     {"คะแนน : "}
                     <View>
-                      <MaterialIcons name="star" size={24} color="yellow" />
+                      <MaterialIcons name="star" size={24} color="orange" />
                     </View>
                     <Text style={tw`text-lg text-green-700 flex-1`}>
                       {chooseDriver.rating || "0.0"}

@@ -153,7 +153,7 @@ export default function JobWorking_Dropoff_Screen() {
         {offer ? (
           <View style={tw`p-4 bg-white shadow-md border border-gray-200 rounded-lg mb-4`}>
           <View style={tw`flex-row justify-between items-center mb-2`}>
-            <Text style={[styles.globalText, tw`text-gray-800`]}>คุณ {offer.customer_name}</Text>
+            <Text style={[styles.globalText, tw`text-gray-800`]}>คุณ {offer.customer_name ? offer.customer_name : "ลูกค้า"}</Text>
 
             {/* ปุ่มโทรและปุ่มแชท */}
             <View style={tw`flex-row items-center`}>

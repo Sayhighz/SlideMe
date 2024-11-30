@@ -393,7 +393,7 @@ export default function ViewOrder({ navigation }) {
               </Text>
             </View>
             <View style={tw`flex-1 flex-row items-center justify-end`}>
-              <MaterialIcons name="star" size={24} color="yellow" />
+              <MaterialIcons name="star" size={24} color="orange" />
               <Text style={[styles.globalText, tw`text-xl text-center`]}>
                 {driverInformation.rating || "0.0"}
               </Text>
