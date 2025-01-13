@@ -121,7 +121,7 @@ export default function HistoryScreen({ userData }) {
     <SafeAreaView style={tw`flex-1 bg-white`}>
       {/* Header */}
       <View style={tw`flex-row justify-between items-center mt-9 px-4 py-4`}>
-        <Text style={[styles.globalText, tw`text-xl font-bold`]}>ประวัติการทำงาน</Text>
+        <Text style={[styles.globalText, tw`text-xl`]}>ประวัติการทำงาน</Text>
         <TouchableOpacity
           style={tw`p-3 bg-[#60B876] rounded`}
           onPress={() => setFilterModalVisible(true)}
@@ -178,7 +178,7 @@ export default function HistoryScreen({ userData }) {
         >
           <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
             <View style={tw`w-4/5 p-9 bg-white rounded-lg`}>
-              <Text style={[styles.globalText, tw`text-lg font-bold mb-4 text-center`]}>รายละเอียดงาน</Text>
+              <Text style={[styles.globalText, tw`text-lg mb-4 text-center`]}>รายละเอียดงาน</Text>
               <Text style={styles.globalText}><Icon name="map-marker" size={20} color="green" />ต้นทาง</Text>
               <Text style={[styles.globalText, tw`text-gray-500 mb-2`]}>{selectedJob.origin}</Text>
               <Text style={styles.globalText}> <Icon name="map-marker" size={20} color="red" />ปลายทาง</Text>
@@ -200,7 +200,7 @@ export default function HistoryScreen({ userData }) {
                 style={tw`mt-6 bg-[#60B876] p-3 rounded items-center`}
                 onPress={closeModal}
               >
-                <Text style={[styles.globalText, tw`text-white font-bold`]}>ปิด</Text>
+                <Text style={[styles.globalText, tw`text-white`]}>ปิด</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -217,7 +217,7 @@ export default function HistoryScreen({ userData }) {
         <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
           <View style={tw`w-4/5 bg-white rounded-lg`}>
             <Text
-              style={[styles.globalText, tw`text-lg font-bold p-4 text-center`]}
+              style={[styles.globalText, tw`text-lg p-4 text-center`]}
             >
               เลือกประเภทการกรอง
             </Text>
@@ -244,7 +244,7 @@ export default function HistoryScreen({ userData }) {
               style={tw`p-4 bg-red-500 rounded-b-lg`}
               onPress={() => setFilterModalVisible(false)}
             >
-              <Text style={[styles.globalText, tw`text-white text-center font-bold`]}>
+              <Text style={[styles.globalText, tw`text-white text-center`]}>
                 ปิด
               </Text>
             </TouchableOpacity>

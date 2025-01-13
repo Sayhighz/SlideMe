@@ -227,7 +227,7 @@ export default function HomeScreen({ route }) {
                 <Text
                   style={[
                     styles.globalText,
-                    tw`text-2xl font-bold text-[#60B876]`,
+                    tw`text-2xl text-[#60B876]`,
                   ]}
                 >
                   {`${userData?.first_name || "ไม่พบข้อมูล"} ${
@@ -249,7 +249,7 @@ export default function HomeScreen({ route }) {
                 <Text
                   style={[
                     styles.globalText,
-                    tw`text-2xl font-bold text-[#60B876]`,
+                    tw`text-2xl text-[#60B876]`,
                   ]}
                 >
                   {formatCurrency(profitToday)}
@@ -393,7 +393,7 @@ export default function HomeScreen({ route }) {
                   style={tw`bg-red-500 p-3 rounded-lg items-center`}
                   onPress={() => handleCancelOffer(selectedOffer.offer_id)}
                 >
-                  <Text style={[styles.globalText, tw`text-white font-bold`]}>
+                  <Text style={[styles.globalText, tw`text-white`]}>
                     ยกเลิกข้อเสนอ
                   </Text>
                 </TouchableOpacity>
@@ -401,7 +401,7 @@ export default function HomeScreen({ route }) {
                   style={tw`mt-4 bg-gray-300 p-3 rounded-lg items-center`}
                   onPress={() => setModalVisible(false)}
                 >
-                  <Text style={[styles.globalText, tw`text-black font-bold`]}>
+                  <Text style={[styles.globalText, tw`text-black`]}>
                     ปิด
                   </Text>
                 </TouchableOpacity>
@@ -423,7 +423,7 @@ export default function HomeScreen({ route }) {
             })
           }
         >
-          <Text style={[styles.globalText, tw`text-white font-bold text-lg`]}>
+          <Text style={[styles.globalText, tw`text-white text-lg`]}>
             ค้นหางาน
           </Text>
         </TouchableOpacity>

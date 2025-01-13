@@ -86,7 +86,7 @@ const CarUploadPickUpConfirmation = () => {
           <Icon name="cloud-upload-outline" size={32} color="gray" style={tw`mb-2`} />
         )}
         <Text style={[styles.globalFont,tw`text-gray-400`]}>อัพโหลด</Text>
-        <Text style={[styles.globalFont,tw`text-base text-center text-black font-bold`]}>
+        <Text style={[styles.globalFont,tw`text-base text-center text-black`]}>
           {displayName}
         </Text>
       </View>

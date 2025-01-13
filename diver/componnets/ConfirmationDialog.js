@@ -22,7 +22,7 @@ const ConfirmationDialog = ({ visible, title, message, onConfirm, onCancel }) =>
     >
       <View style={tw`flex-1 bg-black/50 justify-center items-center`}>
         <View style={tw`w-4/5 bg-white rounded-lg p-5`}>
-          <Text style={[styles.globalText,tw`text-lg font-bold mb-4 text-center`]}>
+          <Text style={[styles.globalText,tw`text-lg mb-4 text-center`]}>
             {title}
           </Text>
           <Text style={[styles.globalText,tw`text-base mb-6 text-center text-gray-600`]}>{message}</Text>
@@ -31,7 +31,7 @@ const ConfirmationDialog = ({ visible, title, message, onConfirm, onCancel }) =>
               style={tw`flex-1 bg-gray-300 rounded-md py-2 mr-2 items-center`}
               onPress={onCancel}
             >
-              <Text style={[styles.globalText,tw`text-base font-bold text-black`]}>
+              <Text style={[styles.globalText,tw`text-base text-black`]}>
                 ยกเลิก
               </Text>
             </TouchableOpacity>
@@ -39,7 +39,7 @@ const ConfirmationDialog = ({ visible, title, message, onConfirm, onCancel }) =>
               style={tw`flex-1 bg-green-500 rounded-md py-2 ml-2 items-center`}
               onPress={onConfirm}
             >
-              <Text style={[styles.globalText,tw`text-base font-bold text-white`]}>
+              <Text style={[styles.globalText,tw`text-base text-white`]}>
                 ตกลง
               </Text>
             </TouchableOpacity>

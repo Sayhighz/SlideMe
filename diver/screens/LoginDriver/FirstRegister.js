@@ -117,7 +117,7 @@ const FirstRegister = ({ navigation }) => {
             <Text
               style={[
                 styles.globalText,
-                tw.style("font-bold text-center", {
+                tw.style("text-center", {
                   fontSize: dynamicFontSize(52),
                   color: "#60B876",
                   lineHeight: dynamicFontSize(58),
@@ -129,7 +129,7 @@ const FirstRegister = ({ navigation }) => {
             <Text
               style={[
                 styles.globalText,
-                tw.style("font-bold text-center", {
+                tw.style("text-center", {
                   fontSize: dynamicFontSize(80),
                   color: "#60B876",
                   lineHeight: dynamicFontSize(88),
@@ -141,7 +141,7 @@ const FirstRegister = ({ navigation }) => {
             <Text
               style={[
                 styles.globalText,
-                tw.style("text-lg font-bold text-[#60B876]", {
+                tw.style("text-lg text-[#60B876]", {
                   lineHeight: dynamicFontSize(24),
                 }),
               ]}
@@ -153,7 +153,7 @@ const FirstRegister = ({ navigation }) => {
 
 
           <View style={tw`flex-1`}>
-            <Text style={[styles.globalText, tw`text-lg font-bold mb-2`]}>
+            <Text style={[styles.globalText, tw`text-lg mb-2`]}>
               เบอร์โทรศัพท์
             </Text>
             <TextInput
@@ -164,7 +164,7 @@ const FirstRegister = ({ navigation }) => {
               onChangeText={setPhoneNumber}
               maxLength={10}
             />
-            <Text style={[styles.globalText, tw`text-lg font-bold mb-2`]}>
+            <Text style={[styles.globalText, tw`text-lg mb-2`]}>
               เลือกจังหวัด
             </Text>
             <View style={[styles.pickerContainer, tw`mb-4`]}>
@@ -180,7 +180,7 @@ const FirstRegister = ({ navigation }) => {
                 }}
               />
             </View>
-            <Text style={[styles.globalText, tw`text-lg font-bold mb-2`]}>
+            <Text style={[styles.globalText, tw`text-lg mb-2`]}>
               เลือกประเภทรถ
             </Text>
             <View style={styles.pickerContainer}>

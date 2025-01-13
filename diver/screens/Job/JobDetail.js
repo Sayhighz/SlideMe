@@ -98,7 +98,7 @@ export default function JobDetailScreen({ route, navigation }) {
           >
             <Icon name="arrow-left" size={24} color="black" />
           </TouchableOpacity>
-          <Text style={[styles.globalText, tw`text-xl font-bold`]}>
+          <Text style={[styles.globalText, tw`text-xl`]}>
             ประมาณ {distance} KM
           </Text>
         </View>
@@ -121,7 +121,7 @@ export default function JobDetailScreen({ route, navigation }) {
         </View>
 
         {/* Transportation Type Section */}
-        <Text style={[styles.globalText, tw`text-lg font-bold mt-6`]}>
+        <Text style={[styles.globalText, tw`text-lg mt-6`]}>
           ประเภทการขนส่ง
         </Text>
         <TextInput
@@ -131,7 +131,7 @@ export default function JobDetailScreen({ route, navigation }) {
         />
 
         {/* Price Input Section */}
-        <Text style={[styles.globalText, tw`text-lg font-bold mt-6`]}>
+        <Text style={[styles.globalText, tw`text-lg mt-6`]}>
           กำหนดราคา
         </Text>
         <TextInput
@@ -147,7 +147,7 @@ export default function JobDetailScreen({ route, navigation }) {
           style={tw`bg-[#60B876] rounded p-2 mt-6 items-center`}
           onPress={confirmOfferSubmit}
         >
-          <Text style={[styles.globalText, tw`text-white font-bold text-lg`]}>
+          <Text style={[styles.globalText, tw`text-white text-lg`]}>
             ยื่นข้อเสนอ
           </Text>
         </TouchableOpacity>

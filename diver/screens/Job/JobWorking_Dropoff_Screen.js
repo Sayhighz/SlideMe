@@ -145,7 +145,7 @@ export default function JobWorking_Dropoff_Screen() {
         {/* Header Section */}
         <View style={tw`flex-row justify-between my-7`}>
           <TouchableOpacity onPress={() => Alert.alert("แจ้งปัญหา", "กรุณาติดต่อผู้ดูแลระบบสำหรับปัญหานี้")}>
-            <Text style={[styles.globalText, tw`text-lg text-[#60B876] font-bold`]}>แจ้งปัญหา</Text>
+            <Text style={[styles.globalText, tw`text-lg text-[#60B876]`]}>แจ้งปัญหา</Text>
           </TouchableOpacity>
         </View>
 

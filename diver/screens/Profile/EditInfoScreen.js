@@ -100,7 +100,7 @@ export default function EditInfoScreen({ navigation, route }) {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} style={tw`text-gray-800`} />
         </TouchableOpacity>
-        <Text style={[styles.globalText, tw`text-xl font-bold text-gray-800 ml-4`]}>
+        <Text style={[styles.globalText, tw`text-xl text-gray-800 ml-4`]}>
           แก้ไขข้อมูล
         </Text>
       </View>
@@ -127,7 +127,7 @@ export default function EditInfoScreen({ navigation, route }) {
           style={tw`w-full py-3 bg-[#60B876] rounded`}
           onPress={handleSave}
         >
-          <Text style={[styles.globalText, tw`text-center text-base font-bold text-white`]}>
+          <Text style={[styles.globalText, tw`text-center text-base text-white`]}>
             ยืนยัน
           </Text>
         </TouchableOpacity>

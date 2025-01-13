@@ -81,7 +81,7 @@ const SixRegister = ({ navigation, route }) => {
         >
           <View style={tw`mx-auto w-10/12`}>
             {/* Header */}
-            <Text style={[styles.globalText, tw`text-2xl font-bold mb-2 text-center`]}>
+            <Text style={[styles.globalText, tw`text-2xl mb-2 text-center`]}>
               ยินดีด้วย !
             </Text>
             <Text style={[styles.globalText, tw`text-sm text-center text-gray-600 mb-8`]}>
@@ -89,7 +89,7 @@ const SixRegister = ({ navigation, route }) => {
             </Text>
 
             {/* Password creation form */}
-            <Text style={[styles.globalText, tw`text-lg font-bold mb-4`]}>สร้างรหัสผ่าน</Text>
+            <Text style={[styles.globalText, tw`text-lg mb-4`]}>สร้างรหัสผ่าน</Text>
             <TextInput
               style={[
                 styles.globalText,

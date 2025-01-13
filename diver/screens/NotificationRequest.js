@@ -145,7 +145,7 @@ export default function NotificationRequest({ driver_id, status }) {
             </View>
           )}
 
-          <Text style={[tw`text-lg font-bold mb-4`, styles.globalText]}>
+          <Text style={[tw`text-lg mb-4`, styles.globalText]}>
             รายได้ {requestData?.price}
           </Text>
 
@@ -153,7 +153,7 @@ export default function NotificationRequest({ driver_id, status }) {
             style={tw`bg-[#60B876] rounded px-4 py-2 items-center`}
             onPress={startJob}
           >
-            <Text style={[tw`text-white font-bold text-lg`, styles.globalText]}>
+            <Text style={[tw`text-white text-lg`, styles.globalText]}>
               เริ่มงาน
             </Text>
           </TouchableOpacity>

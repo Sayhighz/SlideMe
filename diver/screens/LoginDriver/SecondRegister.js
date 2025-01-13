@@ -93,7 +93,7 @@ const SecondRegister = ({ navigation, route }) => {
 
           {/* Form Content */}
           <View style={tw`flex-1 ml-3`}>
-            <Text style={[styles.globalText, tw`text-3xl font-bold mb-4`]}>สร้างบัญชีของคุณ</Text>
+            <Text style={[styles.globalText, tw`text-3xl mb-4`]}>สร้างบัญชีของคุณ</Text>
             <Text style={[styles.globalText, tw`text-lg mb-2`]}>ข้อมูลทั่วไป</Text>
 
             <Text style={[styles.globalText, tw`text-sm`]}>ชื่อ (ตามบัตรประชาชน)*</Text>

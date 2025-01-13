@@ -66,7 +66,7 @@ const FourthRegister = ({ navigation, route }) => {
         ) : (
           <Icon name="cloud-upload-outline" size={32} color="gray" style={tw`mb-2 mr-5`} />
         )}
-        <Text style={[styles.globalText, tw`text-lg font-bold text-center`]}>{displayName}</Text>
+        <Text style={[styles.globalText, tw`text-lg text-center`]}>{displayName}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -85,7 +85,7 @@ const FourthRegister = ({ navigation, route }) => {
         >
 
           {/* Page Title */}
-          <Text style={[styles.globalText, tw`text-2xl font-bold mb-6`]}>อัพโหลดไฟล์เอกสาร</Text>
+          <Text style={[styles.globalText, tw`text-2xl mb-6`]}>อัพโหลดไฟล์เอกสาร</Text>
 
           {/* Render upload buttons */}
           {renderUploadButton('idPhoto', 'รูปถ่ายบัตรตรวจ')}

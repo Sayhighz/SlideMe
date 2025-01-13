@@ -80,7 +80,7 @@ export default function ProfileScreen({ navigation, userData, onLogout }) {
                 <Text
                   style={[
                     styles.globalText,
-                    tw`text-2xl font-bold text-[#60B876]`,
+                    tw`text-2xl text-[#60B876]`,
                   ]}
                 >
                   {`${userData?.first_name || "ไม่พบข้อมูล"} ${
@@ -127,7 +127,7 @@ export default function ProfileScreen({ navigation, userData, onLogout }) {
           <Text
             style={[
               styles.globalText,
-              tw`text-center text-white font-bold text-base`,
+              tw`text-center text-white text-base`,
             ]}
           >
             ออกจากระบบ

@@ -61,7 +61,7 @@ function JobCard({
         })
       }
     >
-      <Text style={[styles.globalText, tw`text-gray-800 font-bold text-lg mb-4`]}>
+      <Text style={[styles.globalText, tw`text-gray-800 text-lg mb-4`]}>
         ระยะทางประมาณ {distance} กิโลเมตร
       </Text>
 
@@ -202,7 +202,7 @@ export default function JobsScreen({ route }) {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} color="white" />
         </TouchableOpacity>
-        <Text style={[styles.globalText, tw`text-2xl font-bold text-white ml-4`]}>
+        <Text style={[styles.globalText, tw`text-2xl text-white ml-4`]}>
           งานวันนี้
         </Text>
       </View>
@@ -235,7 +235,7 @@ export default function JobsScreen({ route }) {
         <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
           <View style={tw`bg-white w-3/4 p-4 rounded-lg`}>
             <Text
-              style={[styles.globalText, tw`text-lg font-bold text-center mb-4`]}
+              style={[styles.globalText, tw`text-lg text-center mb-4`]}
             >
               เลือกระยะทาง
             </Text>
@@ -265,7 +265,7 @@ export default function JobsScreen({ route }) {
               style={tw`mt-4 bg-red-500 p-2 rounded-lg`}
               onPress={() => setShowFilterModal(false)}
             >
-              <Text style={[styles.globalText, tw`text-center text-white font-bold`]}>
+              <Text style={[styles.globalText, tw`text-center text-white`]}>
                 ปิด
               </Text>
             </TouchableOpacity>
@@ -283,7 +283,7 @@ export default function JobsScreen({ route }) {
         <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
           <View style={tw`bg-white w-3/4 p-4 rounded-lg`}>
             <Text
-              style={[styles.globalText, tw`text-lg font-bold text-center mb-4`]}
+              style={[styles.globalText, tw`text-lg text-center mb-4`]}
             >
               เลือกการเรียงลำดับ
             </Text>
@@ -318,7 +318,7 @@ export default function JobsScreen({ route }) {
               style={tw`mt-4 bg-red-500 p-2 rounded-lg`}
               onPress={() => setShowSortModal(false)}
             >
-              <Text style={[styles.globalText, tw`text-center text-white font-bold`]}>
+              <Text style={[styles.globalText, tw`text-center text-white`]}>
                 ปิด
               </Text>
             </TouchableOpacity>

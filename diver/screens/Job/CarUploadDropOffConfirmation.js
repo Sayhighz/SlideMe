@@ -92,7 +92,7 @@ const CarUploadDropOffConfirmation = () => {
         )}
         <Text style={[styles.globalFont,tw`text-gray-400`]}>อัพโหลด</Text>
         <Text
-          style={[styles.globalFont,tw`text-base text-center text-black font-bold`]}
+          style={[styles.globalFont,tw`text-base text-center text-black`]}
         >
           {displayName}
         </Text>

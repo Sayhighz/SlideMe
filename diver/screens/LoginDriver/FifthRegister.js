@@ -44,7 +44,7 @@ const FifthRegister = ({ navigation, route }) => {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <Text style={[styles.globalText, tw`text-2xl font-bold mb-2 mt-10 text-center`]}>
+        <Text style={[styles.globalText, tw`text-2xl mb-2 mt-10 text-center`]}>
           ขอบคุณสำหรับการลงทะเบียน
         </Text>
         <Text style={[styles.globalText, tw`text-sm text-center text-gray-600 mb-8`]}>
@@ -58,7 +58,7 @@ const FifthRegister = ({ navigation, route }) => {
             style={tw`bg-white shadow-md border border-gray-300 w-full p-4 rounded-lg mb-4 flex-row justify-between items-center`}
             disabled
           >
-            <Text style={[styles.globalText, tw`text-lg font-bold`]}>{item.label}</Text>
+            <Text style={[styles.globalText, tw`text-lg`]}>{item.label}</Text>
             {item.isProcessing ? (
               <ActivityIndicator size="small" color="#60B876" />
             ) : (

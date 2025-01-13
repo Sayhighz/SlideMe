@@ -61,7 +61,7 @@ const ThirdRegister = ({ navigation, route }) => {
         >
           {/* Main Content */}
           <View style={tw``}>
-            <Text style={[styles.globalText, tw`text-2xl font-bold mb-4`]}>อบรมและทำแบบทดสอบ</Text>
+            <Text style={[styles.globalText, tw`text-2xl mb-4`]}>อบรมและทำแบบทดสอบ</Text>
             <View style={tw`bg-black h-60 w-full rounded-lg mb-10 justify-center items-center`}>
               <Icon name="videocam-outline" size={40} color="#fff" />
             </View>
@@ -71,7 +71,7 @@ const ThirdRegister = ({ navigation, route }) => {
               onPress={handleTestPress}
             >
               <View style={tw`flex-row justify-center items-center`}>
-                <Text style={[styles.globalText, tw`text-lg font-bold text-center text-gray-700`]}>
+                <Text style={[styles.globalText, tw`text-lg text-center text-gray-700`]}>
                   ทำแบบทดสอบ
                 </Text>
                 {isTestCompleted && (
@@ -92,7 +92,7 @@ const ThirdRegister = ({ navigation, route }) => {
         <Modal visible={isTestModalVisible} animationType="slide" transparent={true}>
           <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
             <View style={tw`bg-white w-10/12 p-6 rounded-lg`}>
-              <Text style={[styles.globalText, tw`text-lg font-bold mb-4`]}>SLIDEME TEST</Text>
+              <Text style={[styles.globalText, tw`text-lg mb-4`]}>SLIDEME TEST</Text>
               <Text style={[styles.globalText, tw`text-base mb-4`]}>เนื้อหาของแบบทดสอบ...</Text>
 
               <Button title="เสร็จสิ้น" onPress={handleTestComplete} />

@@ -139,7 +139,7 @@ export default function PersonalInfoScreen({ navigation, route }) {
           <Icon name="arrow-left" size={24} style={tw`text-gray-800`} />
         </TouchableOpacity>
         <Text
-          style={[styles.globalText, tw`text-xl font-bold text-gray-800 ml-4`]}
+          style={[styles.globalText, tw`text-xl text-gray-800 ml-4`]}
         >
           ข้อมูลส่วนตัว
         </Text>
@@ -160,7 +160,7 @@ export default function PersonalInfoScreen({ navigation, route }) {
                 <Text
                   style={[
                     styles.globalText,
-                    tw`text-2xl font-bold text-[#60B876]`,
+                    tw`text-2xl text-[#60B876]`,
                   ]}
                 >
                   {`${userData?.first_name || "ไม่พบข้อมูล"} ${
@@ -179,7 +179,7 @@ export default function PersonalInfoScreen({ navigation, route }) {
       {/* User Information */}
       <View style={tw`px-4`}>
         <Text
-          style={[styles.globalText, tw`text-lg font-bold text-gray-800 mb-4`]}
+          style={[styles.globalText, tw`text-lg text-gray-800 mb-4`]}
         >
           ข้อมูลทั่วไป
         </Text>
@@ -224,7 +224,7 @@ export default function PersonalInfoScreen({ navigation, route }) {
           <Text
             style={[
               styles.globalText,
-              tw`text-center text-white text-base font-bold`,
+              tw`text-center text-white text-base`,
             ]}
           >
             แก้ไขข้อมูล

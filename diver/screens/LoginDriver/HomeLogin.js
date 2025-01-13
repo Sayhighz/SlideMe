@@ -64,7 +64,7 @@ export default function HomeLogin({ route, navigation, onLogin }) {
             <Text
               style={[
                 styles.globalText,
-                tw.style("font-bold text-center", {
+                tw.style(" text-center", {
                   fontSize: dynamicFontSize(52),
                   color: "#60B876",
                   lineHeight: dynamicFontSize(58),
@@ -76,7 +76,7 @@ export default function HomeLogin({ route, navigation, onLogin }) {
             <Text
               style={[
                 styles.globalText,
-                tw.style("font-bold text-center", {
+                tw.style(" text-center", {
                   fontSize: dynamicFontSize(80),
                   color: "#60B876",
                   lineHeight: dynamicFontSize(88),
@@ -88,7 +88,7 @@ export default function HomeLogin({ route, navigation, onLogin }) {
             <Text
               style={[
                 styles.globalText,
-                tw.style("text-lg font-bold text-[#60B876]", {
+                tw.style("text-lg  text-[#60B876]", {
                   lineHeight: dynamicFontSize(24),
                 }),
               ]}
@@ -98,7 +98,7 @@ export default function HomeLogin({ route, navigation, onLogin }) {
           </View>
 
           <View style={tw.style("flex-1 mx-auto mt-6", { width: "90%" })}>
-            <Text style={[styles.globalText, tw`text-lg font-bold mb-2`]}>เบอร์โทรศัพท์</Text>
+            <Text style={[styles.globalText, tw`text-lg mb-2`]}>เบอร์โทรศัพท์</Text>
             <TextInput
               placeholder="เบอร์โทรศัพท์"
               style={[styles.globalText, tw`border-2 border-gray-300 rounded-lg p-2 mb-4`]}
@@ -111,7 +111,7 @@ export default function HomeLogin({ route, navigation, onLogin }) {
               }}
               maxLength={10}
             />
-            <Text style={[styles.globalText, tw`text-lg font-bold`]}>รหัสผ่าน</Text>
+            <Text style={[styles.globalText, tw`text-lg `]}>รหัสผ่าน</Text>
             <View
               style={tw`border-2 border-gray-300 rounded-lg flex-row items-center p-2`}
             >
@@ -140,7 +140,7 @@ export default function HomeLogin({ route, navigation, onLogin }) {
               style={tw`w-full bg-[#60B876] rounded p-4 mt-4`}
               onPress={handleLoginPress}
             >
-              <Text style={[styles.globalText, tw`text-center text-lg font-bold text-white`]}>
+              <Text style={[styles.globalText, tw`text-center text-lg  text-white`]}>
                 เข้าสู่ระบบ
               </Text>
             </TouchableOpacity>
@@ -148,7 +148,7 @@ export default function HomeLogin({ route, navigation, onLogin }) {
               style={tw`w-full bg-gray-300 rounded p-4 mt-2`}
               onPress={() => navigation.navigate("FirstRegister")}
             >
-              <Text style={[styles.globalText, tw`text-center text-lg font-bold text-black`]}>
+              <Text style={[styles.globalText, tw`text-center text-lg  text-black`]}>
                 ลงทะเบียน
               </Text>
             </TouchableOpacity>
