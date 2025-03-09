@@ -1,1 +1,29 @@
-node_modules
+# Ignore Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Ignore environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Ignore database files
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore logs
+logs
+*.log
+logs/**/*.log

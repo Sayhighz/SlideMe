@@ -19,7 +19,7 @@ const handlePhoneLogin = async () => {
     if (phoneNumber.length === 9) {
         const formattedPhoneNumber = `0${phoneNumber}`;
         try {
-            const response = await fetch(`http://${IP_ADDRESS}:3000/auth/check_user_phone`, {
+            const response = await fetch(`http://${IP_ADDRESS}:4000/user/check_user_phone`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
