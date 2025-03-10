@@ -32,10 +32,10 @@ export const getOffersFromDriver = (req, res) => {
     const sql = `
         SELECT
             s.request_id,
-            d.offer_id,
             s.location_from,
             s.location_to,
             s.vehicle_type,
+            d.offer_id,
             d.offered_price,
             d.offer_status
         FROM
