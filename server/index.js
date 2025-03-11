@@ -10,6 +10,8 @@ import userRoutes from './routes/userRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import customerRoutes from './routes/customerRoutes.js'
+import offerRoutes from './routes/offerRoutes.js'
 
 const app = express();
 const server = http.createServer(app);
@@ -23,7 +25,9 @@ app.use('/uploads', express.static('uploads'));
 
 app.use('/upload', uploadRoutes);
 app.use('/request', requestRoutes);
+app.use('/offer', offerRoutes)
 app.use('/driver', driverRoutes);
+app.use('/customer', customerRoutes)
 app.use('/user', userRoutes);
 app.use('/payment', paymentRoutes);
 app.use('/notification', notificationRoutes);

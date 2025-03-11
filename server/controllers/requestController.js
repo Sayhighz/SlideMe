@@ -118,3 +118,85 @@ export const getRequestDetailForDriver = (req, res) => {
     return res.json({ Status: true, Result: result });
   });
 };
+
+export const updateServiceRequest = (req, res) => {
+  const { request_id, customer_id, driver_id, price } = req.body;
+  console.log(request_id);
+
+  // Validate input
+  if (!request_id || !customer_id || !driver_id || !price) {
+    return res
+      .status(400)
+      .json({ Status: false, Message: "Invalid parameters" });
+  }
+
+  const sqlUpdate = `
+    UPDATE servicerequests
+    SET status = 'accepted',
+        accepted_driver_id = ?,
+        price_offer = ?
+    WHERE request_id = ? AND customer_id = ? 
+  `;
+
+  con.query(
+    sqlUpdate,
+    [driver_id, price, request_id, customer_id],
+    (err, result) => {
+      if (err) {
+        console.error("Error updating service request:", err);
+        return res.status(500).json({ Status: false, Error: err.message });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          Status: false,
+          Message: "No matching data found or already updated",
+        });
+      }
+
+      return res.status(200).json({
+        Status: true,
+        Message: "Service request updated successfully",
+      });
+    }
+  );
+};
+
+export const completeRequest = (req, res) => {
+  const sql = `
+  UPDATE servicerequests
+  SET 
+    status = 'completed'
+  WHERE request_id = ?
+`;
+
+  const request_id = req.body.request_id || null;
+
+  con.query(sql, request_id, (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({
+      Status: true,
+      AffectedRows: result.affectedRows,
+    });
+  });
+};
+
+export const cancelRequest = (req, res) => {
+  const request_id = req.body.request_id;
+
+  const sql = `
+        UPDATE servicerequests sr
+        LEFT JOIN driveroffers d ON sr.request_id = d.request_id
+        SET sr.status = 'cancelled',
+            d.offer_status = CASE WHEN d.request_id IS NOT NULL THEN 'rejected' ELSE d.offer_status END
+        WHERE sr.request_id = ?;
+        `;
+
+  con.query(sql, [request_id], (err, result) => {
+    if (err) return res.json({ Status: false, Error: err.message });
+    return res.json({
+      Status: true,
+      AffectedRows: result.affectedRows,
+    });
+  });
+};

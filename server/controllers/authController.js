@@ -39,3 +39,23 @@ export const registerDriver = (req, res) => {
         res.json({ status: "success", user_id: result.insertId });
     });
 };
+
+export const validateCustomer = (req,res) => {
+    const customerId = req.body.customer_id;
+    const sql = `SELECT * FROM servicerequests WHERE customer_id = ?`;
+  
+    con.query(sql, [customerId], (err, result) => {
+      if (err) {
+        return res.status(500).json({ Status: false, Error: err.message });
+      }
+  
+      if (result.length === 0) {
+        return res.status(404).json({
+          Status: false,
+          Message: "No records found for customer_id 10",
+        });
+      }
+  
+      return res.status(200).json({ Status: true, Result: result });
+    });
+}
