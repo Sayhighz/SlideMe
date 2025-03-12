@@ -52,10 +52,10 @@ export const validateCustomer = (req,res) => {
       if (result.length === 0) {
         return res.status(404).json({
           Status: false,
-          Message: "No records found for customer_id 10",
+          Message: "No records found",
         });
       }
   
       return res.status(200).json({ Status: true, Result: result });
     });
-}
+}; //ใช้ได้

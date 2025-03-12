@@ -8,15 +8,14 @@ export const addUserInfo = (req, res) => {
     }
 
     const sql = `
-        INSERT INTO users (
+        INSERT INTO customers (
             phone_number,
             email,
             username,
             first_name,
             last_name,
-            role,
             created_at
-        ) VALUES (?, ?, ?, ?, ?, 'customer', NOW())
+        ) VALUES (?, ?, ?, ?, ?, NOW())
     `;
 
     const values = [
@@ -35,7 +34,7 @@ export const addUserInfo = (req, res) => {
 
 export const checkUserPhone = (req, res) => {
     const { phone_number } = req.body;
-    const sql = `SELECT * FROM users WHERE phone_number = ?`;
+    const sql = `SELECT * FROM customers WHERE phone_number = ?`;
     
     con.query(sql, [phone_number], (err, result) => {
         if (err) return res.json({ Status: false, Error: err.message });
@@ -49,15 +48,15 @@ export const checkUserPhone = (req, res) => {
 
 export const editProfile = (req, res) => {
     const sql = `
-        UPDATE users 
+        UPDATE customers 
         SET email = ?, first_name = ?, last_name = ?
-        WHERE user_id = ?
+        WHERE customer_id = ?
     `;
     const values = [
         req.body.email,
         req.body.first_name,
         req.body.last_name,
-        req.body.user_id,
+        req.body.customer_id,
     ];
     con.query(sql, values, (err, result) => {
         if (err) return res.json({ Status: false, Error: err.message });

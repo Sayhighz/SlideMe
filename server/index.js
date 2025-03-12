@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import configureSocket from "./services/socketService.js";
 import uploadRoutes from './routes/uploadRoutes.js';
 import requestRoutes from './routes/requestRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 import driverRoutes from './routes/driverRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
@@ -25,6 +26,7 @@ app.use('/uploads', express.static('uploads'));
 
 app.use('/upload', uploadRoutes);
 app.use('/request', requestRoutes);
+app.use('/review', reviewRoutes);
 app.use('/offer', offerRoutes)
 app.use('/driver', driverRoutes);
 app.use('/customer', customerRoutes)
