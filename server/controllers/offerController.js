@@ -12,13 +12,13 @@ export const updateOfferStatus = (req, res) => {
   const sqlUpdateAccepted = `
       UPDATE driveroffers
       SET offer_status = 'accepted'
-      WHERE request_id = ? AND user_id = ?
+      WHERE request_id = ? AND driver_id = ?
     `;
 
   const sqlUpdateRejected = `
       UPDATE driveroffers
       SET offer_status = 'rejected'
-      WHERE request_id = ? AND user_id != ? AND offer_status = 'pending'
+      WHERE request_id = ? AND driver_id != ? AND offer_status = 'pending'
     `;
 
   con.query(
