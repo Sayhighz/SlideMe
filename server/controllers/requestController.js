@@ -11,7 +11,7 @@ export const addRequest = (req, res) => {
             dropoff_lat,
             dropoff_long,
             location_to,
-            type_id,
+            vehicletype_id,
             booking_time,
             customer_message,
             status
@@ -27,7 +27,7 @@ export const addRequest = (req, res) => {
     req.body.dropoff_lat,
     req.body.dropoff_long,
     req.body.location_to,
-    req.body.type_id,
+    req.body.vehicletype_id,
     req.body.booking_time,
     req.body.customer_message,
   ];
@@ -36,22 +36,22 @@ export const addRequest = (req, res) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, request_id: result.insertId });
   });
-};
+}; //ใช้ได้
 
 export const getServiceHistory = (req, res) => {
   const customerId = req.query.customer_id || 1;
   const sql = `
         SELECT
-            vt.type_name AS vehicle_type, 
+            vt.vehicletype_name AS vehicle_type, 
             sr.request_time AS date,
             sr.status AS service_status,
             sr.location_from AS origin,
             sr.location_to AS destination,
             sr.price_offer AS service_charge
-        FROM
+        FROM 
             ServiceRequests sr
         LEFT JOIN
-            vehicle_types vt ON sr.type_id = vt.type_id 
+            vehicle_types vt ON sr.vehicletype_id = vt.vehicletype_id 
         LEFT JOIN
             DriverOffers do ON sr.request_id = do.request_id AND do.offer_status = 'accepted'
         WHERE
@@ -64,7 +64,7 @@ export const getServiceHistory = (req, res) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
-};
+}; //ใช้ได้
 
 export const getRequests = (req, res) => {
   const sql = `
@@ -77,10 +77,10 @@ export const getRequests = (req, res) => {
             s.dropoff_long,
             s.location_to,
             s.booking_time,
-            vt.type_name AS vehicle_type,
+            vt.vehicletype_name AS vehicle_type,
             s.customer_message
         FROM servicerequests s
-        LEFT JOIN vehicle_types vt ON s.type_id = vt.type_id 
+        LEFT JOIN vehicle_types vt ON s.vehicletype_id = vt.vehicletype_id 
         WHERE s.status = 'pending';
     `;
 
@@ -88,7 +88,7 @@ export const getRequests = (req, res) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
-};
+}; //ใช้ได้
 
 export const getRequestDetailForDriver = (req, res) => {
   const request_id = req.query.request_id || null;
@@ -103,12 +103,12 @@ export const getRequestDetailForDriver = (req, res) => {
             s.dropoff_lat,
             s.dropoff_long,
             s.location_to,
-            u.first_name AS customer_name,
-            u.phone_number AS customer_phone
+            c.first_name AS customer_name,
+            c.phone_number AS customer_phone
         FROM
             servicerequests s
-        LEFT JOIN users u
-            ON u.user_id = s.customer_id
+        LEFT JOIN customers c
+            ON c.customer_id = s.customer_id
         WHERE
             s.request_id = ?;
     `;
@@ -117,11 +117,10 @@ export const getRequestDetailForDriver = (req, res) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
-};
+}; //ใช้ได้
 
 export const updateServiceRequest = (req, res) => {
   const { request_id, customer_id, driver_id, price } = req.body;
-  console.log(request_id);
 
   // Validate input
   if (!request_id || !customer_id || !driver_id || !price) {
@@ -133,7 +132,7 @@ export const updateServiceRequest = (req, res) => {
   const sqlUpdate = `
     UPDATE servicerequests
     SET status = 'accepted',
-        accepted_driver_id = ?,
+        driver_id = ?,
         price_offer = ?
     WHERE request_id = ? AND customer_id = ? 
   `;
@@ -160,7 +159,7 @@ export const updateServiceRequest = (req, res) => {
       });
     }
   );
-};
+}; //ใช้ได้
 
 export const completeRequest = (req, res) => {
   const sql = `
@@ -179,7 +178,7 @@ export const completeRequest = (req, res) => {
       AffectedRows: result.affectedRows,
     });
   });
-};
+}; //ใช้ได้
 
 export const cancelRequest = (req, res) => {
   const request_id = req.body.request_id;
@@ -199,4 +198,4 @@ export const cancelRequest = (req, res) => {
       AffectedRows: result.affectedRows,
     });
   });
-};
+}; // ใช้ได้

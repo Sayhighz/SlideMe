@@ -87,7 +87,7 @@ export const getAllUserPaymentMethods = (req, res) => {
     });
 };
 
-export const getPaymentMethods = (req, res) => {
+export const getPaymentMethod = (req, res) => {
     const { customer_id } = req.query; // Fetch user_id from the query
     const sql = `
       SELECT payment_method, card_number, account_name , status

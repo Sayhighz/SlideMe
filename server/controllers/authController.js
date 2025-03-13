@@ -22,7 +22,7 @@ export const loginUser = (req, res) => {
 
         res.json({ token });
     });
-};
+}; //login ของ driver ขอไม่ยุ่ง
 
 export const registerDriver = (req, res) => {
     const { phone_number, first_name, last_name, password } = req.body;
@@ -31,14 +31,16 @@ export const registerDriver = (req, res) => {
         return res.status(400).json({ message: "ข้อมูลไม่ครบถ้วน" });
     }
 
-    const sql = `INSERT INTO users (phone_number, first_name, last_name, password, role) VALUES (?, ?, ?, ?, 'driver')`;
+    console.log(phone_number, first_name, last_name, password);
+
+    const sql = `INSERT INTO drivers (phone_number, first_name, last_name, password) VALUES (?, ?, ?, ?)`;
 
     con.query(sql, [phone_number, first_name, last_name, password], (err, result) => {
         if (err) return res.status(500).json({ message: "Database error" });
 
         res.json({ status: "success", user_id: result.insertId });
     });
-};
+}; //ยังไม่ได้ ข้อมูลบางตัวในตาราง drivers not null
 
 export const validateCustomer = (req,res) => {
     const customerId = req.body.customer_id;

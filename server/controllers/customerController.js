@@ -11,7 +11,7 @@ export const editAddress = (req, res) => {
                   location_to = ?,
                   dropoff_lat = ?, 
                   dropoff_long = ?,
-                  type_id = ?
+                  vehicletype_id = ?
                 WHERE address_id = ?
               `;
 
@@ -23,7 +23,7 @@ export const editAddress = (req, res) => {
     req.body.location_to,
     req.body.dropoff_lat,
     req.body.dropoff_long,
-    req.body.type_id,
+    req.body.vehicletype_id,
     req.body.address_id,
   ];
 
@@ -34,12 +34,12 @@ export const editAddress = (req, res) => {
       AffectedRows: result.affectedRows,
     });
   });
-};
+}; //ใช้ได้
 
 export const addBookmark = (req, res) => {
     const sql = `
     INSERT INTO addresses (
-      user_id,
+      customer_id,
       save_name,
       location_from,
       pickup_lat,
@@ -47,12 +47,12 @@ export const addBookmark = (req, res) => {
       location_to,
       dropoff_lat,  
       dropoff_long,
-      type_id
+      vehicletype_id
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
   
     const values = [
-      req.body.user_id,
+      req.body.customer_id,
       req.body.save_name,
       req.body.location_from,
       req.body.pickup_lat,
@@ -60,14 +60,14 @@ export const addBookmark = (req, res) => {
       req.body.location_to,
       req.body.dropoff_lat,
       req.body.dropoff_long,
-      req.body.type_id,
+      req.body.vehicletype_id,
     ];
   
     con.query(sql, values, (err, result) => {
       if (err) return res.json({ Status: false, Error: err.message });
       return res.json({ Status: true, InsertId: result.insertId });
     });
-}
+}; //ใช้ได้
 
 export const disableBookmark = (req, res) => {
     const sql = `
@@ -86,16 +86,16 @@ export const disableBookmark = (req, res) => {
     AffectedRows: result.affectedRows,
     });
 });
-}
+}; //ใช้ได้
 
 export const getuserBookmarks = (req, res) => {
-    const user_id = req.query.user_id || null;
-    console.log("Received user_id:", user_id); // Log the received user_id for debugging
+    const customer_id = req.query.customer_id || null;
+    console.log("Received user_id:", customer_id); // Log the received user_id for debugging
   
-    if (!user_id) {
+    if (!customer_id) {
       return res
         .status(400)
-        .json({ Status: false, Error: "user_id is required" });
+        .json({ Status: false, Error: "customer_id is required" });
     }
     const sql = `
         SELECT
@@ -107,25 +107,25 @@ export const getuserBookmarks = (req, res) => {
           location_to,
           dropoff_lat,
           dropoff_long,
-          type_id
+          vehicletype_id
         FROM
           addresses
         WHERE
-          user_id = ?
+          customer_id = ?
           and is_deleted = 0;
       `;
-    con.query(sql, [user_id], (err, result) => {
+    con.query(sql, [customer_id], (err, result) => {
       if (err) return res.json({ Status: false, Error: err.message });
       return res.json({ Status: true, Result: result });
     });
-}
+}; //ใช้ได้
 
 export const getServiceInfo = (req, res) => {
     const request_id = req.query.request_id || null;
     const sql = `
      SELECT 
-          u.first_name,
-          u.last_name,
+          c.first_name,
+          c.last_name,
           AVG(r.rating) AS average_rating,
           sr.price_offer as price,
           sr.location_from,
@@ -136,16 +136,16 @@ export const getServiceInfo = (req, res) => {
           sr.dropoff_long
       FROM
           servicerequests sr
-      INNER JOIN users u 
-          ON sr.accepted_driver_id = u.user_id
+      INNER JOIN customers c 
+          ON sr.customer_id = c.customer_id
       LEFT JOIN reviews r 
-          ON u.user_id = r.driver_id
+          ON sr.driver_id = r.driver_id
       WHERE
           sr.request_id = ?
       GROUP BY
           sr.request_id,
-          u.first_name,
-          u.last_name,
+          c.first_name,
+          c.last_name,
           sr.price_offer,
           sr.pickup_lat,
           sr.pickup_long,
@@ -159,19 +159,19 @@ export const getServiceInfo = (req, res) => {
       if (err) return res.json({ Status: false, Error: err.message });
       return res.json({ Status: true, Result: result });
     });
-}
+}; //ใช้ได้
 
 export const orderStatus = (req, res) => {
-  const { user_id } = req.params
+  const { customer_id } = req.params
   const sql = `
-    SELECT request_id, accepted_driver_id, status
+    SELECT request_id, driver_id, status
     FROM servicerequests
     WHERE customer_id = ? AND status = 'accepted'
     ORDER BY request_time DESC
     LIMIT 1
   `;
 
-  con.query(sql, [user_id], (err, result) => {
+  con.query(sql, [customer_id], (err, result) => {
     if (err) {
       return res.status(500).json({ Status: false, Error: err.message });
     }
@@ -185,7 +185,7 @@ export const orderStatus = (req, res) => {
 
     return res.status(200).json({ Status: true, Result: result[0] });
   });
-}
+}; //ใช้ได้
 
 export const checkStatusOrder = (req, res) => {
   const requestId = req.params.request_id;
@@ -200,4 +200,4 @@ export const checkStatusOrder = (req, res) => {
       res.status(404).json({ message: "Request not found" });
     }
   });
-}
+}; //ใช้ได้
