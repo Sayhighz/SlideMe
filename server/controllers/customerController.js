@@ -34,7 +34,7 @@ export const editAddress = (req, res) => {
       AffectedRows: result.affectedRows,
     });
   });
-}; //ใช้ได้
+}; //yes
 
 export const addBookmark = (req, res) => {
     const sql = `
@@ -67,7 +67,7 @@ export const addBookmark = (req, res) => {
       if (err) return res.json({ Status: false, Error: err.message });
       return res.json({ Status: true, InsertId: result.insertId });
     });
-}; //ใช้ได้
+}; //yes
 
 export const disableBookmark = (req, res) => {
     const sql = `
@@ -86,7 +86,7 @@ export const disableBookmark = (req, res) => {
     AffectedRows: result.affectedRows,
     });
 });
-}; //ใช้ได้
+}; //yes
 
 export const getuserBookmarks = (req, res) => {
     const customer_id = req.query.customer_id || null;
@@ -118,7 +118,7 @@ export const getuserBookmarks = (req, res) => {
       if (err) return res.json({ Status: false, Error: err.message });
       return res.json({ Status: true, Result: result });
     });
-}; //ใช้ได้
+}; //yes
 
 export const getServiceInfo = (req, res) => {
     const request_id = req.query.request_id || null;
@@ -159,7 +159,7 @@ export const getServiceInfo = (req, res) => {
       if (err) return res.json({ Status: false, Error: err.message });
       return res.json({ Status: true, Result: result });
     });
-}; //ใช้ได้
+}; //yes
 
 export const orderStatus = (req, res) => {
   const { customer_id } = req.params
@@ -185,7 +185,7 @@ export const orderStatus = (req, res) => {
 
     return res.status(200).json({ Status: true, Result: result[0] });
   });
-}; //ใช้ได้
+}; //yes
 
 export const checkStatusOrder = (req, res) => {
   const requestId = req.params.request_id;
@@ -200,4 +200,4 @@ export const checkStatusOrder = (req, res) => {
       res.status(404).json({ message: "Request not found" });
     }
   });
-}; //ใช้ได้
+}; //yes

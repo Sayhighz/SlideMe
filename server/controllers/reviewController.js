@@ -23,4 +23,4 @@ export const addReview = (req, res) => {
         if (err) return res.json({ Status: false, Error: err.message });
         return res.json({ Status: true, InsertId: result.insertId });
     });
-};
+}; //yes

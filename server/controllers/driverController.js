@@ -17,14 +17,13 @@ export const offerPrice = (req, res) => {
     req.body.request_id,
     req.body.driver_id,
     req.body.offered_price,
-    req.body.request_id,
   ];
 
   con.query(sql, values, (err, result) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, AffectedRows: result.affectedRows });
   });
-};
+}; //yes
 
 export const getOffersFromDriver = (req, res) => {
   const driver_id = req.query.driver_id || null;
@@ -34,7 +33,7 @@ export const getOffersFromDriver = (req, res) => {
             s.request_id,
             s.location_from,
             s.location_to,
-            v.type_name AS vehicle_type,
+            v.vehicletype_name AS vehicle_type,
             d.offer_id,
             d.offered_price,
             d.offer_status
@@ -43,7 +42,7 @@ export const getOffersFromDriver = (req, res) => {
         LEFT JOIN servicerequests s
             ON d.request_id = s.request_id
         LEFT JOIN vehicle_types v  
-            ON s.type_id = v.type_id    
+            ON s.vehicletype_id = v.vehicletype_id    
         WHERE
             d.driver_id = ? 
             AND d.offer_status != 'rejected' 
@@ -54,7 +53,7 @@ export const getOffersFromDriver = (req, res) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
-};
+}; //yes
 
 export const cancelOffer = (req, res) => {
   const sql = `
@@ -67,7 +66,7 @@ export const cancelOffer = (req, res) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, AffectedRows: result.affectedRows });
   });
-};
+}; //yes
 
 export const getDrivers = (req, res) => {
   const sql = `SELECT * FROM driverdetails;`;
@@ -76,7 +75,7 @@ export const getDrivers = (req, res) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
-};
+}; //yes
 
 export const score = (req, res) => {
   const driver_id = req.query.driver_id;
@@ -92,7 +91,7 @@ export const score = (req, res) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
-};
+}; //yes
 
 export const profitToday = (req, res) => {
   const driver_id = req.query.driver_id;
@@ -112,7 +111,7 @@ export const profitToday = (req, res) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
-};
+}; //yes
 
 export const driverOffers = (req, res) => {
   const { request_id } = req.query;
@@ -131,27 +130,26 @@ export const driverOffers = (req, res) => {
       res.status(200).json({ success: true, data: results });
     }
   });
-};
+}; //yes
 
 export const getInfo = (req, res) => {
-  const user_id = req.query.user_id;
+  const driver_id = req.query.driver_id;
   const sql = `
           select
-            u.first_name,
-            u.last_name,
-            u.phone_number,
-            d.license_plate,
-            d.id_expiry_date
+            first_name,
+            last_name,
+            phone_number,
+            license_plate,
+            id_expiry_date
           from
-            users u
-          LEFT JOIN drivers d ON u.user_id = d.user_id
-          where u.user_id = ?
+            drivers 
+          where driver_id = ?
         `;
-  con.query(sql, [user_id], (err, result) => {
+  con.query(sql, [driver_id], (err, result) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
-};
+}; //yes
 
 export const chooseOffer = (req, res) => {
   const request_id = req.query.request_id || null;
@@ -163,31 +161,36 @@ export const chooseOffer = (req, res) => {
   }
 
   const sql = `
-    SELECT 
-      d.user_id,
-      d.current_latitude,
-      d.current_longitude,
-      u.user_id,
-      u.username,
-      u.first_name,
-      u.last_name,
-      COALESCE(AVG(r.rating), 0) AS average_rating,
-      do.offered_price,
-      sr.pickup_lat,
-      sr.pickup_long,
-      sr.location_from,
-      sr.dropoff_lat,
-      sr.dropoff_long,
-      sr.location_to,
-      sr.customer_id,
-      sr.request_id
-    FROM driverdetails d
-    INNER JOIN users u ON d.user_id = u.user_id
-    LEFT JOIN reviews r ON u.user_id = r.driver_id
-    INNER JOIN driveroffers do ON d.user_id = do.driver_id
-    LEFT JOIN servicerequests sr ON sr.request_id = do.request_id
-    WHERE do.request_id = ? AND do.offer_status = 'pending'
-    GROUP BY d.user_id, d.current_latitude, d.current_longitude, u.user_id, u.username, u.first_name, u.last_name, do.offered_price, sr.pickup_lat, sr.pickup_long, sr.location_from, sr.dropoff_lat, sr.dropoff_long, sr.location_to;
+SELECT 
+    d.driver_id,
+    d.current_latitude,
+    d.current_longitude,
+    drv.username,
+    drv.first_name,
+    drv.last_name,
+    COALESCE(AVG(r.rating), 0) AS average_rating,
+    do.offered_price,
+    sr.pickup_lat,
+    sr.pickup_long,
+    sr.location_from,
+    sr.dropoff_lat,
+    sr.dropoff_long,
+    sr.location_to,
+    sr.customer_id,
+    sr.request_id
+FROM driverdetails d
+LEFT JOIN drivers drv ON d.driver_id = drv.driver_id  -- JOIN กับ drivers เพื่อดึง username, first_name, last_name
+LEFT JOIN reviews r ON d.driver_id = r.driver_id
+INNER JOIN driveroffers do ON d.driver_id = do.driver_id
+LEFT JOIN servicerequests sr ON sr.request_id = do.request_id
+WHERE do.request_id = ? 
+AND do.offer_status = 'pending'
+GROUP BY 
+    d.driver_id, d.current_latitude, d.current_longitude, 
+    drv.username, drv.first_name, drv.last_name, 
+    do.offered_price, sr.pickup_lat, sr.pickup_long, sr.location_from, 
+    sr.dropoff_lat, sr.dropoff_long, sr.location_to;
+
   `;
 
   con.query(sql, [request_id], (err, result) => {
@@ -247,7 +250,7 @@ export const chooseOffer = (req, res) => {
       PickupDropoffInfo: pickupDropoffInfo,
     });
   });
-};
+}; //yes
 
 export const getHistory = (req, res) => {
   const driver_id = req.query.driver_id || null;
@@ -265,14 +268,14 @@ export const getHistory = (req, res) => {
     ON
       d.request_id = s.request_id
     WHERE
-      s.accepted_driver_id = ?
+      s.driver_id = ?
       AND s.status != 'pending';
   `;
   con.query(sql, [driver_id], (err, result) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
-};
+}; //yes
 
 export const Notifications = (req, res) => {
   const driver_id = req.query.driver_id || null;
@@ -299,7 +302,7 @@ export const Notifications = (req, res) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
-};
+}; //yes
 
 export const rejectAllOffers = (req, res) => {
   const sql = `
@@ -317,30 +320,30 @@ export const rejectAllOffers = (req, res) => {
       AffectedRows: result.affectedRows,
     });
   });
-};
+}; //yes
 
 export const editProfile = (req, res) => {
   const sql = `
-UPDATE drivers
-SET id_expiry_date = ?
-WHERE user_id = ?;
+      UPDATE drivers
+      SET id_expiry_date = ?
+      WHERE driver_id = ?;
 `;
 
-  const { user_id, id_expiry_date } = req.body;
+  const { driver_id, id_expiry_date } = req.body;
 
-  con.query(sql, [id_expiry_date, user_id], (err, result) => {
+  con.query(sql, [id_expiry_date, driver_id], (err, result) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({
       Status: true,
       AffectedRows: result.affectedRows,
     });
   });
-};
+}; //yes
 
 export const driverLocation = (req, res) => {
-  const { user_id } = req.params;
+  const { driver_id } = req.params;
 
-  if (!user_id) {
+  if (!driver_id) {
     return res
       .status(400)
       .json({ success: false, message: "Driver ID required" });
@@ -349,10 +352,10 @@ export const driverLocation = (req, res) => {
   const query = `
     SELECT current_latitude, current_longitude 
     FROM driverdetails 
-    WHERE user_id = ?;
+    WHERE driver_id = ?;
   `;
 
-  con.query(query, [user_id], (err, results) => {
+  con.query(query, [driver_id], (err, results) => {
     if (err) {
       return res
         .status(500)
@@ -370,10 +373,10 @@ export const driverLocation = (req, res) => {
       data: results[0],
     });
   });
-};
+}; //yes
 
 export const UpdateLocation = (req, res) => {
-  const { user_id, current_latitude, current_longitude } = req.body;
+  const { driver_id, current_latitude, current_longitude } = req.body;
 
   const sql = `
           update
@@ -382,12 +385,12 @@ export const UpdateLocation = (req, res) => {
             current_latitude = ?,
             current_longitude = ?
           where
-            user_id = ?
+            driver_id = ?
         `;
 
   con.query(
     sql,
-    [current_latitude, current_longitude, user_id],
+    [current_latitude, current_longitude, driver_id],
     (err, result) => {
       if (err) return res.json({ Status: false, Error: err.message });
       return res.json({
@@ -396,7 +399,7 @@ export const UpdateLocation = (req, res) => {
       });
     }
   );
-};
+}; //yes
 
 export const fetchDriverInfo = (req, res) => {
   const { customer_id, driver_id, request_id } = req.params; // Extract from URL
@@ -409,7 +412,7 @@ export const fetchDriverInfo = (req, res) => {
 
   const sql = `
   SELECT 
-    d.user_id,
+    d.driver_id,
     sr.customer_id,
     sr.request_id,
     sr.pickup_lat,
@@ -420,27 +423,28 @@ export const fetchDriverInfo = (req, res) => {
     sr.location_to,
     sr.booking_time,
     sr.request_time,
-    u.first_name AS driver_first_name,
-    u.last_name AS driver_last_name,
-    u.phone_number AS driver_phone,
+    d.first_name AS driver_first_name,
+    d.last_name AS driver_last_name,
+    d.phone_number AS driver_phone,
     COALESCE(AVG(r.rating), 0) AS average_rating, 
-    d.current_latitude AS driver_latitude,
-    d.current_longitude AS driver_longitude
+    dd.current_latitude AS driver_latitude,
+    dd.current_longitude AS driver_longitude
   FROM servicerequests sr
-  INNER JOIN driveroffers do ON sr.request_id = do.request_id
-  INNER JOIN users u ON do.driver_id = u.user_id
-  LEFT JOIN reviews r ON u.user_id = r.driver_id
-  INNER JOIN driverdetails d ON do.driver_id = d.user_id
+LEFT JOIN driveroffers do ON sr.request_id = do.request_id
+LEFT JOIN drivers d ON do.driver_id = d.driver_id
+LEFT JOIN driverdetails dd ON do.driver_id = d.driver_id
+
+  LEFT JOIN reviews r ON d.driver_id = r.driver_id
   WHERE sr.customer_id = ? AND do.driver_id = ? AND sr.request_id = ? AND do.offer_status = 'accepted' AND sr.status = 'accepted'
   GROUP BY 
     sr.request_id, sr.pickup_lat, sr.pickup_long, sr.location_from, 
     sr.dropoff_lat, sr.dropoff_long, sr.location_to, 
-    sr.booking_time, sr.request_time, u.first_name, u.phone_number, 
-    d.current_latitude, d.current_longitude;
+    sr.booking_time, sr.request_time, d.first_name, d.phone_number, 
+    dd.current_latitude, dd.current_longitude;
 `;
 
   con.query(sql, [customer_id, driver_id, request_id], (err, result) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
-};
+}; //yes

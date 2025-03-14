@@ -20,4 +20,4 @@ export const getAllNotifications = (req, res) => {
         if (err) return res.json({ Status: false, Error: err.message });
         return res.json({ Status: true, Result: result });
     });
-};
+}; //yes

@@ -30,7 +30,7 @@ export const addUserInfo = (req, res) => {
         if (err) return res.json({ Status: false, Error: err.message });
         return res.json({ Status: true, InsertId: result.insertId, user_id: result.insertId });
     });
-};
+}; //yes
 
 export const checkUserPhone = (req, res) => {
     const { phone_number } = req.body;
@@ -44,7 +44,7 @@ export const checkUserPhone = (req, res) => {
             return res.json({ Status: true, Exists: false, Message: "Phone number does not exist" });
         }
     });
-};
+}; //yes
 
 export const editProfile = (req, res) => {
     const sql = `
@@ -62,4 +62,4 @@ export const editProfile = (req, res) => {
         if (err) return res.json({ Status: false, Error: err.message });
         return res.json({ Status: true, AffectedRows: result.affectedRows });
     });
-};
+}; //yes

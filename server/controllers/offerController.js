@@ -1,9 +1,9 @@
 import con from "../config/db.js";
 
 export const updateOfferStatus = (req, res) => {
-  const { request_id, chosen_driver_id } = req.body;
+  const { request_id, driver_id } = req.body;
 
-  if (!request_id || !chosen_driver_id) {
+  if (!request_id || !driver_id) {
     return res
       .status(400)
       .json({ Status: false, Message: "Invalid parameters" });
@@ -23,7 +23,7 @@ export const updateOfferStatus = (req, res) => {
 
   con.query(
     sqlUpdateAccepted,
-    [request_id, chosen_driver_id],
+    [request_id, driver_id],
     (err, result) => {
       if (err) {
         console.error("Error updating accepted offer:", err);
@@ -32,7 +32,7 @@ export const updateOfferStatus = (req, res) => {
 
       con.query(
         sqlUpdateRejected,
-        [request_id, chosen_driver_id],
+        [request_id, driver_id],
         (err, result) => {
           if (err) {
             console.error("Error updating rejected offers:", err);
@@ -47,4 +47,4 @@ export const updateOfferStatus = (req, res) => {
       );
     }
   );
-};
+}; //yes

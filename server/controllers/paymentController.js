@@ -24,7 +24,7 @@ export const addPaymentMethod = (req, res) => {
         if (err) return res.json({ Status: false, Error: err.message });
         return res.json({ Status: true, InsertId: result.insertId });
     });
-};
+}; //yes
 
 export const updatePaymentMethod = (req, res) => {
     const sql = `
@@ -50,7 +50,7 @@ export const updatePaymentMethod = (req, res) => {
         if (err) return res.json({ Status: false, Error: err.message });
         return res.json({ Status: true, AffectedRows: result.affectedRows });
     });
-};
+}; //yes
 
 export const disablePaymentMethod = (req, res) => {
     const sql = `
@@ -63,7 +63,7 @@ export const disablePaymentMethod = (req, res) => {
         if (err) return res.json({ Status: false, Error: err.message });
         return res.json({ Status: true, AffectedRows: result.affectedRows });
     });
-};
+}; //yes
 
 export const getAllUserPaymentMethods = (req, res) => {
     const customer_id = req.query.customer_id || null;
@@ -85,7 +85,7 @@ export const getAllUserPaymentMethods = (req, res) => {
         if (err) return res.json({ Status: false, Error: err.message });
         return res.json({ Status: true, Result: result });
     });
-};
+}; //yes
 
 export const getPaymentMethod = (req, res) => {
     const { customer_id } = req.query; // Fetch user_id from the query
@@ -97,4 +97,4 @@ export const getPaymentMethod = (req, res) => {
       if (err) return res.json({ Status: false, Error: err.message });
       return res.json({ Status: true, Result: result });
     });
-};
+}; //yes

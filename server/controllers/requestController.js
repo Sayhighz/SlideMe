@@ -36,7 +36,7 @@ export const addRequest = (req, res) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, request_id: result.insertId });
   });
-}; //ใช้ได้
+}; //yes
 
 export const getServiceHistory = (req, res) => {
   const customerId = req.query.customer_id || 1;
@@ -64,7 +64,7 @@ export const getServiceHistory = (req, res) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
-}; //ใช้ได้
+}; //yes
 
 export const getRequests = (req, res) => {
   const sql = `
@@ -88,7 +88,7 @@ export const getRequests = (req, res) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
-}; //ใช้ได้
+}; //yes
 
 export const getRequestDetailForDriver = (req, res) => {
   const request_id = req.query.request_id || null;
@@ -117,7 +117,7 @@ export const getRequestDetailForDriver = (req, res) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, Result: result });
   });
-}; //ใช้ได้
+}; //yes
 
 export const updateServiceRequest = (req, res) => {
   const { request_id, customer_id, driver_id, price } = req.body;
@@ -159,7 +159,7 @@ export const updateServiceRequest = (req, res) => {
       });
     }
   );
-}; //ใช้ได้
+}; //yes
 
 export const completeRequest = (req, res) => {
   const sql = `
@@ -178,7 +178,7 @@ export const completeRequest = (req, res) => {
       AffectedRows: result.affectedRows,
     });
   });
-}; //ใช้ได้
+}; //yes
 
 export const cancelRequest = (req, res) => {
   const request_id = req.body.request_id;
@@ -198,4 +198,4 @@ export const cancelRequest = (req, res) => {
       AffectedRows: result.affectedRows,
     });
   });
-}; // ใช้ได้
+}; //yes

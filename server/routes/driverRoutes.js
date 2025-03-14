@@ -34,7 +34,7 @@ router.get('/getHistory', getHistory)
 router.get('/notifications', Notifications)
 router.post('/reject_all_offers', rejectAllOffers)
 router.post('/edit_profile', editProfile)
-router.get('/driverlocation/:user_id', driverLocation)
+router.get('/driverlocation/:driver_id', driverLocation)
 router.post('/update_location', UpdateLocation)
 router.get('/fetch_driver_info/:customer_id/:driver_id/:request_id',fetchDriverInfo)
 

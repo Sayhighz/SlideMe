@@ -19,7 +19,7 @@ export const fetchImage = (req, res) => {
     }
     res.sendFile(filePath);
   });
-};
+}; //yes
 
 export const uploadBeforeService = (req, res) => {
   if (!req.files || req.files.length === 0) {
