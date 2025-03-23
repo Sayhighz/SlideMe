@@ -1,61 +1,88 @@
-import con from '../config/db.js';
+import con from "../config/db.js";
 
+// ✅ เพิ่มวิธีการชำระเงินใหม่ (Insert into `paymentmethod` และ `payments`)
 export const addPaymentMethod = (req, res) => {
-    const sql = `
-        INSERT INTO payments (
-            customer_id,
-            payment_method,
+    const sqlPaymentMethod = `
+        INSERT INTO paymentmethod (
+            method_name,
             card_number,
-            account_name,
-            expiration_date,
-            status
-        ) VALUES (?, ?, ?, ?, ?, 'active')
+            card_expiry,
+            card_cvv,
+            cardholder_name
+        ) VALUES (?, ?, ?, ?, ?)
     `;
 
-    const values = [
-        req.body.customer_id,
-        req.body.payment_method,
+    const valuesPaymentMethod = [
+        req.body.method_name,      // Visa, Mastercard, PayPal, Bank Transfer
         req.body.card_number,
-        req.body.account_name,
-        req.body.expiration_date,
+        req.body.card_expiry,      // รูปแบบ MM/YYYY
+        req.body.card_cvv,         // 3-digit CVV
+        req.body.cardholder_name,
     ];
 
-    con.query(sql, values, (err, result) => {
+    con.query(sqlPaymentMethod, valuesPaymentMethod, (err, result) => {
         if (err) return res.json({ Status: false, Error: err.message });
-        return res.json({ Status: true, InsertId: result.insertId });
-    });
-}; //yes
 
+        const payment_method_id = result.insertId; // ดึง payment_method_id ที่เพิ่มใหม่
+
+        const sqlPayment = `
+            INSERT INTO payments (
+                customer_id,
+                amount,
+                payment_status,
+                payment_method_id,
+                is_default
+            ) VALUES (?, ?, ?, ?, ?)
+        `;
+
+        const valuesPayment = [
+            req.body.customer_id,
+            req.body.amount || 0.00,    // ค่าเริ่มต้นเป็น 0.00
+            "Pending",                  // สถานะเริ่มต้นเป็น Pending
+            payment_method_id,
+            req.body.is_default || 0    // ค่าเริ่มต้นไม่เป็น default (0)
+        ];
+
+        con.query(sqlPayment, valuesPayment, (err, result) => {
+            if (err) return res.json({ Status: false, Error: err.message });
+            return res.json({ Status: true, InsertId: result.insertId });
+        });
+    });
+};
+
+// ✅ อัปเดตข้อมูลวิธีการชำระเงิน (ใน `paymentmethod`)
 export const updatePaymentMethod = (req, res) => {
     const sql = `
-        UPDATE payments 
+        UPDATE paymentmethod
         SET 
-            payment_method = ?,
+            method_name = ?,
             card_number = ?,
-            account_name = ?,
-            expiration_date = ?,
-            status = 'active'
-        WHERE payment_id = ?
+            card_expiry = ?,
+            card_cvv = ?,
+            cardholder_name = ?
+        WHERE payment_method_id = ?
     `;
 
     const values = [
-        req.body.payment_method,
+        req.body.method_name,
         req.body.card_number,
-        req.body.account_name,
-        req.body.expiration_date,
-        req.body.payment_id,
+        req.body.card_expiry,
+        req.body.card_cvv,
+        req.body.cardholder_name,
+        req.body.payment_method_id
     ];
 
     con.query(sql, values, (err, result) => {
         if (err) return res.json({ Status: false, Error: err.message });
         return res.json({ Status: true, AffectedRows: result.affectedRows });
     });
-}; //yes
+};
 
+// ✅ ปิดการใช้งานวิธีการชำระเงิน (Disable)
 export const disablePaymentMethod = (req, res) => {
     const sql = `
-        UPDATE payments 
-        SET status = 'inactive'
+        UPDATE payments
+        SET payment_status = 'Failed'
         WHERE payment_id = ?
     `;
 
@@ -63,38 +90,50 @@ export const disablePaymentMethod = (req, res) => {
         if (err) return res.json({ Status: false, Error: err.message });
         return res.json({ Status: true, AffectedRows: result.affectedRows });
     });
-}; //yes
+};
 
+// ✅ ดึงวิธีการชำระเงินทั้งหมดของผู้ใช้
 export const getAllUserPaymentMethods = (req, res) => {
     const customer_id = req.query.customer_id || null;
     const sql = `
         SELECT
-            payment_id,
-            payment_method,
-            card_number,
-            account_name,
-            expiration_date
-        FROM
-            payments
-        WHERE
-            customer_id = ?
-            and status = 'active';
+            p.payment_id,
+            pm.payment_method_id,
+            pm.method_name,
+            pm.card_number,
+            pm.card_expiry,
+            pm.cardholder_name,
+            p.payment_status,
+            p.is_default
+        FROM payments p
+        JOIN paymentmethod pm ON p.payment_method_id = pm.payment_method_id
+        WHERE p.customer_id = ?;
     `;
 
     con.query(sql, [customer_id], (err, result) => {
         if (err) return res.json({ Status: false, Error: err.message });
         return res.json({ Status: true, Result: result });
     });
-}; //yes
+};
 
+// ✅ ดึงข้อมูลวิธีการชำระเงินเฉพาะของลูกค้า
 export const getPaymentMethod = (req, res) => {
-    const { customer_id } = req.query; // Fetch user_id from the query
+    const { customer_id } = req.query;
     const sql = `
-      SELECT payment_method, card_number, account_name , status
-      FROM payments 
-      WHERE customer_id = ? AND status = 'active'`; // Use WHERE to filter by user_id
+        SELECT 
+            pm.method_name, 
+            pm.card_number, 
+            pm.card_expiry, 
+            pm.cardholder_name, 
+            p.payment_status,
+            p.is_default
+        FROM payments p
+        JOIN paymentmethod pm ON p.payment_method_id = pm.payment_method_id
+        WHERE p.customer_id = ?;
+    `;
+
     con.query(sql, [customer_id], (err, result) => {
-      if (err) return res.json({ Status: false, Error: err.message });
-      return res.json({ Status: true, Result: result });
+        if (err) return res.json({ Status: false, Error: err.message });
+        return res.json({ Status: true, Result: result });
     });
-}; //yes
+};

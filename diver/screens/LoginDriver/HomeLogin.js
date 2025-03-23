@@ -30,7 +30,7 @@ export default function HomeLogin({ route, navigation, onLogin }) {
       return;
     }
 
-    fetch(`http://${IP_ADDRESS}:3000/auth/login`, {
+    fetch(`http://${IP_ADDRESS}:4000/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -39,15 +39,16 @@ export default function HomeLogin({ route, navigation, onLogin }) {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.Status) {
+        if (data.status === "success") {
           Alert.alert("สำเร็จ", "เข้าสู่ระบบสำเร็จ");
           if (typeof onLogin === "function") {
-            onLogin(data.User);
+            onLogin(data);
             console.log(data.User);
             // navigation.navigate("HomeMain", { userData: data.User });
           }
         } else {
           Alert.alert("ข้อผิดพลาด", data.Error);
+          console.log(data)
         }
       })
       .catch((error) => {

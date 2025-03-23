@@ -36,7 +36,7 @@ const EditProfile = ({ navigation }) => {
 
     const handleSave = async () => {
       try {
-          const response = await fetch(`http://${IP_ADDRESS}:3000/auth/edit_profile`, {
+          const response = await fetch(`http://${IP_ADDRESS}:4000/edit_profile`, {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json',

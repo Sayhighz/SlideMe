@@ -77,7 +77,7 @@ const HistoryPage = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `http://${IP_ADDRESS}:3000/auth/service_history_customer?customer_id=${userData.user_id}`
+          `http://${IP_ADDRESS}:4000/customer/service_history_customer?customer_id=${userData.user_id}`
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");

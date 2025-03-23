@@ -17,7 +17,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
 import { useNavigation } from "@react-navigation/native";
-import HeaderWithBackButton from "../../componnets/HeaderWithBackButton";
+import HeaderWithBackButton from "../../components/HeaderWithBackButton";
 
 const socket = io(`http://${IP_ADDRESS}:4000`);
 

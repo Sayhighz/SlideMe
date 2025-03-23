@@ -45,7 +45,6 @@ export default function PaymentPage({ navigation }) {
   const driverName = route.params?.chooseDriver.name || "ไม่ระบุ";
   const driverRating = route.params?.chooseDriver.rating || "0";
   const driverPrice = route.params?.chooseDriver.price || "0";
-  const customer_id_request =
     route.params?.chooseDriver.customer_id_request || "ไม่ระบุ";
 
     useEffect(() => {
@@ -55,19 +54,30 @@ export default function PaymentPage({ navigation }) {
     // Fetch payment methods when the page is focused
     useFocusEffect(
       React.useCallback(() => {
+        console.log("User Data:",userData);
         const fetchPaymentMethods = async () => {
+          if (!userData || !userData.customer_id) {
+            console.error("User ID is missing");
+            return;
+          }
+        
           try {
             const response = await axios.get(
-              `http://${IP_ADDRESS}:3000/auth/get_payments_method?user_id=${userData.user_id}` // Pass the customer_id_request as user_id
+              `http://${IP_ADDRESS}:4000/payment/payment-method?customer_id=${userData.customer_id}`
             );
-            setPaymentMethods(response.data.Result); // Assuming the response data is in the expected format
+        
+            if (response.data.Status) {
+              setPaymentMethods(response.data.Result); // ตั้งค่า state ด้วยข้อมูลที่ได้รับ
+            } else {
+              console.error("Error fetching payment methods:", response.data.Error);
+            }
           } catch (error) {
-            console.error("Error fetching payment methods:", error);
+            console.error("Error fetching payment methods:", error.message);
           }
         };
   
         fetchPaymentMethods();
-      }, [userData.user_id]) // Re-fetch if user_id changes
+      }, [userData.customer_id]) // Re-fetch if customer_id changes
     );
   
 
@@ -80,10 +90,10 @@ export default function PaymentPage({ navigation }) {
 
     try {
       const response = await axios.post(
-        `http://${IP_ADDRESS}:3000/auth/update_offer_status`,
+        `http://${IP_ADDRESS}:4000/offer/update_offer_status`,
         {
-          request_id,
-          chosen_driver_id,
+          request_id : request_id,
+          driver_id: chosen_driver_id,
         }
       );
 
@@ -97,11 +107,12 @@ export default function PaymentPage({ navigation }) {
     }
 
     try {
+      console.log("Request ID:", route.params.chooseDriver.request_id, "Driver ID:", route.params.chooseDriver.id, "Customer ID:", route.params.chooseDriver.customer_id_request, "Total Price:", totalPrice);
       const response = await axios.post(
-        `http://${IP_ADDRESS}:3000/auth/update_service_request`,
+        `http://${IP_ADDRESS}:4000/request/update_service_request`,
         {
           request_id: route.params.chooseDriver.request_id,
-          customer_id: route.params.chooseDriver.customer_id_request,
+          customer_id: userData.customer_id,
           driver_id: route.params.chooseDriver.id,
           price: totalPrice,
         }

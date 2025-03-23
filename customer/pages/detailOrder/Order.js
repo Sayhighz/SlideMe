@@ -60,7 +60,7 @@ export default function Order({ navigation, bookmark }) {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/customer/getuserbookmarks?user_id=${userId}`
+        `http://${IP_ADDRESS}:4000/customer/getuserbookmarks?user_id=${userId}`
       );
       const data = await response.json();
       if (data.Status) {
@@ -100,7 +100,7 @@ export default function Order({ navigation, bookmark }) {
 
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/add_request`,
+        `http://${IP_ADDRESS}:4000/request/add_request`,
         {
           method: "POST",
           headers: {
@@ -416,7 +416,7 @@ export default function Order({ navigation, bookmark }) {
       dropoff_lat: destination.latitude, // Replace with actual latitude
       dropoff_long: destination.longitude, // Replace with actual longitude
       location_to: confirmDestination,
-      vehicle_type: category,
+      vehicletype_id: 1,
       booking_time: formattedDate
         ? formatDateToMySQL(date)
         : formatDateToMySQL(new Date()), // Assuming formattedDate is used for booking time
@@ -425,7 +425,7 @@ export default function Order({ navigation, bookmark }) {
 
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/add_request`,
+        `http://${IP_ADDRESS}:4000/request/add_request`,
         {
           method: "POST",
           headers: {

@@ -73,7 +73,7 @@ const ChooseOffer = ({ navigation, route }) => {
 
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/cancel_request`,
+        `http://${IP_ADDRESS}:4000/cancel_request`,
         {
           method: "POST",
           headers: {
@@ -217,7 +217,7 @@ const ChooseOffer = ({ navigation, route }) => {
     if (fetchDataLoading) return;
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/drivers/chooseoffer?request_id=${request_id}`
+        `http://${IP_ADDRESS}:4000/driver/chooseoffer?request_id=${request_id}`
       );
       const data = await response.json();
       if (data.Status) {
@@ -416,6 +416,7 @@ const ChooseOffer = ({ navigation, route }) => {
               <Pressable
                 style={tw`bg-[#60B876] p-3 rounded-lg`}
                 onPress={() => {
+                  console.log("request_id:", request_id, "chooseDriver:", chooseDriver);
                   navigation.navigate("payment", {
                     chooseDriver: chooseDriver,
                     request_id: request_id,

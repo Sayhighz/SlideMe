@@ -181,7 +181,7 @@ export default function ViewOrder({ navigation }) {
   const getDriverLocation = async () => {
     try {
       const response = await axios.get(
-        `http://${IP_ADDRESS}:3000/auth/driverlocation/${driver_id}`
+        `http://${IP_ADDRESS}:4000/drivers/driverlocation/${driver_id}`
       );
       if (status === "accepted") {
         if (response.data.success) {

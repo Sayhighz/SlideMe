@@ -5,9 +5,9 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from 'twrnc';
 import * as ImagePicker from 'expo-image-picker';
 import { IP_ADDRESS } from '../../config';
-import ConfirmationDialog from '../../componnets/ConfirmationDialog';
-import SubmitButton from '../../componnets/SubmitButton';
-import HeaderWithBackButton from '../../componnets/HeaderWithBackButton';
+import ConfirmationDialog from '../../components/ConfirmationDialog';
+import SubmitButton from '../../components/SubmitButton';
+import HeaderWithBackButton from '../../components/HeaderWithBackButton';
 
 const CarUploadPickUpConfirmation = () => {
   const navigation = useNavigation();

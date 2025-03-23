@@ -13,8 +13,8 @@ import {
 } from 'react-native';
 import tw from 'twrnc';
 import Icon from 'react-native-vector-icons/Ionicons';
-import SubmitButton from '../../componnets/SubmitButton';
-import HeaderWithBackButton from '../../componnets/HeaderWithBackButton';
+import SubmitButton from '../../components/SubmitButton';
+import HeaderWithBackButton from '../../components/HeaderWithBackButton';
 
 const SecondRegister = ({ navigation, route }) => {
   const [name, setName] = useState('');

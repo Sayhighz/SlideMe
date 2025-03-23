@@ -16,7 +16,7 @@ import RNPickerSelect from "react-native-picker-select";
 import tw from "twrnc";
 import Icon from "react-native-vector-icons/Ionicons";
 import { IP_ADDRESS } from "../../config";
-import SubmitButton from "../../componnets/SubmitButton";
+import SubmitButton from "../../components/SubmitButton";
 
 const FirstRegister = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState("");

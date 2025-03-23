@@ -34,7 +34,6 @@ import ChooseOffer from "./pages/chooseOffer/ChooseOffer";
 import Addmap from "./pages/addressPage/bookmap/Bookmap";
 import Bookmarklist from "./pages/addressPage/Bookmarklist";
 import ChatScreen from "./pages/chat/ChatScreen";
-import AddMethod from "./pages/paymentPage/AddMethod";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();

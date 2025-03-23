@@ -74,7 +74,7 @@ const AddressPage = ({ navigation }) => {
     if (save_name !== "ไม่ระบุ") {
       try {
         const response = await fetch(
-          `http://${IP_ADDRESS}:3000/auth/customer/edit_address`,
+          `http://${IP_ADDRESS}:4000/customer/edit_address`,
           {
             method: "POST",
             headers: {
@@ -101,7 +101,7 @@ const AddressPage = ({ navigation }) => {
     } else {
       try {
         const response = await fetch(
-          `http://${IP_ADDRESS}:3000/auth/customer/add_bookmark`,
+          `http://${IP_ADDRESS}:4000/customer/add_bookmark`,
           {
             method: "POST",
             headers: {

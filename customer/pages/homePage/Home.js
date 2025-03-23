@@ -32,7 +32,7 @@ function Home({ navigation }) {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/customer/getuserbookmarks?user_id=${userData.user_id}`
+        `http://${IP_ADDRESS}:4000/customer/getuserbookmarks?user_id=${userData.user_id}`
       );
       const data = await response.json();
       if (data.Status) {
@@ -61,7 +61,7 @@ function Home({ navigation }) {
       dropoff_lat: selectedBookmark.dropoff_lat,
       dropoff_long: selectedBookmark.dropoff_long,
       location_to: selectedBookmark.location_to,
-      vehicle_type: selectedBookmark.vahicle_type,
+      vehicletype_id: 1,
       booking_time: formatDateToMySQL(new Date()),
       customer_message: null,
     };
@@ -70,7 +70,7 @@ function Home({ navigation }) {
 
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/add_request`,
+        `http://${IP_ADDRESS}:4000/request/add_request`,
         {
           method: "POST",
           headers: {
@@ -146,7 +146,7 @@ function Home({ navigation }) {
   const order_status = async () => {
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/order_status/${userData.user_id}`
+        `http://${IP_ADDRESS}:4000/customer/order_status/${userData.user_id}`
       );
       const data = await response.json();
       console.log("order_status:", data);
@@ -172,15 +172,15 @@ function Home({ navigation }) {
   const ads = [
     {
       id: 1,
-      image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads1.png`,
+      image: `http://${IP_ADDRESS}:4000/upload/fetch_image?filename=ads1.png`,
     },
     {
       id: 2,
-      image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads2.png`,
+      image: `http://${IP_ADDRESS}:4000/upload/fetch_image?filename=ads2.png`,
     },
     {
       id: 3,
-      image: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=ads3.png`,
+      image: `http://${IP_ADDRESS}:4000/upload/fetch_image?filename=ads3.png`,
     },
   ];
 

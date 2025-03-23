@@ -42,9 +42,9 @@ function PhoneVerify({ onLogin }) {
         if (enteredOtp === generatedOtp.toString()) {
             if (isExistingUser) {
                 if (userDetails) {
-                    const { user_id, phone_number, email, username, first_name, last_name, role } = userDetails;
-                    console.log('User Details:', {
-                        user_id,
+                    const { customer_id, phone_number, email, username, first_name, last_name, role } = userDetails;
+                    console.log('User Detailsss:', {
+                        customer_id,
                         phone_number,
                         email,
                         username,
@@ -55,7 +55,7 @@ function PhoneVerify({ onLogin }) {
 
                     // Save user details to UserContext
                     setUserData({
-                        user_id,
+                        customer_id,
                         phone_number,
                         email,
                         username,

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import tw from 'twrnc';
 import { IP_ADDRESS } from '../../config';
-import SubmitButton from '../../componnets/SubmitButton';
+import SubmitButton from '../../components/SubmitButton';
 
 const SixRegister = ({ navigation, route }) => {
   const {

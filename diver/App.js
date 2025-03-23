@@ -9,8 +9,8 @@ import { useFonts } from "expo-font";
 import { ActivityIndicator, View, Text, Alert } from "react-native";
 
 // Import screens and components
-import HomeScreen from "./screens/HomeScreen";
-import HistoryScreen from "./screens/History/HistoryScreen";
+import HomeScreen from "./screens/HomeScreen/HomeScreen";
+import HistoryScreen from "./screens/HistoryScreen/HistoryScreen";
 import ProfileScreen from "./screens/Profile/ProfileScreen";
 import PersonalInfoScreen from "./screens/Profile/PersonalInfoScreen";
 import EditInfoScreen from "./screens/Profile/EditInfoScreen";
@@ -144,10 +144,10 @@ function AuthNavigator({ handleLogin }) {
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userDataNa, setUserDataNa] = useState({
-    profile_picture: "",
-    first_name: "",
-    last_name: "",
-    driver_id: null,
+    profile_picture: "123",
+    first_name: "123",
+    last_name: "123",
+    driver_id: 10,
     average_rating: 0,
   });
 
@@ -169,12 +169,11 @@ export default function App() {
   const handleLogin = (user) => {
     // Alert.alert("สำเร็จ", "เข้าสู่ระบบสำเร็จ");
     setUserDataNa({
-      profile_picture:
-        user.profile_picture || "driver_profile.jpeg",
-      first_name: user.first_name,
-      last_name: user.last_name,
-      driver_id: user.user_id,
-      average_rating: user.average_rating,
+      // profile_picture:user.profile_picture || "driver_profile.jpeg",
+      first_name: "sadsad",
+      last_name:  "asdasd",
+      driver_id: user.driver_id,
+      average_rating:  3,
     });
     setIsLoggedIn(true);
   };

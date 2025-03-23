@@ -61,14 +61,14 @@ export default function EditInfoScreen({ navigation, route }) {
 
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/driver/edit_profile`,
+        `http://${IP_ADDRESS}:4000/driver/edit_profile`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            user_id: userData?.driver_id,
+            driver_id: userData?.driver_id,
             id_expiry_date: licenseExpiryDate,
           }),
         }

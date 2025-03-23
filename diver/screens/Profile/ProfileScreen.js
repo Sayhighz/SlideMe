@@ -40,7 +40,7 @@ export default function ProfileScreen({ navigation, userData, onLogout }) {
       const driverScore = async () => {
         try {
           const response = await fetch(
-            `http://${IP_ADDRESS}:3000/auth/driver/score?driver_id=${userData?.driver_id}`
+            `http://${IP_ADDRESS}:4000/driver/score?driver_id=${userData?.driver_id}`
           );
           const data = await response.json();
           if (data.Status && Array.isArray(data.Result) && data.Result.length > 0) {
@@ -69,7 +69,7 @@ export default function ProfileScreen({ navigation, userData, onLogout }) {
       <View style={tw`flex-row items-center mt-10 p-2 w-19/20 mx-auto`}>
         <Image
           source={{
-            uri: `http://${IP_ADDRESS}:3000/auth/fetch_image?filename=${userData?.profile_picture}`,
+            uri: `http://${IP_ADDRESS}:4000/upload/fetch_image?filename=${userData?.profile_picture}`,
           }}
           style={tw`w-24 h-24 rounded-full border-2 border-green-400`}
         />

@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import tw from 'twrnc';
 import { MaterialIcons } from '@expo/vector-icons';
-import SubmitButton from '../../componnets/SubmitButton';
+import SubmitButton from '../../components/SubmitButton';
 
 const FifthRegister = ({ navigation, route }) => {
   const initialItems = [

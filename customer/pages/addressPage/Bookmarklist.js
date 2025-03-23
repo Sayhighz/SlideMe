@@ -38,7 +38,7 @@ const BookmarkList = ({ navigation }) => {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/customer/getuserbookmarks?user_id=${userData.user_id}`
+        `http://${IP_ADDRESS}:4000/customer/getuserbookmarks?user_id=${userData.user_id}`
       );
 
       const data = await response.json();
@@ -61,7 +61,7 @@ const BookmarkList = ({ navigation }) => {
   const handleDelete = async (addressId) => {
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/customer/disable_bookmark`,
+        `http://${IP_ADDRESS}:4000/customer/disable_bookmark`,
         {
           method: "POST",
           headers: {

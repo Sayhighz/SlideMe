@@ -15,8 +15,8 @@ import {
 import tw from 'twrnc';
 import { MaterialIcons } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/Ionicons';
-import SubmitButton from '../../componnets/SubmitButton';
-import HeaderWithBackButton from '../../componnets/HeaderWithBackButton';
+import SubmitButton from '../../components/SubmitButton';
+import HeaderWithBackButton from '../../components/HeaderWithBackButton';
 
 const ThirdRegister = ({ navigation, route }) => {
   const [isTestModalVisible, setTestModalVisible] = useState(false);

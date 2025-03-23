@@ -10,20 +10,21 @@ export const offerPrice = (req, res) => {
         ) 
         SELECT ?, ?, ?, 'pending' 
         FROM servicerequests s
-        WHERE s.request_id = ? AND s.status != 'cancelled'
+        WHERE s.request_id = ? AND s.status <> 'cancelled'
     `;
 
   const values = [
     req.body.request_id,
     req.body.driver_id,
     req.body.offered_price,
+    req.body.request_id,
   ];
 
   con.query(sql, values, (err, result) => {
     if (err) return res.json({ Status: false, Error: err.message });
     return res.json({ Status: true, AffectedRows: result.affectedRows });
   });
-}; //yes
+};
 
 export const getOffersFromDriver = (req, res) => {
   const driver_id = req.query.driver_id || null;
@@ -162,7 +163,8 @@ export const chooseOffer = (req, res) => {
 
   const sql = `
 SELECT 
-    d.driver_id,
+    do.offer_id,
+    do.driver_id,
     d.current_latitude,
     d.current_longitude,
     drv.username,
@@ -179,18 +181,18 @@ SELECT
     sr.customer_id,
     sr.request_id
 FROM driverdetails d
-LEFT JOIN drivers drv ON d.driver_id = drv.driver_id  -- JOIN กับ drivers เพื่อดึง username, first_name, last_name
+LEFT JOIN drivers drv ON d.driver_id = drv.driver_id
 LEFT JOIN reviews r ON d.driver_id = r.driver_id
 INNER JOIN driveroffers do ON d.driver_id = do.driver_id
 LEFT JOIN servicerequests sr ON sr.request_id = do.request_id
 WHERE do.request_id = ? 
 AND do.offer_status = 'pending'
 GROUP BY 
+    do.offer_id,  -- Include offer_id in the GROUP BY
     d.driver_id, d.current_latitude, d.current_longitude, 
     drv.username, drv.first_name, drv.last_name, 
     do.offered_price, sr.pickup_lat, sr.pickup_long, sr.location_from, 
     sr.dropoff_lat, sr.dropoff_long, sr.location_to;
-
   `;
 
   con.query(sql, [request_id], (err, result) => {
@@ -250,7 +252,7 @@ GROUP BY
       PickupDropoffInfo: pickupDropoffInfo,
     });
   });
-}; //yes
+};
 
 export const getHistory = (req, res) => {
   const driver_id = req.query.driver_id || null;

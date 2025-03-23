@@ -26,7 +26,7 @@ export default function NotificationRequest({ driver_id, status }) {
 
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/driver/notifications?driver_id=${driver_id}`
+        `http://${IP_ADDRESS}:4000/driver/notifications?driver_id=${driver_id}`
       );
       const data = await response.json();
 
@@ -63,7 +63,7 @@ export default function NotificationRequest({ driver_id, status }) {
   const rejectAllOffers = async () => {
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/driver/reject_all_offers`,
+        `http://${IP_ADDRESS}:4000/driver/reject_all_offers`,
         {
           method: "POST", // Use POST method; adjust if different
           headers: {

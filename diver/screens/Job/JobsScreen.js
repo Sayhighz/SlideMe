@@ -1,109 +1,13 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  StyleSheet,
-  Modal,
-} from "react-native";
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, StyleSheet } from "react-native";
 import tw from "twrnc";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
-import { IP_ADDRESS } from "../../config";
-
-function truncateText(text, maxLength = 12) {
-  if (!text) return "";
-  return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
-}
-
-function calculateDistance(lat1, lon1, lat2, lon2) {
-  if (!lat1 || !lon1 || !lat2 || !lon2) return 0;
-
-  const toRadians = (degrees) => (degrees * Math.PI) / 180;
-  const earthRadiusKm = 6371;
-
-  const dLat = toRadians(lat2 - lat1);
-  const dLon = toRadians(lon2 - lon1);
-
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return parseFloat((earthRadiusKm * c).toFixed(2)); // Return distance rounded to 2 decimal places
-}
-
-function JobCard({
-  requestId,
-  distance,
-  origin,
-  destination,
-  type,
-  time,
-  message,
-}) {
-  const navigation = useNavigation();
-
-  return (
-    <TouchableOpacity
-      style={tw`p-4 bg-white rounded-lg mb-4 shadow-lg`}
-      onPress={() =>
-        navigation.navigate("JobDetail", {
-          requestId,
-          distance,
-          origin,
-          destination,
-          type,
-          message,
-        })
-      }
-    >
-      <Text style={[styles.globalText, tw`text-gray-800 text-lg mb-4`]}>
-        ระยะทางประมาณ {distance} กิโลเมตร
-      </Text>
-
-      <View style={tw`flex-row justify-between items-center mb-4`}>
-        <View style={tw`flex-1 flex-row items-center`}>
-          <Icon name="map-marker" size={20} color="green" />
-          <Text style={[styles.globalText, tw`text-gray-600 ml-2 text-base`]}>
-            {truncateText(origin)}
-          </Text>
-        </View>
-        <View style={tw`flex-1 flex-row items-center justify-end`}>
-          <Icon name="map-marker" size={20} color="red" />
-          <Text style={[styles.globalText, tw`text-gray-600 ml-2 text-base`]}>
-            {truncateText(destination)}
-          </Text>
-        </View>
-      </View>
-
-      <View style={tw`flex-row justify-between items-center mb-4`}>
-        <Text style={[styles.globalText, tw`flex-1 text-gray-500 text-sm`]}>
-          ประเภท: {type}
-        </Text>
-        <Text
-          style={[
-            styles.globalText,
-            tw`flex-1 text-gray-500 text-sm text-right`,
-          ]}
-        >
-          เวลาเริ่มงาน: {time ? time : "ไม่ระบุ"}
-        </Text>
-      </View>
-
-      {message && (
-        <View style={tw`mt-2`}>
-          <Text style={[styles.globalText, tw`text-gray-600`]}>
-            ข้อความลูกค้า: {truncateText(message)}
-          </Text>
-        </View>
-      )}
-    </TouchableOpacity>
-  );
-}
+import { getRequest } from "../../lib/axios";
+import JobCard from "../../components/JobScreen/JobCard";
+import FilterModal from "../../components/JobScreen/FilterModal";
+import SortModal from "../../components/JobScreen/SortModal";
+import { calculateDistance } from "../../components/JobScreen/DistanceCalculator";
 
 export default function JobsScreen({ route }) {
   const navigation = useNavigation();
@@ -118,11 +22,7 @@ export default function JobsScreen({ route }) {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await fetch(
-          `http://${IP_ADDRESS}:3000/auth/getRequests?driver_id=${driver_id}`
-        );
-        const data = await response.json();
-
+        const data = await getRequest(`request/getRequests?driver_id=${driver_id}`);
         if (data && data.Status && Array.isArray(data.Result)) {
           setRequests(data.Result);
         } else {
@@ -138,12 +38,11 @@ export default function JobsScreen({ route }) {
     };
 
     fetchRequests();
-
     const intervalId = setInterval(() => {
       fetchRequests();
-    }, 5000); // Fetch every 5 seconds
+    }, 5000); 
 
-    return () => clearInterval(intervalId); // Clean up the interval when the component unmounts
+    return () => clearInterval(intervalId); 
   }, [driver_id]);
 
   const filteredRequests = requests.filter((request) => {
@@ -157,224 +56,72 @@ export default function JobsScreen({ route }) {
   });
 
   const sortedRequests = [...filteredRequests].sort((a, b) => {
-    if (sortCriteria === "latest") {
-      return new Date(b.booking_time) - new Date(a.booking_time);
-    }
-    if (sortCriteria === "oldest") {
-      return new Date(a.booking_time) - new Date(b.booking_time);
-    }
+    if (sortCriteria === "latest") return new Date(b.booking_time) - new Date(a.booking_time);
+    if (sortCriteria === "oldest") return new Date(a.booking_time) - new Date(b.booking_time);
     if (sortCriteria === "shortest") {
-      const distanceA = calculateDistance(
-        parseFloat(a.pickup_lat),
-        parseFloat(a.pickup_long),
-        parseFloat(a.dropoff_lat),
-        parseFloat(a.dropoff_long)
-      );
-      const distanceB = calculateDistance(
-        parseFloat(b.pickup_lat),
-        parseFloat(b.pickup_long),
-        parseFloat(b.dropoff_lat),
-        parseFloat(b.dropoff_long)
-      );
-      return distanceA - distanceB;
+      return calculateDistance(a.pickup_lat, a.pickup_long, a.dropoff_lat, a.dropoff_long) -
+             calculateDistance(b.pickup_lat, b.pickup_long, b.dropoff_lat, b.dropoff_long);
     }
     if (sortCriteria === "longest") {
-      const distanceA = calculateDistance(
-        parseFloat(a.pickup_lat),
-        parseFloat(a.pickup_long),
-        parseFloat(a.dropoff_lat),
-        parseFloat(a.dropoff_long)
-      );
-      const distanceB = calculateDistance(
-        parseFloat(b.pickup_lat),
-        parseFloat(b.pickup_long),
-        parseFloat(b.dropoff_lat),
-        parseFloat(b.dropoff_long)
-      );
-      return distanceB - distanceA;
+      return calculateDistance(b.pickup_lat, b.pickup_long, b.dropoff_lat, b.dropoff_long) -
+             calculateDistance(a.pickup_lat, a.pickup_long, a.dropoff_lat, a.dropoff_long);
     }
     return 0;
   });
 
   return (
     <View style={tw`flex-1 bg-gray-100`}>
-      <View style={tw`bg-[#60B876] p-4 pt-13 flex-row items-center`}>
+            {/* Header Section */}
+            <View style={tw`bg-[#60B876] p-4 pt-13 flex-row items-center`}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} color="white" />
         </TouchableOpacity>
-        <Text style={[styles.globalText, tw`text-2xl text-white ml-4`]}>
+        <Text style={[styles.globalText,tw`text-2xl text-white ml-4`]}>
           งานวันนี้
         </Text>
       </View>
 
       <View style={tw`flex-row justify-between items-center bg-gray-200 p-2`}>
-        <Text style={[styles.globalText, tw`text-gray-700 ml-4`]}>
-          ระยะห่างจากต้นทาง: {filterDistance} กิโลเมตร
-        </Text>
-        <TouchableOpacity
-          style={tw`p-2 bg-[#60B876] rounded-full`}
-          onPress={() => setShowFilterModal(true)}
-        >
+        <Text style={[styles.globalText, tw`text-gray-700 ml-4`]}>ระยะห่างจากต้นทาง: {filterDistance} กิโลเมตร</Text>
+        <TouchableOpacity style={tw`p-2 bg-[#60B876] rounded-full`} onPress={() => setShowFilterModal(true)}>
           <Icon name="filter" size={24} color="white" />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={tw`p-2 bg-blue-500 rounded-full ml-2`}
-          onPress={() => setShowSortModal(true)}
-        >
+        <TouchableOpacity style={tw`p-2 bg-blue-500 rounded-full ml-2`} onPress={() => setShowSortModal(true)}>
           <Icon name="sort" size={24} color="white" />
         </TouchableOpacity>
       </View>
 
-      {/* Filter Modal */}
-      <Modal
-        transparent={true}
-        visible={showFilterModal}
-        onRequestClose={() => setShowFilterModal(false)}
-        animationType="fade"
-      >
-        <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
-          <View style={tw`bg-white w-3/4 p-4 rounded-lg`}>
-            <Text
-              style={[styles.globalText, tw`text-lg text-center mb-4`]}
-            >
-              เลือกระยะทาง
-            </Text>
-            {[10, 20, 30].map((distance) => (
-              <TouchableOpacity
-                key={distance}
-                style={[
-                  tw`p-2 rounded-lg mb-2`,
-                  filterDistance === distance ? tw`bg-[#60B876]` : tw`bg-gray-200`,
-                ]}
-                onPress={() => {
-                  setFilterDistance(distance);
-                  setShowFilterModal(false);
-                }}
-              >
-                <Text
-                  style={[
-                    styles.globalText,
-                    tw`text-center ${filterDistance === distance ? "text-white" : "text-black"}`,
-                  ]}
-                >
-                  {distance} กิโลเมตร
-                </Text>
-              </TouchableOpacity>
-            ))}
-            <TouchableOpacity
-              style={tw`mt-4 bg-red-500 p-2 rounded-lg`}
-              onPress={() => setShowFilterModal(false)}
-            >
-              <Text style={[styles.globalText, tw`text-center text-white`]}>
-                ปิด
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Sort Modal */}
-      <Modal
-        transparent={true}
-        visible={showSortModal}
-        onRequestClose={() => setShowSortModal(false)}
-        animationType="fade"
-      >
-        <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
-          <View style={tw`bg-white w-3/4 p-4 rounded-lg`}>
-            <Text
-              style={[styles.globalText, tw`text-lg text-center mb-4`]}
-            >
-              เลือกการเรียงลำดับ
-            </Text>
-            {[
-              { label: "ล่าสุด-เก่า", value: "latest" },
-              { label: "เก่า-ล่าสุด", value: "oldest" },
-              { label: "ระยะรับรถใกล้กับจุดส่งที่สุด", value: "shortest" },
-              { label: "ระยะส่งรถไกลกับจุดรับที่สุด", value: "longest" },
-            ].map((option) => (
-              <TouchableOpacity
-                key={option.value}
-                style={[
-                  tw`p-2 rounded-lg mb-2`,
-                  sortCriteria === option.value ? tw`bg-blue-500` : tw`bg-gray-200`,
-                ]}
-                onPress={() => {
-                  setSortCriteria(option.value);
-                  setShowSortModal(false);
-                }}
-              >
-                <Text
-                  style={[
-                    styles.globalText,
-                    tw`text-center ${sortCriteria === option.value ? "text-white" : "text-black"}`,
-                  ]}
-                >
-                  {option.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-            <TouchableOpacity
-              style={tw`mt-4 bg-red-500 p-2 rounded-lg`}
-              onPress={() => setShowSortModal(false)}
-            >
-              <Text style={[styles.globalText, tw`text-center text-white`]}>
-                ปิด
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
       <ScrollView contentContainerStyle={tw`p-4`}>
         {loading ? (
-          <ActivityIndicator size="large" color="#00ff00" />
+          <ActivityIndicator size="large" color="#60B876" />
         ) : sortedRequests.length > 0 ? (
-          sortedRequests.map((request) => {
-            const distance = calculateDistance(
-              parseFloat(request.pickup_lat),
-              parseFloat(request.pickup_long),
-              parseFloat(request.dropoff_lat),
-              parseFloat(request.dropoff_long)
-            );
-
-            return (
-              <JobCard
-                key={request.request_id}
-                requestId={request.request_id}
-                distance={distance}
-                origin={request.location_from}
-                destination={request.location_to}
-                type={request.vehicle_type}
-                time={
-                  request.booking_time
-                    ? new Date(request.booking_time).toLocaleTimeString(
-                        "th-TH",
-                        {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }
-                      )
-                    : "ไม่ระบุ"
-                }
-                message={request.customer_message}
-              />
-            );
-          })
+          sortedRequests.map((request) => (
+            <JobCard
+              key={request.request_id}
+              requestId={request.request_id}
+              distance={calculateDistance(request.pickup_lat, request.pickup_long, request.dropoff_lat, request.dropoff_long)}
+              origin={request.location_from}
+              destination={request.location_to}
+              type={request.vehicle_type}
+              time={request.booking_time ? new Date(request.booking_time).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }) : "ไม่ระบุ"}
+              message={request.customer_message}
+            />
+          ))
         ) : (
-          <Text
-            style={[styles.globalText, tw`text-center text-gray-500 mt-4`]}
-          >
-            ไม่มีงานในระยะที่เลือก
-          </Text>
+          <Text style={[styles.globalText, tw`text-center text-gray-500 mt-4`]}>ไม่มีงานในระยะที่เลือก</Text>
         )}
       </ScrollView>
+
+      <FilterModal visible={showFilterModal} setFilterDistance={setFilterDistance} filterDistance={filterDistance} onClose={() => setShowFilterModal(false)} />
+      <SortModal visible={showSortModal} setSortCriteria={setSortCriteria} sortCriteria={sortCriteria} onClose={() => setShowSortModal(false)} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   globalText: {
-    fontFamily: "Mitr-Regular",
+    fontFamily: "Mitr-Regular", // ใช้ฟอนต์ Mitr
   },
 });
+
+

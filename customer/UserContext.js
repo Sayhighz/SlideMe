@@ -3,10 +3,10 @@ import React, { createContext, useState } from "react";
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [userData, setUserData] = useState({ user_id: null });
+  const [userData, setUserData] = useState({ customer_id: null });
 
   const clearUserData = () => {
-    setUserData({ user_id: null }); // Reset all user data
+    setUserData({ customer_id: null }); // Reset all user data
   };
 
   return (

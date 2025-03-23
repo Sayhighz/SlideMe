@@ -15,8 +15,8 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import MapView, { Marker } from "react-native-maps";
 import Icon from "react-native-vector-icons/MaterialIcons"; // ใช้ MaterialIcons
 import { IP_ADDRESS } from "../../config";
-import SubmitButton from "../../componnets/SubmitButton";
-import ConfirmationDialog from "../../componnets/ConfirmationDialog";
+import SubmitButton from "../../components/SubmitButton";
+import ConfirmationDialog from "../../components/ConfirmationDialog";
 
 export default function JobWorking_Pickup_Screen() {
   const route = useRoute();

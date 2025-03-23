@@ -6,6 +6,7 @@ import * as Location from 'expo-location';
 export default function DriverLocation({ driver_id }) {
   const [location, setLocation] = useState(null);
   const locationWatcher = useRef(null);
+  console.log(driver_id);
 
   const startTrackingLocation = async () => {
     try {
@@ -42,7 +43,7 @@ export default function DriverLocation({ driver_id }) {
     if (!location) return;
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/driver/update_location`,
+        `http://${IP_ADDRESS}:4000/driver/update_location`,
         {
           method: "POST",
           headers: {
