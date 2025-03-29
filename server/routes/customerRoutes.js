@@ -9,6 +9,6 @@ router.post('/disable_bookmark', disableBookmark)
 router.get('/getuserbookmarks', getuserBookmarks)
 router.get('/getServiceInfo', getServiceInfo)
 router.get('/order_status/:customer_id', orderStatus)
-router.get('/checkStatusOrder/:request_id', checkStatusOrder)
+router.get('/checkStatusOrder/:request_id', checkStatusOrder) //yes
 
 export default router;

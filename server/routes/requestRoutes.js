@@ -15,8 +15,8 @@ router.post("/add_request", addRequest);
 router.get("/service_history_customer", getServiceHistory);
 router.get("/getRequests", getRequests);
 router.get("/getRequestDetailForDriver", getRequestDetailForDriver);
-router.post('/update_service_request',updateServiceRequest);
+router.post('/update_service_request',updateServiceRequest); //yes
 router.post('/complete_request', completeRequest)
-router.post('/cancel_request' , cancelRequest)
+router.post('/cancel_request' , cancelRequest) //yes
 
 export default router;

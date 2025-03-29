@@ -229,7 +229,6 @@ export const updateServiceRequest = (req, res) => {
   });
 };
 
-
 export const completeRequest = (req, res) => {
   const sql = `
   UPDATE servicerequests

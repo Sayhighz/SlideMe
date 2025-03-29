@@ -21,7 +21,7 @@ export const addPaymentMethod = (req, res) => {
     ];
 
     con.query(sqlPaymentMethod, valuesPaymentMethod, (err, result) => {
-        if (err) return res.json({ Status: false, Error: err.message });
+        if (err) return res.status(500).json({ Status: false, Error: err.message });
 
         const payment_method_id = result.insertId; // ดึง payment_method_id ที่เพิ่มใหม่
 
@@ -44,8 +44,13 @@ export const addPaymentMethod = (req, res) => {
         ];
 
         con.query(sqlPayment, valuesPayment, (err, result) => {
-            if (err) return res.json({ Status: false, Error: err.message });
-            return res.json({ Status: true, InsertId: result.insertId });
+            if (err) return res.status(500).json({ Status: false, Error: err.message });
+            return res.status(201).json({
+                Status: true,
+                Message: "เพิ่มวิธีการชำระเงินเรียบร้อย !",
+                PaymentMethodId: payment_method_id,
+                PaymentId: result.insertId
+            });
         });
     });
 };
@@ -73,8 +78,17 @@ export const updatePaymentMethod = (req, res) => {
     ];
 
     con.query(sql, values, (err, result) => {
-        if (err) return res.json({ Status: false, Error: err.message });
-        return res.json({ Status: true, AffectedRows: result.affectedRows });
+        if (err) return res.status(500).json({ Status: false, Error: err.message });
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ Status: false, Error: "ไม่พบวิธีการชำระเงิน" });
+        }
+
+        return res.status(200).json({
+            Status: true,
+            Message: "อัปเดตวิธีการชำระเงินเรียบร้อย !",
+            AffectedRows: result.affectedRows
+        });
     });
 };
 
@@ -87,14 +101,28 @@ export const disablePaymentMethod = (req, res) => {
     `;
 
     con.query(sql, [req.body.payment_id], (err, result) => {
-        if (err) return res.json({ Status: false, Error: err.message });
-        return res.json({ Status: true, AffectedRows: result.affectedRows });
+        if (err) return res.status(500).json({ Status: false, Error: err.message });
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ Status: false, Error: "ไม่พบวิธีการชำระเงิน" });
+        }
+
+        return res.status(200).json({
+            Status: true,
+            Message: "ปิดการใช้งานวิธีการชำระเงินเรียบร้อย !",
+            AffectedRows: result.affectedRows
+        });
     });
 };
 
 // ✅ ดึงวิธีการชำระเงินทั้งหมดของผู้ใช้
 export const getAllUserPaymentMethods = (req, res) => {
     const customer_id = req.query.customer_id || null;
+
+    if (!customer_id) {
+        return res.status(400).json({ Status: false, Error: "กรุณาระบุ customer_id" });
+    }
+
     const sql = `
         SELECT
             p.payment_id,
@@ -111,14 +139,24 @@ export const getAllUserPaymentMethods = (req, res) => {
     `;
 
     con.query(sql, [customer_id], (err, result) => {
-        if (err) return res.json({ Status: false, Error: err.message });
-        return res.json({ Status: true, Result: result });
+        if (err) return res.status(500).json({ Status: false, Error: err.message });
+
+        if (result.length === 0) {
+            return res.status(404).json({ Status: false, Error: "ไม่พบวิธีการชำระเงินของผู้ใช้คนนี้" });
+        }
+
+        return res.status(200).json({ Status: true, Result: result });
     });
 };
 
 // ✅ ดึงข้อมูลวิธีการชำระเงินเฉพาะของลูกค้า
 export const getPaymentMethod = (req, res) => {
     const { customer_id } = req.query;
+
+    if (!customer_id) {
+        return res.status(400).json({ Status: false, Error: "กรุณาระบุ customer_id" });
+    }
+
     const sql = `
         SELECT 
             pm.method_name, 
@@ -133,7 +171,12 @@ export const getPaymentMethod = (req, res) => {
     `;
 
     con.query(sql, [customer_id], (err, result) => {
-        if (err) return res.json({ Status: false, Error: err.message });
-        return res.json({ Status: true, Result: result });
+        if (err) return res.status(500).json({ Status: false, Error: err.message });
+
+        if (result.length === 0) {
+            return res.status(404).json({ Status: false, Error: "ไม่พบวิธีการชำระเงินของผู้ใช้คนนี้" });
+        }
+
+        return res.status(200).json({ Status: true, Result: result });
     });
 };
