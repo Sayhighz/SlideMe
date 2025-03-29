@@ -168,7 +168,7 @@ router.put("/payment-method/disable", disablePaymentMethod);
  * @swagger
  * /payment/payment-method:
  *   get:
- *     summary: ดึงข้อมูลวิธีการชำระเงิน (ไม่รวม payment_id)
+ *     summary: ดึงข้อมูลวิธีการชำระเงิน
  *     tags: [Payments]
  *     parameters:
  *       - in: query

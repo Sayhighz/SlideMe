@@ -21,7 +21,7 @@ router.get("/getRequestDetailForDriver", getRequestDetailForDriver);
  * /request/update_service_request:
  *   post:
  *     summary: อัปเดตคำขอบริการ, การชำระเงิน, และข้อเสนอจากคนขับ
- *     tags: [Request]
+ *     tags: [Requests]
  *     requestBody:
  *       description: ข้อมูลสำหรับการอัปเดตคำขอบริการ, การชำระเงิน, และข้อเสนอจากคนขับ
  *       content:
@@ -71,7 +71,7 @@ router.post("/complete_request", completeRequest);
  *   put:
  *     summary: ยกเลิกคำขอบริการ
  *     description: ยกเลิกคำขอบริการและอัปเดตสถานะการเสนอราคาของคำขอ
- *     tags: [Request]
+ *     tags: [Requests]
  *     requestBody:
  *       required: true
  *       content:

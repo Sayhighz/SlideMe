@@ -26,18 +26,49 @@ const swaggerOptions = {
     definition: {
         openapi: "3.0.0",
         info: {
-            title: "SlideMe API Documentation",
-            version: "2.0.0",
-            description: `API documentation for the project CSI 
+            title: "SlideMe (Customer) API Document",
+            version: "1.0.0",
+            description: `ผม <strong>นายนนท์ธีร์ ปานะถึก</strong> รหัส <strong>66073169</strong> สาขาวิทยาการคอมพิวเตอร์และนวัตกรรมการพัฒนาซอฟต์แวร์
             <br>
-            <br>
-            By Nonthee Panatuek 66073169 Year 2 Term 2`,
+            คณะเทคโนโลยีสารสนเทศ มหาวิทยาลัยศรีปทุม เป็นผู้สร้าง Back End API พร้อมจัดทำเอกสารฉบับนี้ ในโครางงาน      
+            <strong>SlideMe (Customer)</strong> Version 1.0.0 ตามมาตรฐาน OpenAPI 3.0.0 ประกอบด้วย 
+            <ul>
+                <li><strong>Payment</strong> - จำนวน 5 APIs</li>
+                <li><strong>Customers</strong> - จำนวน 1 APIs</li>
+                <li><strong>Offers</strong> - จำนวน 2 APIs</li>
+                <li><strong>Requests</strong> - จำนวน 2 APIs</li>
+                <li><strong>Drivers</strong> - จำนวน 2 APIs</li>
+            </ul>
+            โดยรายละเอียดของแต่ละ API แสดงไว้ตามด้านล่างนี้
+            `,
         },
         servers: [
             {
                 url: "http://localhost:4000",
                 description: "Local Server"
             }
+        ],
+        tags: [
+            {
+                name: "Payments",
+                description: "Payments operations (5 APIs)"
+            },
+            {
+                name: "Customers",
+                description: "Customers operations (1 APIs)"
+            },
+            {
+                name: "Offers",
+                description: "Offers operations (2 APIs)"
+            },
+            {
+                name: "Requests",
+                description: "Requests operations (2 APIs)"
+            },
+            {
+                name: "Drivers",
+                description: "Drivers operations (2 APIs)"
+            },
         ]
     },
     apis: [

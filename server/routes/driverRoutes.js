@@ -38,7 +38,7 @@ router.post('/edit_profile', editProfile)
  * /driver/driverlocation/{driver_id}:
  *   get:
  *     summary: ดึงตำแหน่งปัจจุบันของคนขับ
- *     tags: [Driver]
+ *     tags: [Drivers]
  *     parameters:
  *       - in: path
  *         name: driver_id
@@ -65,7 +65,7 @@ router.post('/update_location', UpdateLocation)
  * /driver/fetch_driver_info/{customer_id}/{driver_id}/{request_id}:
  *   get:
  *     summary: ดึงข้อมูลของคนขับที่รับงาน
- *     tags: [Driver]
+ *     tags: [Drivers]
  *     parameters:
  *       - in: path
  *         name: customer_id
