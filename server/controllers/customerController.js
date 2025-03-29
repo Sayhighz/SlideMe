@@ -188,16 +188,24 @@ export const orderStatus = (req, res) => {
 }; //yes
 
 export const checkStatusOrder = (req, res) => {
-  const requestId = req.params.request_id;
+  const { request_id } = req.params;
+
+  // ตรวจสอบว่าค่า request_id เป็นตัวเลขหรือไม่
+  if (isNaN(request_id)) {
+    return res.status(400).json({ Status: false, Error: "request_id ต้องเป็นตัวเลข" });
+  }
+
   const query = `SELECT status FROM servicerequests WHERE request_id = ?`;
 
-  con.query(query, [requestId], (err, result) => {
+  con.query(query, [request_id], (err, result) => {
     if (err) {
-      res.status(500).send("Database error");
-    } else if (result.length > 0) {
-      res.status(200).json({ status: result[0].status });
+      return res.status(500).json({ Status: false, Error: "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์" });
+    }
+
+    if (result.length > 0) {
+      return res.status(200).json({ Status: true, RequestId: request_id, StatusOrder: result[0].status });
     } else {
-      res.status(404).json({ message: "Request not found" });
+      return res.status(404).json({ Status: false, Error: "ไม่พบคำขอ" });
     }
   });
-}; //yes
+};

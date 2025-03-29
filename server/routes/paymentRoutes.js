@@ -4,7 +4,8 @@ import {
     updatePaymentMethod, 
     disablePaymentMethod, 
     getAllUserPaymentMethods, 
-    getPaymentMethod
+    getPaymentMethod,
+    deleteMethod
 } from "../controllers/paymentController.js";
 
 const router = express.Router();
@@ -21,6 +22,13 @@ const router = express.Router();
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - method_name
+ *               - card_number
+ *               - card_expiry
+ *               - card_cvv
+ *               - cardholder_name
+ *               - customer_id
  *             properties:
  *               method_name:
  *                 type: string
@@ -40,15 +48,11 @@ const router = express.Router();
  *               customer_id:
  *                 type: integer
  *                 example: 96
- *               amount:
- *                 type: number
- *                 example: 1000.01
- *               is_default:
- *                 type: boolean
- *                 example: false
  *     responses:
  *       201:
- *         description: เพิ่มวิธีการชำระเงินเรียบร้อย !
+ *         description: เพิ่มวิธีการชำระเงิน
+ *       400:
+ *         description: ข้อมูลไม่ครบถ้วน
  *       500:
  *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
  */
@@ -94,21 +98,7 @@ router.post("/payment-method/add", addPaymentMethod);
  *                 example: "นนท์ธีร์ ปานะถึก"
  *     responses:
  *       200:
- *         description: อัปเดตวิธีการชำระเงินเรียบร้อย !
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 Status:
- *                   type: boolean
- *                   example: true
- *                 Message:
- *                   type: string
- *                   example: "อัปเดตวิธีการชำระเงินเรียบร้อย !"
- *                 AffectedRows:
- *                   type: integer
- *                   example: 1
+ *         description: อัปเดตวิธีการชำระเงิน
  *       400:
  *         description: ข้อมูลไม่ครบถ้วน
  *       404:
@@ -118,13 +108,112 @@ router.post("/payment-method/add", addPaymentMethod);
  */
 router.put("/payment-method/update", updatePaymentMethod);
 
+/**
+ * @swagger
+ * /payment/payment-method/disable:
+ *   put:
+ *     summary: ปิดการใช้งานวิธีการชำระเงิน
+ *     tags: [Payments]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - payment_method_id
+ *             properties:
+ *               payment_method_id:
+ *                 type: integer
+ *                 example: 4
+ *     responses:
+ *       200:
+ *         description: ปิดการใช้งานวิธีการชำระเงิน
+ *       400:
+ *         description: กรุณาระบุ payment_method_id
+ *       404:
+ *         description: ไม่พบวิธีการชำระเงิน
+ *       500:
+ *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
+ */
+router.put("/payment-method/disable", disablePaymentMethod);
 
-router.post("/payment-method/disable", disablePaymentMethod);
+// /**
+//  * @swagger
+//  * /payment/payment-methods:
+//  *   get:
+//  *     summary: ดึงข้อมูลวิธีการชำระเงินทั้งหมดของผู้ใช้
+//  *     tags: [Payments]
+//  *     parameters:
+//  *       - in: query
+//  *         name: customer_id
+//  *         required: true
+//  *         schema:
+//  *           type: integer
+//  *         description: รหัสของลูกค้า (Customer ID)
+//  *     responses:
+//  *       200:
+//  *         description: สำเร็จ - ส่งคืนรายการวิธีการชำระเงิน
+//  *       400:
+//  *         description: กรุณาระบุ customer_id
+//  *       404:
+//  *         description: ไม่พบวิธีการชำระเงิน
+//  *       500:
+//  *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
+//  */
+// router.get("/payment-methods", getAllUserPaymentMethods);
 
 
-router.get("/payment-methods", getAllUserPaymentMethods);
-
-
+/**
+ * @swagger
+ * /payment/payment-method:
+ *   get:
+ *     summary: ดึงข้อมูลวิธีการชำระเงิน (ไม่รวม payment_id)
+ *     tags: [Payments]
+ *     parameters:
+ *       - in: query
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 87
+ *         description: รหัสของลูกค้า (Customer ID)
+ *     responses:
+ *       200:
+ *         description: วิธีการชำระเงินทั้งหมด
+ *       400:
+ *         description: กรุณาระบุ customer_id
+ *       404:
+ *         description: ไม่พบวิธีการชำระเงิน
+ *       500:
+ *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
+ */
 router.get("/payment-method", getPaymentMethod);
+
+/**
+ * @swagger
+ * /payment/payment-method/delete/{payment_method_id}:
+ *   delete:
+ *     summary: ลบวิธีการชำระเงิน
+ *     tags: [Payments]
+ *     parameters:
+ *       - in: path
+ *         name: payment_method_id
+ *         required: true
+ *         description: ID ของวิธีการชำระเงินที่ต้องการลบ
+ *         schema:
+ *           type: integer
+ *           example: 4
+ *     responses:
+ *       200:
+ *         description: ลบวิธีการชำระเงินเรียบร้อย !
+ *       400:
+ *         description: ข้อมูลไม่ครบถ้วน
+ *       404:
+ *         description: ไม่พบวิธีการชำระเงิน
+ *       500:
+ *         description: เกิดข้อผิดพลาดของฐานข้อมูล
+ */
+router.delete("/payment-method/delete/:payment_method_id", deleteMethod);
 
 export default router;

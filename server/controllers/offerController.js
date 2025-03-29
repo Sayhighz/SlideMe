@@ -6,7 +6,7 @@ export const updateOfferStatus = (req, res) => {
   if (!request_id || !driver_id) {
     return res
       .status(400)
-      .json({ Status: false, Message: "Invalid parameters" });
+      .json({ Status: false, Message: "กรุณาระบุ request_id หรือ driver_id" });
   }
 
   const sqlUpdateAccepted = `
@@ -41,7 +41,7 @@ export const updateOfferStatus = (req, res) => {
 
           return res.status(200).json({
             Status: true,
-            Message: "Offer status updated successfully",
+            Message: "อัปเดตสถานะข้อเสนอเรียบร้อย !",
           });
         }
       );
@@ -55,7 +55,7 @@ export const chooseOffer = (req, res) => {
   if (!request_id) {
     return res
       .status(400)
-      .json({ Status: false, Message: "Invalid request_id" });
+      .json({ Status: false, Message: "กรุณาระบุ request_id" });
   }
 
   const sql = `
@@ -120,13 +120,12 @@ GROUP BY
         if (locationResult.length > 0) {
           return res.status(200).json({
             Status: true,
-            Result: [],
             PickupDropoffInfo: locationResult[0],
           });
         } else {
           return res.status(404).json({
             Status: false,
-            Message: "No drivers or location data found",
+            Message: "ไม่พบข้อมูลข้อเสนอหรือข้อมูลตำแหน่ง",
           });
         }
       });

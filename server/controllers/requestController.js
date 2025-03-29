@@ -120,13 +120,18 @@ export const getRequestDetailForDriver = (req, res) => {
 }; //yes
 
 export const updateServiceRequest = (req, res) => {
-  const { request_id, customer_id, driver_id, price, payment_method_id } = req.body;
+  const { request_id, customer_id, driver_id, price, payment_method_id } =
+    req.body;
 
   // Validate input
-  if (!request_id || !customer_id || !driver_id || !price || !payment_method_id) {
-    return res
-      .status(400)
-      .json({ Status: false, Message: "Invalid parameters" });
+  if (
+    !request_id ||
+    !customer_id ||
+    !driver_id ||
+    !price ||
+    !payment_method_id
+  ) {
+    return res.status(400).json({ Status: false, Message: "ข้อมูลไม่ถูกต้อง" });
   }
 
   // Start a transaction to ensure all queries run together
@@ -138,94 +143,124 @@ export const updateServiceRequest = (req, res) => {
 
     // Step 1: Update the servicerequests table (Only status and offer_id)
     const sqlUpdateServiceRequest = `
-      UPDATE servicerequests
-      SET status = 'accepted',
-          offer_id = ?
-      WHERE request_id = ? AND customer_id = ?
+      UPDATE servicerequests sr
+      JOIN driveroffers doff ON sr.request_id = doff.request_id 
+      SET sr.status = 'accepted',
+          sr.offer_id = doff.offer_id
+      WHERE sr.request_id = ? AND sr.customer_id = ?;
+
     `;
 
-    con.query(sqlUpdateServiceRequest, [driver_id, request_id, customer_id], (err, result) => {
-      if (err) {
-        return con.rollback(() => {
-          console.error("Error updating service request:", err);
-          return res.status(500).json({ Status: false, Error: err.message });
-        });
-      }
-
-      if (result.affectedRows === 0) {
-        return con.rollback(() => {
-          return res.status(404).json({
-            Status: false,
-            Message: "No matching data found or already updated",
-          });
-        });
-      }
-
-      // Step 2: Insert or update the payments table
-      const sqlInsertPayment = `
-        INSERT INTO payments (customer_id, amount, payment_status, payment_method_id, is_default)
-        VALUES (?, ?, 'Pending', ?, 0)
-        ON DUPLICATE KEY UPDATE amount = ?, payment_status = 'Pending', payment_method_id = ?
-      `;
-      
-      con.query(sqlInsertPayment, [customer_id, price, payment_method_id, price, payment_method_id], (err, paymentResult) => {
+    con.query(
+      sqlUpdateServiceRequest,
+      [ request_id, customer_id],
+      (err, result) => {
         if (err) {
           return con.rollback(() => {
-            console.error("Error updating payment:", err);
+            console.error("Error updating service request:", err);
             return res.status(500).json({ Status: false, Error: err.message });
           });
         }
 
-        const payment_id = paymentResult.insertId || paymentResult.insertId;  // Get the inserted or existing payment_id
+        if (result.affectedRows === 0) {
+          return con.rollback(() => {
+            return res.status(404).json({
+              Status: false,
+              Message: "ไม่พบข้อมูลที่ตรงกันหรือข้อมูลได้ถูกอัปเดตแล้ว",
+            });
+          });
+        }
 
-        // Step 3: Update the servicerequests table with payment_id
-        const sqlUpdatePaymentIdInServiceRequest = `
+        // Step 2: Insert or update the payments table
+        const sqlInsertPayment = `
+        INSERT INTO payments (customer_id, amount, payment_status, payment_method_id)
+        VALUES (?, ?, 'Pending', ?)
+        ON DUPLICATE KEY UPDATE amount = ?, payment_status = 'Pending', payment_method_id = ?
+      `;
+
+        con.query(
+          sqlInsertPayment,
+          [customer_id, price, payment_method_id, price, payment_method_id],
+          (err, paymentResult) => {
+            if (err) {
+              return con.rollback(() => {
+                console.error("Error updating payment:", err);
+                return res
+                  .status(500)
+                  .json({ Status: false, Error: err.message });
+              });
+            }
+
+            const payment_id = paymentResult.insertId || paymentResult.insertId; // Get the inserted or existing payment_id
+
+            // Step 3: Update the servicerequests table with payment_id
+            const sqlUpdatePaymentIdInServiceRequest = `
           UPDATE servicerequests
           SET payment_id = ?
           WHERE request_id = ? AND customer_id = ?
         `;
 
-        con.query(sqlUpdatePaymentIdInServiceRequest, [payment_id, request_id, customer_id], (err, updatePaymentResult) => {
-          if (err) {
-            return con.rollback(() => {
-              console.error("Error updating payment_id in service request:", err);
-              return res.status(500).json({ Status: false, Error: err.message });
-            });
-          }
+            con.query(
+              sqlUpdatePaymentIdInServiceRequest,
+              [payment_id, request_id, customer_id],
+              (err, updatePaymentResult) => {
+                if (err) {
+                  return con.rollback(() => {
+                    console.error(
+                      "Error updating payment_id in service request:",
+                      err
+                    );
+                    return res
+                      .status(500)
+                      .json({ Status: false, Error: err.message });
+                  });
+                }
 
-          // Step 4: Update the driveroffers table (Only offer_status)
-          const sqlUpdateDriverOffer = `
+                // Step 4: Update the driveroffers table (Only offer_status)
+                const sqlUpdateDriverOffer = `
             UPDATE driveroffers
             SET offer_status = 'accepted', offered_price = ?
             WHERE offer_id = ?
           `;
 
-          con.query(sqlUpdateDriverOffer, [price, driver_id], (err, offerResult) => {
-            if (err) {
-              return con.rollback(() => {
-                console.error("Error updating driver offer:", err);
-                return res.status(500).json({ Status: false, Error: err.message });
-              });
-            }
+                con.query(
+                  sqlUpdateDriverOffer,
+                  [price, driver_id],
+                  (err, offerResult) => {
+                    if (err) {
+                      return con.rollback(() => {
+                        console.error("Error updating driver offer:", err);
+                        return res
+                          .status(500)
+                          .json({ Status: false, Error: err.message });
+                      });
+                    }
 
-            // Commit the transaction if all queries succeed
-            con.commit((err) => {
-              if (err) {
-                return con.rollback(() => {
-                  console.error("Error committing transaction:", err);
-                  return res.status(500).json({ Status: false, Error: err.message });
-                });
+                    // Commit the transaction if all queries succeed
+                    con.commit((err) => {
+                      if (err) {
+                        return con.rollback(() => {
+                          console.error("Error committing transaction:", err);
+                          return res
+                            .status(500)
+                            .json({ Status: false, Error: err.message });
+                        });
+                      }
+
+                      return res.status(200).json({
+                        Status: true,
+                        Message:
+                          "อัปเดตคำขอบริการ, การชำระเงิน, และข้อเสนอจากคนขับสำเร็จ",
+                      });
+                    });
+                  }
+                );
               }
-
-              return res.status(200).json({
-                Status: true,
-                Message: "Service request, payment, and offer updated successfully",
-              });
-            });
-          });
-        });
-      });
-    });
+            );
+          }
+        );
+      }
+    );
   });
 };
 
@@ -251,6 +286,12 @@ export const completeRequest = (req, res) => {
 export const cancelRequest = (req, res) => {
   const request_id = req.body.request_id;
 
+  if (!request_id) {
+    return res
+      .status(400)
+      .json({ Status: false, Error: "กรุณาระบุ request_id" });
+  }
+
   const sql = `
         UPDATE servicerequests sr
         LEFT JOIN driveroffers d ON sr.request_id = d.request_id
@@ -260,9 +301,22 @@ export const cancelRequest = (req, res) => {
         `;
 
   con.query(sql, [request_id], (err, result) => {
-    if (err) return res.json({ Status: false, Error: err.message });
-    return res.json({
+    if (err) {
+      console.error("Error cancelling request:", err);
+      return res
+        .status(500)
+        .json({ Status: false, Error: "เกิดข้อผิดพลาดฝั่งเซิร์ฟเวอร์" });
+    }
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ Status: false, Error: "ไม่พบคำขอที่ต้องการยกเลิก" });
+    }
+
+    return res.status(200).json({
       Status: true,
+      Message: "ยกเลิกคำขอเรียบร้อยแล้ว",
       AffectedRows: result.affectedRows,
     });
   });

@@ -243,10 +243,11 @@ export const editProfile = (req, res) => {
 export const driverLocation = (req, res) => {
   const { driver_id } = req.params;
 
-  if (!driver_id) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Driver ID required" });
+  if (!driver_id || !Number.isInteger(parseInt(driver_id))) {
+    return res.status(400).json({
+      Status: false,
+      Message: "Driver ID ไม่ถูกต้อง",
+    });
   }
 
   const query = `
@@ -265,7 +266,7 @@ export const driverLocation = (req, res) => {
     if (results.length === 0) {
       return res
         .status(404)
-        .json({ success: false, message: "Driver not found" });
+        .json({ success: false, message: "ไม่พบคนขับ" });
     }
 
     return res.status(200).json({
@@ -273,7 +274,7 @@ export const driverLocation = (req, res) => {
       data: results[0],
     });
   });
-}; //yes
+}; 
 
 export const UpdateLocation = (req, res) => {
   const { driver_id, current_latitude, current_longitude } = req.body;
@@ -307,44 +308,54 @@ export const fetchDriverInfo = (req, res) => {
   if (!customer_id || !driver_id || !request_id) {
     return res
       .status(400)
-      .json({ Status: false, Message: "Invalid parameters" });
+      .json({ Status: false, Message: "พารามิเตอร์ไม่ถูกต้อง" });
   }
 
   const sql = `
-  SELECT 
-    d.driver_id,
-    sr.customer_id,
-    sr.request_id,
-    sr.pickup_lat,
-    sr.pickup_long,
-    sr.location_from,
-    sr.dropoff_lat,
-    sr.dropoff_long,
-    sr.location_to,
-    sr.booking_time,
-    sr.request_time,
-    d.first_name AS driver_first_name,
-    d.last_name AS driver_last_name,
-    d.phone_number AS driver_phone,
-    COALESCE(AVG(r.rating), 0) AS average_rating, 
-    dd.current_latitude AS driver_latitude,
-    dd.current_longitude AS driver_longitude
-  FROM servicerequests sr
-LEFT JOIN driveroffers do ON sr.request_id = do.request_id
-LEFT JOIN drivers d ON do.driver_id = d.driver_id
-LEFT JOIN driverdetails dd ON do.driver_id = d.driver_id
-
-  LEFT JOIN reviews r ON d.driver_id = r.driver_id
-  WHERE sr.customer_id = ? AND do.driver_id = ? AND sr.request_id = ? AND do.offer_status = 'accepted' AND sr.status = 'accepted'
-  GROUP BY 
-    sr.request_id, sr.pickup_lat, sr.pickup_long, sr.location_from, 
-    sr.dropoff_lat, sr.dropoff_long, sr.location_to, 
-    sr.booking_time, sr.request_time, d.first_name, d.phone_number, 
-    dd.current_latitude, dd.current_longitude;
-`;
+     SELECT 
+      d.driver_id,
+      sr.customer_id,
+      sr.request_id,
+      sr.pickup_lat,
+      sr.pickup_long,
+      sr.location_from,
+      sr.dropoff_lat,
+      sr.dropoff_long,
+      sr.location_to,
+      sr.booking_time,
+      sr.request_time,
+      d.first_name AS driver_first_name,
+      d.last_name AS driver_last_name,
+      d.phone_number AS driver_phone,
+      COALESCE(AVG(r.rating), 0) AS average_rating, 
+      dd.current_latitude AS driver_latitude,
+      dd.current_longitude AS driver_longitude
+    FROM servicerequests sr
+    LEFT JOIN driveroffers do ON sr.request_id = do.request_id
+    LEFT JOIN drivers d ON do.driver_id = d.driver_id
+    LEFT JOIN driverdetails dd ON d.driver_id = dd.driver_id
+    LEFT JOIN reviews r ON d.driver_id = r.driver_id
+    WHERE sr.customer_id = ? 
+      AND do.driver_id = ? 
+      AND sr.request_id = ? 
+      AND do.offer_status = 'accepted' 
+      AND sr.status = 'accepted'
+    GROUP BY 
+      sr.request_id, sr.pickup_lat, sr.pickup_long, sr.location_from, 
+      sr.dropoff_lat, sr.dropoff_long, sr.location_to, 
+      sr.booking_time, sr.request_time, d.first_name, d.last_name, d.phone_number, 
+      dd.current_latitude, dd.current_longitude;
+  `;
 
   con.query(sql, [customer_id, driver_id, request_id], (err, result) => {
-    if (err) return res.json({ Status: false, Error: err.message });
-    return res.json({ Status: true, Result: result });
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({
+        Status: false,
+        Error: "Database error: " + err.message,
+      });
+    }
+
+    return res.status(200).json({ Status: true, Result: result });
   });
-}; //yes
+}; 

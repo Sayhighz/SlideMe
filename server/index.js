@@ -26,9 +26,12 @@ const swaggerOptions = {
     definition: {
         openapi: "3.0.0",
         info: {
-            title: "API Documentation",
-            version: "1.0.0",
-            description: "API Documentation for the system"
+            title: "SlideMe API Documentation",
+            version: "2.0.0",
+            description: `API documentation for the project CSI 
+            <br>
+            <br>
+            By Nonthee Panatuek 66073169 Year 2 Term 2`,
         },
         servers: [
             {
@@ -37,7 +40,13 @@ const swaggerOptions = {
             }
         ]
     },
-    apis: ["./routes/*.js"], // ใช้ทุกไฟล์ที่อยู่ในโฟลเดอร์ routes
+    apis: [
+        "./routes/paymentRoutes.js",
+        "./routes/customerRoutes.js",
+        "./routes/offerRoutes.js",
+        "./routes/requestRoutes.js",
+        "./routes/driverRoutes.js",
+    ], 
 };
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
