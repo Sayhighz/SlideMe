@@ -8,7 +8,6 @@ import {
     profitToday,
     driverOffers,
     getInfo,
-    chooseOffer,
     getHistory,
     Notifications,
     rejectAllOffers,
@@ -29,7 +28,6 @@ router.get('/score', score);
 router.get('/profitToday' , profitToday)
 router.get('/driveroffers', driverOffers)
 router.get('/getinfo', getInfo)
-router.get('/chooseoffer', chooseOffer)
 router.get('/getHistory', getHistory)
 router.get('/notifications', Notifications)
 router.post('/reject_all_offers', rejectAllOffers)
