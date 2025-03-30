@@ -30,6 +30,8 @@ const router = express.Router();
  *         description: อัปเดตสถานะข้อเสนอเรียบร้อย
  *       400:
  *         description: ข้อมูลไม่ถูกต้อง (request_id หรือ driver_id)
+ *       404:
+ *         description: ไม่พบข้อเสนอ
  *       500:
  *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
  */

@@ -30,6 +30,13 @@ export const updateOfferStatus = (req, res) => {
         return res.status(500).json({ Status: false, Error: err.message });
       }
 
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          Status: false,
+          Message: "ไม่พบข้อเสนอ",
+        });
+      }
+
       con.query(
         sqlUpdateRejected,
         [request_id, driver_id],

@@ -194,7 +194,7 @@ router.get("/payment-method", getPaymentMethod);
  * @swagger
  * /payment/payment-method/delete/{payment_method_id}:
  *   delete:
- *     summary: ลบวิธีการชำระเงิน
+ *     summary: ลบวิธีการชำระเงิน (เฉพาะวิชา csi206)
  *     tags: [Payments]
  *     parameters:
  *       - in: path

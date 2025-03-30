@@ -186,14 +186,12 @@ export const getPaymentMethod = (req, res) => {
 
   const sql = `
         SELECT 
-            pm.method_name, 
-            pm.card_number, 
-            pm.card_expiry, 
-            pm.cardholder_name, 
-            p.payment_status
-        FROM payments p
-        JOIN paymentmethod pm ON p.payment_method_id = pm.payment_method_id
-        WHERE p.customer_id = ?;
+            method_name, 
+            card_number, 
+            card_expiry, 
+            cardholder_name
+        FROM paymentmethod 
+        WHERE customer_id = ?;
     `;
 
   con.query(sql, [customer_id], (err, result) => {
@@ -208,7 +206,6 @@ export const getPaymentMethod = (req, res) => {
     return res.status(200).json({ Status: true, Result: result });
   });
 };
-
 
 //เฉพาะ 206
 export const deleteMethod = (req, res) => {
