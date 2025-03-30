@@ -15,6 +15,8 @@ router.get('/order_status/:customer_id', orderStatus)
  * /customer/checkStatusOrder/{request_id}:
  *   get:
  *     summary: ตรวจสอบสถานะคำขอ
+ *     description: | 
+ *       - ตรวจสอบสถานะของคำขอ
  *     tags: [Customers]
  *     parameters:
  *       - in: path
@@ -22,6 +24,7 @@ router.get('/order_status/:customer_id', orderStatus)
  *         required: true
  *         schema:
  *           type: integer
+ *           example: 352
  *         description: หมายเลขคำขอที่ต้องการตรวจสอบ
  *     responses:
  *       200:

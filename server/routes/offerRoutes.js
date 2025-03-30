@@ -8,6 +8,9 @@ const router = express.Router();
  * /offer/update_offer_status:
  *   post:
  *     summary: อัปเดตสถานะข้อเสนอจากคนขับ
+ *     description: |
+ *       - อัปเดตสถานะเป็น accepted สำหรับข้อเสนอที่เลือก
+ *       - อัปเดตสถานะเป็น rejected สำหรับข้อเสนอที่ไม่เลือก
  *     tags: [Offers]
  *     requestBody:
  *       required: true
@@ -43,6 +46,8 @@ router.post('/update_offer_status', updateOfferStatus);
  * /offer/chooseoffer:
  *   get:
  *     summary: ดึงข้อเสนอจากคนขับ
+ *     description: |
+ *      - รายละเอียดข้อเสนอตาม request_id
  *     tags: [Offers]
  *     parameters:
  *       - name: request_id

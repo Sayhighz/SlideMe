@@ -15,6 +15,8 @@ const router = express.Router();
  * /payment/payment-method/add:
  *   post:
  *     summary: เพิ่มวิธีการชำระเงินใหม่
+ *     description: | 
+ *       - เพิ่มวิธีการชำระเงินใหม่
  *     tags: [Payments]
  *     requestBody:
  *       required: true
@@ -63,6 +65,8 @@ router.post("/payment-method/add", addPaymentMethod);
  * /payment/payment-method/update:
  *   put:
  *     summary: อัปเดตข้อมูลวิธีการชำระเงิน
+ *     description: | 
+ *       - สามารถเปลี่ยนข้อมูลของวิธีการชำระเงินได้
  *     tags: [Payments]
  *     requestBody:
  *       required: true
@@ -113,6 +117,8 @@ router.put("/payment-method/update", updatePaymentMethod);
  * /payment/payment-method/disable:
  *   put:
  *     summary: ปิดการใช้งานวิธีการชำระเงิน
+ *     description: | 
+ *       - ปิดการใช้งานวิธีการชำระเงินนี้
  *     tags: [Payments]
  *     requestBody:
  *       required: true
@@ -169,6 +175,9 @@ router.put("/payment-method/disable", disablePaymentMethod);
  * /payment/payment-method:
  *   get:
  *     summary: ดึงข้อมูลวิธีการชำระเงิน
+ *     description: | 
+ *       - ดึงข้อมูลวิธีการชำระเงินทั้งหมดของผู้ใช้
+ *       - โดยต้องเป็นวิธีการชำระเงินที่เปิดใช้งานอยู่ (is_active = 1)
  *     tags: [Payments]
  *     parameters:
  *       - in: query
@@ -195,6 +204,8 @@ router.get("/payment-method", getPaymentMethod);
  * /payment/payment-method/delete/{payment_method_id}:
  *   delete:
  *     summary: ลบวิธีการชำระเงิน (เฉพาะวิชา csi206)
+ *     description: |
+ *       - ลบวิธีการชำระเงินที่ต้องการ
  *     tags: [Payments]
  *     parameters:
  *       - in: path

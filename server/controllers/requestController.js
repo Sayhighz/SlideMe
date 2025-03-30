@@ -120,14 +120,14 @@ export const getRequestDetailForDriver = (req, res) => {
 }; //yes
 
 export const updateServiceRequest = (req, res) => {
-  const { request_id, customer_id, driver_id, price, payment_method_id } =
+  const { request_id, customer_id, offer_id, price, payment_method_id } =
     req.body;
 
   // Validate input
   if (
     !request_id ||
     !customer_id ||
-    !driver_id ||
+    !offer_id ||
     !price ||
     !payment_method_id
   ) {
@@ -225,7 +225,7 @@ export const updateServiceRequest = (req, res) => {
 
                 con.query(
                   sqlUpdateDriverOffer,
-                  [price, driver_id],
+                  [price, offer_id],
                   (err, offerResult) => {
                     if (err) {
                       return con.rollback(() => {

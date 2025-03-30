@@ -21,6 +21,9 @@ router.get("/getRequestDetailForDriver", getRequestDetailForDriver);
  * /request/update_service_request:
  *   post:
  *     summary: อัปเดตคำขอบริการ, การชำระเงิน, และข้อเสนอจากคนขับ
+ *     description: |
+ *       - สร้าง row ใหม่ในตาราง payments
+ *       - อัปเดตราคาข้อเสนอ
  *     tags: [Requests]
  *     requestBody:
  *       description: ข้อมูลสำหรับการอัปเดตคำขอบริการ, การชำระเงิน, และข้อเสนอจากคนขับ
@@ -31,13 +34,13 @@ router.get("/getRequestDetailForDriver", getRequestDetailForDriver);
  *             properties:
  *               request_id:
  *                 type: integer
- *                 example: 353
+ *                 example: 352
  *               customer_id:
  *                 type: integer
  *                 example: 90
- *               driver_id:
+ *               offer_id:
  *                 type: integer
- *                 example: 86
+ *                 example: 300
  *               price:
  *                 type: number
  *                 format: float
@@ -48,7 +51,7 @@ router.get("/getRequestDetailForDriver", getRequestDetailForDriver);
  *             required:
  *               - request_id
  *               - customer_id
- *               - driver_id
+ *               - offer_id
  *               - price
  *               - payment_method_id
  *     responses:
@@ -70,7 +73,7 @@ router.post("/complete_request", completeRequest);
  * /request/cancel_request:
  *   put:
  *     summary: ยกเลิกคำขอบริการ
- *     description: ยกเลิกคำขอบริการและอัปเดตสถานะการเสนอราคาของคำขอ
+ *     description: ยกเลิกคำขอบริการ
  *     tags: [Requests]
  *     requestBody:
  *       required: true

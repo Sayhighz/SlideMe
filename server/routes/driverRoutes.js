@@ -38,6 +38,8 @@ router.post('/edit_profile', editProfile)
  * /driver/driverlocation/{driver_id}:
  *   get:
  *     summary: ดึงตำแหน่งปัจจุบันของคนขับ
+ *     description: |
+ *         - ดึงตำแหน่งปัจจุบันของ driver_id ที่ระบุ
  *     tags: [Drivers]
  *     parameters:
  *       - in: path
@@ -65,6 +67,9 @@ router.post('/update_location', UpdateLocation)
  * /driver/fetch_driver_info/{customer_id}/{driver_id}/{request_id}:
  *   get:
  *     summary: ดึงข้อมูลของคนขับที่รับงาน
+ *     description: |
+ *       - ข้อมูลของ request
+ *       - ดึงข้อมูลของคนขับที่ได้รับงาน
  *     tags: [Drivers]
  *     parameters:
  *       - in: path
@@ -80,19 +85,21 @@ router.post('/update_location', UpdateLocation)
  *         description: ID ของคนขับ
  *         schema:
  *           type: integer
- *           example: 86
+ *           example: 91
  *       - in: path
  *         name: request_id
  *         required: true
  *         description: ID ของคำขอบริการ
  *         schema:
  *           type: integer
- *           example: 353
+ *           example: 352
  *     responses:
  *       200:
  *         description: ดึงข้อมูลของคนขับที่ได้รับงานสำเร็จ
  *       400:
  *         description: ข้อมูลที่ส่งมาไม่ถูกต้อง
+ *       404:
+ *        description: ไม่พบข้อมูล
  *       500:
  *         description: ข้อผิดพลาดของเซิร์ฟเวอร์
  */

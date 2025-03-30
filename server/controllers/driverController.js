@@ -356,6 +356,13 @@ export const fetchDriverInfo = (req, res) => {
       });
     }
 
+    if (result.length === 0) {
+      return res.status(404).json({
+        Status: false,
+        Error: "ไม่พบข้อมูล",
+      });
+    }
+
     return res.status(200).json({ Status: true, Result: result });
   });
 }; 

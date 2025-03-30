@@ -191,7 +191,7 @@ export const getPaymentMethod = (req, res) => {
             card_expiry, 
             cardholder_name
         FROM paymentmethod 
-        WHERE customer_id = ?;
+        WHERE customer_id = ? AND is_active = 1;
     `;
 
   con.query(sql, [customer_id], (err, result) => {
