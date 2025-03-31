@@ -13,14 +13,54 @@ import notificationRoutes from './routes/notificationRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import customerRoutes from './routes/customerRoutes.js'
 import offerRoutes from './routes/offerRoutes.js'
+import swaggerJsDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 
 const app = express();
 const server = http.createServer(app);
 
 dotenv.config();
 
+
 app.use(express.json());
 app.use(cors({ origin: ["http://localhost:5173"], credentials: true }));
+
+
+//swagger documentation
+const swaggerSpec = swaggerJsDoc({
+    definition: {
+        openapi: "3.0.0",
+        info: {
+            title: "Slide Me (Customer) API Documentation",
+            description: `นาย **คุณาธิป อู่ทอง** รหัส **66033050** สาขาวิชา วิทยาการคอมพิวเตอร์และนวัตกรรมพัฒนาซอฟต์แวร์ <br>คณะเทคโนโลยีสารสนเทศ 
+            มหาวิทยาลัยศรีปทุม เป็นผู้สร้าง Back End API 
+            พร้อมจัดทำเอกสารฉบับบนี้ในโครงงาน <br> Slide Me (Customer) Version 1.0.0 ตามมาตรฐาน OpenAPI 3.0 ประกอบด้วย
+            <ul>
+                <li>User — จำนวน 2 APIs</li>
+                <li>Driver — จำนวน 2 APIs</li>
+            </ul>
+             API เหล่านี้ถูกออกแบบมาเพื่อรองรับกระบวนการเข้าสู่ระบบของผู้ใช้งานและคนขับ โดยสามารถดูรายละเอียดของแต่ละ API ได้จากด้านล่าง`,
+            version: "1.0.0",
+        },
+        servers: [
+            {
+                url: "http://localhost:4000",
+            },
+        ],
+        tags: [
+        {
+            name: "Users",
+            description: "Users Operations (2 APIs)",
+        },
+        {
+            name: "Drivers",
+            description: "Drivers Operations (2 APIs)",
+        }]
+    },
+    apis: ["./routes/*.js" , "./controllers/*.js"],
+})
+//swagger documentation
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/uploads', express.static('uploads'));
 

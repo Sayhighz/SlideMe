@@ -8,7 +8,7 @@ import {
 const router = express.Router();
 
 router.post("/add_user_info", addUserInfo);
-router.post("/check_user_phone", checkUserPhone);
+router.get("/check_user_phone", checkUserPhone);
 router.post("/edit_profile", editProfile);
 
 export default router;
