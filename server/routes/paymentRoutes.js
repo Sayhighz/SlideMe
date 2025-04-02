@@ -215,7 +215,7 @@ router.get("/payment-method", getPaymentMethod);
  *         description: ID ของวิธีการชำระเงินที่ต้องการลบ
  *         schema:
  *           type: integer
- *           example: 4
+ *           example: 15
  *     responses:
  *       200:
  *         description: ลบวิธีการชำระเงินเรียบร้อย !
