@@ -28,18 +28,7 @@ const swaggerOptions = {
         info: {
             title: "SlideMe (Customer) API Document",
             version: "1.0.0",
-            description: `ผม <strong>นายนนท์ธีร์ ปานะถึก</strong> รหัส <strong>66073169</strong> สาขาวิทยาการคอมพิวเตอร์และนวัตกรรมการพัฒนาซอฟต์แวร์
-            <br>
-            คณะเทคโนโลยีสารสนเทศ มหาวิทยาลัยศรีปทุม เป็นผู้สร้าง Back End API พร้อมจัดทำเอกสารฉบับนี้ ในโครางงาน      
-            <strong>SlideMe (Customer)</strong> Version 1.0.0 ตามมาตรฐาน OpenAPI 3.0.0 ประกอบด้วย 
-            <ul>
-                <li><strong>Payment</strong> - จำนวน 5 APIs</li>
-                <li><strong>Customers</strong> - จำนวน 1 APIs</li>
-                <li><strong>Offers</strong> - จำนวน 2 APIs</li>
-                <li><strong>Requests</strong> - จำนวน 2 APIs</li>
-                <li><strong>Drivers</strong> - จำนวน 2 APIs</li>
-            </ul>
-            โดยรายละเอียดของแต่ละ API แสดงไว้ตามด้านล่างนี้
+            description: `
             `,
         },
         servers: [
@@ -50,33 +39,58 @@ const swaggerOptions = {
         ],
         tags: [
             {
-                name: "Payments",
-                description: "Payments operations (5 APIs)"
+                name: "Authentication",
+                description: "การจัดการเกี่ยวกับการเข้าสู่ระบบและการลงทะเบียน"
+            },
+            {
+                name: "Users",
+                description: "การจัดการข้อมูลผู้ใช้"
             },
             {
                 name: "Customers",
-                description: "Customers operations (1 APIs)"
-            },
-            {
-                name: "Offers",
-                description: "Offers operations (2 APIs)"
-            },
-            {
-                name: "Requests",
-                description: "Requests operations (2 APIs)"
+                description: "การจัดการข้อมูลลูกค้า"
             },
             {
                 name: "Drivers",
-                description: "Drivers operations (2 APIs)"
+                description: "การจัดการข้อมูลคนขับ"
             },
+            {
+                name: "Requests",
+                description: "การจัดการคำขอบริการ"
+            },
+            {
+                name: "Offers",
+                description: "การจัดการข้อเสนอราคา"
+            },
+            {
+                name: "Payments",
+                description: "การจัดการวิธีการชำระเงิน"
+            },
+            {
+                name: "Reviews",
+                description: "การจัดการรีวิว"
+            },
+            {
+                name: "Notifications",
+                description: "การจัดการการแจ้งเตือน"
+            },
+            {
+                name: "Uploads",
+                description: "การจัดการไฟล์อัปโหลด"
+            }
         ]
     },
     apis: [
-        "./routes/paymentRoutes.js",
+        "./routes/authRoutes.js",
+        "./routes/userRoutes.js",
         "./routes/customerRoutes.js",
-        "./routes/offerRoutes.js",
-        "./routes/requestRoutes.js",
         "./routes/driverRoutes.js",
+        "./routes/requestRoutes.js",
+        "./routes/offerRoutes.js",
+        "./routes/paymentRoutes.js",
+        "./routes/reviewRoutes.js",
+        "./routes/notificationRoutes.js",
+        "./routes/uploadRoutes.js",
     ], 
 };
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
@@ -88,16 +102,16 @@ app.use(cors({ origin: ["http://localhost:5173"], credentials: true }));
 
 app.use('/uploads', express.static('uploads'));
 
-app.use('/upload', uploadRoutes); //ไม่
-app.use('/request', requestRoutes); //2
-app.use('/review', reviewRoutes); //ไม่
-app.use('/offer', offerRoutes); //ไม่
-app.use('/driver', driverRoutes); //ไม่
-app.use('/customer', customerRoutes); //1
-app.use('/user', userRoutes); //ไม่
-app.use('/payment', paymentRoutes); //5
-app.use('/notification', notificationRoutes); //ไม่
-app.use('/auth', authRoutes); //ไม่
+app.use('/upload', uploadRoutes);
+app.use('/request', requestRoutes);
+app.use('/review', reviewRoutes);
+app.use('/offer', offerRoutes);
+app.use('/driver', driverRoutes);
+app.use('/customer', customerRoutes);
+app.use('/user', userRoutes);
+app.use('/payment', paymentRoutes);
+app.use('/notification', notificationRoutes);
+app.use('/auth', authRoutes);
 
 configureSocket(server);
 

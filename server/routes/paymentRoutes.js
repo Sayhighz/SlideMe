@@ -34,7 +34,7 @@ const router = express.Router();
  *             properties:
  *               method_name:
  *                 type: string
- *                 example: Mastercard
+ *                 example: "Mastercard"
  *               card_number:
  *                 type: string
  *                 example: "1234567890123456"
@@ -87,7 +87,7 @@ router.post("/payment-method/add", addPaymentMethod);
  *                 example: 4
  *               method_name:
  *                 type: string
- *                 example: Mastercard
+ *                 example: "Mastercard"
  *               card_number:
  *                 type: string
  *                 example: "0987654321012345"
@@ -144,31 +144,33 @@ router.put("/payment-method/update", updatePaymentMethod);
  */
 router.put("/payment-method/disable", disablePaymentMethod);
 
-// /**
-//  * @swagger
-//  * /payment/payment-methods:
-//  *   get:
-//  *     summary: ดึงข้อมูลวิธีการชำระเงินทั้งหมดของผู้ใช้
-//  *     tags: [Payments]
-//  *     parameters:
-//  *       - in: query
-//  *         name: customer_id
-//  *         required: true
-//  *         schema:
-//  *           type: integer
-//  *         description: รหัสของลูกค้า (Customer ID)
-//  *     responses:
-//  *       200:
-//  *         description: สำเร็จ - ส่งคืนรายการวิธีการชำระเงิน
-//  *       400:
-//  *         description: กรุณาระบุ customer_id
-//  *       404:
-//  *         description: ไม่พบวิธีการชำระเงิน
-//  *       500:
-//  *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
-//  */
-// router.get("/payment-methods", getAllUserPaymentMethods);
-
+/**
+ * @swagger
+ * /payment/payment-methods:
+ *   get:
+ *     summary: ดึงข้อมูลวิธีการชำระเงินทั้งหมดของผู้ใช้
+ *     description: |
+ *       - ดึงข้อมูลวิธีการชำระเงินทั้งหมดของผู้ใช้
+ *     tags: [Payments]
+ *     parameters:
+ *       - in: query
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 90
+ *         description: รหัสของลูกค้า (Customer ID)
+ *     responses:
+ *       200:
+ *         description: สำเร็จ - ส่งคืนรายการวิธีการชำระเงิน
+ *       400:
+ *         description: กรุณาระบุ customer_id
+ *       404:
+ *         description: ไม่พบวิธีการชำระเงิน
+ *       500:
+ *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
+ */
+router.get("/payment-methods", getAllUserPaymentMethods);
 
 /**
  * @swagger

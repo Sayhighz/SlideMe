@@ -10,7 +10,7 @@ export const loginUser = (req, res) => {
       .json({ message: "กรุณาใส่เบอร์โทรศัพท์และรหัสผ่าน" });
   }
 
-  const sql = `SELECT driver_id, password, approval_status FROM drivers  WHERE phone_number = ?`;
+  const sql = `SELECT driver_id, password, approval_status FROM drivers WHERE phone_number = ?`;
 
   con.query(sql, [phone_number], (err, results) => {
     if (err) return res.status(500).json({ message: "Database error" });
@@ -24,20 +24,21 @@ export const loginUser = (req, res) => {
       return res.status(403).json({ message: "บัญชีนี้ไม่ได้รับการอนุมัติ" });
     }
 
+    // แก้ไขโดยลบ role ออกจาก token เนื่องจากไม่มี field นี้ในฐานข้อมูล
     const token = jwt.sign(
-      { driver_id: driver.driver_id, role: driver.role },
+      { driver_id: driver.driver_id },
       "jwt_secret_key",
       { expiresIn: "1h" }
     );
 
+    // แก้ไขโดยลบ role ออกจาก response
     res.json({
       status: "success",
       token,
-      driver_id: driver.driver_id,
-      role: driver.role,
+      driver_id: driver.driver_id
     });
   });
-}; //yes
+};
 
 export const registerDriver = (req, res) => {
   const { phone_number, first_name, last_name, password } = req.body;

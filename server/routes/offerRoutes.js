@@ -1,5 +1,5 @@
 import express from 'express';
-import { updateOfferStatus , chooseOffer } from '../controllers/offerController.js';
+import { updateOfferStatus, chooseOffer } from '../controllers/offerController.js';
 
 const router = express.Router();
 
@@ -38,7 +38,6 @@ const router = express.Router();
  *       500:
  *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
  */
-
 router.post('/update_offer_status', updateOfferStatus);
 
 /**
@@ -67,7 +66,6 @@ router.post('/update_offer_status', updateOfferStatus);
  *       500:
  *         description: ข้อผิดพลาดภายในเซิร์ฟเวอร์
  */
-
-router.get('/chooseoffer', chooseOffer)
+router.get('/chooseoffer', chooseOffer);
 
 export default router;

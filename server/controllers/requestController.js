@@ -38,7 +38,7 @@ export const addRequest = (req, res) => {
   });
 }; //yes
 
-export const getServiceHistory = (req, res) => {
+export const getServiceHistory = (req, res) => {// fix me
   const customerId = req.query.customer_id || 1;
   const sql = `
         SELECT
@@ -47,7 +47,6 @@ export const getServiceHistory = (req, res) => {
             sr.status AS service_status,
             sr.location_from AS origin,
             sr.location_to AS destination,
-            sr.price_offer AS service_charge
         FROM 
             ServiceRequests sr
         LEFT JOIN
@@ -120,17 +119,10 @@ export const getRequestDetailForDriver = (req, res) => {
 }; //yes
 
 export const updateServiceRequest = (req, res) => {
-  const { request_id, customer_id, offer_id, price, payment_method_id } =
-    req.body;
+  const { request_id, customer_id, offer_id, price, payment_method_id } = req.body;
 
   // Validate input
-  if (
-    !request_id ||
-    !customer_id ||
-    !offer_id ||
-    !price ||
-    !payment_method_id
-  ) {
+  if (!request_id || !customer_id || !offer_id || !price || !payment_method_id) {
     return res.status(400).json({ Status: false, Message: "ข้อมูลไม่ถูกต้อง" });
   }
 
@@ -141,19 +133,17 @@ export const updateServiceRequest = (req, res) => {
       return res.status(500).json({ Status: false, Error: err.message });
     }
 
-    // Step 1: Update the servicerequests table (Only status and offer_id)
+    // Step 1: Update the servicerequests table (เฉพาะ status และ offer_id)
     const sqlUpdateServiceRequest = `
-      UPDATE servicerequests sr
-      JOIN driveroffers doff ON sr.request_id = doff.request_id 
-      SET sr.status = 'accepted',
-          sr.offer_id = doff.offer_id
-      WHERE sr.request_id = ? AND sr.customer_id = ?;
-
+      UPDATE servicerequests
+      SET status = 'accepted',
+          offer_id = ?
+      WHERE request_id = ? AND customer_id = ?;
     `;
 
     con.query(
       sqlUpdateServiceRequest,
-      [ request_id, customer_id],
+      [offer_id, request_id, customer_id],
       (err, result) => {
         if (err) {
           return con.rollback(() => {

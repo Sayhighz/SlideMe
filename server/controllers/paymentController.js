@@ -148,6 +148,7 @@ export const getAllUserPaymentMethods = (req, res) => {
       .json({ Status: false, Error: "กรุณาระบุ customer_id" });
   }
 
+  // แก้ไข SQL query ให้ตรงกับโครงสร้างตาราง
   const sql = `
         SELECT
             p.payment_id,
