@@ -36,7 +36,7 @@ const swaggerSpec = swaggerJsDoc({
             มหาวิทยาลัยศรีปทุม เป็นผู้สร้าง Back End API 
             พร้อมจัดทำเอกสารฉบับบนี้ในโครงงาน <br> Slide Me (Customer) Version 1.0.0 ตามมาตรฐาน OpenAPI 3.0 ประกอบด้วย
             <ul>
-                <li>User — จำนวน 2 APIs</li>
+                <li>User — จำนวน 4 APIs</li>
                 <li>Driver — จำนวน 2 APIs</li>
             </ul>
              API เหล่านี้ถูกออกแบบมาเพื่อรองรับกระบวนการเข้าสู่ระบบของผู้ใช้งานและคนขับ โดยสามารถดูรายละเอียดของแต่ละ API ได้จากด้านล่าง`,
@@ -50,7 +50,7 @@ const swaggerSpec = swaggerJsDoc({
         tags: [
         {
             name: "Users",
-            description: "Users Operations (2 APIs)",
+            description: "Users Operations (4 APIs)",
         },
         {
             name: "Drivers",
