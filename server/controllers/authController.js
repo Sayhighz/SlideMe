@@ -66,8 +66,15 @@ export const registerDriver = (req, res) => {
 }; //yes
 
 export const validateCustomer = (req, res) => {
-  const customerId = req.body.customer_id;
-  const sql = `SELECT * FROM servicerequests WHERE customer_id = ?`;
+  const customerId = req.query.customer_id; 
+  const sql = `SELECT * FROM customers WHERE customer_id = ?`;
+
+  if (!customerId) {
+    return res.status(400).json({
+      Status: false,
+      Message: "กรุณาใส่ customer_id",
+    });
+  }
 
   con.query(sql, [customerId], (err, result) => {
     if (err) {

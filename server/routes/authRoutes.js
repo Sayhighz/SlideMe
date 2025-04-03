@@ -24,10 +24,10 @@ const router = express.Router();
  *             properties:
  *               phone_number:
  *                 type: string
- *                 example: "0812345678"
+ *                 example: "0999999999"
  *               password:
  *                 type: string
- *                 example: "password123"
+ *                 example: "1"
  *     responses:
  *       200:
  *         description: เข้าสู่ระบบสำเร็จ
@@ -80,31 +80,28 @@ router.post('/login', loginUser);
  *       500:
  *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
  */
-router.post('/register_driver', registerDriver);
+router.post('/register_driver/:customer_id', registerDriver);
 
 /**
- *
+ * @swagger
  * /auth/validate_customer:
  *   get:
  *     summary: ตรวจสอบความถูกต้องของลูกค้า
- *     description: | 
+ *     description: |
  *       - ตรวจสอบว่าลูกค้ามีคำขอบริการในระบบหรือไม่
  *     tags: [Authentication]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - customer_id
- *             properties:
- *               customer_id:
- *                 type: integer
- *                 example: 90
+ *     parameters:
+ *       - in: query
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 90
  *     responses:
  *       200:
  *         description: ตรวจสอบความถูกต้องสำเร็จ
+ *       400:
+ *         description: กรุณาใส่ ID ของลูกค้า
  *       404:
  *         description: ไม่พบบันทึก
  *       500:

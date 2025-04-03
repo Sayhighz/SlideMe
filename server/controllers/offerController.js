@@ -46,6 +46,13 @@ export const updateOfferStatus = (req, res) => {
             return res.status(500).json({ Status: false, Error: err.message });
           }
 
+          if (result.affectedRows === 0) {
+            return res.status(404).json({
+              Status: false,
+              Message: "ไม่พบข้อเสนอที่ต้องอัปเดต",
+            });
+          }
+
           return res.status(200).json({
             Status: true,
             Message: "อัปเดตสถานะข้อเสนอเรียบร้อย !",

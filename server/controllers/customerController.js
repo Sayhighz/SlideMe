@@ -127,26 +127,27 @@ export const getServiceInfo = (req, res) => {
           c.first_name,
           c.last_name,
           AVG(r.rating) AS average_rating,
-          sr.price_offer as price,
+          do.offered_price AS price,
           sr.location_from,
           sr.pickup_lat,
           sr.pickup_long,
           sr.location_to,
           sr.dropoff_lat,
           sr.dropoff_long
-      FROM
-          servicerequests sr
+      FROM servicerequests sr
       INNER JOIN customers c 
           ON sr.customer_id = c.customer_id
+      INNER JOIN driveroffers do 
+          ON sr.request_id = do.request_id
+          AND do.offer_status = 'accepted' -- กรองเฉพาะข้อเสนอที่ถูกเลือก
       LEFT JOIN reviews r 
-          ON sr.driver_id = r.driver_id
-      WHERE
-          sr.request_id = ?
+          ON do.driver_id = r.driver_id -- เชื่อมกับรีวิวผ่าน driver_id ใน driveroffers
+      WHERE sr.request_id = ?
       GROUP BY
           sr.request_id,
           c.first_name,
           c.last_name,
-          sr.price_offer,
+          do.offered_price,
           sr.pickup_lat,
           sr.pickup_long,
           sr.location_from,
@@ -164,11 +165,14 @@ export const getServiceInfo = (req, res) => {
 export const orderStatus = (req, res) => {
   const { customer_id } = req.params
   const sql = `
-    SELECT request_id, driver_id, status
-    FROM servicerequests
-    WHERE customer_id = ? AND status = 'accepted'
-    ORDER BY request_time DESC
-    LIMIT 1
+      SELECT sr.request_id, do.driver_id, sr.status
+      FROM servicerequests sr
+      INNER JOIN driveroffers do 
+          ON sr.request_id = do.request_id
+          AND do.offer_status = 'accepted' -- กรองเฉพาะข้อเสนอที่ถูกเลือก
+      WHERE sr.customer_id = ? 
+      ORDER BY sr.request_time DESC
+      LIMIT 1;
   `;
 
   con.query(sql, [customer_id], (err, result) => {
