@@ -124,43 +124,44 @@ export const disablePaymentMethod = (req, res) => {
   });
 };
 
-//??
-export const getAllUserPaymentMethods = (req, res) => {
-  const customer_id = req.query.customer_id || null;
+// //
+// export const getAllUserPaymentMethods = (req, res) => {
+//   const customer_id = req.query.customer_id || null;
 
-  if (!customer_id) {
-    return res
-      .status(400)
-      .json({ Status: false, Error: "กรุณาระบุ customer_id" });
-  }
+//   if (!customer_id) {
+//     return res
+//       .status(400)
+//       .json({ Status: false, Error: "กรุณาระบุ customer_id" });
+//   }
 
-  const sql = `
-        SELECT
-            p.payment_id,
-            pm.payment_method_id,
-            pm.method_name,
-            pm.card_number,
-            pm.card_expiry,
-            pm.cardholder_name,
-            p.payment_status
-        FROM payments p
-        JOIN paymentmethod pm ON p.payment_method_id = pm.payment_method_id
-        WHERE p.customer_id = ?;
-    `;
+//   const sql = `
+//         SELECT
+//             p.payment_id,
+//             pm.payment_method_id,
+//             pm.method_name,
+//             pm.card_number,
+//             pm.card_expiry,
+//             pm.cardholder_name,
+//             p.payment_status
+//         FROM payments p
+//         JOIN paymentmethod pm ON p.payment_method_id = pm.payment_method_id
+//         WHERE p.customer_id = ?;
+//     `;
 
-  con.query(sql, [customer_id], (err, result) => {
-    if (err) return res.status(500).json({ Status: false, Error: err.message });
+//   con.query(sql, [customer_id], (err, result) => {
+//     if (err) return res.status(500).json({ Status: false, Error: err.message });
 
-    if (result.length === 0) {
-      return res
-        .status(404)
-        .json({ Status: false, Error: "ไม่พบวิธีการชำระเงินของผู้ใช้คนนี้" });
-    }
+//     if (result.length === 0) {
+//       return res
+//         .status(404)
+//         .json({ Status: false, Error: "ไม่พบวิธีการชำระเงินของผู้ใช้คนนี้" });
+//     }
 
-    return res.status(200).json({ Status: true, Result: result });
-  });
-};
-//??
+//     return res.status(200).json({ Status: true, Result: result });
+//   });
+// };
+//
+
 export const getPaymentMethod = (req, res) => {
   const { customer_id } = req.query;
 

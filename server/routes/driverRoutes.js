@@ -60,6 +60,7 @@ router.post('/edit_profile', editProfile)
  *         description: ข้อผิดพลาดของฐานข้อมูล
  */
 router.get('/driverlocation/:driver_id', driverLocation)
+
 router.post('/update_location', UpdateLocation)
 
 /**

@@ -2,8 +2,7 @@ import express from "express";
 import { 
     addPaymentMethod, 
     updatePaymentMethod, 
-    disablePaymentMethod, 
-    getAllUserPaymentMethods, 
+    disablePaymentMethod,  
     getPaymentMethod,
     deleteMethod
 } from "../controllers/paymentController.js";
