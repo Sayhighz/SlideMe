@@ -1,24 +1,10 @@
 import con from "../config/db.js";
 
 export const addPaymentMethod = (req, res) => {
-  const {
-    method_name,
-    card_number,
-    card_expiry,
-    card_cvv,
-    cardholder_name,
-    customer_id,
-  } = req.body;
+  const { method_name, card_number, card_expiry, card_cvv, cardholder_name, customer_id} = req.body;
 
   // ตรวจสอบค่าที่จำเป็น
-  if (
-    !method_name ||
-    !card_number ||
-    !card_expiry ||
-    !card_cvv ||
-    !cardholder_name ||
-    !customer_id
-  ) {
+  if (!method_name ||!card_number ||!card_expiry ||!card_cvv ||!cardholder_name ||!customer_id) {
     return res
       .status(400)
       .json({ Status: false, Error: "กรุณากรอกข้อมูลให้ครบถ้วน" });
