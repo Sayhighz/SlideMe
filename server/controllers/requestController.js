@@ -1,6 +1,30 @@
 import con from "../config/db.js";
 
 export const addRequest = (req, res) => {
+  // ตรวจสอบว่ามีข้อมูลที่จำเป็นหรือไม่
+  const {
+    customer_id,
+    request_time,
+    pickup_lat,
+    pickup_long,
+    location_from,
+    dropoff_lat,
+    dropoff_long,
+    location_to,
+    vehicletype_id,
+    booking_time,
+    customer_message
+  } = req.body;
+
+  // ตรวจสอบข้อมูลที่จำเป็นว่าครบหรือไม่
+  if (!customer_id || !request_time || !pickup_lat || !pickup_long || !location_from || 
+      !dropoff_lat || !dropoff_long || !location_to || !vehicletype_id || !booking_time || !customer_message) {
+    return res.status(400).json({
+      Status: false,
+      Message: "ข้อมูลไม่ครบถ้วนหรือไม่ถูกต้อง กรุณาระบุ customer_id, request_time, pickup_lat, pickup_long, location_from, dropoff_lat, dropoff_long, location_to, vehicletype_id, booking_time, และ customer_message"
+    });
+  }
+
   const sql = `
         INSERT INTO servicerequests (
             customer_id,
@@ -19,26 +43,37 @@ export const addRequest = (req, res) => {
     `;
 
   const values = [
-    req.body.customer_id,
-    req.body.request_time,
-    req.body.pickup_lat,
-    req.body.pickup_long,
-    req.body.location_from,
-    req.body.dropoff_lat,
-    req.body.dropoff_long,
-    req.body.location_to,
-    req.body.vehicletype_id,
-    req.body.booking_time,
-    req.body.customer_message,
+    customer_id,
+    request_time,
+    pickup_lat,
+    pickup_long,
+    location_from,
+    dropoff_lat,
+    dropoff_long,
+    location_to,
+    vehicletype_id,
+    booking_time,
+    customer_message,
   ];
 
   con.query(sql, values, (err, result) => {
-    if (err) return res.json({ Status: false, Error: err.message });
-    return res.json({ Status: true, request_id: result.insertId });
+    if (err) {
+      return res.status(500).json({
+        Status: false,
+        Error: 'เกิดข้อผิดพลาดในการเพิ่มคำขอ: ' + err.message
+      });
+    }
+    return res.status(201).json({
+      Status: true,
+      request_id: result.insertId,
+      Message: 'คำขอถูกเพิ่มเรียบร้อยแล้ว'
+    });
   });
-}; //yes
+};
 
-export const getServiceHistory = (req, res) => {
+ //yes
+
+ export const getServiceHistory = (req, res) => {
   const customerId = req.query.customer_id || 1;
   const sql = `
         SELECT
@@ -47,7 +82,7 @@ export const getServiceHistory = (req, res) => {
             sr.status AS service_status,
             sr.location_from AS origin,
             sr.location_to AS destination,
-            sr.price_offer AS service_charge
+            sr.offer_id AS service_charge
         FROM 
             ServiceRequests sr
         LEFT JOIN
@@ -61,8 +96,22 @@ export const getServiceHistory = (req, res) => {
     `;
 
   con.query(sql, [customerId], (err, result) => {
-    if (err) return res.json({ Status: false, Error: err.message });
-    return res.json({ Status: true, Result: result });
+    if (err) {
+      return res.status(500).json({
+        Status: false,
+        Error: 'เกิดข้อผิดพลาดในการดึงข้อมูล: ' + err.message
+      });
+    }
+    if (result.length === 0) {
+      return res.status(404).json({
+        Status: false,
+        Error: 'ไม่พบประวัติการบริการสำหรับ customer_id นี้'
+      });
+    }
+    return res.status(200).json({
+      Status: true,
+      Result: result
+    });
   });
 }; //yes
 
@@ -85,8 +134,22 @@ export const getRequests = (req, res) => {
     `;
 
   con.query(sql, (err, result) => {
-    if (err) return res.json({ Status: false, Error: err.message });
-    return res.json({ Status: true, Result: result });
+    if (err) {
+      return res.status(500).json({
+        Status: false,
+        Error: 'เกิดข้อผิดพลาดในการดึงข้อมูล: ' + err.message
+      });
+    }
+    if (result.length === 0) {
+      return res.status(404).json({
+        Status: false,
+        Error: 'ไม่พบคำขอที่มีสถานะ "pending" ในระบบ'
+      });
+    }
+    return res.status(200).json({
+      Status: true,
+      Result: result
+    });
   });
 }; //yes
 
