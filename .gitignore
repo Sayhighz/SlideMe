@@ -29,3 +29,5 @@ logs
 logs/**/*.log
 
 server/database/
+
+customer-old

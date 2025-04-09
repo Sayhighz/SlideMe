@@ -15,7 +15,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Home from "./pages/homePage/Home";
 import MapDetail from "./pages/Mapdetail/Mapdetail";
 import Order from "./pages/detailOrder/Order";
-import Loginpage from "./pages/LoginPage/Loginpage";
+
 import HistoryPage from "./pages/historyPage/History";
 import PaymentMethodsListScreen from "./pages/PaymentMethod/PaymentMethodsListScreen";
 import AddPaymentMethod from "./pages/PaymentMethod/AddPaymentMethod";
@@ -34,9 +34,35 @@ import ChooseOffer from "./pages/chooseOffer/ChooseOffer";
 import Addmap from "./pages/addressPage/bookmap/Bookmap";
 import Bookmarklist from "./pages/addressPage/Bookmarklist";
 import ChatScreen from "./pages/chat/ChatScreen";
+import LoginPage from "./pages/LoginPage/Loginpage";
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+
+
+function PaymentMethodsStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: "#3DE183" },
+        headerTintColor: "black",
+        headerTitleStyle: { fontFamily: "Mitr-Regular", fontSize: 18 },
+      }}
+    >
+      <Stack.Screen
+        name="PaymentMethodsList"
+        component={PaymentMethodsListScreen}
+        options={{ title: "วิธีการชำระเงิน" , headerShown: false}}
+      />
+      <Stack.Screen
+        name="AddPaymentMethod"
+        component={AddPaymentMethod}
+        options={{ title: "เพิ่มวิธีการชำระเงิน" , headerShown: false}}
+      />
+    </Stack.Navigator>
+  );
+}
 
 
 
@@ -79,28 +105,24 @@ function HomeStack() {
   );
 }
 
-function PaymentMethodsStack() {
+
+
+function AuthStack({ onLogin }) {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: "#3DE183" },
-        headerTintColor: "black",
-        headerTitleStyle: { fontFamily: "Mitr-Regular", fontSize: 18 },
-      }}
-    >
-      <Stack.Screen
-        name="PaymentMethodsList"
-        component={PaymentMethodsListScreen}
-        options={{ title: "วิธีการชำระเงิน" , headerShown: false}}
-      />
-      <Stack.Screen
-        name="AddPaymentMethod"
-        component={AddPaymentMethod}
-        options={{ title: "เพิ่มวิธีการชำระเงิน" , headerShown: false}}
-      />
+    <Stack.Navigator>
+      <Stack.Screen name="Login" options={{ headerShown: false }}>
+        {() => <LoginPage onLogin={onLogin} />}
+      </Stack.Screen>
+      <Stack.Screen name="PhoneVerify" options={{ headerShown: false }}>
+        {() => <PhoneVerify onLogin={onLogin} />}
+      </Stack.Screen>
+      <Stack.Screen name="InfoCustomer" options={{ headerShown: false }}>
+        {() => <InfoCustomer onLogin={onLogin} />}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 }
+
 
 const UserProfileTab = ({ onLogout }) => {
   return <UserProfileStack onLogout={onLogout} />;
@@ -154,21 +176,6 @@ function UserProfileStack({ onLogout }) {
   );
 }
 
-function AuthStack({ onLogin }) {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen name="Login" options={{ headerShown: false }}>
-        {() => <Loginpage onLogin={onLogin} />}
-      </Stack.Screen>
-      <Stack.Screen name="PhoneVerify" options={{ headerShown: false }}>
-        {() => <PhoneVerify onLogin={onLogin} />}
-      </Stack.Screen>
-      <Stack.Screen name="InfoCustomer" options={{ headerShown: false }}>
-        {() => <InfoCustomer onLogin={onLogin} />}
-      </Stack.Screen>
-    </Stack.Navigator>
-  );
-}
 
 const AppContent = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -280,7 +287,9 @@ const AppContent = () => {
   );  
 };  
 
-const App = () => {
+
+
+const app = () => {
   return (
     <UserProvider>
       <AppContent />
@@ -288,4 +297,4 @@ const App = () => {
   );
 };
 
-export default gestureHandlerRootHOC(App);
+export default gestureHandlerRootHOC(app);

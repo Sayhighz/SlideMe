@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   Text,
   View,
@@ -183,6 +183,10 @@ function Home({ navigation }) {
       image: `http://${IP_ADDRESS}:4000/upload/fetch_image?filename=ads3.png`,
     },
   ];
+
+  useEffect(() => {
+    console.log("userData:", userData);
+  },[userData])
 
   return (
     <SafeAreaView style={tw`flex-1`} edges={["top", "left", "right"]}>
