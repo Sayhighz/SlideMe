@@ -24,7 +24,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import HeaderWithBackButton from "../../components/HeaderWithBackButton";
 
 const ChooseOffer = ({ navigation, route }) => {
-  const fee = 200;
+  const fee = '';
 
   const [offer, setOffer] = useState([]);
 
@@ -217,48 +217,70 @@ const ChooseOffer = ({ navigation, route }) => {
     if (fetchDataLoading) return;
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:4000/driver/chooseoffer?request_id=${request_id}`
+        `http://${IP_ADDRESS}:4000/offer/chooseoffer?request_id=${request_id}`
       );
-      const data = await response.json();
-      if (data.Status) {
-        if (data.PickupDropoffInfo) {
-          setOriginLocation({
-            name: data.PickupDropoffInfo.location_from,
-            latitude: parseFloat(data.PickupDropoffInfo.pickup_lat),
-            longitude: parseFloat(data.PickupDropoffInfo.pickup_long),
-          });
-          setDestinationLocation({
-            name: data.PickupDropoffInfo.location_to,
-            latitude: parseFloat(data.PickupDropoffInfo.dropoff_lat),
-            longitude: parseFloat(data.PickupDropoffInfo.dropoff_long),
-          });
+      
+      // Check if response is OK before trying to parse JSON
+      // console.log(response)
+      if (!response.ok) {
+        console.error(`Server responded with status: ${response.status}`);
+        return;
+      }
+      
+      // Get the content type
+      const contentType = response.headers.get("content-type");
+      
+      // Only try to parse as JSON if the content type is application/json
+      if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
+        if (data.Status) {
+          if (data.PickupDropoffInfo) {
+            setOriginLocation({
+              name: data.PickupDropoffInfo.location_from,
+              latitude: parseFloat(data.PickupDropoffInfo.pickup_lat),
+              longitude: parseFloat(data.PickupDropoffInfo.pickup_long),
+            });
+            setDestinationLocation({
+              name: data.PickupDropoffInfo.location_to,
+              latitude: parseFloat(data.PickupDropoffInfo.dropoff_lat),
+              longitude: parseFloat(data.PickupDropoffInfo.dropoff_long),
+            });
+          }
+  
+          if (data.Result === "") {
+            setOfferLoading(true);
+          }
+  
+          if (data.Result && data.Result.length > 0) {
+            // Handle driver data if available
+            const drivers = data.Result.map((driver) => ({
+              id: driver.driver_id,
+              name: `${driver.first_name} ${driver.last_name}`,
+              rating: driver.average_rating || 0,
+              location: {
+                latitude: driver.current_latitude,
+                longitude: driver.current_longitude,
+              },
+              price: driver.offered_price,
+              customer_id_request: driver.customer_id,
+              request_id: driver.request_id,
+            }));
+            console.log(drivers);
+            setOffer(drivers);
+            setOfferLoading(false);
+            setFetchDataLoading(true);
+          }
         }
-
-        if (data.Result == "") {
-          setOfferLoading(true);
-        }
-
-        if (data.Result && data.Result.length > 0) {
-          // Handle driver data if available
-          const drivers = data.Result.map((driver) => ({
-            id: driver.driver_id,
-            name: `${driver.first_name} ${driver.last_name}`,
-            rating: driver.average_rating.toFixed(1),
-            location: {
-              latitude: driver.current_latitude,
-              longitude: driver.current_longitude,
-            },
-            price: driver.offered_price,
-            customer_id_request: driver.customer_id,
-            request_id: driver.request_id,
-          }));
-          setOffer(drivers);
-          setOfferLoading(false);
-          setFetchDataLoading(true);
-        }
+      } else {
+        // Handle non-JSON response
+        console.error("Server returned non-JSON response:", await response.text().slice(0, 100));
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      // Add more detailed logging for debugging
+      if (error instanceof SyntaxError) {
+        console.error("JSON parsing error. This usually means the server sent HTML instead of JSON.");
+      }
     }
   };
 

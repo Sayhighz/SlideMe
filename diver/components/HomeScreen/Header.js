@@ -28,7 +28,7 @@ export default function Header({ userData, driverScore }) {
             style={tw`mr-1`}
           />
           <Text style={[styles.globalText, tw`text-lg text-gray-700`]}>
-            {driverScore ? driverScore.toFixed(1) : "0.0"}
+            {"0.0"}
           </Text>
         </View>
       </View>
