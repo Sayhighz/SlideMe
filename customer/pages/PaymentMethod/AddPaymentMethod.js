@@ -56,7 +56,6 @@ const AddMethod = ({ route }) => {
       card_expiry: cardExpiry,
       card_cvv: cardCvv,
       cardholder_name: cardholderName,
-      is_default: 0, // ค่าเริ่มต้นไม่ใช่บัตรหลัก
     };
 
     try {

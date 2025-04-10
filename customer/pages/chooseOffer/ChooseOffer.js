@@ -73,7 +73,7 @@ const ChooseOffer = ({ navigation, route }) => {
 
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:4000/cancel_request`,
+        `http://${IP_ADDRESS}:4000/request/cancel_request`,
         {
           method: "POST",
           headers: {
