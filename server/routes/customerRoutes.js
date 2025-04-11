@@ -244,4 +244,6 @@ router.get('/order_status/:customer_id', orderStatus);
  */
 router.get('/checkStatusOrder/:request_id', checkStatusOrder);
 
+router.get('/vehicletype', getVehicleType);
+
 export default router;

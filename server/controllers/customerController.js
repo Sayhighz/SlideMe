@@ -213,3 +213,34 @@ export const checkStatusOrder = (req, res) => {
     }
   });
 };
+
+
+export const getVehicleType = (req, res) => {
+  const query = `SELECT * FROM vehicle_types`;
+
+  // Execute the query
+  con.query(query, (err, result) => {
+    if (err) {
+      // If there's an error, log it on the server and send an error response
+      console.error("Database query error:", err);  // Log to server console for debugging
+      return res.status(500).json({
+        Status: false,
+        Error: "An error occurred while fetching vehicle types.",
+        Details: err.message,  // Send detailed error message to help debug
+      });
+    }
+
+    // If there are no errors and data is retrieved
+    if (result.length === 0) {
+      return res.status(404).json({
+        Status: false,
+        Error: "No vehicle types found in the database.",
+      });
+    }
+
+    return res.status(200).json({
+      Status: true,
+      Result: result,
+    });
+  });
+};
