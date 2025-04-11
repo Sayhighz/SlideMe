@@ -59,6 +59,51 @@ const router = express.Router();
 // router.post('/login', loginCustomer);
 
 // routes/customer.js
+
+/**
+ * @swagger
+ * /api/v1/customer/auth/check-phone:
+ *   post:
+ *     summary: ตรวจสอบเบอร์โทรศัพท์
+ *     description: | 
+ *       - ตรวจสอบเบอร์โทรศัพท์
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - phone_number
+ *             properties:
+ *               phone_number:
+ *                 type: string
+ *                 example: "0812345678"
+ *     responses:
+ *       200:
+ *         description: เบอร์โทรถูกต้อง
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     phone_number:
+ *                       type: string
+ *                       example: "0812345678"
+ *       400:
+ *         description: กรุณาใส่เบอร์โทรศัพท์
+ *       409:
+ *         description: เบอร์โทรศัพท์ถูกใช้แล้ว
+ *       500:
+ *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
+ */
 router.post("/check-phone", checkPhoneNumber);
 
 
