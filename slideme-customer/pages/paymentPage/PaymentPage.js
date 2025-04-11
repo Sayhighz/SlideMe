@@ -113,8 +113,9 @@ export default function PaymentPage({ navigation }) {
         {
           request_id: route.params.chooseDriver.request_id,
           customer_id: userData.customer_id,
-          driver_id: route.params.chooseDriver.id,
+          offer_id: "???",
           price: totalPrice,
+          payment_method_id: "???"
         }
       );
       navigation.navigate("viewOrder", { driverProfile: route.params });

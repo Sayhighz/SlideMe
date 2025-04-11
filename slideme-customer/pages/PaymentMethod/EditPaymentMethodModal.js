@@ -13,6 +13,7 @@ import {
 import Icon from "react-native-vector-icons/FontAwesome5";
 import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
+import card from "@material-tailwind/react/theme/components/card";
 
 const EditPaymentMethodModal = ({
   visible,
@@ -54,18 +55,19 @@ const EditPaymentMethodModal = ({
 
     setIsSaving(true);
     const payload = {
-      payment_type: paymentType,
-      card_number: accountNumber,
-      account_name: accountName,
-      expiration_date: expirationDate,
       payment_method_id: Number(paymentMethodId),
+      method_name: paymentType,
+      card_number: accountNumber,
+      card_expiry: expirationDate,
+      card_cvv: "???", 
+      cardholder_name: accountName,
     };
 
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/update_payment_method`,
+        `http://${IP_ADDRESS}:4000/payment/payment-method/update`,
         {
-          method: "POST",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
@@ -98,9 +100,9 @@ const EditPaymentMethodModal = ({
           onPress: async () => {
             try {
               const response = await fetch(
-                `http://${IP_ADDRESS}:3000/auth/disable_payment_method`,
+                `http://${IP_ADDRESS}:4000/payment/payment-method/disable`,
                 {
-                  method: "POST",
+                  method: "PUT",
                   headers: {
                     "Content-Type": "application/json",
                   },

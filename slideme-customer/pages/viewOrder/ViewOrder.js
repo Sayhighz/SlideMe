@@ -86,7 +86,7 @@ export default function ViewOrder({ navigation }) {
   const fetchOrderDetails = async () => {
     try {
       const response = await axios.get(
-        `http://${IP_ADDRESS}:3000/auth/fetch_driver_info/${customer_id_request}/${driver_id}/${request_id}`
+        `http://${IP_ADDRESS}:4000/driver/fetch_driver_info/${customer_id_request}/${driver_id}/${request_id}`
       );
 
       if (response.data.Status && response.data.Result.length > 0) {
@@ -126,7 +126,7 @@ export default function ViewOrder({ navigation }) {
   const checkOrderStatus = async () => {
     try {
       const response = await axios.get(
-        `http://${IP_ADDRESS}:3000/auth/checkStatusOrder/${request_id}`
+        `http://${IP_ADDRESS}:4000/customer/checkStatusOrder/${request_id}`
       );
 
       if (response.data && response.data.status) {
@@ -181,7 +181,7 @@ export default function ViewOrder({ navigation }) {
   const getDriverLocation = async () => {
     try {
       const response = await axios.get(
-        `http://${IP_ADDRESS}:4000/drivers/driverlocation/${driver_id}`
+        `http://${IP_ADDRESS}:4000/driver/driverlocation/${driver_id}`
       );
       if (status === "accepted") {
         if (response.data.success) {
