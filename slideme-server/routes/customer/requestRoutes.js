@@ -7,7 +7,8 @@ import {
   cancelRequest,
   getDriverOffers,
   acceptOffer,
-  completeRequest
+  completeRequest,
+  getVehicles
 } from "../../controllers/customer/requestController.js";
 import { validateAuthToken } from '../../middleware/authMiddleware.js';
 
@@ -348,5 +349,8 @@ router.post("/accept-offer", validateAuthToken, acceptOffer);
  *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
  */
 router.post("/complete", validateAuthToken, completeRequest);
+
+
+router.get("/vehicle_type",  getVehicles);
 
 export default router;

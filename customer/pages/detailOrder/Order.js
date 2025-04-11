@@ -88,7 +88,7 @@ export default function Order({ navigation, bookmark }) {
   const fetchVehicleTypes = async () => {
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:4000/customer/vehicletype`
+        `http://${IP_ADDRESS}:4000/api/v1/request/vehicle_type`
       )
   
       const data = await response.json();
