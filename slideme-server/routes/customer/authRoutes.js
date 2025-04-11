@@ -1,8 +1,8 @@
 import express from 'express';
 import { 
-  loginCustomer, 
   registerCustomer, 
-  validateCustomer 
+  validateCustomer ,
+  checkPhoneNumber
 } from '../../controllers/customer/authController.js';
 
 const router = express.Router();
@@ -56,7 +56,11 @@ const router = express.Router();
  *       500:
  *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
  */
-router.post('/login', loginCustomer);
+// router.post('/login', loginCustomer);
+
+// routes/customer.js
+router.post("/check-phone", checkPhoneNumber);
+
 
 /**
  * @swagger

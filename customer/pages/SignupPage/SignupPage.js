@@ -27,7 +27,7 @@ const SignupPage = ({ onLogin }) => {
       const formattedPhoneNumber = `0${phoneNumber}`;
       try {
         const response = await fetch(
-          `http://${IP_ADDRESS}:4000/user/check_user_phone`,
+          `http://${IP_ADDRESS}:4000/api/v1/customer/auth/check-phone`,
           {
             method: "POST",
             headers: {
@@ -42,50 +42,34 @@ const SignupPage = ({ onLogin }) => {
         }
   
         const result = await response.json();
-        console.log("Full API Response:", result);
-  
-        if (result.Exists) {
-          const {
-            customer_id,
-            phone_number,
-            email,
-            username,
-            first_name,
-            last_name,
-            role,
-          } = result.User;  // Ensure you're using result.User, not result[0]
-          console.log("User Details:", {
-            customer_id,
-            phone_number,
-            email,
-            username,
-            first_name,
-            last_name,
-            role,
-          });
-        }
   
         const otp = generateOtp();
         Alert.alert("Your OTP Code", `OTP: ${otp}`);
   
-        // Corrected the data being passed to the "PhoneVerify" screen
-        navigation.navigate("PhoneVerify", {
-          phoneNumber: formattedPhoneNumber,
-          otp,
-          isExistingUser: result.Exists,
-          userDetails: result.User || null, // Ensure you are passing result.User, not result.User || null
-        });
+        if (result.Exists) {
+          navigation.navigate("PhoneVerify", {
+            phoneNumber: formattedPhoneNumber,
+            otp,
+            isExistingUser: true,
+            userDetails: result.User,
+          });
+        } else {
+          navigation.navigate("PhoneVerify", {
+            phoneNumber: formattedPhoneNumber,
+            otp,
+            isExistingUser: false,
+            userDetails: null,
+          });
+        }
       } catch (error) {
         console.error("Error occurred:", error.message);
         Alert.alert("Error", "Failed to check phone number. Please try again.");
       }
     } else {
-      Alert.alert(
-        "Invalid Input",
-        "Please enter a valid 9-digit phone number."
-      );
+      Alert.alert("Invalid Input", "Please enter a valid 9-digit phone number.");
     }
   };
+  
   
 
   const generateOtp = () => Math.floor(1000 + Math.random() * 9000);
