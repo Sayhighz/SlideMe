@@ -17,7 +17,6 @@ export const checkPhoneNumber = async (req, res) => {
   try {
     const { phone_number } = req.body;
 
-    // Validate phone number
     if (!phone_number) {
       return res.status(STATUS_CODES.BAD_REQUEST).json(
         formatErrorResponse(ERROR_MESSAGES.VALIDATION.REQUIRED_FIELD)
@@ -30,7 +29,6 @@ export const checkPhoneNumber = async (req, res) => {
       );
     }
 
-    // Query customer
     const [customer] = await db.query(
       `SELECT customer_id, phone_number, first_name, last_name, email 
        FROM customers 
@@ -39,14 +37,24 @@ export const checkPhoneNumber = async (req, res) => {
     );
 
     if (customer) {
+      const token = jwt.sign(
+        {
+          customer_id: customer.customer_id,
+          role: "customer"
+        },
+        process.env.JWT_SECRET || "jwt_secret_key",
+        { expiresIn: "24h" }
+      );
+
       return res.status(STATUS_CODES.OK).json({
         Exists: true,
         User: customer,
+        token
       });
     }
 
     return res.status(STATUS_CODES.OK).json({
-      Exists: false,
+      Exists: false
     });
 
   } catch (error) {

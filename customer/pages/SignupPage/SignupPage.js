@@ -42,6 +42,7 @@ const SignupPage = ({ onLogin }) => {
         }
   
         const result = await response.json();
+        console.log("Check Phone Result:", result); // ✅ DEBUG LOG
   
         const otp = generateOtp();
         Alert.alert("Your OTP Code", `OTP: ${otp}`);
@@ -52,6 +53,7 @@ const SignupPage = ({ onLogin }) => {
             otp,
             isExistingUser: true,
             userDetails: result.User,
+            token: result.token || null, // 👈 include token if exists
           });
         } else {
           navigation.navigate("PhoneVerify", {
