@@ -1,5 +1,5 @@
 import express from 'express';
-import { addBookmark, checkStatusOrder, disableBookmark, editAddress, getServiceInfo, getuserBookmarks, orderStatus } from '../controllers/customerController.js';
+import { addBookmark, checkStatusOrder, disableBookmark, editAddress, getServiceInfo, getuserBookmarks, orderStatus , getVehicleTypes } from '../controllers/customerController.js';
 
 const router = express.Router();
 
@@ -243,5 +243,7 @@ router.get('/order_status/:customer_id', orderStatus);
  *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
  */
 router.get('/checkStatusOrder/:request_id', checkStatusOrder);
+
+router.get('/vehicletype', getVehicleTypes);
 
 export default router;

@@ -33,7 +33,7 @@ const InfoCustomer = ({ onLogin }) => {
         }
     
         try {
-            const response = await fetch(`http://${IP_ADDRESS}:4000/user/add_user_info`, {
+            const response = await fetch(`http://${IP_ADDRESS}:4000/api/v1/customer/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -50,11 +50,11 @@ const InfoCustomer = ({ onLogin }) => {
             const result = await response.json();
             console.log("Response:", result);
     
-            if (result.Status && result.user_id) {
+            if (result.Status && result.customer_id) {
                 Alert.alert("สำเร็ข", "สมัครมาชิคสำเร็จ ยินดีต้อนรับ!");
     
                 const userData = {
-                    user_id: result.user_id,
+                    customer_id: result.customer_id,
                     phone_number: phoneNumber,
                     email: email,
                     username: username,
@@ -81,7 +81,7 @@ const InfoCustomer = ({ onLogin }) => {
         }
     
         try {
-            const response = await fetch(`http://${IP_ADDRESS}:4000/user/add_user_info`, {
+            const response = await fetch(`http://${IP_ADDRESS}:4000/api/v1/customer/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -94,11 +94,11 @@ const InfoCustomer = ({ onLogin }) => {
             const result = await response.json();
             console.log("Response on Skip:", result);
     
-            if (result.Status && result.user_id) {
+            if (result.Status && result.customer_id) {
                 Alert.alert("สำเร็จ", "สมัครมาชิคสำเร็จ ยินดีต้อนรับ!");
     
                 const userData = {
-                    user_id: result.user_id,
+                    customer_id: result.customer_id,
                     phone_number: phoneNumber,
                 };
                 setUserData(userData);

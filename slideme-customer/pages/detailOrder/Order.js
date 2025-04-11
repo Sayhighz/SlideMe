@@ -436,6 +436,11 @@ export default function Order({ navigation, bookmark }) {
     setMenuVisible(false); // Close the menu after selecting a category
   };
 
+  const consoleLogData = () => {
+    console.log("vehicleType:", vehicleTypes);
+    console.log("Category:", category);
+  }
+
   const formatDateToMySQL = (date) => {
     const d = new Date(date);
     const year = d.getFullYear();

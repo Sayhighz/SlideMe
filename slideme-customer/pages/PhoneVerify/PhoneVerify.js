@@ -10,7 +10,7 @@ function PhoneVerify({ onLogin }) {
     const { setUserData } = useContext(UserContext);
     const route = useRoute();
     const navigation = useNavigation();
-    const { phoneNumber, otp: initialOtp, isExistingUser, userDetails } = route.params;
+    const { phoneNumber, otp: initialOtp, isExistingUser, userDetails, token } = route.params;
     const [otp, setOtp] = useState(['', '', '', '']);
     const [generatedOtp, setGeneratedOtp] = useState(initialOtp); // Store current OTP
     const [cooldown, setCooldown] = useState(0); // Cooldown state
@@ -51,6 +51,7 @@ function PhoneVerify({ onLogin }) {
                         first_name,
                         last_name,
                         role,
+                        token
                     });
 
                     // Save user details to UserContext
@@ -62,6 +63,7 @@ function PhoneVerify({ onLogin }) {
                         first_name,
                         last_name,
                         role,
+                        token
                     });
                 }
 
