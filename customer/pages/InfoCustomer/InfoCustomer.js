@@ -19,60 +19,69 @@ const InfoCustomer = ({ onLogin }) => {
     const [username, setUserName] = useState('');
     const [modalVisible, setModalVisible] = useState(true); // Modal is immediately visible
     const [isTermsAccepted, setIsTermsAccepted] = useState(false);
+    const [termsModalVisible, setTermsModalVisible] = useState(false); // modal เงื่อนไข
 
     const handleConfirm = async () => {
-        if (!name || !email || !lastname ) {
-            Alert.alert("ข้อมูลไม่ครบ", "กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน");
-        } else {
-            try {
-                const response = await fetch(`http://${IP_ADDRESS}:3000/auth/add_user_info`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        phone_number: phoneNumber,
-                        email: email,
-                        username: username,
-                        first_name: name,
-                        last_name: lastname
-                    })
-                });
-
-                const result = await response.json();
-                console.log("Response:", result); // Log backend response
-
-                if (result.Status && result.user_id) {
-                    Alert.alert("สำเร็ข", "สมัครมาชิคสำเร็จ ยินดีต้อนรับ!");
-
-                    // Save user details including user_id to UserContext
-                    const userData = {
-                        user_id: result.user_id, // Add user_id
-                        phone_number: phoneNumber,
-                        email: email,
-                        username: username,
-                        first_name: name,
-                        last_name: lastname,
-                    };
-                    console.log("User Data to Context:", userData); // Log user data
-                    setUserData(userData);
-
-                    onLogin(); // Navigate to Home
-                } else {
-                    Alert.alert("Error", result.Error || "User ID missing in response");
-                }
-            } catch (error) {
-                console.error("Fetch Error:", error); // Log fetch error
-                Alert.alert("Error", "Failed to add user data");
-            }
-
-            setModalVisible(false);
+        if (!isTermsAccepted) {
+            Alert.alert("ต้องยอมรับเงื่อนไข", "กรุณายอมรับเงื่อนไขก่อนดำเนินการต่อ");
+            return;
         }
-    };
-
-    const handleSkip = async () => {
+    
+        if (!name || !email || !lastname) {
+            Alert.alert("ข้อมูลไม่ครบ", "กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน");
+            return;
+        }
+    
         try {
-            const response = await fetch(`http://${IP_ADDRESS}:3000/auth/add_user_info`, {
+            const response = await fetch(`http://${IP_ADDRESS}:4000/user/add_user_info`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    phone_number: phoneNumber,
+                    email: email,
+                    username: username,
+                    first_name: name,
+                    last_name: lastname
+                })
+            });
+    
+            const result = await response.json();
+            console.log("Response:", result);
+    
+            if (result.Status && result.user_id) {
+                Alert.alert("สำเร็ข", "สมัครมาชิคสำเร็จ ยินดีต้อนรับ!");
+    
+                const userData = {
+                    user_id: result.user_id,
+                    phone_number: phoneNumber,
+                    email: email,
+                    username: username,
+                    first_name: name,
+                    last_name: lastname,
+                };
+                setUserData(userData);
+                onLogin();
+            } else {
+                Alert.alert("Error", result.Error || "User ID missing in response");
+            }
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            Alert.alert("Error", "Failed to add user data");
+        }
+    
+        setModalVisible(false);
+    };
+    
+    const handleSkip = async () => {
+        if (!isTermsAccepted) {
+            Alert.alert("ต้องยอมรับเงื่อนไข", "กรุณายอมรับเงื่อนไขก่อนดำเนินการต่อ");
+            return;
+        }
+    
+        try {
+            const response = await fetch(`http://${IP_ADDRESS}:4000/user/add_user_info`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -81,33 +90,29 @@ const InfoCustomer = ({ onLogin }) => {
                     phone_number: phoneNumber,
                 })
             });
-
+    
             const result = await response.json();
-            console.log("Response on Skip:", result); // Log backend response for skip
-
+            console.log("Response on Skip:", result);
+    
             if (result.Status && result.user_id) {
                 Alert.alert("สำเร็จ", "สมัครมาชิคสำเร็จ ยินดีต้อนรับ!");
-
-                // Save minimal user details including user_id to UserContext
+    
                 const userData = {
-                    user_id: result.user_id, // Add user_id
+                    user_id: result.user_id,
                     phone_number: phoneNumber,
                 };
-                console.log("Minimal User Data to Context:", userData); // Log user data
                 setUserData(userData);
-
-                onLogin(); // Navigate to Home
+                onLogin();
             } else {
                 Alert.alert("Error", result.Error || "User ID missing in response");
             }
         } catch (error) {
-            console.error("Fetch Error on Skip:", error); // Log fetch error
+            console.error("Fetch Error on Skip:", error);
             Alert.alert("Error", "ล้มเหลวในการเพิ่ม User Data");
         }
-
+    
         setModalVisible(false);
     };
-
 
     return (
         <SafeAreaView style={tw`flex-1 bg-white`} edges={['top']}>
@@ -163,16 +168,41 @@ const InfoCustomer = ({ onLogin }) => {
                                 editable={false}
                                 keyboardType="phone-pad"
                             />
-                             <TouchableOpacity
-                                    style={tw`flex-row items-center mt-4`}
-                                    onPress={() => setIsTermsAccepted(!isTermsAccepted)}
-                                >
-                                    <View
-                                        style={tw`w-6 h-6 border-2 border-gray-300 rounded mr-2 ${isTermsAccepted ? 'bg-green-500' : 'bg-white'
-                                            }`}
-                                    />
-                                    <Text style={[styles.globalText]}>ยอมรับเงื่อนไข SLIDEME</Text>
-                                </TouchableOpacity>
+                            <TouchableOpacity
+    style={tw`flex-row items-center mt-4`}
+    onPress={() => setIsTermsAccepted(!isTermsAccepted)}
+>
+    <View
+        style={tw`w-6 h-6 border-2 border-gray-300 rounded mr-2 ${isTermsAccepted ? 'bg-green-500' : 'bg-white'}`}
+    />
+    <Text style={[styles.globalText]}>
+        ยอมรับเงื่อนไข SLIDEME 
+        <Text onPress={() => setTermsModalVisible(true)} style={tw`text-blue-600 underline ml-2`}>(อ่าน)</Text>
+    </Text>
+</TouchableOpacity>
+<Modal
+    animationType="slide"
+    transparent={true}
+    visible={termsModalVisible}
+    onRequestClose={() => setTermsModalVisible(false)}
+>
+    <View style={tw`flex-1 justify-center items-center bg-black/40`}>
+        <View style={tw`bg-white rounded-lg p-6 w-4/5`}>
+            <Text style={[styles.globalText, tw`text-lg font-bold text-center mb-4`]}>เงื่อนไขการใช้บริการ SLIDEME</Text>
+            <Text style={[styles.globalText, tw`text-gray-700 mb-4`]}>
+                - ข้อมูลที่คุณให้จะใช้เพื่อสร้างบัญชีและบริการให้คุณอย่างปลอดภัย{'\n'}
+                - เราจะไม่เปิดเผยข้อมูลของคุณโดยไม่ได้รับความยินยอม{'\n'}
+                - ผู้ใช้ต้องปฏิบัติตามนโยบายการใช้งานอย่างเคร่งครัด
+            </Text>
+            <TouchableOpacity
+                style={tw`bg-green-500 rounded-lg p-3`}
+                onPress={() => setTermsModalVisible(false)}
+            >
+                <Text style={[styles.globalText, tw`text-white font-bold text-center`]}>ปิด</Text>
+            </TouchableOpacity>
+        </View>
+    </View>
+</Modal>
                             <View style={tw`flex-row justify-around mt-4`}>
                                 <TouchableOpacity
                                     style={tw`bg-gray-400 rounded-lg p-3 w-1/3`}
