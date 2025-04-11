@@ -348,11 +348,22 @@ export const getCustomerActiveRequest = async (customerId) => {
   }
 };
 
+export const getVehicleTypes = async () => {
+  try {
+    const vehicleTypes = await db.query('SELECT * FROM vehicle_types ORDER BY vehicletype_id ASC');
+    return vehicleTypes;
+  } catch (error) {
+    logger.error('Error getting vehicle types', { error: error.message });
+    throw new DatabaseError('Failed to get vehicle types', error);
+  }
+};
+
 export default {
   getRequestById,
   createRequest,
   updateRequestStatus,
   getPendingRequestsForDrivers,
   getDriverActiveRequest,
-  getCustomerActiveRequest
+  getCustomerActiveRequest,
+  getVehicleTypes
 };
