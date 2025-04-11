@@ -1,5 +1,5 @@
 import express from 'express';
-import { addBookmark, checkStatusOrder, disableBookmark, editAddress, getServiceInfo, getuserBookmarks, orderStatus } from '../controllers/customerController.js';
+import { addBookmark, checkStatusOrder, disableBookmark, editAddress, getServiceInfo, getuserBookmarks, orderStatus , getVehicleTypes } from '../controllers/customerController.js';
 
 const router = express.Router();
 
@@ -244,6 +244,6 @@ router.get('/order_status/:customer_id', orderStatus);
  */
 router.get('/checkStatusOrder/:request_id', checkStatusOrder);
 
-router.get('/vehicletype', getVehicleType);
+router.get('/vehicletype', getVehicleTypes);
 
 export default router;

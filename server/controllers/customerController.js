@@ -215,32 +215,36 @@ export const checkStatusOrder = (req, res) => {
 };
 
 
-export const getVehicleType = (req, res) => {
-  const query = `SELECT * FROM vehicle_types`;
+export const getVehicleTypes = (req, res) => {
+  const query = `SELECT * FROM vehicle_types Order By vehicletype_id ASC`; 
 
-  // Execute the query
-  con.query(query, (err, result) => {
+  con.connect(err => {
     if (err) {
-      // If there's an error, log it on the server and send an error response
-      console.error("Database query error:", err);  // Log to server console for debugging
+      console.error('Error connecting to the database:', err.message);
+    } else {
+      console.log('Connected to the database');
+    }
+  });
+
+  con.query(query, (error, result) => {
+    if (error) {
       return res.status(500).json({
-        Status: false,
-        Error: "An error occurred while fetching vehicle types.",
-        Details: err.message,  // Send detailed error message to help debug
+        success: false,
+        error: 'An error occurred while fetching vehicle types.',
+        details: error.message,
       });
     }
 
-    // If there are no errors and data is retrieved
     if (result.length === 0) {
       return res.status(404).json({
-        Status: false,
-        Error: "No vehicle types found in the database.",
+        success: false,
+        error: 'No vehicle types found in the database.',
       });
     }
 
     return res.status(200).json({
-      Status: true,
-      Result: result,
+      success: true,
+      result,
     });
   });
 };
