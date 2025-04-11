@@ -48,7 +48,7 @@ export default function Order({ navigation, bookmark }) {
   const [loading, setLoading] = useState(false);
   const { userData } = useContext(UserContext);
   const [vehicleTypes, setVehicleTypes] = useState([]);
-  const [selectedVehicleType, setSelectedVehicleType] = useState(null);
+  
   const [open, setOpen] = useState(false);
 
 
@@ -421,15 +421,6 @@ export default function Order({ navigation, bookmark }) {
   const confirmDestination = route.params?.confirmDestination;
 
   const formatDate = (rawDate) => {
-    //     let date = new Date(rawDate);
-
-    //     let year = date.getFullYear();
-    //     let month = date.getMonth() + 1;
-    //     let day = date.getDate();
-
-    //     month = month < 10 ? "0" + month : month;
-    //     day = day < 10 ? "0" + day : day;
-    //     return `${day}-${month}-${year}`;
     let date = dayjs(rawDate);
     let thaiYear = date.year() + 543;
     return date.format(`D MMMM ${thaiYear}`);
@@ -461,14 +452,14 @@ export default function Order({ navigation, bookmark }) {
       alert("Please fill in all required fields.");
       return;
     }
-
+  
     if (!origin || !destination || !category) {
       alert(
         "Please fill in all mandatory fields: Pickup Location, Dropoff Location, and Vehicle Type."
       );
       return;
     }
-
+  
     // Construct the request data object
     const requestData = {
       customer_id: userId, // Replace with the appropriate customer ID
@@ -485,26 +476,24 @@ export default function Order({ navigation, bookmark }) {
         : formatDateToMySQL(new Date()), // Assuming formattedDate is used for booking time
       customer_message: moreDetail || null, // Include the optional field if provided
     };
-
+  
     try {
-      const response = await fetch(
-        `http://${IP_ADDRESS}:4000/request/add_request`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(requestData),
-        }
-      );
-
+      // Sending POST request to the server with the requestData
+      const response = await fetch(`http://${IP_ADDRESS}:4000/api/v1/customer/request/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // Set content type as JSON
+        },
+        body: JSON.stringify(requestData), // Convert the requestData object to JSON
+      });
+  
       if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);
       }
-
+  
       const responseData = await response.json();
       console.log("Response data:", responseData);
-
+  
       if (responseData && responseData.request_id) {
         Alert.alert(
           "คุณได้ส่งคําร้องเรียบร้อยแล้ว",
@@ -515,7 +504,7 @@ export default function Order({ navigation, bookmark }) {
               onPress: () => {
                 navigation.navigate("ChooseOffer", {
                   request_id: responseData.request_id,
-                  customer_id_request: responseData.customer_id, //add by night
+                  customer_id_request: responseData.customer_id, // Add customer ID
                 });
               },
             },
