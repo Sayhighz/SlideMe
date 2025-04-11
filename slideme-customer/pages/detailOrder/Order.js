@@ -56,14 +56,17 @@ export default function Order({ navigation, bookmark }) {
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
   const userId = userData?.customer_id || null;
+  const token = userData?.token || null;
+  
 
   useEffect(() => {
+    fetchVehicleTypes();
     console.log("userId:", userId);
     console.log("vehicleTypes:", vehicleTypes);
     console.log("userData:", userData);
     console.log("Selected Vehicle Type:", category);
 
-    fetchVehicleTypes();
+    
     // fetchBookmarks();
   }, []);
 
@@ -464,11 +467,22 @@ export default function Order({ navigation, bookmark }) {
       );
       return;
     }
-  
+    console.log('userId:', userId);
+    console.log('origin:', origin);
+    console.log('confirmOrigin:', confirmOrigin);
+    console.log('destination:', destination);
+    console.log('confirmDestination:', confirmDestination);
+    console.log('category:',  category.split(" - ")[0]);
+    console.log('formattedDate:', formattedDate);
+    console.log('formattedTime:', formattedTime);
+    console.log('moreDetail:', moreDetail);
+    console.log('token:', token);
+    
+
     // Construct the request data object
     const requestData = {
       customer_id: userId, // Replace with the appropriate customer ID
-      request_time: formatDateToMySQL(new Date()), // Replace with actual selection
+       
       pickup_lat: origin.latitude, // Replace with actual latitude
       pickup_long: origin.longitude, // Replace with actual longitude
       location_from: confirmOrigin,
@@ -479,15 +493,18 @@ export default function Order({ navigation, bookmark }) {
       booking_time: formattedDate
         ? formatDateToMySQL(date)
         : formatDateToMySQL(new Date()), // Assuming formattedDate is used for booking time
-      customer_message: moreDetail || null, // Include the optional field if provided
+      customer_message: moreDetail || null,
+      request_time: formatDateToMySQL(new Date()), // Include the optional field if provided
     };
-  
+
     try {
       // Sending POST request to the server with the requestData
       const response = await fetch(`http://${IP_ADDRESS}:4000/api/v1/customer/request/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json', // Set content type as JSON
+          'Authorization': `Bearer ${token}`
+
         },
         body: JSON.stringify(requestData), // Convert the requestData object to JSON
       });
