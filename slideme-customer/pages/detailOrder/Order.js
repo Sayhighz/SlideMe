@@ -468,13 +468,14 @@ export default function Order({ navigation, bookmark }) {
       return;
     }
     console.log('userId:', userId);
-    console.log('origin:', origin);
+    console.log('origin:', origin.latitude + " " + origin.longitude);
     console.log('confirmOrigin:', confirmOrigin);
-    console.log('destination:', destination);
+    console.log('destination:', destination.latitude + " " + destination.longitude);
     console.log('confirmDestination:', confirmDestination);
     console.log('category:',  category.split(" - ")[0]);
-    console.log('formattedDate:', formattedDate);
-    console.log('formattedTime:', formattedTime);
+    console.log('formattedDate:', formatDateToMySQL(date));
+    console.log('formattedTime:', formatDateToMySQL(new Date()));
+    
     console.log('moreDetail:', moreDetail);
     console.log('token:', token);
     
@@ -482,7 +483,7 @@ export default function Order({ navigation, bookmark }) {
     // Construct the request data object
     const requestData = {
       customer_id: userId, // Replace with the appropriate customer ID
-       
+      request_time: formatDateToMySQL(new Date()),
       pickup_lat: origin.latitude, // Replace with actual latitude
       pickup_long: origin.longitude, // Replace with actual longitude
       location_from: confirmOrigin,
@@ -494,7 +495,7 @@ export default function Order({ navigation, bookmark }) {
         ? formatDateToMySQL(date)
         : formatDateToMySQL(new Date()), // Assuming formattedDate is used for booking time
       customer_message: moreDetail || null,
-      request_time: formatDateToMySQL(new Date()), // Include the optional field if provided
+      
     };
 
     try {
