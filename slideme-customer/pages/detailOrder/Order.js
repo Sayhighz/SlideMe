@@ -55,7 +55,7 @@ export default function Order({ navigation, bookmark }) {
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
-  const userId = userData?.user_id;
+  const userId = userData?.customer_id || null;
 
   useEffect(() => {
     console.log("userId:", userId);
