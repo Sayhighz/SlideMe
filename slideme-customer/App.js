@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { ActivityIndicator, View } from "react-native";
 import { useFonts } from "expo-font";
 
-import { UserContext } from "../customer/UserContext";
+import { UserContext } from "./UserContext";
 import { UserProvider } from "./UserContext";
 import {
   BorderlessButton,

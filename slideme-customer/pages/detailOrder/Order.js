@@ -16,15 +16,16 @@ import "dayjs/locale/th";
 
 import tw, { style } from "twrnc";
 import { useRoute } from "@react-navigation/native";
-import DateTimePicker from "@react-native-community/datetimepicker";
+// import DateTimePicker from "@react-native-community/datetimepicker";
 import { TextInput, Menu, Provider } from "react-native-paper";
 import { Provider as PaperProvider } from "react-native-paper";
 import { IP_ADDRESS } from "../../config";
-import { ScrollView } from "react-native-gesture-handler";
+// import { ScrollView } from "react-native-gesture-handler";
 import { UserContext } from "../../UserContext";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+// import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import SubmitButton from "../../components/SubmitButton";
 import HeaderWithBackButton from "../../components/HeaderWithBackButton";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 
 dayjs.locale("th");
@@ -46,6 +47,10 @@ export default function Order({ navigation, bookmark }) {
   const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(false);
   const { userData } = useContext(UserContext);
+  const [vehicleTypes, setVehicleTypes] = useState([]);
+  const [selectedVehicleType, setSelectedVehicleType] = useState(null);
+  const [open, setOpen] = useState(false);
+
 
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
@@ -54,6 +59,12 @@ export default function Order({ navigation, bookmark }) {
 
   useEffect(() => {
     console.log("userId:", userId);
+    console.log("vehicleTypes:", vehicleTypes);
+    console.log("userData:", userData);
+    console.log("Selected Vehicle Type:", category);
+
+    fetchVehicleTypes();
+    // fetchBookmarks();
   }, []);
 
   const fetchBookmarks = async () => {
@@ -72,6 +83,18 @@ export default function Order({ navigation, bookmark }) {
       console.error("Error fetching bookmarks:", error.message);
     }
     setLoading(false);
+  };
+
+  const fetchVehicleTypes = async () => {
+    try {
+      const response = await fetch(
+        `http://${IP_ADDRESS}:4000/api/v1/customer/request/vehicle_type`
+      );
+      const data = await response.json();
+      setVehicleTypes(data);
+    } catch (error) {
+      console.error("Error fetching vehicle types:", error);
+    }
   };
 
   const handleRequestFromBookmark = async (selectedBookmark) => {
@@ -179,89 +202,135 @@ export default function Order({ navigation, bookmark }) {
   const confirmDate = () => {
     setShowPicker(false);
     const formattedDate = dayjs(date)
-    .add(543, 'year') // 
-    .format(`DD/MM/YYYY HH:mm`);
-  setFormattedDate(formattedDate);
+      .add(543, "year") //
+      .format(`DD/MM/YYYY HH:mm`);
+    setFormattedDate(formattedDate);
   };
 
   const renderIOSDatePicker = () => {
-    const { width } = Dimensions.get("window");
     const buttonWidth = width * 0.35;
-    const responsiveHeight = height * 0.2;
+    const responsiveHeight = height * 0.25; // ปรับขนาดให้เหมาะสม
 
     return (
       <Modal
         visible={showPicker}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => setShowPicker(false)} // Close modal when requested
+        onRequestClose={() => setShowPicker(false)} // ปิด modal เมื่อกดปุ่มปิด
       >
         <View
           style={[
             { height: height * 0.5 },
-            tw`flex-1 justify-center items-center bg-[rgba(0,0,0,0.90)] `,
+            {
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(0, 0, 0, 0.70)",
+            },
           ]}
         >
           <View
             style={[
-              tw`flex p-4 rounded-lg `,
-              { maxWidth: width * 0.9, height: height * 0.7 },
+              {
+                flex: 1,
+                padding: 16,
+                borderRadius: 10,
+                maxWidth: width * 0.9,
+                maxHeight: height * 0.6,
+                backgroundColor: "white",
+              },
             ]}
           >
             {/* DateTimePicker */}
             <View
               style={[
-                { height: responsiveHeight },
-                tw`flex-row justify-center items-center`,
+                {
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderWidth: 1,
+                  borderColor: "white",
+                },
+                { flex: 1, borderRadius: 10 },
               ]}
             >
               <DateTimePicker
                 mode="datetime"
-                display="calendar"
+                display="spinner"
                 value={date}
                 onChange={onChange}
                 locale="th"
-                style={[{ height: responsiveHeight }, tw`text-white`]}
+                style={[{ height: responsiveHeight }, { color: "white" }]}
                 minimumDate={new Date()}
                 maximumDate={new Date("2024-12-31")}
-                textColor="white"
+                textColor="black"
               />
-            </View>
-
-            {/* Buttons */}
-
-            <View style={[tw`flex-row mt-4 gap-4 `]}>
-              <TouchableOpacity
-                onPress={() => {
-                  setDate(new Date());
-                }}
+              <View
                 style={[
-                  tw`items-center top-80 border border-blue-500 py-2 rounded-full bg-white`,
-                  { width: buttonWidth },
+                  {
+                    flexDirection: "row",
+                    marginTop: 10,
+                    justifyContent: "space-around",
+                    gap: 10,
+                  },
                 ]}
               >
-                <Text style={tw`text-blue-500 text-lg font-medium text-center`}>
-                  ล้างข้อมูล
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={confirmDate}
-                style={[
-                  tw`items-center top-80 bg-blue-500 py-2 rounded-full`,
-                  { width: buttonWidth },
-                ]}
-              >
-                <Text style={tw`text-white text-lg font-semibold text-center`}>
-                  ยืนยัน
-                </Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    setDate(new Date()); // รีเซ็ทวันที่
+                  }}
+                  style={[
+                    {
+                      alignItems: "center",
+                      borderColor: "blue",
+                      borderWidth: 1,
+                      paddingVertical: 8,
+                      borderRadius: 50,
+                      backgroundColor: "white",
+                      width: buttonWidth,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      color: "blue",
+                      fontSize: 18,
+                      fontWeight: "500",
+                      textAlign: "center",
+                    }}
+                  >
+                    ล้างข้อมูล
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={confirmDate}
+                  style={[
+                    {
+                      alignItems: "center",
+                      backgroundColor: "blue",
+                      paddingVertical: 8,
+                      borderRadius: 50,
+                      width: buttonWidth,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      color: "white",
+                      fontSize: 18,
+                      fontWeight: "600",
+                      textAlign: "center",
+                    }}
+                  >
+                    ยืนยัน
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </View>
       </Modal>
     );
   };
-
   const renderAndroidDatePicker = () => {
     return (
       <Modal visible={showModal} transparent={true} animationType="fade">
@@ -370,15 +439,9 @@ export default function Order({ navigation, bookmark }) {
     return dayjs(rawDate).format("HH:mm");
   };
 
-  const categoryOptions = [
-    { label: "Mini Slide Car", value: "mini" },
-    { label: "Standard Slide Car", value: "standard" },
-    { label: "Heavy Duty Slide Car", value: "heavy" },
-    { label: "Special Slide Car", value: "special" },
-  ];
-
-  const selectCategory = (label) => {
-    setCategory(label);
+  const selectCategory = (categoryId, categoryName) => {
+    const categoryInfo = `${categoryId} - ${categoryName}`;  // เก็บทั้ง ID และ Name
+    setCategory(categoryInfo);
     setMenuVisible(false); // Close the menu after selecting a category
   };
 
@@ -416,7 +479,7 @@ export default function Order({ navigation, bookmark }) {
       dropoff_lat: destination.latitude, // Replace with actual latitude
       dropoff_long: destination.longitude, // Replace with actual longitude
       location_to: confirmDestination,
-      vehicletype_id: 1,
+      vehicletype_id: category.split(" - ")[0],
       booking_time: formattedDate
         ? formatDateToMySQL(date)
         : formatDateToMySQL(new Date()), // Assuming formattedDate is used for booking time
@@ -475,85 +538,90 @@ export default function Order({ navigation, bookmark }) {
     }
     return text;
   };
-  
 
   return (
     <PaperProvider>
       <View style={tw`flex-1 items-center`}>
         <HeaderWithBackButton
-        showBackButton={true}
-        title="กรอกข้อมูลการให้บริการ"
-        onPress={() => navigation.goBack()}
-      />
+          showBackButton={true}
+          title="กรอกข้อมูลการให้บริการ"
+          onPress={() => navigation.goBack()}
+        />
         <View style={tw`flex-1 mt-2`}>
-      <Text style={[styles.globalText, tw`text-sm ml-4 text-gray-500`]}>คุณต้องการให้ไปส่งที่ไหน?</Text>
-      <TouchableOpacity
-        style={[
-          { width: responsiveWidth, height: height * 0.11 },
-          tw`p-2 mb-4 mt-1 justify-around bg-white rounded-lg border border-gray-300 shadow-xl `,
-        ]}
-        onPress={() => navigation.navigate("Mapdetail")}
-      >
-        {/* Origin Row */}
-        <View style={[tw`flex-row px-4 items-center`]}>
-          <MaterialIcons name="place" size={24} color="red" />
-          <Text style={[styles.globalText, tw`text-black ml-2`]}>ต้นทาง </Text>
-          <Text style={[styles.globalText, tw`text-gray-500 ml-1`]}
+          <Text style={[styles.globalText, tw`text-sm ml-4 text-gray-500`]}>
+            คุณต้องการให้ไปส่งที่ไหน?
+          </Text>
+          <TouchableOpacity
+            style={[
+              { width: responsiveWidth, height: height * 0.11 },
+              tw`p-2 mb-4 mt-1 justify-around bg-white rounded-lg border border-gray-300 shadow-xl `,
+            ]}
+            onPress={() => navigation.navigate("Mapdetail")}
           >
-            {truncateText(confirmOrigin) || "โปรดระบุต้นทาง"}
-          </Text>
-        </View>
+            {/* Origin Row */}
+            <View style={[tw`flex-row px-4 items-center`]}>
+              <MaterialIcons name="place" size={24} color="red" />
+              <Text style={[styles.globalText, tw`text-black ml-2`]}>
+                ต้นทาง{" "}
+              </Text>
+              <Text style={[styles.globalText, tw`text-gray-500 ml-1`]}>
+                {truncateText(confirmOrigin) || "โปรดระบุต้นทาง"}
+              </Text>
+            </View>
 
-        {/* Divider Line */}
-        <View style={tw`border-t border-gray-300 my-2`} />
+            {/* Divider Line */}
+            <View style={tw`border-t border-gray-300 my-2`} />
 
-        {/* Destination Row */}
-        <View style={[tw`flex-row px-4 items-center`]}>
-          <MaterialIcons name="place" size={24} color="green" />
-          <Text style={[styles.globalText, tw`text-black ml-2`]}>ปลายทาง </Text>
-          <Text style={[styles.globalText, tw`text-gray-500 ml-1`]}>
-            {truncateText(confirmDestination) || "โปรดระบุปลายทาง"}
-          </Text>
-        </View>
-      </TouchableOpacity>
+            {/* Destination Row */}
+            <View style={[tw`flex-row px-4 items-center`]}>
+              <MaterialIcons name="place" size={24} color="green" />
+              <Text style={[styles.globalText, tw`text-black ml-2`]}>
+                ปลายทาง{" "}
+              </Text>
+              <Text style={[styles.globalText, tw`text-gray-500 ml-1`]}>
+                {truncateText(confirmDestination) || "โปรดระบุปลายทาง"}
+              </Text>
+            </View>
+          </TouchableOpacity>
 
-      <View style={tw`flex items-center justify-center`}>
-  <TouchableOpacity
-    onPress={() =>
-      Platform.OS === "ios" ? setShowPicker(true) : setShowModal(true)
-    }
-    style={[
-      { width: responsiveWidth, height: height * 0.13 },
-      tw`flex-col items-center bg-white p-4 rounded-lg border border-gray-300`,
-    ]}
-  >
-    {/* Icon */}
-    <MaterialIcons
-      name="date-range"
-      size={35}
-      color="#60B876"
-      style={tw`mb-2`} // Adds spacing below the icon
-    />
+          <View style={tw`flex items-center justify-center`}>
+            <TouchableOpacity
+              onPress={() =>
+                Platform.OS === "ios" ? setShowPicker(true) : setShowModal(true)
+              }
+              style={[
+                { width: responsiveWidth, height: height * 0.13 },
+                tw`flex-col items-center bg-white p-4 rounded-lg border border-gray-300`,
+              ]}
+            >
+              {/* Icon */}
+              <MaterialIcons
+                name="date-range"
+                size={35}
+                color="#60B876"
+                style={tw`mb-2`} // Adds spacing below the icon
+              />
 
-    {/* Text */}
-    <Text
-      style={[
-        styles.globalText,
-        tw`text-gray-700 text-lg text-center`, // Center-align the text
-      ]}
-    >
-      {formattedDate === ""
-        ? "โปรดระบุวันเวลาที่ต้องการ"
-        : `${formattedDate}`}
-    </Text>
-  </TouchableOpacity>
-</View>
-
+              {/* Text */}
+              <Text
+                style={[
+                  styles.globalText,
+                  tw`text-gray-700 text-lg text-center`, // Center-align the text
+                ]}
+              >
+                {formattedDate === ""
+                  ? "โปรดระบุวันเวลาที่ต้องการ"
+                  : `${formattedDate}`}
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           {Platform.OS === "ios" && showPicker && renderIOSDatePicker()}
           {Platform.OS === "android" && renderAndroidDatePicker()}
 
           <View style={[tw`w-full items-center mt-4`]}>
+            {/* แสดงข้อความที่เลือก */}
+            
             <Menu
               visible={menuVisible}
               onDismiss={() => setMenuVisible(false)}
@@ -573,17 +641,17 @@ export default function Order({ navigation, bookmark }) {
                     style={tw`mb-2`}
                   />
                   <Text style={[styles.globalText, tw`text-lg text-gray-700`]}>
-                    {category ? category : "เลือกประเภทรถสไลด์"}
+                    {category ? category  : "เลือกประเภทรถสไลด์"}
                   </Text>
                 </TouchableOpacity>
               }
               style={tw`w-70 rounded items-center`}
             >
-              {categoryOptions.map((option) => (
+              {vehicleTypes.map((option) => (
                 <Menu.Item
-                  key={option.value}
-                  onPress={() => selectCategory(option.label)}
-                  title={option.label}
+                  key={option.vehicletype_id}
+                  onPress={() => selectCategory(option.vehicletype_id, option.vehicletype_name)}
+                  title={option.vehicletype_id + " - " + option.vehicletype_name}
                   style={tw`bg-white`}
                 />
               ))}
@@ -591,32 +659,31 @@ export default function Order({ navigation, bookmark }) {
           </View>
 
           <View>
-          <TouchableOpacity
-            style={[
-              { width: responsiveWidth, height: height * 0.14 },
-              tw`flex-row items-center bg-white rounded-lg border border-gray-300 h-13 shadow-xl p-4`,
-            ]}
-            onPress={handlePress}
-          >
-            {/* Icon */}
-            <MaterialIcons
-              name="message"
-              size={24}
-              color="#60B876" // Delivery app green
-              style={tw`mr-3`} // Adds spacing to the right of the icon
-            />
-
-            {/* Text */}
-            <Text
+            <TouchableOpacity
               style={[
-                styles.globalText,
-                tw`flex-1 text-gray-600 text-sm text-left`, // Adjusted for proper alignment
+                { width: responsiveWidth, height: height * 0.14 },
+                tw`flex-row items-center bg-white rounded-lg border border-gray-300 h-13 shadow-xl p-4`,
               ]}
+              onPress={handlePress}
             >
-              {moreDetail ? moreDetail : "ข้อความถึงคนขับ..."}
-            </Text>
-          </TouchableOpacity>
+              {/* Icon */}
+              <MaterialIcons
+                name="message"
+                size={24}
+                color="#60B876" // Delivery app green
+                style={tw`mr-3`} // Adds spacing to the right of the icon
+              />
 
+              {/* Text */}
+              <Text
+                style={[
+                  styles.globalText,
+                  tw`flex-1 text-gray-600 text-sm text-left`, // Adjusted for proper alignment
+                ]}
+              >
+                {moreDetail ? moreDetail : "ข้อความถึงคนขับ..."}
+              </Text>
+            </TouchableOpacity>
 
             <Modal
               transparent={true}
@@ -652,7 +719,11 @@ export default function Order({ navigation, bookmark }) {
                       }
                       style={tw`bg-red-500 rounded-lg w-25 py-2`}
                     >
-                      <Text style={[styles.globalText,tw`text-white text-center`]}>{preMoreDetail ? "ล้างข้อมูล" : "ปิด"}</Text>
+                      <Text
+                        style={[styles.globalText, tw`text-white text-center`]}
+                      >
+                        {preMoreDetail ? "ล้างข้อมูล" : "ปิด"}
+                      </Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -660,7 +731,11 @@ export default function Order({ navigation, bookmark }) {
                       onPress={handleRequestSubmit}
                       style={tw`bg-[#60B876] rounded-lg w-25 py-2`}
                     >
-                      <Text style={[styles.globalText,tw`text-white text-center`]}>ยันยัน</Text>
+                      <Text
+                        style={[styles.globalText, tw`text-white text-center`]}
+                      >
+                        ยันยัน
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -669,10 +744,7 @@ export default function Order({ navigation, bookmark }) {
           </View>
         </View>
       </View>
-      <SubmitButton
-        onPress={handleSubmitRequest}
-        title="ยืนยัน"
-      />
+      <SubmitButton onPress={handleSubmitRequest} title="ยืนยัน" />
     </PaperProvider>
   );
 }

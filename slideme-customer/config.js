@@ -1,2 +1,2 @@
-export const IP_ADDRESS = '193.186.4.134';
+export const IP_ADDRESS = '192.168.1.110';
  
