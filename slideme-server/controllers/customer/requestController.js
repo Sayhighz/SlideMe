@@ -1055,6 +1055,11 @@ export const completeRequest = asyncHandler(async (req, res) => {
     }
   });
 
+  export const getVehicles = asyncHandler(async (req, res) => {
+    const vehicleTypes = await getVehicleTypes();  // เรียกใช้จาก requestModel.js
+    return res.status(STATUS_CODES.OK).json(vehicleTypes);
+  });
+
 export default {
   createRequest,
   getRequestDetails,
