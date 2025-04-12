@@ -9,12 +9,15 @@ import {
   FlatList,
   StyleSheet,
   Platform,
+  ScrollView,
+  SafeAreaView
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
 import { UserContext } from "../../UserContext";
 import { useNavigation } from "@react-navigation/native";
+import HeaderWithBackButton from "../../components/HeaderWithBackButton";
 
 const AddMethod = ({ route }) => {
   const { onRefresh } = route.params || {};
@@ -38,13 +41,21 @@ const AddMethod = ({ route }) => {
   const handleExpirationDateChange = (input) => {
     let formattedInput = input.replace(/\D/g, "");
     if (formattedInput.length > 2) {
-      formattedInput = `${formattedInput.slice(0, 2)}/${formattedInput.slice(2)}`;
+      formattedInput = `${formattedInput.slice(0, 2)}/${formattedInput.slice(
+        2
+      )}`;
     }
     setCardExpiry(formattedInput);
   };
 
   const handleSubmit = async () => {
-    if (!methodName || !cardholderName || !cardNumber || !cardExpiry || !cardCvv) {
+    if (
+      !methodName ||
+      !cardholderName ||
+      !cardNumber ||
+      !cardExpiry ||
+      !cardCvv
+    ) {
       Alert.alert("Error", "โปรดกรอกข้อมูลให้ครบ");
       return;
     }
@@ -59,13 +70,16 @@ const AddMethod = ({ route }) => {
     };
 
     try {
-      const response = await fetch(`http://${IP_ADDRESS}:4000/payment/payment-method/add`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        `http://${IP_ADDRESS}:4000/payment/payment-method/add`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (response.ok) {
         Alert.alert("Success", "บันทึกช่องทางการชำระเงินสำเร็จ");
@@ -73,7 +87,10 @@ const AddMethod = ({ route }) => {
         navigation.goBack();
       } else {
         const errorData = await response.json();
-        Alert.alert("Error", errorData.Error || "บันทึกช่องทางการชำระเงินไม่สำเร็จ");
+        Alert.alert(
+          "Error",
+          errorData.Error || "บันทึกช่องทางการชำระเงินไม่สำเร็จ"
+        );
       }
     } catch (error) {
       Alert.alert("Error", "เกิดข้อผิดพลาด: " + error.message);
@@ -93,89 +110,107 @@ const AddMethod = ({ route }) => {
   );
 
   return (
-    <View style={tw`flex-1 p-5 bg-gray-100 mt-17`}>
-      <Text style={[tw`text-2xl mb-5`, styles.customFont]}>เพิ่มช่องทางการชำระเงิน</Text>
-
-      <Text style={[tw`text-lg mt-2`, styles.customFont]}>ประเภท</Text>
-      <TouchableOpacity
-        style={tw`border border-gray-300 rounded mt-1 p-3 flex-row justify-between items-center`}
-        onPress={() => setModalVisible(true)}
-      >
-        <Text style={[tw`text-lg`, styles.customFont]}>
-          {methodName ? paymentOptions.find((opt) => opt.value === methodName)?.label : "เลือกประเภทการชำระเงิน"}
+    <>
+      <HeaderWithBackButton
+        showBackButton={true}
+        onPress={() => navigation.goBack()}
+      />
+      <ScrollView style={tw`flex-1 p-5 bg-gray-100 mb-5`}>
+        <Text style={[tw`text-2xl mb-5`, styles.customFont]}>
+          เพิ่มช่องทางการชำระเงิน
         </Text>
-        <Icon name="chevron-down" size={16} />
-      </TouchableOpacity>
 
-      <Text style={[tw`text-lg mt-4`, styles.customFont]}>ชื่อผู้ถือบัตร</Text>
-      <TextInput
-        style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
-        placeholder="ชื่อผู้ถือบัตร"
-        value={cardholderName}
-        onChangeText={setCardholderName}
-        placeholderTextColor="#9CA3AF"
-      />
+        <Text style={[tw`text-lg mt-2`, styles.customFont]}>ประเภท</Text>
+        <TouchableOpacity
+          style={tw`border border-gray-300 rounded mt-1 p-3 flex-row justify-between items-center`}
+          onPress={() => setModalVisible(true)}
+        >
+          <Text style={[tw`text-lg`, styles.customFont]}>
+            {methodName
+              ? paymentOptions.find((opt) => opt.value === methodName)?.label
+              : "เลือกประเภทการชำระเงิน"}
+          </Text>
+          <Icon name="chevron-down" size={16} />
+        </TouchableOpacity>
 
-      <Text style={[tw`text-lg mt-4`, styles.customFont]}>หมายเลขบัตร</Text>
-      <TextInput
-        style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
-        placeholder="หมายเลขบัตร"
-        keyboardType="numeric"
-        maxLength={16}
-        value={cardNumber}
-        onChangeText={setCardNumber}
-        placeholderTextColor="#9CA3AF"
-      />
+        <Text style={[tw`text-lg mt-4`, styles.customFont]}>
+          ชื่อผู้ถือบัตร
+        </Text>
+        <TextInput
+          style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
+          placeholder="ชื่อผู้ถือบัตร"
+          value={cardholderName}
+          onChangeText={setCardholderName}
+          placeholderTextColor="#9CA3AF"
+        />
 
-      <Text style={[tw`text-lg mt-4`, styles.customFont]}>วันหมดอายุ</Text>
-      <TextInput
-        style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
-        placeholder="MM/YYYY"
-        value={cardExpiry}
-        onChangeText={handleExpirationDateChange}
-        maxLength={7}
-        keyboardType="numeric"
-        placeholderTextColor="#9CA3AF"
-      />
+        <Text style={[tw`text-lg mt-4`, styles.customFont]}>หมายเลขบัตร</Text>
+        <TextInput
+          style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
+          placeholder="หมายเลขบัตร"
+          keyboardType="numeric"
+          maxLength={16}
+          value={cardNumber}
+          onChangeText={setCardNumber}
+          placeholderTextColor="#9CA3AF"
+        />
 
-      <Text style={[tw`text-lg mt-4`, styles.customFont]}>CVV</Text>
-      <TextInput
-        style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
-        placeholder="CVV"
-        keyboardType="numeric"
-        maxLength={3}
-        value={cardCvv}
-        onChangeText={setCardCvv}
-        placeholderTextColor="#9CA3AF"
-        secureTextEntry
-      />
+        <Text style={[tw`text-lg mt-4`, styles.customFont]}>วันหมดอายุ</Text>
+        <TextInput
+          style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
+          placeholder="MM/YYYY"
+          value={cardExpiry}
+          onChangeText={handleExpirationDateChange}
+          maxLength={7}
+          keyboardType="numeric"
+          placeholderTextColor="#9CA3AF"
+        />
 
-      <TouchableOpacity
-        style={tw`bg-green-600 p-3 rounded mt-5`}
-        onPress={handleSubmit}
-      >
-        <Text style={[tw`text-white text-center text-lg`, styles.customFont]}>บันทึก</Text>
-      </TouchableOpacity>
+        <Text style={[tw`text-lg mt-4`, styles.customFont]}>CVV</Text>
+        <TextInput
+          style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
+          placeholder="CVV"
+          keyboardType="numeric"
+          maxLength={3}
+          value={cardCvv}
+          onChangeText={setCardCvv}
+          placeholderTextColor="#9CA3AF"
+          secureTextEntry
+        />
 
-      {/* Modal for selecting payment type */}
-      <Modal visible={modalVisible} transparent={true} animationType="fade">
-        <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
-          <View style={tw`bg-white rounded-lg w-10/12`}>
-            <FlatList
-              data={paymentOptions}
-              renderItem={renderPaymentOption}
-              keyExtractor={(item) => item.value}
-            />
-            <TouchableOpacity
-              style={tw`p-4 bg-gray-300 rounded-b-lg`}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={[tw`text-center text-lg`, styles.customFont]}>ปิด</Text>
-            </TouchableOpacity>
+        <TouchableOpacity
+          style={tw`bg-green-600 p-3 rounded mt-5`}
+          onPress={handleSubmit}
+        >
+          <Text style={[tw`text-white text-center text-lg`, styles.customFont]}>
+            บันทึก
+          </Text>
+        </TouchableOpacity>
+
+        {/* Modal for selecting payment type */}
+        <Modal visible={modalVisible} transparent={true} animationType="fade">
+          <View
+            style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}
+          >
+            <View style={tw`bg-white rounded-lg w-10/12`}>
+              <FlatList
+                data={paymentOptions}
+                renderItem={renderPaymentOption}
+                keyExtractor={(item) => item.value}
+              />
+              <TouchableOpacity
+                style={tw`p-4 bg-gray-300 rounded-b-lg`}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={[tw`text-center text-lg`, styles.customFont]}>
+                  ปิด
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
-    </View>
+        </Modal>
+      </ScrollView>
+    </>
   );
 };
 

@@ -73,14 +73,16 @@ const ChooseOffer = ({ navigation, route }) => {
 
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:4000/request/cancel_request`,
+        `http://${IP_ADDRESS}:4000/api/v1/customer/request/cancel`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${userData.token}`,
           },
           body: JSON.stringify({
-            request_id: request_id
+            request_id: request_id,
+            customer_id: userData.customer_id,
           }),
         }
       );
@@ -88,6 +90,7 @@ const ChooseOffer = ({ navigation, route }) => {
       const result = await response.json();
       if (response.ok) {
         navigation.navigate("HomePage");
+        setOpenModalCancel(false);
       } else {
         Alert.alert("ข้อผิดพลาด", result.message || "ยกเลิกรายการไม่สําเร็จ");
       }
@@ -217,7 +220,14 @@ const ChooseOffer = ({ navigation, route }) => {
     if (fetchDataLoading) return;
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:4000/offer/chooseoffer?request_id=${request_id}`
+        `http://${IP_ADDRESS}:4000/api/v1/customer/request/details?request_id=${request_id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${userData.token}`,
+          },
+        }
       );
       
       // Check if response is OK before trying to parse JSON
@@ -226,7 +236,7 @@ const ChooseOffer = ({ navigation, route }) => {
         console.error(`Server responded with status: ${response.status}`);
         return;
       }
-      
+
       // Get the content type
       const contentType = response.headers.get("content-type");
       
@@ -234,26 +244,37 @@ const ChooseOffer = ({ navigation, route }) => {
       if (contentType && contentType.includes("application/json")) {
         const data = await response.json();
         if (data.Status) {
-          if (data.PickupDropoffInfo) {
+
             setOriginLocation({
-              name: data.PickupDropoffInfo.location_from,
-              latitude: parseFloat(data.PickupDropoffInfo.pickup_lat),
-              longitude: parseFloat(data.PickupDropoffInfo.pickup_long),
+              name: data.location_from,
+              latitude: parseFloat(data.pickup_lat),
+              longitude: parseFloat(data.pickup_long),
             });
             setDestinationLocation({
-              name: data.PickupDropoffInfo.location_to,
-              latitude: parseFloat(data.PickupDropoffInfo.dropoff_lat),
-              longitude: parseFloat(data.PickupDropoffInfo.dropoff_long),
+              name: data.location_to,
+              latitude: parseFloat(data.dropoff_lat),
+              longitude: parseFloat(data.dropoff_long),
             });
-          }
   
           if (data.Result === "") {
             setOfferLoading(true);
           }
-  
-          if (data.Result && data.Result.length > 0) {
+
+          try {
+            const response = await axios.get(
+              `http://${IP_ADDRESS}:4000/api/v1/customer/request/offers?request_id=${request_id}&customer_id=${userData.customer_id}`,
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${userData.token}`,
+                },
+              }
+            );
+
+            const data = await response.data.offers;
+
             // Handle driver data if available
-            const drivers = data.Result.map((driver) => ({
+            const drivers = data.map((driver) => ({
               id: driver.driver_id,
               name: `${driver.first_name} ${driver.last_name}`,
               rating: driver.average_rating || 0,
@@ -269,6 +290,9 @@ const ChooseOffer = ({ navigation, route }) => {
             setOffer(drivers);
             setOfferLoading(false);
             setFetchDataLoading(true);
+          
+          } catch (error) {
+            console.error("Error fetching driver data:", error);
           }
         }
       } else {
@@ -442,6 +466,7 @@ const ChooseOffer = ({ navigation, route }) => {
                   navigation.navigate("payment", {
                     chooseDriver: chooseDriver,
                     request_id: request_id,
+                    offer_id: chooseDriver.offer_id,
                     // originLocation: originLocation,
                     // destinationLocation: destinationLocation,
                   }),
