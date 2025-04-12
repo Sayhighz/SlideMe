@@ -6,7 +6,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
 import { TouchableOpacity } from "react-native";
@@ -20,6 +20,7 @@ import * as Location from "expo-location";
 import axios from "axios";
 import { IP_ADDRESS } from "../../config";
 import HeaderWithBackButton from "../../components/HeaderWithBackButton";
+import { UserContext } from "../../UserContext";
 
 export default function ViewOrder({ navigation }) {
   const styles = StyleSheet.create({
@@ -49,15 +50,17 @@ export default function ViewOrder({ navigation }) {
 
   const [alertComfirm, setAlertConfirm] = useState(false);
 
+  const { userData } = useContext(UserContext);
+
   const driver_id = route.params?.driverProfile.chooseDriver.id || "ไม่ระบุ";
   const customer_id_request =
     route.params?.driverProfile.chooseDriver.customer_id_request || "ไม่ระบุ";
   const request_id =
     route.params?.driverProfile.chooseDriver.request_id || "ไม่ระบุ";
 
-  useEffect(() => {
-    console.log("route.params:", route.params || "ไม่ระบุ");
-  }, [route.params]);
+  // useEffect(() => {
+  //   console.log("route.params:", route.params || "ไม่ระบุ");
+  // }, [route.params]);
 
   const formatDateToThaiTimezone = (dateString) => {
     const date = new Date(dateString);
@@ -77,60 +80,74 @@ export default function ViewOrder({ navigation }) {
     return number.toString().padStart(length, "0");
   };
 
-  useEffect(() => {
-    console.log("driver_id:", driver_id);
-    console.log("customer_id_request:", customer_id_request);
-    console.log("request_id:", request_id);
-  }, [driver_id, customer_id_request, request_id]);
+  // useEffect(() => {
+  //   console.log("driver_id:", driver_id);
+  //   console.log("customer_id_request:", customer_id_request);
+  //   console.log("request_id:", request_id);
+  // }, [driver_id, customer_id_request, request_id]);
 
-  const fetchOrderDetails = async () => {
-    try {
-      const response = await axios.get(
-        `http://${IP_ADDRESS}:4000/driver/fetch_driver_info/${customer_id_request}/${driver_id}/${request_id}`
-      );
+  // const fetchOrderDetails = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `http://${IP_ADDRESS}:4000/driver/fetch_driver_info/${customer_id_request}/${driver_id}/${request_id}`,
+  //       {
+  //         headers: {
+  //           "Authorization": `Bearer ${userData.token}`,
+  //         },
+  //       }
+  //     );
 
-      if (response.data.Status && response.data.Result.length > 0) {
-        const data = response.data.Result[0]; // Assuming you want the first result
+  //     if (response.data.Status && response.data.Result.length > 0) {
+  //       const data = response.data.Result[0]; // Assuming you want the first result
 
-        // Set the state with fetched data
-        setOrigin({
-          name: data.location_from,
-          latitude: parseFloat(data.pickup_lat),
-          longitude: parseFloat(data.pickup_long),
-        });
+  //       // Set the state with fetched data
+  //       setOrigin({
+  //         name: data.location_from,
+  //         latitude: parseFloat(data.pickup_lat),
+  //         longitude: parseFloat(data.pickup_long),
+  //       });
 
-        setDestination({
-          name: data.location_to,
-          latitude: parseFloat(data.dropoff_lat),
-          longitude: parseFloat(data.dropoff_long),
-        });
+  //       setDestination({
+  //         name: data.location_to,
+  //         latitude: parseFloat(data.dropoff_lat),
+  //         longitude: parseFloat(data.dropoff_long),
+  //       });
 
-        setDriverInformation({
-          name: data.driver_first_name + " " + data.driver_last_name,
-          latitude: data.driver_latitude,
-          longitude: data.driver_longitude,
-          phone: data.driver_phone,
-          rating: data.average_rating.toFixed(1),
-        });
+  //       setDriverInformation({
+  //         name: data.driver_first_name + " " + data.driver_last_name,
+  //         latitude: data.driver_latitude,
+  //         longitude: data.driver_longitude,
+  //         phone: data.driver_phone,
+  //         rating: data.average_rating.toFixed(1),
+  //       });
 
-        setTime(formatDateToThaiTimezone(data.booking_time));
-        setRequest(padNumber(data.request_id, 10));
-      } else {
-        console.error("No matching data found");
-      }
-    } catch (error) {
-      console.error("Error fetching order details:", error);
-    }
-  };
+  //       setTime(formatDateToThaiTimezone(data.booking_time));
+  //       setRequest(padNumber(data.request_id, 10));
+  //     } else {
+  //       console.error("No matching data found");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching order details:", error);
+  //   }
+  // };
 
   const checkOrderStatus = async () => {
     try {
       const response = await axios.get(
-        `http://${IP_ADDRESS}:4000/customer/checkStatusOrder/${request_id}`
+        `http://${IP_ADDRESS}:4000/api/v1/customer/address/check-status/${request_id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${userData.token}`,
+          },
+        }
       );
 
-      if (response.data && response.data.status) {
-        setStatus(response.data.status); // อัปเดตสถานะใน state
+      if (response.data.Status) {
+        setStatus(response.data.StatusOrder); // อัปเดตสถานะใน state
+        if(response.data.StatusOrder === "accepted") {
+          console.log("รอก่อนเด้อ");
+        }
 
         // ถ้า status เป็น "completed" แสดง Alert และ navigate
         if (response.data.status === "completed" && !alertComfirm) {
@@ -167,7 +184,7 @@ export default function ViewOrder({ navigation }) {
     if (status === "accepted") {
       interval = setInterval(() => {
         checkOrderStatus();
-      }, 5000);
+      }, 10000);
     }
 
     if (status === "completed") {
@@ -181,18 +198,23 @@ export default function ViewOrder({ navigation }) {
   const getDriverLocation = async () => {
     try {
       const response = await axios.get(
-        `http://${IP_ADDRESS}:4000/driver/driverlocation/${driver_id}`
+        `http://${IP_ADDRESS}:4000/api/v1/driver/location/${driver_id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${userData.token}`,
+          },
+        }
       );
       if (status === "accepted") {
-        if (response.data.success) {
+        if (response.data.Status) {
           setDriverLocation({
-            latitude: response.data.data.current_latitude,
-            longitude: response.data.data.current_longitude,
+            latitude: response.data.latitude,
+            longitude: response.data.longitude,
           });
         } else {
           console.error(
             "Failed to fetch driver location:",
-            response.data.message
           );
         }
       }
@@ -206,7 +228,7 @@ export default function ViewOrder({ navigation }) {
     if (status === "accepted") {
       intervalLocation = setInterval(() => {
         getDriverLocation();
-      }, 1000);
+      }, 10000);
     }
     if (status === "completed") {
       console.log("Clearing interval");
@@ -217,7 +239,7 @@ export default function ViewOrder({ navigation }) {
   }, [status]);
 
   useEffect(() => {
-    fetchOrderDetails();
+    // fetchOrderDetails();
     checkOrderStatus();
     getDriverLocation();
   }, []);

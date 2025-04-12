@@ -93,36 +93,25 @@ export default function PaymentPage({ navigation }) {
   );
 
   const updateData = async () => {
-    const { request_id } = route.params.chooseDriver;
+    const { request_id } = route.params;
     const chosen_driver_id = route.params.chooseDriver.id;
+    const offer_id = route.params.chooseDriver.offer_id;
+
 
     try {
       const response = await axios.post(
-        `http://${IP_ADDRESS}:4000/offer/update_offer_status`,
+        `http://${IP_ADDRESS}:4000/api/v1/customer/request/accept-offer`,
         {
           request_id: request_id,
-          driver_id: chosen_driver_id,
-        }
-      );
-
-      if (response.data.Status) {
-        console.log("Offer status updated successfully");
-      } else {
-        console.error("Error:", response.data.Message);
-      }
-    } catch (error) {
-      console.error("API error:", error);
-    }
-
-    try {
-      const response = await axios.post(
-        `http://${IP_ADDRESS}:4000/request/update_service_request`,
-        {
-          request_id: route.params.chooseDriver.request_id,
           customer_id: userData.customer_id,
-          offer_id: "???",
+          offer_id: offer_id,
           price: totalPrice,
-          payment_method_id: "???",
+          payment_method_id: choosePaymentMethod.payment_method_id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${userData.token}`,
+          },
         }
       );
       navigation.navigate("viewOrder", { driverProfile: route.params });

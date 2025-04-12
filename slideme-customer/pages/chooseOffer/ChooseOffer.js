@@ -109,10 +109,12 @@ const ChooseOffer = ({ navigation, route }) => {
     const filtered = filterOffersByRadius(offer, radiusInMeters);
     setFilteredOffer(filtered);
 
+    if(offer.length > 0) {
     // คำนวณระยะทางเส้นทางจริงและอัพเดทข้อมูลใน `FlatList`
     calculateAccurateRouteDistance(filtered).then((results) => {
       setFilteredOffer(results);
     });
+    }
   }, [offer, radiusInMeters]);
 
   useEffect(() => {
@@ -284,12 +286,14 @@ const ChooseOffer = ({ navigation, route }) => {
               },
               price: driver.offered_price,
               customer_id_request: driver.customer_id,
-              request_id: driver.request_id,
+              request_id: request_id,
+              offer_id: driver.offer_id,
             }));
-            console.log(drivers);
-            setOffer(drivers);
-            setOfferLoading(false);
-            setFetchDataLoading(true);
+            if(drivers.length > 0) {
+              setOffer(drivers);
+              setOfferLoading(false);
+              setFetchDataLoading(true);
+            }
           
           } catch (error) {
             console.error("Error fetching driver data:", error);
@@ -320,6 +324,13 @@ const ChooseOffer = ({ navigation, route }) => {
     });
     return sortOffersByDistance(filteredOffers); // เรียงข้อมูลทันที
   };
+
+  useEffect(() => {
+    if (offer.length > 0) {
+      calculateAccurateRouteDistance(offer);
+    }
+  }, [offer]);
+  
 
 
   const calculateAccurateRouteDistance = async (offers) => {
@@ -462,11 +473,10 @@ const ChooseOffer = ({ navigation, route }) => {
               <Pressable
                 style={tw`bg-[#60B876] p-3 rounded-lg`}
                 onPress={() => {
-                  console.log("request_id:", request_id, "chooseDriver:", chooseDriver);
                   navigation.navigate("payment", {
                     chooseDriver: chooseDriver,
                     request_id: request_id,
-                    offer_id: chooseDriver.offer_id,
+                    offer_id: offer.offer_id,
                     // originLocation: originLocation,
                     // destinationLocation: destinationLocation,
                   }),
@@ -584,10 +594,13 @@ const ChooseOffer = ({ navigation, route }) => {
 
                   // กรองและเรียงข้อมูลทันที
                   const filtered = filterOffersByRadius(offer, newRadius);
-                  calculateAccurateRouteDistance(filtered).then((results) => {
-                    const sorted = sortOffersByDistance(results); // เรียงข้อมูล
-                    setSortedFilteredOffer(sorted); // อัปเดตข้อมูลเรียงเสร็จแล้ว
-                  });
+                  if(offer.length > 0){
+
+                    calculateAccurateRouteDistance(filtered).then((results) => {
+                      const sorted = sortOffersByDistance(results); // เรียงข้อมูล
+                      setSortedFilteredOffer(sorted); // อัปเดตข้อมูลเรียงเสร็จแล้ว
+                    });
+                  }
                 }}
               />
             ) : <Dropdown

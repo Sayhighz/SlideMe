@@ -821,7 +821,7 @@ export const acceptOffer = asyncHandler(async (req, res) => {
     const paymentResult = await db.transactionQuery(
       connection, 
       createPaymentSql, 
-      [customer_id, offered_price, PAYMENT_STATUS.PENDING, payment_method_id]
+      [customer_id,Number(offered_price) + 200, PAYMENT_STATUS.PENDING, payment_method_id]
     );
 
     const payment_id = paymentResult.insertId;
