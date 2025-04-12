@@ -9,7 +9,7 @@ import {
   Modal,
 } from "react-native";
 import React, { useEffect, useState, useContext } from "react";
-import { MaterialIcons , FontAwesome5 } from "@expo/vector-icons";
+import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import tw from "twrnc";
 import { TouchableOpacity } from "react-native";
 import { Pressable } from "react-native";
@@ -45,49 +45,52 @@ export default function PaymentPage({ navigation }) {
   const driverName = route.params?.chooseDriver.name || "ไม่ระบุ";
   const driverRating = route.params?.chooseDriver.rating || "0";
   const driverPrice = route.params?.chooseDriver.price || "0";
-    route.params?.chooseDriver.customer_id_request || "ไม่ระบุ";
+  route.params?.chooseDriver.customer_id_request || "ไม่ระบุ";
 
-    useEffect(() => {
-      setTotalPrice(parseFloat(driverPrice) + feePrice - discount);
-    }, [driverPrice, discount, paymentMethods]);
-  
-    // Fetch payment methods when the page is focused
-    useFocusEffect(
-      React.useCallback(() => {
-        const fetchPaymentMethods = async () => {
-          if (!userData || !userData.customer_id) {
-            console.error("User ID is missing");
-            return;
-          }
-        
-          try {
-            const response = await axios.get(
-              `http://${IP_ADDRESS}:4000/api/v1/customer/payment/all?customer_id=${userData.customer_id}`,
-              {
-                headers: {
-                  "Authorization": `Bearer ${userData.token}`,
-                },
-              }
+  useEffect(() => {
+    setTotalPrice(parseFloat(driverPrice) + feePrice - discount);
+  }, [driverPrice, discount, paymentMethods]);
+
+  // Fetch payment methods when the page is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchPaymentMethods = async () => {
+        if (!userData || !userData.customer_id) {
+          console.error("User ID is missing");
+          return;
+        }
+
+        try {
+          const response = await axios.get(
+            `http://${IP_ADDRESS}:4000/api/v1/customer/payment/all?customer_id=${userData.customer_id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${userData.token}`,
+              },
+            }
+          );
+
+          if (response.data.Status) {
+            setPaymentMethods(response.data.Result); // ตั้งค่า state ด้วยข้อมูลที่ได้รับ
+          } else if (
+            response.data.Error === "ไม่พบวิธีการชำระเงินสำหรับผู้ใช้รายนี้"
+          ) {
+            console.log("No payment methods found for this user.");
+            setPaymentMethods([]); // ถ้าไม่มีข้อมูลให้ตั้งค่าเป็นอาร์เรย์ว่าง
+          } else {
+            console.error(
+              "Error fetching payment methods:",
+              response.data.Error
             );
-        
-            if (response.data.Status) {
-              setPaymentMethods(response.data.Result); // ตั้งค่า state ด้วยข้อมูลที่ได้รับ
-            } else if(response.data.Error === "ไม่พบวิธีการชำระเงินสำหรับผู้ใช้รายนี้") {
-              console.log("No payment methods found for this user.");
-              setPaymentMethods([]); // ถ้าไม่มีข้อมูลให้ตั้งค่าเป็นอาร์เรย์ว่าง
-            }
-              else{
-              console.error("Error fetching payment methods:", response.data.Error);
-            }
-          } catch (error) {
-            console.error("Error fetching payment methods:", error.message);
           }
-        };
-  
-        fetchPaymentMethods();
-      }, [userData.customer_id]) // Re-fetch if customer_id changes
-    );
-  
+        } catch (error) {
+          console.error("Error fetching payment methods:", error.message);
+        }
+      };
+
+      fetchPaymentMethods();
+    }, [userData.customer_id]) // Re-fetch if customer_id changes
+  );
 
   const updateData = async () => {
     const { request_id } = route.params.chooseDriver;
@@ -97,7 +100,7 @@ export default function PaymentPage({ navigation }) {
       const response = await axios.post(
         `http://${IP_ADDRESS}:4000/offer/update_offer_status`,
         {
-          request_id : request_id,
+          request_id: request_id,
           driver_id: chosen_driver_id,
         }
       );
@@ -119,7 +122,7 @@ export default function PaymentPage({ navigation }) {
           customer_id: userData.customer_id,
           offer_id: "???",
           price: totalPrice,
-          payment_method_id: "???"
+          payment_method_id: "???",
         }
       );
       navigation.navigate("viewOrder", { driverProfile: route.params });
@@ -244,7 +247,8 @@ export default function PaymentPage({ navigation }) {
                       choosePaymentMethod &&
                       choosePaymentMethod.card_number === item.card_number &&
                       choosePaymentMethod.method_name === item.method_name &&
-                      choosePaymentMethod.cardholder_name === item.cardholder_name
+                      choosePaymentMethod.cardholder_name ===
+                        item.cardholder_name
                         ? tw`bg-[#60B876]`
                         : tw`bg-white`,
                     ]}
@@ -256,13 +260,21 @@ export default function PaymentPage({ navigation }) {
                       {(() => {
                         if (item.method_name === "Visa") {
                           return (
-<FontAwesome5 name="cc-visa" size={20} color="#1A1F71" />
+                            <FontAwesome5
+                              name="cc-visa"
+                              size={20}
+                              color="#1A1F71"
+                            />
                           );
                         } else if (item.method_name === "Mastercard") {
                           return (
-<FontAwesome5 name="cc-mastercard" size={32} color="#EB001B" />
+                            <FontAwesome5
+                              name="cc-mastercard"
+                              size={32}
+                              color="#EB001B"
+                            />
                           );
-                        } 
+                        }
                       })()}
                     </View>
 
@@ -276,7 +288,8 @@ export default function PaymentPage({ navigation }) {
                             item.card_number &&
                           choosePaymentMethod.payment_type ===
                             item.payment_type &&
-                          choosePaymentMethod.cardholder_name === item.cardholder_name
+                          choosePaymentMethod.cardholder_name ===
+                            item.cardholder_name
                             ? tw`text-white` // Change text color to white when selected
                             : tw`text-black`, // Keep text color black when not selected
                         ]}
@@ -292,7 +305,8 @@ export default function PaymentPage({ navigation }) {
                             item.card_number &&
                           choosePaymentMethod.payment_type ===
                             item.payment_type &&
-                          choosePaymentMethod.cardholder_name === item.cardholder_name
+                          choosePaymentMethod.cardholder_name ===
+                            item.cardholder_name
                             ? tw`text-white` // Change text color to white when selected
                             : tw`text-black`, // Keep text color black when not selected
                         ]}

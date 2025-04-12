@@ -71,11 +71,12 @@ const AddMethod = ({ route }) => {
 
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:4000/payment/payment-method/add`,
+        `http://${IP_ADDRESS}:4000/api/v1/customer/payment/add`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${userData.token}`,
           },
           body: JSON.stringify(payload),
         }
