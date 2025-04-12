@@ -34,38 +34,51 @@ const EditProfile = ({ navigation }) => {
       );
   };
 
-    const handleSave = async () => {
-      try {
-          const response = await fetch(`http://${IP_ADDRESS}:4000/edit_profile`, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                  first_name: firstName,
-                  last_name: lastName,
-                  email,
-                  user_id: userData.user_id,
-              }),
-          });
-  
-          if (!response.ok) {
-              Alert.alert('Error', `HTTP Error: ${response.status}`);
-              return;
-          }
-  
-          const result = await response.json();
-          if (result.Status) {
-              // Update the context with the new data
-              setUserData((prev) => ({ ...prev, first_name: firstName, last_name: lastName, email }));
-              Alert.alert('Success', 'บันทึกข้อมูลสำเร็จ');
-              navigation.goBack(); // Return to UserProfile
-          } else {
-              Alert.alert('Error', result.Error || 'ไม่สามารถบันทึกข้อมูลได้');
-          }
-      } catch (error) {
-          Alert.alert('Error', error.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+  const handleSave = async () => {
+    try {
+      // ตรวจสอบ email ก่อนส่ง
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        Alert.alert('Error', 'รูปแบบอีเมลไม่ถูกต้อง');
+        return;
       }
+  
+      const response = await fetch(`http://${IP_ADDRESS}:4000/api/v1/customer/profile/update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${userData.token}`
+        },
+        body: JSON.stringify({
+          customer_id: userData.customer_id,
+          first_name: firstName,
+          last_name: lastName,
+          email: email || null // ส่งเป็น null ถ้าไม่มีค่า
+        }),
+      });
+  
+      const result = await response.json();
+      
+      // แก้ไขการตรวจสอบ response ตามรูปแบบที่ backend ส่งกลับ
+      if (!response.ok) {
+        const errorMessage = result.message || `HTTP Error: ${response.status}`;
+        Alert.alert('Error', errorMessage);
+        return;
+      }
+  
+      // อัปเดต context
+      setUserData(prev => ({
+        ...prev,
+        first_name: firstName,
+        last_name: lastName,
+        email
+      }));
+      
+      Alert.alert('Success', 'บันทึกข้อมูลสำเร็จ');
+      navigation.goBack();
+      
+    } catch (error) {
+      Alert.alert('Error', error.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    }
   };
   
 
