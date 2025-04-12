@@ -324,6 +324,34 @@ router.post('/edit_profile', editProfile);
 
 /**
  * @swagger
+ * /driver/driverlocation/{driver_id}:
+ *   get:
+ *     summary: ดึงตำแหน่งปัจจุบันของคนขับ
+ *     description: |
+ *         - ดึงตำแหน่งปัจจุบันของ driver_id ที่ระบุ
+ *     tags: [Drivers]
+ *     parameters:
+ *       - in: path
+ *         name: driver_id
+ *         required: true
+ *         description: ID ของคนขับที่ต้องการค้นหาตำแหน่ง
+ *         schema:
+ *           type: integer
+ *           example: 91
+ *     responses:
+ *       200:
+ *         description: ตำแหน่งปัจจุบันของคนขับ
+ *       400:
+ *         description: ค่า driver_id ไม่ถูกต้อง
+ *       404:
+ *         description: ไม่พบคนขับในระบบ
+ *       500:
+ *         description: ข้อผิดพลาดของฐานข้อมูล
+ */
+router.get('/driverlocation/:driver_id', driverLocation)
+
+/**
+ * @swagger
  * /driver/fetch_driver_info/{customer_id}/{driver_id}/{request_id}:
  *   get:
  *     summary: ดึงข้อมูลของคนขับที่รับงาน

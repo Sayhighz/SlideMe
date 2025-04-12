@@ -7,7 +7,8 @@ import {
   cancelRequest,
   getDriverOffers,
   acceptOffer,
-  completeRequest
+  completeRequest,
+  getVehicles,
 } from "../../controllers/customer/requestController.js";
 import { validateAuthToken } from '../../middleware/authMiddleware.js';
 
@@ -348,5 +349,23 @@ router.post("/accept-offer", validateAuthToken, acceptOffer);
  *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
  */
 router.post("/complete", validateAuthToken, completeRequest);
+
+/**
+ * @swagger
+ * /api/v1/customer/request/vehicle_type:
+ *   get:
+ *     summary: ดึงข้อมูลประเภทรถ
+ *     description: |
+ *       - ดึงข้อมูลประเภทรถ
+ *     tags: [Requests]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: ดึงข้อมูลประเภทรถสำเร็จ
+ *       500:
+ *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
+ */
+router.get("/vehicle_type",  getVehicles);
 
 export default router;

@@ -57,18 +57,18 @@ export const validateCreateRequest = (requestData) => {
     }
     
     // Validate booking time if provided
-    if (requestData.booking_time) {
-      const bookingTime = new Date(requestData.booking_time);
-      if (isNaN(bookingTime.getTime())) {
-        errors.push('Booking time is invalid');
-      } else {
-        // Ensure booking time is in the future
-        const now = new Date();
-        if (bookingTime < now) {
-          errors.push('Booking time must be in the future');
-        }
-      }
-    }
+    // if (requestData.booking_time) {
+    //   const bookingTime = new Date(requestData.booking_time);
+    //   if (isNaN(bookingTime.getTime())) {
+    //     errors.push('Booking time is invalid');
+    //   } else {
+    //     // Ensure booking time is in the future
+    //     const now = new Date();
+    //     if (bookingTime < now) {
+    //       errors.push('Booking time must be in the future');
+    //     }
+    //   }
+    // }
     
     return {
       isValid: errors.length === 0,

@@ -19,6 +19,8 @@ import emailService from '../../services/communication/emailService.js';
 import smsService from '../../services/communication/smsService.js';
 import pushNotificationService from '../../services/communication/pushNotificationService.js';
 import socketService from '../../services/communication/socketService.js';
+import { getVehicleTypes } from '../../models/requestModel.js';
+
 
 /**
  * Create a new service request
@@ -1053,6 +1055,11 @@ export const completeRequest = asyncHandler(async (req, res) => {
       await db.rollbackTransaction(connection);
       throw error;
     }
+  });
+
+  export const getVehicles = asyncHandler(async (req, res) => {
+    const vehicleTypes = await getVehicleTypes();  // เรียกใช้จาก requestModel.js
+    return res.status(STATUS_CODES.OK).json(vehicleTypes);
   });
 
 export default {

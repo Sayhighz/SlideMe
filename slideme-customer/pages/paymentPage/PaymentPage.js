@@ -9,7 +9,7 @@ import {
   Modal,
 } from "react-native";
 import React, { useEffect, useState, useContext } from "react";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons , FontAwesome5 } from "@expo/vector-icons";
 import tw from "twrnc";
 import { TouchableOpacity } from "react-native";
 import { Pressable } from "react-native";
@@ -48,13 +48,12 @@ export default function PaymentPage({ navigation }) {
     route.params?.chooseDriver.customer_id_request || "ไม่ระบุ";
 
     useEffect(() => {
-      setTotalPrice(driverPrice + feePrice - discount);
+      setTotalPrice(parseFloat(driverPrice) + feePrice - discount);
     }, [driverPrice, discount, paymentMethods]);
   
     // Fetch payment methods when the page is focused
     useFocusEffect(
       React.useCallback(() => {
-        console.log("User Data:",userData);
         const fetchPaymentMethods = async () => {
           if (!userData || !userData.customer_id) {
             console.error("User ID is missing");
@@ -63,12 +62,21 @@ export default function PaymentPage({ navigation }) {
         
           try {
             const response = await axios.get(
-              `http://${IP_ADDRESS}:4000/payment/payment-method?customer_id=${userData.customer_id}`
+              `http://${IP_ADDRESS}:4000/api/v1/customer/payment/all?customer_id=${userData.customer_id}`,
+              {
+                headers: {
+                  "Authorization": `Bearer ${userData.token}`,
+                },
+              }
             );
         
             if (response.data.Status) {
               setPaymentMethods(response.data.Result); // ตั้งค่า state ด้วยข้อมูลที่ได้รับ
-            } else {
+            } else if(response.data.Error === "ไม่พบวิธีการชำระเงินสำหรับผู้ใช้รายนี้") {
+              console.log("No payment methods found for this user.");
+              setPaymentMethods([]); // ถ้าไม่มีข้อมูลให้ตั้งค่าเป็นอาร์เรย์ว่าง
+            }
+              else{
               console.error("Error fetching payment methods:", response.data.Error);
             }
           } catch (error) {
@@ -84,9 +92,6 @@ export default function PaymentPage({ navigation }) {
   const updateData = async () => {
     const { request_id } = route.params.chooseDriver;
     const chosen_driver_id = route.params.chooseDriver.id;
-
-    console.log("request_id:", request_id);
-    console.log("chosen_driver_id:", chosen_driver_id);
 
     try {
       const response = await axios.post(
@@ -107,7 +112,6 @@ export default function PaymentPage({ navigation }) {
     }
 
     try {
-      console.log("Request ID:", route.params.chooseDriver.request_id, "Driver ID:", route.params.chooseDriver.id, "Customer ID:", route.params.chooseDriver.customer_id_request, "Total Price:", totalPrice);
       const response = await axios.post(
         `http://${IP_ADDRESS}:4000/request/update_service_request`,
         {
@@ -239,8 +243,8 @@ export default function PaymentPage({ navigation }) {
                       tw`flex-row items-center p-4 mb-2 rounded`,
                       choosePaymentMethod &&
                       choosePaymentMethod.card_number === item.card_number &&
-                      choosePaymentMethod.payment_type === item.payment_type &&
-                      choosePaymentMethod.account_name === item.account_name
+                      choosePaymentMethod.method_name === item.method_name &&
+                      choosePaymentMethod.cardholder_name === item.cardholder_name
                         ? tw`bg-[#60B876]`
                         : tw`bg-white`,
                     ]}
@@ -250,43 +254,15 @@ export default function PaymentPage({ navigation }) {
                   >
                     <View style={tw`flex-1 items-center`}>
                       {(() => {
-                        if (item.payment_type === "credit_card") {
+                        if (item.method_name === "Visa") {
                           return (
-                            <Icon
-                              name={"credit-card"}
-                              size={20}
-                              color={"#007bff"}
-                            />
+<FontAwesome5 name="cc-visa" size={20} color="#1A1F71" />
                           );
-                        } else if (item.payment_type === "debit_card") {
+                        } else if (item.method_name === "Mastercard") {
                           return (
-                            <Icon
-                              name={"credit-card"}
-                              size={20}
-                              color={"#28a745"}
-                            />
+<FontAwesome5 name="cc-mastercard" size={32} color="#EB001B" />
                           );
-                        } else if (item.payment_type === "paypal") {
-                          return (
-                            <Icon name={"paypal"} size={20} color={"#003087"} />
-                          );
-                        } else if (item.payment_type === "bank_transfer") {
-                          return (
-                            <Icon
-                              name={"university"}
-                              size={20}
-                              color={"#6f42c1"}
-                            />
-                          );
-                        } else if (item.payment_type === "other") {
-                          return (
-                            <Icon
-                              name={"question-circle"}
-                              size={20}
-                              color={"#ffc107"}
-                            />
-                          );
-                        }
+                        } 
                       })()}
                     </View>
 
@@ -300,12 +276,12 @@ export default function PaymentPage({ navigation }) {
                             item.card_number &&
                           choosePaymentMethod.payment_type ===
                             item.payment_type &&
-                          choosePaymentMethod.account_name === item.account_name
+                          choosePaymentMethod.cardholder_name === item.cardholder_name
                             ? tw`text-white` // Change text color to white when selected
                             : tw`text-black`, // Keep text color black when not selected
                         ]}
                       >
-                        {item.account_name}
+                        {item.cardholder_name}
                       </Text>
                       <Text
                         style={[
@@ -316,12 +292,11 @@ export default function PaymentPage({ navigation }) {
                             item.card_number &&
                           choosePaymentMethod.payment_type ===
                             item.payment_type &&
-                          choosePaymentMethod.account_name === item.account_name
+                          choosePaymentMethod.cardholder_name === item.cardholder_name
                             ? tw`text-white` // Change text color to white when selected
                             : tw`text-black`, // Keep text color black when not selected
                         ]}
                       >
-                        {"**** "}
                         {item.card_number}
                       </Text>
                     </View>
