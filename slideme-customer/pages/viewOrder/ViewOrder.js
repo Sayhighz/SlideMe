@@ -150,7 +150,7 @@ export default function ViewOrder({ navigation }) {
         }
 
         // ถ้า status เป็น "completed" แสดง Alert และ navigate
-        if (response.data.status === "completed" && !alertComfirm) {
+        if (response.data.StatusOrder === "completed" && !alertComfirm) {
           setAlertConfirm(true);
           Alert.alert(
             "รถของคุณได้ถึงปลายทางแล้ว",
