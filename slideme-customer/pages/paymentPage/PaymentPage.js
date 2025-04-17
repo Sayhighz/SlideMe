@@ -44,7 +44,7 @@ export default function PaymentPage({ navigation }) {
   const driverId = route.params?.chooseDriver.id || "ไม่ระบุ";
   const driverName = route.params?.chooseDriver.name || "ไม่ระบุ";
   const driverRating = route.params?.chooseDriver.rating || "0";
-  const driverPrice = route.params?.chooseDriver.price || "0";
+  const driverPrice = parseFloat(route.params?.chooseDriver.price) || "0";
   route.params?.chooseDriver.customer_id_request || "ไม่ระบุ";
 
   useEffect(() => {
@@ -226,18 +226,18 @@ export default function PaymentPage({ navigation }) {
             <FlatList
               style={tw`flex-3 mx-4`}
               data={paymentMethods}
-              keyExtractor={(item, index) => `${item.card_number || index}`}
+              keyExtractor={(item, index) => `${index}`}
               renderItem={({ item, index }) => {
                 return (
                   <Pressable
-                    key={item.card_number || index}
+                    key={index}
                     style={[
                       tw`flex-row items-center p-4 mb-2 rounded`,
                       choosePaymentMethod &&
                       choosePaymentMethod.card_number === item.card_number &&
                       choosePaymentMethod.method_name === item.method_name &&
-                      choosePaymentMethod.cardholder_name ===
-                        item.cardholder_name
+                      choosePaymentMethod.cardholder_name === item.cardholder_name &&
+                      choosePaymentMethod.payment_method_id === item.payment_method_id
                         ? tw`bg-[#60B876]`
                         : tw`bg-white`,
                     ]}
@@ -278,7 +278,8 @@ export default function PaymentPage({ navigation }) {
                           choosePaymentMethod.payment_type ===
                             item.payment_type &&
                           choosePaymentMethod.cardholder_name ===
-                            item.cardholder_name
+                            item.cardholder_name &&
+                            choosePaymentMethod.payment_method_id === item.payment_method_id
                             ? tw`text-white` // Change text color to white when selected
                             : tw`text-black`, // Keep text color black when not selected
                         ]}
@@ -295,7 +296,8 @@ export default function PaymentPage({ navigation }) {
                           choosePaymentMethod.payment_type ===
                             item.payment_type &&
                           choosePaymentMethod.cardholder_name ===
-                            item.cardholder_name
+                            item.cardholder_name &&
+                            choosePaymentMethod.payment_method_id === item.payment_method_id
                             ? tw`text-white` // Change text color to white when selected
                             : tw`text-black`, // Keep text color black when not selected
                         ]}

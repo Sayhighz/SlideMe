@@ -41,15 +41,12 @@ const MapPage = ({ navigation }) => {
   
       if (response.data.results.length > 0) {
         const address = response.data.results[0].formatted_address;
-        console.log("Address in Thai:", address);  
 
         if (!confirmOrigin.length) {
           setOriginAddress(address);
         } else if (!confirmDestination.length) {
           setDestinationAddress(address);
-        } else {
-          //ร้านค้า or คนขับ
-        }
+        } 
       }
     } catch (error) {
       // console.error("Failed to get address:", error);

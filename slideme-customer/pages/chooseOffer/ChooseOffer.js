@@ -594,13 +594,10 @@ const ChooseOffer = ({ navigation, route }) => {
 
                   // กรองและเรียงข้อมูลทันที
                   const filtered = filterOffersByRadius(offer, newRadius);
-                  if(offer.length > 0){
-
                     calculateAccurateRouteDistance(filtered).then((results) => {
                       const sorted = sortOffersByDistance(results); // เรียงข้อมูล
                       setSortedFilteredOffer(sorted); // อัปเดตข้อมูลเรียงเสร็จแล้ว
                     });
-                  }
                 }}
               />
             ) : <Dropdown
