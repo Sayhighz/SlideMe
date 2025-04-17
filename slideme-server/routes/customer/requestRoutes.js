@@ -116,7 +116,7 @@ router.post("/create", validateAuthToken, createRequest);
  *       500:
  *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
  */
-router.get("/details", validateAuthToken, getRequestDetails);
+router.get("/details", getRequestDetails);
 
 /**
  * @swagger

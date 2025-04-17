@@ -60,7 +60,7 @@ const Rating = ({ navigation }) => {
     const fetchServiceInfo = async () => {
       try {
         const response = await fetch(
-          `http://${IP_ADDRESS}:3000/auth/customer/getServiceInfo?request_id=${requestId}`
+          `http://${IP_ADDRESS}:4000/api/v1/customer/request/details?request_id=${requestId}`
         );
         const data = await response.json();
         console.log("Service data:", data);
@@ -68,9 +68,10 @@ const Rating = ({ navigation }) => {
       } finally {
         setLoading(false);
       }
-    };
+    }; 
 
     fetchServiceInfo();
+    
   }, []);
 
   if (loading) {
@@ -100,7 +101,7 @@ const Rating = ({ navigation }) => {
 
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/add_reviews`,
+        `http://${IP_ADDRESS}:4000/api/v1/customer/review/add`,
         {
           method: "POST",
           headers: {
@@ -133,7 +134,17 @@ const Rating = ({ navigation }) => {
     }
   };
 
+
+  const consoleLogData = () => {
+    console.log("Service Data:", serviceData);
+    console.log("Request ID:", requestId);
+
+  };
+
   const truncateText = (text, maxLength = 22) => {
+    if (typeof text !== 'string') {
+      return ''; // Return an empty string if text is undefined or not a string
+    }
     return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
   };
 
@@ -212,6 +223,15 @@ const Rating = ({ navigation }) => {
         >
           <Text style={[styles.globalText, tw`text-center text-white text-xl`]}>
             {isSubmitting ? "Submitting..." : "ส่งรีวิว"}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={consoleLogData}
+          style={tw`bg-[#60B876] text-white rounded p-2 mt-2`}
+        >
+          <Text style={[styles.globalText, tw`text-center text-white text-xl`]}>
+            ย้อนกลับ
           </Text>
         </TouchableOpacity>
       </View>
