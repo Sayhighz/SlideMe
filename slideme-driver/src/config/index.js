@@ -1,7 +1,7 @@
 // แยกการ config ออกมา และรวบรวมไว้ที่นี่
 
 // URL ของ API
-export const API_URL = "http://192.168.0.102:4000/api/v1"; // แทนที่ด้วย IP address จริง
+export const API_URL = "http://192.168.1.101:4000/api/v1"; // แทนที่ด้วย IP address จริง
 
 // URL ของ Socket
 export const SOCKET_URL = API_URL;
@@ -14,8 +14,8 @@ export const IMAGE_URL = `${API_URL}/upload/fetch_image?filename=`;
 
 // ค่าเริ่มต้น
 export const DEFAULT_LOCATION = {
-  latitude: 13.736717,
-  longitude: 100.523186,
+  latitude: 13.8531582,
+  longitude: 100.58452432,
   latitudeDelta: 0.0922,
   longitudeDelta: 0.0421
 };

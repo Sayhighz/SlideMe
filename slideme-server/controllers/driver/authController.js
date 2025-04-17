@@ -51,7 +51,6 @@ export const loginDriver = asyncHandler(async (req, res) => {
         first_name, 
         last_name,
         phone_number,
-        email,
         license_plate 
       FROM drivers 
       WHERE phone_number = ?`,
