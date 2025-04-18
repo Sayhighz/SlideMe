@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef , useContext } from "react";
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
 import { useRoute } from "@react-navigation/native";
 import HeaderWithBackButton from "../../components/HeaderWithBackButton";
+import { UserContext } from "../../UserContext";
 
 const Rating = ({ navigation }) => {
   const route = useRoute();
@@ -26,10 +27,13 @@ const Rating = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const requestId = route.params.requestId;
   const inputRef = useRef(null);
+ const { userData } = useContext(UserContext);
 
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
   const responsiveHeight = height * 0.2;
+  const userId = userData?.customer_id || null;
+  const token = userData?.token || null;
 
   useEffect(() => {
     // Automatically focus the TextInput when the component mounts
@@ -64,7 +68,7 @@ const Rating = ({ navigation }) => {
         );
         const data = await response.json();
         console.log("Service data:", data);
-        setServiceData(data.Result[0]); // Assuming data is an array with one object
+        setServiceData(data); // Assuming data is an array with one object
       } finally {
         setLoading(false);
       }
@@ -93,7 +97,7 @@ const Rating = ({ navigation }) => {
 
     const newReview = {
       request_id: route.params.requestId, // Replace with actual request_id as needed
-      customer_id: route.params.customer_id_request, // Replace with actual customer_id as needed
+      customer_id: userId, // Replace with actual customer_id as needed
       driver_id: route.params.driver_id, // Replace with actual driver_id as needed
       rating: rating,
       review_text: review.trim(),
@@ -106,6 +110,7 @@ const Rating = ({ navigation }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
           },
           body: JSON.stringify(newReview),
         }
@@ -162,8 +167,8 @@ const Rating = ({ navigation }) => {
         
 
         <Text style={styles.globalText}>{`คนขับ: ${truncateText(
-          serviceData.first_name
-        )} ${truncateText(serviceData.last_name)}`}</Text>
+          serviceData.driver_first_name
+        )} ${truncateText(serviceData.driver_last_name)}`}</Text>
         <View style={tw`flex-row items-center`}> 
           
         <Text style={[styles.globalText]} >
@@ -173,7 +178,7 @@ const Rating = ({ navigation }) => {
         </View>
         
         <Text style={styles.globalText}>
-          {`ราคา: ${serviceData.price}`} บาท
+          {`ราคา: ${serviceData.payment_amount}`} บาท
         </Text>
         <Text
           style={[styles.globalText]}

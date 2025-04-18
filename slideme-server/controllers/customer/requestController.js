@@ -252,12 +252,14 @@ export const getRequestDetails = asyncHandler(async (req, res) => {
       d.phone_number AS driver_phone,
       d.license_plate,
       dd.current_latitude AS driver_current_lat,
-      dd.current_longitude AS driver_current_lng
+      dd.current_longitude AS driver_current_lng,
+      p.amount as payment_amount
     FROM servicerequests r
     LEFT JOIN vehicle_types v ON r.vehicletype_id = v.vehicletype_id
     LEFT JOIN driveroffers o ON r.offer_id = o.offer_id
     LEFT JOIN drivers d ON o.driver_id = d.driver_id
     LEFT JOIN driverdetails dd ON d.driver_id = dd.driver_id
+    LEFT JOIN payments p ON r.payment_id = p.payment_id
     WHERE r.request_id = ?
   `;
 
