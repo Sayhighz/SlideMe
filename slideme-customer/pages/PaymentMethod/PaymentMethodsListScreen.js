@@ -35,22 +35,27 @@ const PaymentMethodsListScreen = ({ navigation }) => {
 
   const translatePaymentType = (type) => {
     const typeMap = {
-      credit_card: "บัตรเครดิต",
-      debit_card: "บัตรเดบิต",
-      paypal: "PayPal",
-      bank_transfer: "บัญชีธนาคาร",
-      other: "อื่นๆ",
+      // credit_card: "บัตรเครดิต",
+      // debit_card: "บัตรเดบิต",
+      // paypal: "PayPal",
+      // bank_transfer: "บัญชีธนาคาร",
+      // other: "อื่นๆ",
+
+      Visa: "Visa",
+      Mastercard: "Mastercard",
     };
     return typeMap[type] || type;
   };
 
   const getPaymentIcon = (type) => {
     const iconMap = {
-      credit_card: { icon: "credit-card", color: "#007bff" },
-      debit_card: { icon: "credit-card", color: "#28a745" },
-      paypal: { icon: "paypal", color: "#003087" },
-      bank_transfer: { icon: "university", color: "#6f42c1" },
-      other: { icon: "question-circle", color: "#ffc107" },
+      // credit_card: { icon: "credit-card", color: "#007bff" },
+      // debit_card: { icon: "credit-card", color: "#28a745" },
+      // paypal: { icon: "paypal", color: "#003087" },
+      // bank_transfer: { icon: "university", color: "#6f42c1" },
+      // other: { icon: "question-circle", color: "#ffc107" },
+      Visa: { icon: "cc-visa", color: "#005EB8" },
+      Mastercard: { icon: "cc-mastercard", color: "#EB001B" },
     };
     return iconMap[type] || { icon: "question-circle", color: "#6c757d" };
   };
@@ -59,7 +64,12 @@ const PaymentMethodsListScreen = ({ navigation }) => {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:3000/auth/getAllUserPaymentMethods?user_id=${userData.user_id}`
+        `http://${IP_ADDRESS}:4000/api/v1/customer/payment/all?customer_id=${userData.customer_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${userData.token}`,
+          },
+        }
       );
       if (!response.ok) {
         throw new Error("Failed to fetch payment methods");
@@ -116,7 +126,9 @@ const PaymentMethodsListScreen = ({ navigation }) => {
   };
 
   const renderItem = ({ item }) => {
-    const { icon, color } = getPaymentIcon(item.payment_type);
+    const { icon, color } = getPaymentIcon(item.method_name);
+
+    if(!item.is_active) return null; 
 
     return (
       <TouchableOpacity onPress={() => openModal(item)}>
@@ -138,18 +150,17 @@ const PaymentMethodsListScreen = ({ navigation }) => {
           </View>
           <View>
             <Text style={[tw`text-lg`, styles.customFont]}>
-              {translatePaymentType(item.payment_type)}
+              {translatePaymentType(item.method_name)}
             </Text>
             <Text style={[tw`text-sm`, styles.customFont]}>
-              {item.account_name}
+              {item.cardholder_name}
             </Text>
             <Text style={[tw`text-sm`, styles.customFont]}>
-              บัญชี:{" "}
-              {item.card_number ? `**** ${item.card_number}` : "ไม่พบข้อมูล"}
+              บัญชี: {item.card_number ? `${item.card_number}` : "ไม่พบข้อมูล"}
             </Text>
-            {item.expiration_date && (
+            {item.card_expiry && (
               <Text style={[tw`text-sm`, styles.customFont]}>
-                วันหมดอายุ: {item.expiration_date}
+                วันหมดอายุ: {item.card_expiry}
               </Text>
             )}
           </View>
@@ -182,7 +193,7 @@ const PaymentMethodsListScreen = ({ navigation }) => {
         onPress={() => navigation.goBack()}
       />
       <SafeAreaView style={{ flex: 1 }}>
-        <View style={tw`flex-1 px-5 bg-gray-100 flex-col justify-between`}>
+        <View style={tw`flex-9 px-5 mb-10 bg-gray-100 flex-col justify-between`}>
           {/* FlatList for Payment Methods */}
           <FlatList
             data={paymentMethods}
@@ -212,10 +223,12 @@ const PaymentMethodsListScreen = ({ navigation }) => {
 
           {/* Submit Button */}
         </View>
-        <SubmitButton
-          onPress={() => navigation.navigate("AddPaymentMethod")}
-          title="เพิ่มช่องทางการชําระเงิน"
-        />
+        <View style={tw`flex-1`}>
+          <SubmitButton
+            onPress={() => navigation.navigate("AddPaymentMethod")}
+            title="เพิ่มช่องทางการชําระเงิน"
+          />
+        </View>
       </SafeAreaView>
     </>
   );

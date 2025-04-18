@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
 import card from "@material-tailwind/react/theme/components/card";
+import { UserContext } from "../../UserContext";
 
 const EditPaymentMethodModal = ({
   visible,
@@ -31,6 +32,8 @@ const EditPaymentMethodModal = ({
 }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [dropdownVisible, setDropdownVisible] = useState(false);
+  const { userData } = useContext(UserContext);
+  
 
   const paymentOptions = [
     { label: "บัตรเครดิต", value: "credit_card", icon: "credit-card" },
@@ -65,11 +68,12 @@ const EditPaymentMethodModal = ({
 
     try {
       const response = await fetch(
-        `http://${IP_ADDRESS}:4000/payment/payment-method/update`,
+        `http://${IP_ADDRESS}:4000/api/v1/customer/payment/update`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${userData.token}`
           },
           body: JSON.stringify(payload),
         }
@@ -100,11 +104,12 @@ const EditPaymentMethodModal = ({
           onPress: async () => {
             try {
               const response = await fetch(
-                `http://${IP_ADDRESS}:4000/payment/payment-method/disable`,
+                `http://${IP_ADDRESS}:4000/api/v1/customer/payment/disable`,
                 {
                   method: "PUT",
                   headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${userData.token}`
                   },
                   body: JSON.stringify({
                     payment_method_id: Number(paymentMethodId),

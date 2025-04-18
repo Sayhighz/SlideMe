@@ -228,6 +228,7 @@ export default function PaymentPage({ navigation }) {
               data={paymentMethods}
               keyExtractor={(item, index) => `${index}`}
               renderItem={({ item, index }) => {
+                if (!item.is_active) return null; // Skip inactive items
                 return (
                   <Pressable
                     key={index}

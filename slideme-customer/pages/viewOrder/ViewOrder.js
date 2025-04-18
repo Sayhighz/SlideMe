@@ -21,6 +21,7 @@ import axios from "axios";
 import { IP_ADDRESS } from "../../config";
 import HeaderWithBackButton from "../../components/HeaderWithBackButton";
 import { UserContext } from "../../UserContext";
+import { ProgressBar } from "../../components/ProgressBar/ProgressBar";
 
 export default function ViewOrder({ navigation }) {
   const styles = StyleSheet.create({
@@ -80,56 +81,58 @@ export default function ViewOrder({ navigation }) {
     return number.toString().padStart(length, "0");
   };
 
-  // useEffect(() => {
-  //   console.log("driver_id:", driver_id);
-  //   console.log("customer_id_request:", customer_id_request);
-  //   console.log("request_id:", request_id);
-  // }, [driver_id, customer_id_request, request_id]);
+  useEffect(() => {
+    console.log("driver_id:", driver_id);
+    console.log("customer_id_request:", customer_id_request);
+    console.log("request_id:", request_id);
+  }, [driver_id, customer_id_request, request_id]);
 
-  // const fetchOrderDetails = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       `http://${IP_ADDRESS}:4000/driver/fetch_driver_info/${customer_id_request}/${driver_id}/${request_id}`,
-  //       {
-  //         headers: {
-  //           "Authorization": `Bearer ${userData.token}`,
-  //         },
-  //       }
-  //     );
+  useEffect(() => {
+    console.log(route.params)
+  },[])
 
-  //     if (response.data.Status && response.data.Result.length > 0) {
-  //       const data = response.data.Result[0]; // Assuming you want the first result
+  const fetchOrderDetails = async () => {
+    try {
+      const response = await axios.get(
+        `http://${IP_ADDRESS}:4000/api/v1/customer/request/details?request_id=${request_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${userData.token}`,
+          },
+        }
+      );
 
-  //       // Set the state with fetched data
-  //       setOrigin({
-  //         name: data.location_from,
-  //         latitude: parseFloat(data.pickup_lat),
-  //         longitude: parseFloat(data.pickup_long),
-  //       });
+      if (response.data.Status) {
+        const data = response.data; // Assuming you want the first result
+        setOrigin({
+          name: data.location_from,
+          latitude: parseFloat(data.pickup_lat),
+          longitude: parseFloat(data.pickup_long),
+        });
 
-  //       setDestination({
-  //         name: data.location_to,
-  //         latitude: parseFloat(data.dropoff_lat),
-  //         longitude: parseFloat(data.dropoff_long),
-  //       });
+        setDestination({
+          name: data.location_to,
+          latitude: parseFloat(data.dropoff_lat),
+          longitude: parseFloat(data.dropoff_long),
+        });
 
-  //       setDriverInformation({
-  //         name: data.driver_first_name + " " + data.driver_last_name,
-  //         latitude: data.driver_latitude,
-  //         longitude: data.driver_longitude,
-  //         phone: data.driver_phone,
-  //         rating: data.average_rating.toFixed(1),
-  //       });
+        setDriverInformation({
+          name: data.driver_first_name + " " + data.driver_last_name,
+          latitude: data.driver_current_lat,
+          longitude: data.driver_current_lng,
+          phone: data.driver_phone,
+          rating: Number(data.average_rating).toFixed(1),
+        });
 
-  //       setTime(formatDateToThaiTimezone(data.booking_time));
-  //       setRequest(padNumber(data.request_id, 10));
-  //     } else {
-  //       console.error("No matching data found");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching order details:", error);
-  //   }
-  // };
+        setTime(formatDateToThaiTimezone(data.booking_time));
+        setRequest(padNumber(data.request_id, 10));
+      } else {
+        console.error("No matching data found");
+      }
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+    }
+  };
 
   const checkOrderStatus = async () => {
     try {
@@ -138,18 +141,17 @@ export default function ViewOrder({ navigation }) {
         {
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${userData.token}`,
+            Authorization: `Bearer ${userData.token}`,
           },
         }
       );
 
       if (response.data.Status) {
+        console.log("response.data.StatusOrder:", response.data.StatusOrder);
         setStatus(response.data.StatusOrder); // อัปเดตสถานะใน state
-        if(response.data.StatusOrder === "accepted") {
-          console.log("รอก่อนเด้อ");
-        }
 
-        // ถ้า status เป็น "completed" แสดง Alert และ navigate
+        if (response.data.StatusOrder === "delivery_in_progress") setConfirmFromDriver(true);
+
         if (response.data.StatusOrder === "completed" && !alertComfirm) {
           setAlertConfirm(true);
           Alert.alert(
@@ -181,11 +183,9 @@ export default function ViewOrder({ navigation }) {
   useEffect(() => {
     let interval;
 
-    if (status === "accepted") {
-      interval = setInterval(() => {
-        checkOrderStatus();
-      }, 10000);
-    }
+    interval = setInterval(() => {
+      checkOrderStatus();
+    }, 10000);
 
     if (status === "completed") {
       clearInterval(interval);
@@ -202,7 +202,7 @@ export default function ViewOrder({ navigation }) {
         {
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${userData.token}`,
+            Authorization: `Bearer ${userData.token}`,
           },
         }
       );
@@ -213,9 +213,7 @@ export default function ViewOrder({ navigation }) {
             longitude: response.data.longitude,
           });
         } else {
-          console.error(
-            "Failed to fetch driver location:",
-          );
+          console.error("Failed to fetch driver location:");
         }
       }
     } catch (error) {
@@ -239,231 +237,243 @@ export default function ViewOrder({ navigation }) {
   }, [status]);
 
   useEffect(() => {
-    // fetchOrderDetails();
+    fetchOrderDetails();
     checkOrderStatus();
     getDriverLocation();
   }, []);
 
   const handleChat = () => {
-    navigation.navigate("ChatScreen", { room_id: request_id, user_name: driverInformation.name, phoneNumber: driverInformation.phone });
+    navigation.navigate("ChatScreen", {
+      room_id: request_id,
+      user_name: driverInformation.name,
+      phoneNumber: driverInformation.phone,
+    });
   };
+
+  // useEffect(() => {
+  //   console.log("origin:", origin);
+  //   console.log("destination:", destination);
+  //   console.log("driverInformation:", driverInformation);
+  // }, [origin, destination, driverInformation]);
 
   return (
     <>
-    <HeaderWithBackButton showBackButton={true} title="รายละเอียด" onPress={() => navigation.navigate("HomePage")} />
-    <SafeAreaView style={tw`flex-1 relative `}>
-
-      <View style={tw`flex-2`}>
+      <HeaderWithBackButton
+        showBackButton={true}
+        title="รายละเอียด"
+        onPress={() => navigation.navigate("HomePage")}
+      />
+      <SafeAreaView style={tw`flex-1 relative `}>
         <View style={tw`flex-2`}>
-          <View style={tw`flex-1`}>
-            <View style={tw`flex-1 flex-row justify-between p-4 items-end`}>
-              <Text style={[styles.globalText, tw`text-sm`]}>{time}</Text>
-              <Text style={[styles.globalText, tw`text-sm`]}>{request}</Text>
-            </View>
-            <View
-              style={tw`flex-4 justify-around mx-4 bg-white shadow-lg border border-gray-300 mb-5 p-1 rounded-lg`}
-            >
-              <View style={tw`flex-1 flex-row items-center w-full`}>
-                <MaterialIcons name="location-pin" size={24} color="blue" />
-                <Text style={[styles.globalText, tw`items-center`]}>
-                  คนขับ{" "}
-                </Text>
-                <Text
-                  style={[styles.globalText, tw`items-center text-gray-600`]}
-                >
-                  {driverInformation.name}
-                </Text>
-              </View>
-              <View
-                style={tw`flex-1 flex-row items-center w-full`}
-                onTouchEnd={() => {
-                  Alert.alert("ต้นทาง :", origin.name);
-                }}
-              >
-                <MaterialIcons name="location-pin" size={24} color="red" />
-                <Text
-                  style={[styles.globalText, tw`items-center flex-1`]}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  ต้นทาง : {origin.name}
-                </Text>
-                <Text
-                  style={[styles.globalText, tw`items-center flex-1`]}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {origin.name}
-                </Text>
-              </View>
-              <View
-                style={tw`flex-1 flex-row items-center w-full`}
-                onTouchEnd={() => {
-                  Alert.alert("ปลายทาง :", destination.name);
-                }}
-              >
-                <MaterialIcons name="location-pin" size={24} color="green" />
-                <Text
-                  style={[styles.globalText, tw`items-center flex-1`]}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  ปลายทาง : {destination.name}
-                </Text>
-              </View>
-            </View>
-          </View>
           <View style={tw`flex-2`}>
-            <View style={tw`flex-1 bg-black justify-center`}>
-              <MapView
-                style={tw`flex-1`}
-                initialRegion={{
-                  latitude: 13.855890002666245,
-                  longitude: 100.58553823947129,
-                  latitudeDelta: 0.0522,
-                  longitudeDelta: 0.0521,
-                }}
+            <View style={tw`flex-1`}>
+              <View
+                style={tw`flex-1 flex-row justify-between px-4 py-2 items-end`}
               >
-                <Marker
-                  coordinate={origin}
-                  title="ต้นทาง"
-                  description={origin.name}
+                <Text style={[styles.globalText, tw`text-sm`]}>{time}</Text>
+                <Text style={[styles.globalText, tw`text-sm`]}>{request}</Text>
+              </View>
+              <View
+                style={tw`flex-4 justify-around mx-4 bg-white shadow-lg border border-gray-300 mb-1 p-1 rounded-lg`}
+              >
+                <View style={tw`flex-1 flex-row items-center w-full`}>
+                  <View style={tw`flex-1 flex-row items-center`}>
+                    <MaterialIcons name="location-pin" size={24} color="blue" />
+                    <Text style={[styles.globalText, tw`items-center`]}>
+                      คนขับ{" "}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.globalText,
+                        tw`items-center text-gray-600`,
+                      ]}
+                    >
+                      {driverInformation.name}
+                    </Text>
+                    <MaterialIcons name="star" size={24} color="orange" />
+                    <Text style={[styles.globalText, tw`text-center`]}>
+                      {driverInformation.rating || "0.0"}
+                    </Text>
+                  </View>
+                </View>
+                <View
+                  style={tw`flex-1 flex-row items-center w-full`}
+                  onTouchEnd={() => {
+                    Alert.alert("ต้นทาง :", origin.name);
+                  }}
                 >
-                  <MaterialIcons
-                    name="location-pin"
-                    size={35}
-                    color="red"
-                    style={tw`ml-2`}
-                  />
-                </Marker>
-
-                <Marker
-                  coordinate={destination}
-                  title="ปลายทาง"
-                  description={destination.name}
+                  <MaterialIcons name="location-pin" size={24} color="red" />
+                  <Text
+                    style={[styles.globalText, tw`items-center flex-1`]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    ต้นทาง : {origin.name}
+                  </Text>
+                  <Text
+                    style={[styles.globalText, tw`items-center flex-1`]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {origin.name}
+                  </Text>
+                </View>
+                <View
+                  style={tw`flex-1 flex-row items-center w-full`}
+                  onTouchEnd={() => {
+                    Alert.alert("ปลายทาง :", destination.name);
+                  }}
                 >
-                  <MaterialIcons
-                    name="location-pin"
-                    size={35}
-                    color="green"
-                    style={tw`ml-2`}
-                  />
-                </Marker>
-
-                <Marker
-                  coordinate={driverLocation}
-                  title="คนขับ"
-                  description={driverInformation.name}
+                  <MaterialIcons name="location-pin" size={24} color="green" />
+                  <Text
+                    style={[styles.globalText, tw`items-center flex-1`]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    ปลายทาง : {destination.name}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <View style={tw`flex-2`}>
+              <View style={tw`flex-1 bg-black justify-center`}>
+                <MapView
+                  style={tw`flex-1`}
+                  initialRegion={{
+                    latitude: 13.855890002666245,
+                    longitude: 100.58553823947129,
+                    latitudeDelta: 0.0522,
+                    longitudeDelta: 0.0521,
+                  }}
                 >
-                  <MaterialIcons
-                    name="location-pin"
-                    size={35}
-                    color="blue"
-                    style={tw`ml-2`}
-                  />
-                </Marker>
+                  <Marker
+                    coordinate={origin}
+                    title="ต้นทาง"
+                    description={origin.name}
+                  >
+                    <MaterialIcons
+                      name="location-pin"
+                      size={35}
+                      color="red"
+                      style={tw`ml-2`}
+                    />
+                  </Marker>
 
-                {/* <Marker
+                  <Marker
+                    coordinate={destination}
+                    title="ปลายทาง"
+                    description={destination.name}
+                  >
+                    <MaterialIcons
+                      name="location-pin"
+                      size={35}
+                      color="green"
+                      style={tw`ml-2`}
+                    />
+                  </Marker>
+
+                  <Marker
+                    coordinate={driverLocation}
+                    title="คนขับ"
+                    description={driverInformation.name}
+                  >
+                    <MaterialIcons
+                      name="location-pin"
+                      size={35}
+                      color="blue"
+                      style={tw`ml-2`}
+                    />
+                  </Marker>
+
+                  {/* <Marker
                   coordinate={myLocation}
                   title="myLocation"
                   description="myLocation"
                   pinColor="red"
                 /> */}
 
-                {origin.latitude &&
-                  origin.longitude &&
-                  destination.latitude &&
-                  destination.longitude &&
-                  driverInformation.latitude &&
-                  driverInformation.longitude && (
-                    <MapViewDirections
-                      strokeColor={"#1e40af"}
-                      strokeWidth={3}
-                      apikey={GOOGLE_MAPS_API_KEY}
-                      origin={{
-                        latitude: driverInformation.latitude,
-                        longitude: driverInformation.longitude,
-                      }}
-                      destination={
-                        confirmFromDriver
-                          ? {
-                              latitude: destination.latitude,
-                              longitude: destination.longitude,
-                            }
-                          : {
-                              latitude: origin.latitude,
-                              longitude: origin.longitude,
-                            }
-                      }
-                      // onError={(errorMessage) => {
-                      //   console.log("Error fetching directions: ", errorMessage);
-                      //   alert("ไม่พบเส้นทางระหว่างจุดต้นทางและปลายทางที่ระบุ");
-                      // }}
-                    />
-                  )}
-              </MapView>
+                  {origin.latitude &&
+                    origin.longitude &&
+                    destination.latitude &&
+                    destination.longitude &&
+                    driverInformation.latitude &&
+                    driverInformation.longitude && (
+                      <MapViewDirections
+                        strokeColor={"#1e40af"}
+                        strokeWidth={3}
+                        apikey={GOOGLE_MAPS_API_KEY}
+                        origin={{
+                          latitude: driverInformation.latitude,
+                          longitude: driverInformation.longitude,
+                        }}
+                        destination={
+                          confirmFromDriver
+                            ? {
+                                latitude: destination.latitude,
+                                longitude: destination.longitude,
+                              }
+                            : {
+                                latitude: origin.latitude,
+                                longitude: origin.longitude,
+                              }
+                        }
+                        // onError={(errorMessage) => {
+                        //   console.log("Error fetching directions: ", errorMessage);
+                        //   alert("ไม่พบเส้นทางระหว่างจุดต้นทางและปลายทางที่ระบุ");
+                        // }}
+                      />
+                    )}
+                </MapView>
+              </View>
+            </View>
+          </View>
+          <View style={tw`flex-1`}>
+            <View style={tw`flex-1 items-center`}>
+              <ProgressBar status={status} />
+            </View>
+            <View style={tw`flex-1`}>
+              <View style={tw`flex-1 flex-row justify-around mb-4`}>
+                {/* Call Button */}
+                <Pressable
+                  style={tw`flex-1 bg-white shadow-md border border-gray-300 justify-center rounded-lg items-center mx-4 h-16`}
+                  onPress={() => {
+                    openURL(`tel:${driverInformation.phone}`);
+                    console.log(driverInformation.phone);
+                  }}
+                >
+                  <MaterialIcons name="call" size={24} color="green" />
+                  <Text style={[styles.globalText, tw`text-xs`]}>โทร</Text>
+                </Pressable>
+
+                {/* Chat Button */}
+                <Pressable
+                  style={tw`flex-1 bg-white shadow-md border border-gray-300 justify-center rounded-lg items-center mx-4 h-16`}
+                  onPress={handleChat}
+                >
+                  <MaterialIcons name="chat" size={24} color="black" />
+                  <Text style={[styles.globalText, tw`text-xs`]}>ข้อความ</Text>
+                </Pressable>
+
+                {/* Cancel Button */}
+                <Pressable
+                  style={tw`flex-1 bg-white shadow-md border border-gray-300 justify-center rounded-lg items-center mx-4 h-16`}
+                  onPress={() => {
+                    Alert.alert(
+                      "ฟังก์ชั่นนี้ยังไม่พร้อมใช้งาน",
+                      "",
+                      [{ text: "OK" }],
+                      { cancelable: false }
+                    );
+                  }}
+                >
+                  <MaterialIcons name="close" size={24} color="red" />
+                  <Text style={[styles.globalText, tw`text-xs`]}>ยกเลิก</Text>
+                </Pressable>
+              </View>
             </View>
           </View>
         </View>
-        <View style={tw`flex-1`}>
-          <Pressable
-            style={tw`flex-1 flex-row bg-white shadow-md border border-gray-300 m-4 rounded-lg items-center px-4`}
-          >
-            <View style={tw`flex-8`}>
-              <Text style={[styles.globalText, tw`text-xl`]}>
-                {driverInformation.name}
-              </Text>
-            </View>
-            <View style={tw`flex-1 flex-row items-center justify-end`}>
-              <MaterialIcons name="star" size={24} color="orange" />
-              <Text style={[styles.globalText, tw`text-xl text-center`]}>
-                {driverInformation.rating || "0.0"}
-              </Text>
-            </View>
-          </Pressable>
-          <View style={tw`flex-2`}>
-            <View style={tw`flex-1 flex-row justify-around mb-4`}>
-              {/* Call Button */}
-              <Pressable
-                style={tw`flex-1 bg-white shadow-md border border-gray-300 justify-center rounded-lg items-center mx-4 h-16`}
-                onPress={() => {
-                  openURL(`tel:${driverInformation.phone}`);
-                  console.log(driverInformation.phone);
-                }}
-              >
-                <MaterialIcons name="call" size={24} color="green" />
-                <Text style={[styles.globalText, tw`text-xs`]}>โทร</Text>
-              </Pressable>
-
-              {/* Chat Button */}
-              <Pressable
-                style={tw`flex-1 bg-white shadow-md border border-gray-300 justify-center rounded-lg items-center mx-4 h-16`}
-                onPress={handleChat}
-              >
-                <MaterialIcons name="chat" size={24} color="black" />
-                <Text style={[styles.globalText, tw`text-xs`]}>ข้อความ</Text>
-              </Pressable>
-
-              {/* Cancel Button */}
-              <Pressable
-                style={tw`flex-1 bg-white shadow-md border border-gray-300 justify-center rounded-lg items-center mx-4 h-16`}
-                onPress={() => {
-                  Alert.alert(
-                    "ฟังก์ชั่นนี้ยังไม่พร้อมใช้งาน",
-                    "",
-                    [{ text: "OK" }],
-                    { cancelable: false }
-                  );
-                }}
-              >
-                <MaterialIcons name="close" size={24} color="red" />
-                <Text style={[styles.globalText, tw`text-xs`]}>ยกเลิก</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
     </>
   );
 }
