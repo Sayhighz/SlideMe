@@ -25,7 +25,7 @@ import HeaderWithBackButton from "../../components/HeaderWithBackButton";
 import { ProgressBar } from "../../components/ProgressBar/ProgressBar";
 
 const ChooseOffer = ({ navigation, route }) => {
-  const fee = "";
+  const fee = 200;
 
   const [offer, setOffer] = useState([]);
 
@@ -281,7 +281,7 @@ const ChooseOffer = ({ navigation, route }) => {
                 latitude: driver.current_latitude,
                 longitude: driver.current_longitude,
               },
-              price: driver.offered_price,
+              price: Number(driver.offered_price),
               customer_id_request: driver.customer_id,
               request_id: request_id,
               offer_id: driver.offer_id,
@@ -662,12 +662,12 @@ const ChooseOffer = ({ navigation, route }) => {
                       <View
                         style={tw`flex-row flex-1 items-center justify-center`}
                       >
-                        <Text style={[styles.globalText, tw`text-gray-600 `]}>
+                        <Text style={[styles.globalText, tw`text-gray-600`]}>
                           คนขับ : {item.name}
                         </Text>
                         <MaterialIcons name="star" size={24} color="orange" />
                         <Text
-                          style={[styles.globalText, tw`text-gray-600  flex-1`]}
+                          style={[styles.globalText, tw`text-gray-600 flex-1`]}
                         >
                           {item.rating ? item.rating : "-"}
                         </Text>
