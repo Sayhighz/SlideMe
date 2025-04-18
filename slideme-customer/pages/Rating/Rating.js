@@ -124,7 +124,10 @@ const Rating = ({ navigation }) => {
         Alert.alert(
           "Success",
           "Thank you for your review!",
-          [{ text: "OK", onPress: () => navigation.navigate("HomePage") }],
+          [{ text: "OK", onPress: () => navigation.navigate("HomePage" ,{
+            token: token
+          }) }
+          ],
           { cancelable: false }
         );
         setReview("");
@@ -172,7 +175,7 @@ const Rating = ({ navigation }) => {
         <View style={tw`flex-row items-center`}> 
           
         <Text style={[styles.globalText]} >
-          {`คะแนน: ${serviceData.average_rating?.toFixed(1) ? serviceData.average_rating.toFixed(1) : 0}`}
+        {`คะแนน: ${(parseFloat(serviceData.average_rating) || 0).toFixed(1)}`}
         </Text>
           <MaterialIcons name="star" size={17} color="orange"/>
         </View>
