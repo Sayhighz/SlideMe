@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -20,7 +20,17 @@ import { register } from '../../services/auth';
 import { FONTS, COLORS, MESSAGES } from '../../constants';
 
 const RegisterPasswordScreen = ({ navigation, route }) => {
-  const routeParams = route.params || {};
+  const {
+    phoneNumber,
+    selectedProvince,
+    selectedVehicleType,
+    firstName,
+    lastName,
+    idNumber,
+    birthDate,
+    idExpiryDate,
+    licensePlate,
+  } = route.params || {};
   
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -28,6 +38,14 @@ const RegisterPasswordScreen = ({ navigation, route }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    // เพิ่ม log เพื่อตรวจสอบข้อมูลที่รับมา
+    console.log("Password Received data:", { 
+      phoneNumber, selectedProvince, selectedVehicleType, 
+      firstName, lastName, idNumber, birthDate, idExpiryDate, licensePlate 
+    });
+  }, []);
 
   const getPasswordStrength = () => {
     if (!password) return { label: '', color: '', strength: 0 };
@@ -81,19 +99,21 @@ const RegisterPasswordScreen = ({ navigation, route }) => {
     try {
       // Prepare registration data from route params
       const registrationData = {
-        phone_number: routeParams.phoneNumber,
+        phone_number: phoneNumber,
         password: password,
-        first_name: routeParams.firstName,
-        last_name: routeParams.lastName,
-        id_number: routeParams.idNumber,
-        birth_date: routeParams.birthDate,
-        id_expiry_date: routeParams.idExpiryDate,
-        license_plate: routeParams.licensePlate,
-        province: routeParams.selectedProvince,
-        vehicle_type: routeParams.selectedVehicleType,
+        first_name: firstName,
+        last_name: lastName,
+        license_number: idNumber,      // เปลี่ยนจาก id_number
+        birth_date: birthDate,
+        id_expiry_date: idExpiryDate,
+        license_plate: licensePlate,
+        province: selectedProvince,
+        vehicletype_id: parseInt(selectedVehicleType) || 99, // แปลงเป็นตัวเลขก่อนส่งไป API
       };
       
+      console.log("Sending registration data:", registrationData);
       const response = await register(registrationData);
+      console.log("Response:", response);
       
       if (response.Status) {
         Alert.alert(

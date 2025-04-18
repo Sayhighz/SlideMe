@@ -57,7 +57,7 @@ const CustomDropdown = ({ placeholder, items, value, onChange, error }) => {
           >
             {selectedLabel}
           </Text>
-          <View style={tw`h-2 w-2 border-t-2 border-r-2 border-gray-400 transform rotate-135`} />
+          <View style={tw`h-2 w-2 border-t-2 border-r-2 border-gray-400`} />
         </View>
       </TouchableOpacity>
       

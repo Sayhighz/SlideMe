@@ -154,7 +154,16 @@
           [
             { 
               text: "เสร็จสิ้น", 
-              onPress: () => navigation.navigate('RegisterUpload', {  ...route.params, trainingScore: percentageCorrect }) // Navigating to RegisterUploadScreen
+              onPress: () => navigation.navigate('RegisterUpload', {  phoneNumber,
+                selectedProvince,
+                selectedVehicleType,
+                firstName,
+                lastName,
+                idNumber,
+                birthDate,
+                idExpiryDate,
+                licensePlate, 
+                trainingScore: percentageCorrect }) // Navigating to RegisterUploadScreen
             }
           ]
         );
