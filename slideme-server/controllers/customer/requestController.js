@@ -253,6 +253,7 @@ export const getRequestDetails = asyncHandler(async (req, res) => {
       d.license_plate,
       dd.current_latitude AS driver_current_lat,
       dd.current_longitude AS driver_current_lng,
+      p.amount AS payment_amount,
       AVG(rv.rating) AS average_rating
     FROM servicerequests r
     LEFT JOIN vehicle_types v ON r.vehicletype_id = v.vehicletype_id
@@ -260,6 +261,7 @@ export const getRequestDetails = asyncHandler(async (req, res) => {
     LEFT JOIN drivers d ON o.driver_id = d.driver_id
     LEFT JOIN driverdetails dd ON d.driver_id = dd.driver_id
     LEFT JOIN reviews rv ON d.driver_id = rv.driver_id
+    LEFT JOIN payments p ON r.payment_id = p.payment_id
     WHERE r.request_id = ?
 
       GROUP BY 
