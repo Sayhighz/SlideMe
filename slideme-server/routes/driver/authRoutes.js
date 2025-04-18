@@ -1,5 +1,5 @@
 import express from 'express';
-import { loginDriver, registerDriver, checkRegistrationStatus, resetPassword } from '../../controllers/driver/authController.js';
+import { loginDriver, registerDriver, checkRegistrationStatus, resetPassword, checkUserPhone } from '../../controllers/driver/authController.js';
 
 const router = express.Router();
 
@@ -99,6 +99,9 @@ router.post('/login', loginDriver);
  *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
  */
 router.post('/register', registerDriver);
+
+
+router.post('/check_user_phone', checkUserPhone);
 
 /**
  * @swagger

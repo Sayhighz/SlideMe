@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -21,6 +21,10 @@ import { FONTS, COLORS, MESSAGES } from '../../constants';
 
 const RegisterUploadScreen = ({ navigation, route }) => {
   const routeParams = route.params || {};
+
+  useEffect(() => {
+    console.log("userData:", routeParams.userData);
+  }, []);
   
   const [images, setImages] = useState({
     idPhoto: null,

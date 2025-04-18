@@ -557,11 +557,52 @@ export const resetPassword = asyncHandler(async (req, res) => {
   }
 });
 
+/**
+ * Check if phone number exists
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+export const checkUserPhone = asyncHandler(async (req, res) => {
+  const { phone_number } = req.body;
+
+  // Validate required fields
+  if (!phone_number) {
+    throw new ValidationError(ERROR_MESSAGES.VALIDATION.REQUIRED_FIELD, [
+      'กรุณาใส่เบอร์โทรศัพท์'
+    ]);
+  }
+
+  // Validate phone number format
+  if (!validatePhoneNumber(phone_number)) {
+    throw new ValidationError(ERROR_MESSAGES.VALIDATION.INVALID_PHONE, [
+      'เบอร์โทรศัพท์ไม่ถูกต้อง'
+    ]);
+  }
+
+  try {
+    // Check if phone number exists
+    const existingDrivers = await db.query(
+      `SELECT driver_id FROM drivers WHERE phone_number = ?`,
+      [phone_number]
+    );
+
+    return res.status(STATUS_CODES.OK).json({
+      Status: true,
+      Exists: existingDrivers.length > 0,
+      Message: existingDrivers.length > 0 ? "เบอร์โทรศัพท์นี้ถูกใช้งานแล้ว" : "เบอร์โทรศัพท์นี้สามารถใช้งานได้"
+    });
+  } catch (error) {
+    logger.error('Error checking phone number', { error: error.message });
+    throw new DatabaseError(ERROR_MESSAGES.DATABASE.QUERY_ERROR, error);
+  }
+});
+
 export default {
   loginDriver,
   registerDriver,
   checkRegistrationStatus,
   requestPasswordReset,
   verifyResetCode,
-  resetPassword
+  resetPassword,
+  checkUserPhone
 };

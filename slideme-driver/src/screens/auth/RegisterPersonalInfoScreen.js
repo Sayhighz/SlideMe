@@ -81,6 +81,7 @@ const RegisterPersonalInfoScreen = ({ navigation, route }) => {
 
   const handleNext = () => {
     if (!validateForm()) return;
+
     
     setIsLoading(true);
     

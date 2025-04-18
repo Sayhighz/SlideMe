@@ -1,7 +1,7 @@
 // แยกการ config ออกมา และรวบรวมไว้ที่นี่
 
 // URL ของ API
-export const API_URL = "http://192.168.1.101:4000/api/v1"; // แทนที่ด้วย IP address จริง
+export const API_URL = "http://192.168.1.103:4000/api/v1"; // แทนที่ด้วย IP address จริง
 
 // URL ของ Socket
 export const SOCKET_URL = API_URL;

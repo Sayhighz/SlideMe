@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   SafeAreaView,
   View,
@@ -8,9 +8,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Modal,
+  FlatList,
 } from 'react-native';
 import tw from 'twrnc';
-import RNPickerSelect from 'react-native-picker-select';
 
 // Import components
 import AuthHeader from '../../components/auth/AuthHeader';
@@ -20,7 +21,107 @@ import AuthLogo from '../../components/auth/AuthLogo';
 
 // Import services and constants
 import { postRequest } from '../../services/api';
-import { API_ENDPOINTS, FONTS, COLORS, MESSAGES, PROVINCES, VEHICLE_TYPES } from '../../constants';
+import { API_ENDPOINTS, FONTS, COLORS, MESSAGES } from '../../constants';
+import { PROVINCES, VEHICLE_TYPES } from '../../config';
+
+const CustomDropdown = ({ placeholder, items, value, onChange, error }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const selectedLabel = value ? items.find(item => item.value === value)?.label : placeholder;
+  
+  return (
+    <View style={tw`mb-4`}>
+      <Text 
+        style={{
+          fontFamily: FONTS.FAMILY.REGULAR,
+          fontSize: FONTS.SIZE.M,
+          ...tw`text-gray-700 mb-1`,
+        }}
+      >
+        {placeholder}
+      </Text>
+      
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={() => setIsOpen(true)}
+        style={{
+          ...tw`border-2 border-gray-300 rounded-lg ${error ? 'border-red-500' : ''}`,
+        }}
+      >
+        <View style={tw`flex-row justify-between items-center p-3`}>
+          <Text 
+            style={{
+              fontFamily: FONTS.FAMILY.REGULAR,
+              color: value ? '#000' : '#9ca3af',
+            }}
+          >
+            {selectedLabel}
+          </Text>
+          <View style={tw`h-2 w-2 border-t-2 border-r-2 border-gray-400 transform rotate-135`} />
+        </View>
+      </TouchableOpacity>
+      
+      {error && (
+        <Text 
+          style={{
+            fontFamily: FONTS.FAMILY.REGULAR,
+            fontSize: FONTS.SIZE.S,
+            ...tw`text-red-500 mt-1`,
+          }}
+        >
+          {error.message}
+        </Text>
+      )}
+      
+      <Modal
+        visible={isOpen}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsOpen(false)}
+      >
+        <TouchableOpacity 
+          style={tw`flex-1 bg-black bg-opacity-50`} 
+          activeOpacity={1} 
+          onPress={() => setIsOpen(false)}
+        >
+          <View style={tw`flex-1 justify-end`}>
+            <View style={tw`bg-white rounded-t-xl`}>
+              <View style={tw`flex-row justify-between items-center p-4 border-b border-gray-200`}>
+                <Text style={{ fontFamily: FONTS.FAMILY.MEDIUM, fontSize: FONTS.SIZE.L }}>
+                  {placeholder}
+                </Text>
+                <TouchableOpacity onPress={() => setIsOpen(false)}>
+                  <Text style={{ color: COLORS.PRIMARY, fontFamily: FONTS.FAMILY.MEDIUM }}>
+                    เสร็จสิ้น
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              
+              <FlatList
+                data={items}
+                keyExtractor={(item) => item.value}
+                style={tw`max-h-96`}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={tw`p-4 border-b border-gray-100 ${item.value === value ? 'bg-gray-100' : ''}`}
+                    onPress={() => {
+                      onChange(item.value);
+                      setIsOpen(false);
+                    }}
+                  >
+                    <Text style={{ fontFamily: FONTS.FAMILY.REGULAR }}>
+                      {item.label}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </View>
+  );
+};
 
 const RegisterScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -35,9 +136,10 @@ const RegisterScreen = ({ navigation }) => {
     
     if (!phoneNumber) {
       newErrors.phoneNumber = { message: 'กรุณากรอกเบอร์โทรศัพท์' };
-    } else if (!/^[0-9]{10}$/.test(phoneNumber)) {
-      newErrors.phoneNumber = { message: 'เบอร์โทรศัพท์ไม่ถูกต้อง' };
+    } else if (!/^[0][0-9]{9}$/.test(phoneNumber)) {
+      newErrors.phoneNumber = { message: 'เบอร์โทรศัพท์ต้องเริ่มต้นด้วย 0 และมีความยาว 10 หลัก' };
     }
+    
     
     if (!selectedProvince) {
       newErrors.province = { message: 'กรุณาเลือกจังหวัด' };
@@ -61,6 +163,7 @@ const RegisterScreen = ({ navigation }) => {
         phone_number: phoneNumber
       });
       
+      // ตรวจสอบค่า response.Exists ที่ส่งกลับมาจาก API
       return response.Exists;
     } catch (error) {
       console.error('Error checking phone number:', error);
@@ -68,6 +171,7 @@ const RegisterScreen = ({ navigation }) => {
       return false;
     }
   };
+  
 
   const handleNext = async () => {
     if (!validateForm()) return;
@@ -79,8 +183,16 @@ const RegisterScreen = ({ navigation }) => {
       
       if (phoneExists) {
         setErrors({ phoneNumber: { message: 'เบอร์โทรนี้ถูกใช้ไปแล้ว' } });
+        setIsLoading(false);
         return;
       }
+
+      console.log({
+        phoneNumber,
+        selectedProvince,
+        selectedVehicleType,
+      });
+  
       
       navigation.navigate('RegisterPersonalInfo', {
         phoneNumber,
@@ -93,53 +205,6 @@ const RegisterScreen = ({ navigation }) => {
       setIsLoading(false);
     }
   };
-
-  const renderPickerSelect = (placeholder, items, value, onChange, error) => (
-    <View style={tw`mb-4`}>
-      <Text 
-        style={{
-          fontFamily: FONTS.FAMILY.REGULAR,
-          fontSize: FONTS.SIZE.M,
-          ...tw`text-gray-700 mb-1`,
-        }}
-      >
-        {placeholder}
-      </Text>
-      <View 
-        style={{
-          ...tw`border-2 border-gray-300 rounded-lg ${error ? 'border-red-500' : ''}`,
-        }}
-      >
-        <RNPickerSelect
-          placeholder={{ label: placeholder, value: null }}
-          items={items}
-          onValueChange={onChange}
-          value={value}
-          style={{
-            inputIOS: {
-              fontFamily: FONTS.FAMILY.REGULAR,
-              padding: 12,
-            },
-            inputAndroid: {
-              fontFamily: FONTS.FAMILY.REGULAR,
-              padding: 12,
-            },
-          }}
-        />
-      </View>
-      {error && (
-        <Text 
-          style={{
-            fontFamily: FONTS.FAMILY.REGULAR,
-            fontSize: FONTS.SIZE.S,
-            ...tw`text-red-500 mt-1`,
-          }}
-        >
-          {error.message}
-        </Text>
-      )}
-    </View>
-  );
 
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
@@ -172,21 +237,21 @@ const RegisterScreen = ({ navigation }) => {
             maxLength={10}
           />
           
-          {renderPickerSelect(
-            'เลือกจังหวัด',
-            PROVINCES,
-            selectedProvince,
-            setSelectedProvince,
-            errors.province
-          )}
+          <CustomDropdown
+            placeholder="เลือกจังหวัด"
+            items={PROVINCES}
+            value={selectedProvince}
+            onChange={setSelectedProvince}
+            error={errors.province}
+          />
           
-          {renderPickerSelect(
-            'เลือกประเภทรถ',
-            VEHICLE_TYPES,
-            selectedVehicleType,
-            setSelectedVehicleType,
-            errors.vehicleType
-          )}
+          <CustomDropdown
+            placeholder="เลือกประเภทรถ"
+            items={VEHICLE_TYPES}
+            value={selectedVehicleType}
+            onChange={setSelectedVehicleType}
+            error={errors.vehicleType}
+          />
           
           <TouchableOpacity
             style={tw`flex-row items-center mb-6`}
