@@ -253,14 +253,39 @@ export const getRequestDetails = asyncHandler(async (req, res) => {
       d.license_plate,
       dd.current_latitude AS driver_current_lat,
       dd.current_longitude AS driver_current_lng,
-      p.amount as payment_amount
+      AVG(rv.rating) AS average_rating
     FROM servicerequests r
     LEFT JOIN vehicle_types v ON r.vehicletype_id = v.vehicletype_id
     LEFT JOIN driveroffers o ON r.offer_id = o.offer_id
     LEFT JOIN drivers d ON o.driver_id = d.driver_id
     LEFT JOIN driverdetails dd ON d.driver_id = dd.driver_id
-    LEFT JOIN payments p ON r.payment_id = p.payment_id
+    LEFT JOIN reviews rv ON d.driver_id = rv.driver_id
     WHERE r.request_id = ?
+
+      GROUP BY 
+    r.request_id,
+    r.customer_id,
+    r.pickup_lat,
+    r.pickup_long,
+    r.location_from,
+    r.dropoff_lat,
+    r.dropoff_long,
+    r.location_to,
+    r.status,
+    r.booking_time,
+    r.request_time,
+    r.customer_message,
+    r.vehicletype_id,
+    v.vehicletype_name,
+    o.offer_id,
+    o.driver_id,
+    o.offered_price,
+    d.first_name,
+    d.last_name,
+    d.phone_number,
+    d.license_plate,
+    dd.current_latitude,
+    dd.current_longitude
   `;
 
   const result = await db.query(sql, [request_id]);

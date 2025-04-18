@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useEffect, useState, useContext, useRef } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import tw from "twrnc";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import { TouchableOpacity, Animated } from "react-native";
@@ -22,9 +22,10 @@ import MapViewDirections from "react-native-maps-directions";
 import { UserContext } from "../../UserContext";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import HeaderWithBackButton from "../../components/HeaderWithBackButton";
+import { ProgressBar } from "../../components/ProgressBar/ProgressBar";
 
 const ChooseOffer = ({ navigation, route }) => {
-  const fee = '';
+  const fee = 200;
 
   const [offer, setOffer] = useState([]);
 
@@ -64,13 +65,10 @@ const ChooseOffer = ({ navigation, route }) => {
     { label: "30 กม.", value: "30000" },
   ];
 
-  const animatedValue = useRef(new Animated.Value(0)).current;
-
   const { userData } = useContext(UserContext);
   const { request_id } = route.params;
 
   const handleCancelRequest = async () => {
-
     try {
       const response = await fetch(
         `http://${IP_ADDRESS}:4000/api/v1/customer/request/cancel`,
@@ -78,7 +76,7 @@ const ChooseOffer = ({ navigation, route }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${userData.token}`,
+            Authorization: `Bearer ${userData.token}`,
           },
           body: JSON.stringify({
             request_id: request_id,
@@ -109,11 +107,11 @@ const ChooseOffer = ({ navigation, route }) => {
     const filtered = filterOffersByRadius(offer, radiusInMeters);
     setFilteredOffer(filtered);
 
-    if(offer.length > 0) {
-    // คำนวณระยะทางเส้นทางจริงและอัพเดทข้อมูลใน `FlatList`
-    calculateAccurateRouteDistance(filtered).then((results) => {
-      setFilteredOffer(results);
-    });
+    if (offer.length > 0) {
+      // คำนวณระยะทางเส้นทางจริงและอัพเดทข้อมูลใน `FlatList`
+      calculateAccurateRouteDistance(filtered).then((results) => {
+        setFilteredOffer(results);
+      });
     }
   }, [offer, radiusInMeters]);
 
@@ -227,11 +225,11 @@ const ChooseOffer = ({ navigation, route }) => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${userData.token}`,
+            Authorization: `Bearer ${userData.token}`,
           },
         }
       );
-      
+
       // Check if response is OK before trying to parse JSON
       // console.log(response)
       if (!response.ok) {
@@ -241,23 +239,22 @@ const ChooseOffer = ({ navigation, route }) => {
 
       // Get the content type
       const contentType = response.headers.get("content-type");
-      
+
       // Only try to parse as JSON if the content type is application/json
       if (contentType && contentType.includes("application/json")) {
         const data = await response.json();
         if (data.Status) {
+          setOriginLocation({
+            name: data.location_from,
+            latitude: parseFloat(data.pickup_lat),
+            longitude: parseFloat(data.pickup_long),
+          });
+          setDestinationLocation({
+            name: data.location_to,
+            latitude: parseFloat(data.dropoff_lat),
+            longitude: parseFloat(data.dropoff_long),
+          });
 
-            setOriginLocation({
-              name: data.location_from,
-              latitude: parseFloat(data.pickup_lat),
-              longitude: parseFloat(data.pickup_long),
-            });
-            setDestinationLocation({
-              name: data.location_to,
-              latitude: parseFloat(data.dropoff_lat),
-              longitude: parseFloat(data.dropoff_long),
-            });
-  
           if (data.Result === "") {
             setOfferLoading(true);
           }
@@ -268,7 +265,7 @@ const ChooseOffer = ({ navigation, route }) => {
               {
                 headers: {
                   "Content-Type": "application/json",
-                  "Authorization": `Bearer ${userData.token}`,
+                  Authorization: `Bearer ${userData.token}`,
                 },
               }
             );
@@ -284,30 +281,34 @@ const ChooseOffer = ({ navigation, route }) => {
                 latitude: driver.current_latitude,
                 longitude: driver.current_longitude,
               },
-              price: driver.offered_price,
+              price: Number(driver.offered_price),
               customer_id_request: driver.customer_id,
               request_id: request_id,
               offer_id: driver.offer_id,
             }));
-            if(drivers.length > 0) {
+            if (drivers.length > 0) {
               setOffer(drivers);
               setOfferLoading(false);
               setFetchDataLoading(true);
             }
-          
           } catch (error) {
             console.error("Error fetching driver data:", error);
           }
         }
       } else {
         // Handle non-JSON response
-        console.error("Server returned non-JSON response:", await response.text().slice(0, 100));
+        console.error(
+          "Server returned non-JSON response:",
+          await response.text().slice(0, 100)
+        );
       }
     } catch (error) {
       console.error("Error fetching data:", error);
       // Add more detailed logging for debugging
       if (error instanceof SyntaxError) {
-        console.error("JSON parsing error. This usually means the server sent HTML instead of JSON.");
+        console.error(
+          "JSON parsing error. This usually means the server sent HTML instead of JSON."
+        );
       }
     }
   };
@@ -330,8 +331,6 @@ const ChooseOffer = ({ navigation, route }) => {
       calculateAccurateRouteDistance(offer);
     }
   }, [offer]);
-  
-
 
   const calculateAccurateRouteDistance = async (offers) => {
     const promises = offers.map(async (item) => {
@@ -355,23 +354,6 @@ const ChooseOffer = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(animatedValue, {
-          toValue: 150, // ระยะทางในแกน X
-          duration: 2000, // ความเร็ว (1 วินาที)
-          useNativeDriver: true,
-        }),
-        // Animated.timing(animatedValue, {
-        //   toValue: -50, // ย้อนกลับไปในทิศตรงข้าม
-        //   duration: 2000,
-        //   useNativeDriver: true,
-        // }),
-      ])
-    ).start(); // เริ่มแอนิเมชัน
-  }, [animatedValue]);
-
-  useEffect(() => {
     refreshPage();
   }, []);
 
@@ -384,7 +366,7 @@ const ChooseOffer = ({ navigation, route }) => {
       </View>
     );
   };
-  
+
   return (
     <>
       <HeaderWithBackButton
@@ -392,331 +374,359 @@ const ChooseOffer = ({ navigation, route }) => {
         title="เลือกคนขับ"
         onPress={() => setOpenModalCancel(true)}
       />
-    <SafeAreaView style={tw`flex-1`}>
-      <Modal transparent={true} visible={openModalCancel} >
-        <View style={[{backgroundColor: "rgba(0, 0, 0, 0.5)"} , tw`flex-1 justify-center items-center`]}>
-          <View style={tw`bg-white shadow flex rounded-lg p-3 h-40 w-2/4`}>
-            <View style={tw`flex-1 items-center justify-center`}>
-              <Text style={[styles.globalText,tw`text-sm text-center text-red-600`]}>
-                คุณต้องการใช้บริการ
-              </Text>
-              <Text style={[styles.globalText,tw`text-sm text-center text-red-600`]}>นี้หรือไม่</Text>
-            </View>
-            <View style={tw`flex-row flex-1 items-center justify-around`}>
-              <TouchableOpacity
-                style={tw`p-2 bg-red-500 rounded-lg w-1/3`}
-                onPress={() => setOpenModalCancel(false)}
-              >
-                <Text style={[styles.globalText,tw`text-white text-center`]}>ไม่</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={tw`p-2 bg-green-500 rounded-lg w-1/3`}
-                onPress={handleCancelRequest}
-              >
-                <Text style={[styles.globalText,tw`text-white text-center`]}>ยืนยัน</Text>
-              </TouchableOpacity>
+      <SafeAreaView style={tw`flex-1`}>
+        <Modal transparent={true} visible={openModalCancel}>
+          <View
+            style={[
+              { backgroundColor: "rgba(0, 0, 0, 0.5)" },
+              tw`flex-1 justify-center items-center`,
+            ]}
+          >
+            <View style={tw`bg-white shadow flex rounded-lg p-3 h-40 w-2/4`}>
+              <View style={tw`flex-1 items-center justify-center`}>
+                <Text
+                  style={[
+                    styles.globalText,
+                    tw`text-sm text-center text-red-600`,
+                  ]}
+                >
+                  คุณต้องการใช้บริการ
+                </Text>
+                <Text
+                  style={[
+                    styles.globalText,
+                    tw`text-sm text-center text-red-600`,
+                  ]}
+                >
+                  นี้หรือไม่
+                </Text>
+              </View>
+              <View style={tw`flex-row flex-1 items-center justify-around`}>
+                <TouchableOpacity
+                  style={tw`p-2 bg-red-500 rounded-lg w-1/3`}
+                  onPress={() => setOpenModalCancel(false)}
+                >
+                  <Text style={[styles.globalText, tw`text-white text-center`]}>
+                    ไม่
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={tw`p-2 bg-green-500 rounded-lg w-1/3`}
+                  onPress={handleCancelRequest}
+                >
+                  <Text style={[styles.globalText, tw`text-white text-center`]}>
+                    ยืนยัน
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
-      <Modal transparent={true} visible={openModal}>
-        <View style={[tw`flex-1 justify-center items-center ` , {backgroundColor: "rgba(0, 0, 0, 0.5)"}]}>
-          <View style={tw`bg-white shadow-md border border-gray-300 w-4/5 h-1/3 flex rounded-lg p-3`}>
-            <View style={tw`flex-2`}>
-              <View style={tw`flex-1 justify-between`}>
-                <Text
-                  style={[styles.globalText, tw`text-lg text-center`]}
-                >
-                  ข้อมูลคนขับ
-                </Text>
-                <View style={tw`flex-1`}>
-                  <Text style={[styles.globalText, tw`text-lg`]}>
-                    {"ชื่อ : "}
-                    <Text style={tw`text-lg text-green-700`}>
-                      {chooseDriver.name}
-                    </Text>
+        </Modal>
+        <Modal transparent={true} visible={openModal}>
+          <View
+            style={[
+              tw`flex-1 justify-center items-center `,
+              { backgroundColor: "rgba(0, 0, 0, 0.5)" },
+            ]}
+          >
+            <View
+              style={tw`bg-white shadow-md border border-gray-300 w-4/5 h-1/3 flex rounded-lg p-3`}
+            >
+              <View style={tw`flex-2`}>
+                <View style={tw`flex-1 justify-between`}>
+                  <Text style={[styles.globalText, tw`text-lg text-center`]}>
+                    ข้อมูลคนขับ
                   </Text>
-                </View>
-                <View style={tw`flex-1`}>
-                  <Text style={[styles.globalText, tw`text-lg`]}>
-                    {"ราคา : "}
-                    <Text style={tw`text-lg text-red-700`}>
-                      {chooseDriver.price !== null
-                        ? chooseDriver.price + fee
-                        : "-"}
-                      {" บาท"}
+                  <View style={tw`flex-1`}>
+                    <Text style={[styles.globalText, tw`text-lg`]}>
+                      {"ชื่อ : "}
+                      <Text style={tw`text-lg text-green-700`}>
+                        {chooseDriver.name}
+                      </Text>
                     </Text>
-                  </Text>
-                </View>
-                <View style={tw`flex-1 justify-center`}>
-                  <Text style={[styles.globalText, tw`text-lg`]}>
-                    {"คะแนน : "}
+                  </View>
+                  <View style={tw`flex-1`}>
+                    <Text style={[styles.globalText, tw`text-lg`]}>
+                      {"ราคา : "}
+                      <Text style={tw`text-lg text-red-700`}>
+                        {chooseDriver.price !== null
+                          ? chooseDriver.price + fee
+                          : "-"}
+                        {" บาท"}
+                      </Text>
+                    </Text>
+                  </View>
+                  <View style={tw`flex-1 justify-center flex-row items-center`}>
+                    <Text style={[styles.globalText, tw`text-lg`]}>
+                      {"คะแนน : "}
+                    </Text>
                     <View>
                       <MaterialIcons name="star" size={24} color="orange" />
                     </View>
                     <Text style={tw`text-lg text-green-700 flex-1`}>
                       {chooseDriver.rating || "0.0"}
                     </Text>
-                  </Text>
+                  </View>
                 </View>
               </View>
-            </View>
-            <View style={tw`flex-1 flex-row justify-around items-center`}>
-              <Pressable
-                style={tw`bg-red-500 p-3 rounded-lg`}
-                onPress={() => {
-                  setOpenModal(false);
-                }}
-              >
-                <Text style={[styles.globalText,tw`text-lg text-[#FDFFFD]`]}>ยกเลิก</Text>
-              </Pressable>
-              <Pressable
-                style={tw`bg-[#60B876] p-3 rounded-lg`}
-                onPress={() => {
-                  navigation.navigate("payment", {
-                    chooseDriver: chooseDriver,
-                    request_id: request_id,
-                    offer_id: offer.offer_id,
-                    // originLocation: originLocation,
-                    // destinationLocation: destinationLocation,
-                  }),
+              <View style={tw`flex-1 flex-row justify-around items-center`}>
+                <Pressable
+                  style={tw`bg-red-500 p-3 rounded-lg`}
+                  onPress={() => {
                     setOpenModal(false);
-                }}
-              >
-                <Text style={[styles.globalText,tw`text-lg text-[#FDFFFD]`]}>ยืนยัน</Text>
-              </Pressable>
+                  }}
+                >
+                  <Text style={[styles.globalText, tw`text-lg text-[#FDFFFD]`]}>
+                    ยกเลิก
+                  </Text>
+                </Pressable>
+                <Pressable
+                  style={tw`bg-[#60B876] p-3 rounded-lg`}
+                  onPress={() => {
+                    navigation.navigate("payment", {
+                      chooseDriver: chooseDriver,
+                      request_id: request_id,
+                      offer_id: offer.offer_id,
+                      // originLocation: originLocation,
+                      // destinationLocation: destinationLocation,
+                    }),
+                      setOpenModal(false);
+                  }}
+                >
+                  <Text style={[styles.globalText, tw`text-lg text-[#FDFFFD]`]}>
+                    ยืนยัน
+                  </Text>
+                </Pressable>
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
-      <View style={tw`flex-2`}>
-        {originLocation.latitude && destinationLocation.latitude ? (
-          <MapView
-            style={tw`flex-1`} // ปรับขนาดตามที่ต้องการ
-            initialRegion={{
-              latitude: originLocation.latitude,
-              longitude: originLocation.longitude,
-              latitudeDelta: 0.08, // ค่า zoom level สามารถปรับได้ตามต้องการ
-              longitudeDelta: 0.08,
-            }}
-          >
-            <Marker
-              coordinate={{
+        <View style={tw`flex-2`}>
+          {originLocation.latitude && destinationLocation.latitude ? (
+            <MapView
+              style={tw`flex-1`} // ปรับขนาดตามที่ต้องการ
+              initialRegion={{
                 latitude: originLocation.latitude,
                 longitude: originLocation.longitude,
+                latitudeDelta: 0.08, // ค่า zoom level สามารถปรับได้ตามต้องการ
+                longitudeDelta: 0.08,
               }}
-              title="ต้นทาง"
-              description={originLocation.name}
             >
-              <MaterialIcons
-                name="location-pin"
-                size={35}
-                color="red"
-                style={tw`ml-2`}
-              />
-            </Marker>
-
-            <Marker
-              coordinate={{
-                latitude: destinationLocation.latitude,
-                longitude: destinationLocation.longitude,
-              }}
-              title="ปลายทาง"
-              description={destinationLocation.name}
-            >
-              <MaterialIcons
-                name="location-pin"
-                size={35}
-                color="green"
-                style={tw`ml-2`}
-              />
-            </Marker>
-
-            {filteredOffer.map((item, index) => (
               <Marker
-                key={index}
                 coordinate={{
-                  latitude: item.location.latitude,
-                  longitude: item.location.longitude,
+                  latitude: originLocation.latitude,
+                  longitude: originLocation.longitude,
                 }}
-                title={item.name}
-                description={`ราคา: ${item.price + fee} บาท`}
+                title="ต้นทาง"
+                description={originLocation.name}
               >
                 <MaterialIcons
-                  name="local-shipping"
+                  name="location-pin"
                   size={35}
-                  color={chooseDriver.id === item.id ? "#1d4ed8" : "gray"}
+                  color="red"
                   style={tw`ml-2`}
                 />
               </Marker>
-            ))}
 
-            <Circle
-              center={originLocation}
-              radius={radiusInMeters}
-              fillColor="rgba(255, 0, 0, 0.1)"
-              strokeColor="transparent"
-            />
-          </MapView>
-        ) : (
-          <View style={tw`flex-1 justify-center items-center`}>
-            <Text>Loading Map...</Text>
-          </View>
-        )}
-      </View>
+              <Marker
+                coordinate={{
+                  latitude: destinationLocation.latitude,
+                  longitude: destinationLocation.longitude,
+                }}
+                title="ปลายทาง"
+                description={destinationLocation.name}
+              >
+                <MaterialIcons
+                  name="location-pin"
+                  size={35}
+                  color="green"
+                  style={tw`ml-2`}
+                />
+              </Marker>
 
-      <View style={tw`flex-2 p-4`}>
-        <View style={tw`flex-1 flex-row`}>
-          <View style={tw`flex-1 justify-center`}>
-            <Pressable
-              onPress={() => {
-                refreshPage();
-                setFetchDataLoading(false);
-              }}
-            >
-              <MaterialIcons name="refresh" size={24} color="gray" />
-            </Pressable>
-          </View>
-          <View style={tw`flex-1 justify-center items-end`}>
-            {!offerLoading ? (
-              <Dropdown
-                style={tw`h-3/4 w-2/4 rounded-lg px-3 bg-white`}
-                data={dataDropdown}
-                maxHeight={300}
-                labelField="label"
-                valueField="value"
-                placeholder="Radius"
-                value={radiusInMeters.toString()}
-                onChange={(item) => {
-                  const newRadius = parseInt(item.value, 10);
-                  setRadiusInMeters(newRadius);
+              {filteredOffer.map((item, index) => (
+                <Marker
+                  key={index}
+                  coordinate={{
+                    latitude: item.location.latitude,
+                    longitude: item.location.longitude,
+                  }}
+                  title={item.name}
+                  description={`ราคา: ${item.price + fee} บาท`}
+                >
+                  <MaterialIcons
+                    name="local-shipping"
+                    size={35}
+                    color={chooseDriver.id === item.id ? "#1d4ed8" : "gray"}
+                    style={tw`ml-2`}
+                  />
+                </Marker>
+              ))}
 
-                  // กรองและเรียงข้อมูลทันที
-                  const filtered = filterOffersByRadius(offer, newRadius);
+              <Circle
+                center={originLocation}
+                radius={radiusInMeters}
+                fillColor="rgba(255, 0, 0, 0.1)"
+                strokeColor="transparent"
+              />
+            </MapView>
+          ) : (
+            <View style={tw`flex-1 justify-center items-center`}>
+              <Text>Loading Map...</Text>
+            </View>
+          )}
+        </View>
+
+        <View style={tw`flex-2 p-4`}>
+          <View style={tw`flex-1 flex-row`}>
+            <View style={tw`flex-1 justify-center`}>
+              <Pressable
+                onPress={() => {
+                  refreshPage();
+                  setFetchDataLoading(false);
+                }}
+              >
+                <MaterialIcons name="refresh" size={24} color="gray" />
+              </Pressable>
+            </View>
+            <View style={tw`flex-1 justify-center items-end`}>
+              {!offerLoading ? (
+                <Dropdown
+                  style={tw`h-3/4 w-2/4 rounded-lg px-3 bg-white`}
+                  data={dataDropdown}
+                  maxHeight={300}
+                  labelField="label"
+                  valueField="value"
+                  placeholder="Radius"
+                  value={radiusInMeters.toString()}
+                  onChange={(item) => {
+                    const newRadius = parseInt(item.value, 10);
+                    setRadiusInMeters(newRadius);
+
+                    // กรองและเรียงข้อมูลทันที
+                    const filtered = filterOffersByRadius(offer, newRadius);
                     calculateAccurateRouteDistance(filtered).then((results) => {
                       const sorted = sortOffersByDistance(results); // เรียงข้อมูล
                       setSortedFilteredOffer(sorted); // อัปเดตข้อมูลเรียงเสร็จแล้ว
                     });
-                }}
-              />
-            ) : <Dropdown
-            style={tw`h-3/4 w-2/4 rounded-lg px-3 bg-white`}
-            data={dataDropdown}
-            maxHeight={300}
-            labelField="label"
-            valueField="value"
-            placeholder="Radius"
-            value={radiusInMeters.toString()}
-            onChange={(item) => {
-              const newRadius = parseInt(item.value, 10);
-              setRadiusInMeters(newRadius);
-
-              // กรองและเรียงข้อมูลทันที
-              const filtered = filterOffersByRadius(offer, newRadius);
-              calculateAccurateRouteDistance(filtered).then((results) => {
-                const sorted = sortOffersByDistance(results); // เรียงข้อมูล
-                setSortedFilteredOffer(sorted); // อัปเดตข้อมูลเรียงเสร็จแล้ว
-              });
-            }}
-          />}
-          </View>
-        </View>
-        <View style={tw`flex-8 items-center`}>
-          {!offerLoading ? (
-            <FlatList
-              data={sortedFilteredOffer}
-              keyExtractor={(item, index) => `${item.id}-${index}`}
-              ListEmptyComponent={renderEmptyList}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={[
-                    tw`flex-row items-center p-2 my-2 rounded shadow w-90 justify-between h-20`,
-                    chooseDriver.id === item.id
-                      ? tw`bg-[#60B876]`
-                      : tw`bg-white`,
-                  ]}
-                  onPress={() => {
-                    if (chooseDriver.id !== item.id) {
-                      setChooseDriver(item);
-                    } else {
-                      setOpenModal(true);
-                    }
                   }}
-                >
-                  <View style={tw`flex-3 justify-between`}>
-                    <View style={tw`flex-row flex-1 items-center justify-center`}>
-                      <Text
-                        style={[
-                          styles.globalText,
-                          tw`text-gray-600 `,
-                        ]}
+                />
+              ) : (
+                <Dropdown
+                  style={tw`h-3/4 w-2/4 rounded-lg px-3 bg-white`}
+                  data={dataDropdown}
+                  maxHeight={300}
+                  labelField="label"
+                  valueField="value"
+                  placeholder="Radius"
+                  value={radiusInMeters.toString()}
+                  onChange={(item) => {
+                    const newRadius = parseInt(item.value, 10);
+                    setRadiusInMeters(newRadius);
+
+                    // กรองและเรียงข้อมูลทันที
+                    const filtered = filterOffersByRadius(offer, newRadius);
+                    calculateAccurateRouteDistance(filtered).then((results) => {
+                      const sorted = sortOffersByDistance(results); // เรียงข้อมูล
+                      setSortedFilteredOffer(sorted); // อัปเดตข้อมูลเรียงเสร็จแล้ว
+                    });
+                  }}
+                />
+              )}
+            </View>
+          </View>
+          <View style={tw`flex-8 items-center`}>
+            {!offerLoading ? (
+              <FlatList
+                data={sortedFilteredOffer}
+                keyExtractor={(item, index) => `${item.id}-${index}`}
+                ListEmptyComponent={renderEmptyList}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={[
+                      tw`flex-row items-center p-2 my-2 rounded shadow w-90 justify-between h-20`,
+                      chooseDriver.id === item.id
+                        ? tw`bg-[#60B876]`
+                        : tw`bg-white`,
+                    ]}
+                    onPress={() => {
+                      if (chooseDriver.id !== item.id) {
+                        setChooseDriver(item);
+                      } else {
+                        setOpenModal(true);
+                      }
+                    }}
+                  >
+                    <View style={tw`flex-3 justify-between`}>
+                      <View
+                        style={tw`flex-row flex-1 items-center justify-center`}
                       >
-                        คนขับ : {item.name}
-                      </Text>
+                        <Text style={[styles.globalText, tw`text-gray-600`]}>
+                          คนขับ : {item.name}
+                        </Text>
                         <MaterialIcons name="star" size={24} color="orange" />
+                        <Text
+                          style={[styles.globalText, tw`text-gray-600 flex-1`]}
+                        >
+                          {item.rating ? item.rating : "-"}
+                        </Text>
+                      </View>
+                      <View style={tw`flex-1 justify-center`}>
+                        <Text style={[styles.globalText, tw``]}>
+                          ราคา :
+                          <Text style={tw`text-red-700`}>
+                            {" "}
+                            {item.price + fee}
+                          </Text>
+                          {" บาท"}{" "}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View
+                      style={[
+                        styles.globalText,
+                        tw`flex-2 items-center justify-between`,
+                      ]}
+                    >
+                      <View style={tw`flex-1 justify-center`}>
                         <Text
                           style={[
                             styles.globalText,
-                            tw`text-gray-600  flex-1`,
+                            tw`text-gray-600 items-center`,
                           ]}
-                        >{item.rating ? item.rating : "-"}</Text>
+                        >
+                          ระยะทาง : {""}
+                          <Text style={tw`text-red-700`}>
+                            {item.distance
+                              ? (item.distance / 1000).toFixed(2)
+                              : "-"}
+                          </Text>
+                          {" กม."}
+                        </Text>
+                      </View>
+                      <View style={tw`flex-1 justify-center items-center`}>
+                        <Text style={[styles.globalText, tw`text-gray-600`]}>
+                          เวลาที่ใช้ : {""}
+                          <Text style={tw`text-red-700`}>
+                            {item.durationText}
+                          </Text>
+                          {" นาที"}
+                        </Text>
+                      </View>
                     </View>
-                    <View style={tw`flex-1 justify-center`}>
-
-                    <Text style={[styles.globalText, tw``]}>
-                      ราคา :
-                      <Text style={tw`text-red-700`}> {item.price + fee}</Text>
-                      {" บาท"}{" "}
-                    </Text>
-                    </View>
-                  </View>
-
-                  <View
-                    style={[styles.globalText, tw`flex-2 items-center justify-between`]}
-                  >
-                    <View style={tw`flex-1 justify-center`}>
-
-                    <Text style={[styles.globalText , tw`text-gray-600 items-center`]}>
-                      ระยะทาง : {""}
-                      <Text style={tw`text-red-700`}>
-                        {item.distance
-                          ? (item.distance / 1000).toFixed(2)
-                          : "-"}
-                      </Text>
-                      {" กม."}
-                    </Text>
-                          </View>
-                          <View style={tw`flex-1 justify-center items-center`}>
-
-                    <Text style={[ styles.globalText ,tw`text-gray-600`]}>
-                      เวลาที่ใช้ : {""}
-                      <Text style={tw`text-red-700`}>{item.durationText}</Text>
-                      {" นาที"}
-                    </Text>
-                          </View>
-                  </View>
-                </TouchableOpacity>
-              )}
-            />
-          ) : (
-            <View style={tw`flex-1 justify-center items-center w-1/2`}>
-              <Animated.View
-                style={StyleSheet.flatten([
-                  tw`w-full`, // ใช้ tw
-                  { transform: [{ translateX: animatedValue }] }, // ใช้แอนิเมชัน
-                ])}
-              >
-                <MaterialIcons name="local-shipping" size={35} color="gray" />
-              </Animated.View>
-              <Text style={[styles.globalText, tw`text-lg mt-5`]}>
-                กําลังรอคนขับ...
-              </Text>
-            </View>
-          )}
+                  </TouchableOpacity>
+                )}
+              />
+            ) : (
+              <View style={tw`flex-1 justify-center items-center `}>
+                <ProgressBar status="pending" />
+              </View>
+            )}
+          </View>
         </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
     </>
   );
 };

@@ -41,8 +41,8 @@ function Map({
       locationWatcher.current = await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.High,
-          timeInterval: 1000, // ตรวจสอบตำแหน่งใหม่ทุก 1 วินาที
-          distanceInterval: 1, // อัปเดตเมื่อมีการเคลื่อนที่อย่างน้อย 1 เมตร
+          timeInterval: 10000000, // ตรวจสอบตำแหน่งใหม่ทุก 10000 วินาที
+          distanceInterval: 1000, // อัปเดตเมื่อมีการเคลื่อนที่อย่างน้อย 1000 เมตร
         },
         (location) => {
           const { latitude, longitude } = location.coords;
