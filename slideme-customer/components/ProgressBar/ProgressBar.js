@@ -59,12 +59,12 @@ export function ProgressBar({ status }) {
                   style={[
                     tw`absolute w-full`,
                     {
-                      height: 2,
+                      height: 3,
                       backgroundColor:
                         i < currentIndex ? "#34D399" : "gray", // Line color
                       left: "50%",
                       marginLeft: -1, // Center the line
-                      top: "45%",
+                      top: "43%",
                     },
                   ]}
                 />
