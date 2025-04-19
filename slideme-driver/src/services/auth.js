@@ -33,17 +33,20 @@ export const login = async (phoneNumber, password) => {
 // ฟังก์ชันสำหรับการลงทะเบียน
 export const register = async (userData) => {
   try {
+    console.log("Sending to API:", userData);
     const response = await postRequest(API_ENDPOINTS.AUTH.REGISTER, userData);
-    if (response.Status) {
-        return response;
-      } else {
-        throw new Error(response.Error || "ลงทะเบียนไม่สำเร็จ");
-      }
-    } catch (error) {
-      console.error("Register error:", error);
-      throw error;
+    console.log("API Response:", response);
+    
+    if (response && response.Status) {
+      return response;
+    } else {
+      throw new Error(response?.Error || "ลงทะเบียนไม่สำเร็จ");
     }
-  };
+  } catch (error) {
+    console.error("Register error:", error);
+    throw error;
+  }
+};
   
   // ฟังก์ชันสำหรับการตรวจสอบการเข้าสู่ระบบ
   export const checkAuth = async () => {

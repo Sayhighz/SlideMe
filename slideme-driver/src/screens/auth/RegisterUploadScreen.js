@@ -20,11 +20,25 @@ import AuthButton from '../../components/auth/AuthButton';
 import { FONTS, COLORS, MESSAGES } from '../../constants';
 
 const RegisterUploadScreen = ({ navigation, route }) => {
-  const routeParams = route.params || {};
+  const {
+    phoneNumber,
+    selectedProvince,
+    selectedVehicleType,
+    firstName,
+    lastName,
+    idNumber,
+    birthDate,
+    idExpiryDate,
+    licensePlate,
+  } = route.params || {};
 
-  useEffect(() => {
-    console.log("userData:", routeParams.userData);
-  }, []);
+      useEffect(() => {
+        // เพิ่ม log เพื่อตรวจสอบข้อมูลที่รับมา
+        console.log("Upload Received data:", { 
+          phoneNumber, selectedProvince, selectedVehicleType, 
+          firstName, lastName, idNumber, birthDate, idExpiryDate, licensePlate 
+        });
+      }, []);
   
   const [images, setImages] = useState({
     idPhoto: null,
@@ -93,7 +107,15 @@ const RegisterUploadScreen = ({ navigation, route }) => {
       // In a real app, we would upload all images to the server here before proceeding
       // For this mockup, we'll just proceed to the next screen
       navigation.navigate('RegisterVerification', {
-        ...routeParams,
+        phoneNumber,
+        selectedProvince,
+        selectedVehicleType,
+        firstName,
+        lastName,
+        idNumber,
+        birthDate,
+        idExpiryDate,
+        licensePlate,
         uploadedDocuments: true,
       });
     } catch (error) {
