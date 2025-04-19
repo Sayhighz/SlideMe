@@ -22,10 +22,10 @@ export const DEFAULT_LOCATION = {
 
 // ประเภทของรถ
 export const VEHICLE_TYPES = [
-  { label: "รถสไลด์มาตรฐาน", value: "standard_slide" },
-  { label: "รถสไลด์ขนาดใหญ่", value: "heavy_duty_slide" },
-  { label: "รถสไลด์สำหรับรถหรู", value: "luxury_slide" },
-  { label: "รถสไลด์ฉุกเฉิน", value: "emergency_slide" }
+  { label: "รถสไลด์ขนาดเล็ก", value: "1" },
+  { label: "รถสไลด์ขนาดกลาง", value: "2" },
+  { label: "รถสไลด์ขนาดใหญ่", value: "3" },
+  // { label: "รถสไลด์ฉุกเฉิน", value: "emergency_slide" }
 ];
 
 // ประเภทของจังหวัด
