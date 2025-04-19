@@ -41,6 +41,7 @@ import driverLocationRoutes from './routes/driver/locationRoutes.js';
 import driverRequestRoutes from './routes/driver/requestRoutes.js';
 import driverOfferRoutes from './routes/driver/offerRoutes.js';
 import driverEarningRoutes from './routes/driver/earningRoutes.js';
+import registrationRoutes from './routes/driver/registrationRoutes.js';
 
 dotenv.config();
 
@@ -90,6 +91,7 @@ app.use(`${DRIVER_PREFIX}/location`, driverLocationRoutes);
 app.use(`${DRIVER_PREFIX}/request`, driverRequestRoutes);
 app.use(`${DRIVER_PREFIX}/offer`, driverOfferRoutes);
 app.use(`${DRIVER_PREFIX}/earning`, driverEarningRoutes);
+app.use( `${DRIVER_PREFIX}/registaration`, registrationRoutes);
 
 app.use((req, res, next) => {
   res.status(404).json({ Status: false, Error: 'Route not found' });
