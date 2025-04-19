@@ -243,7 +243,12 @@ export default function ViewOrder({ navigation }) {
       <HeaderWithBackButton
         showBackButton={true}
         title="รายละเอียด"
-        onPress={() => navigation.navigate("HomePage")}
+        onPress={() => {
+          navigation.navigate("HomePage"),
+          navigation.getParent()?.setOptions({
+            tabBarStyle: undefined,
+          });
+        }}
       />
       <SafeAreaView style={tw`flex-1 relative `}>
         <View style={tw`flex-2`}>
@@ -374,37 +379,29 @@ export default function ViewOrder({ navigation }) {
                   pinColor="red"
                 /> */}
 
-                  {origin.latitude &&
-                    origin.longitude &&
-                    destination.latitude &&
-                    destination.longitude &&
-                    driverInformation.latitude &&
-                    driverInformation.longitude && (
-                      <MapViewDirections
-                        strokeColor={"#1e40af"}
-                        strokeWidth={3}
-                        apikey={GOOGLE_MAPS_API_KEY}
-                        origin={{
-                          latitude: driverInformation.latitude,
-                          longitude: driverInformation.longitude,
-                        }}
-                        destination={
-                          confirmFromDriver
-                            ? {
-                                latitude: destination.latitude,
-                                longitude: destination.longitude,
-                              }
-                            : {
-                                latitude: origin.latitude,
-                                longitude: origin.longitude,
-                              }
-                        }
-                        // onError={(errorMessage) => {
-                        //   console.log("Error fetching directions: ", errorMessage);
-                        //   alert("ไม่พบเส้นทางระหว่างจุดต้นทางและปลายทางที่ระบุ");
-                        // }}
-                      />
-                    )}
+{origin.latitude &&
+  origin.longitude &&
+  destination.latitude &&
+  destination.longitude &&
+  driverInformation.latitude &&
+  driverInformation.longitude && (
+    <MapViewDirections
+      strokeColor={"#1e40af"}
+      strokeWidth={3}
+      apikey={GOOGLE_MAPS_API_KEY}
+      origin={`${driverInformation.latitude},${driverInformation.longitude}`}  // แก้เป็น string
+      destination={
+        confirmFromDriver
+          ? `${destination.latitude},${destination.longitude}`  // แก้เป็น string
+          : `${origin.latitude},${origin.longitude}`  // แก้เป็น string
+      }
+      // onError={(errorMessage) => {
+      //   console.log("Error fetching directions: ", errorMessage);
+      //   alert("ไม่พบเส้นทางระหว่างจุดต้นทางและปลายทางที่ระบุ");
+      // }}
+    />
+  )}
+
                 </MapView>
               </View>
             </View>
