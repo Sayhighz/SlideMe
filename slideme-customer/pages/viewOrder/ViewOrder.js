@@ -88,6 +88,8 @@ export default function ViewOrder({ navigation }) {
         }
       );
 
+      getDriverLocation();
+
       if (response.data.Status) {
         const data = response.data; // Assuming you want the first result
         setOrigin({
