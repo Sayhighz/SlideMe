@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -33,7 +33,6 @@ const EditPaymentMethodModal = ({
   const [isSaving, setIsSaving] = useState(false);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const { userData } = useContext(UserContext);
-  
 
   const paymentOptions = [
     { label: "บัตรเครดิต", value: "credit_card", icon: "credit-card" },
@@ -167,21 +166,25 @@ const EditPaymentMethodModal = ({
               <Icon name="arrow-left" size={16} color="black" />
             </TouchableOpacity>
             <Text style={[tw`text-2xl mb-5`, styles.customFont]}>
-              แก้ไขช่องทางการชำระเงิน
+              ข้อมูลการชำระเงิน
             </Text>
             <View />
           </View>
 
           <Text style={[tw`text-lg mt-2`, styles.customFont]}>ประเภท</Text>
           <TouchableOpacity
-            style={tw`border border-gray-300 rounded mt-1 p-3 flex-row justify-between items-center`}
+            style={tw`border bg-gray-200 border-gray-300 rounded p-2 flex-row justify-between items-center`}
             onPress={() => setDropdownVisible(true)}
+            disabled={true}
           >
-            <Text style={[tw`text-lg`, styles.customFont]}>
+            {/* <Text style={[tw`text-lg`, styles.customFont]}>
               {paymentOptions.find((opt) => opt.value === paymentType)?.label ||
                 "เลือกประเภทการชำระเงิน"}
             </Text>
-            <Icon name="chevron-down" size={16} />
+            <Icon name="chevron-down" size={16} /> */}
+            <Text style={[ styles.input]}>
+              {paymentType}
+            </Text>
           </TouchableOpacity>
 
           {dropdownVisible && (
@@ -210,35 +213,38 @@ const EditPaymentMethodModal = ({
 
           <Text style={[tw`text-lg mt-4`, styles.customFont]}>ชื่อบัญชี</Text>
           <TextInput
-            style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
+            style={[tw`border bg-gray-200 border-gray-300 p-2 rounded mt-1`, styles.input]}
             placeholder="ชื่อบัญชี"
             value={accountName}
             onChangeText={setAccountName}
+            editable={false}
           />
 
           <Text style={[tw`text-lg mt-4`, styles.customFont]}>
             หมายเลขบัญชี
           </Text>
           <TextInput
-            style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
+            style={[tw`border bg-gray-200 border-gray-300 p-2 rounded mt-1`, styles.input]}
             placeholder="เลขบัญชี"
             keyboardType="numeric"
             value={accountNumber}
             onChangeText={setAccountNumber}
             maxLength={4}
+            editable={false}
           />
 
           <Text style={[tw`text-lg mt-4`, styles.customFont]}>วันหมดอายุ</Text>
           <TextInput
-            style={[tw`border border-gray-300 p-2 rounded mt-1`, styles.input]}
+            style={[tw`border bg-gray-200 border-gray-300 p-2 rounded mt-1`, styles.input]}
             placeholder="MM/YY"
             value={expirationDate}
             onChangeText={handleExpirationDateChange}
             maxLength={5}
             keyboardType="numeric"
+            editable={false}
           />
 
-          <View style={tw`flex-row justify-between mt-5`}>
+          <View style={tw`flex-row justify-center mt-5`}>
             <TouchableOpacity
               style={[
                 tw`flex-row items-center p-2 rounded bg-red-600`,
@@ -252,7 +258,7 @@ const EditPaymentMethodModal = ({
                 ปิดการใช้งาน
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[
                 tw`flex-row items-center p-2 rounded bg-green-600`,
                 styles.button,
@@ -270,7 +276,7 @@ const EditPaymentMethodModal = ({
                   </Text>
                 </>
               )}
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
       </View>
