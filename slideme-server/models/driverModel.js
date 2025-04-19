@@ -20,7 +20,6 @@ export const getDriverById = async (driverId) => {
          d.first_name, 
          d.last_name, 
          d.license_plate,
-         d.license_number,
          d.id_expiry_date,
          d.province,
          d.vehicletype_id,
@@ -57,10 +56,11 @@ export const getDriverByPhone = async (phoneNumber) => {
       `SELECT 
          d.driver_id, 
          d.phone_number, 
+         d.email, 
+         d.username,
          d.first_name, 
          d.last_name, 
          d.license_plate,
-         d.license_number,
          d.id_expiry_date,
          d.province,
          d.vehicletype_id,
@@ -141,7 +141,6 @@ export const createDriver = async (driverData) => {
          first_name, 
          last_name,
          license_plate,
-         license_number,
          id_expiry_date,
          province,
          vehicletype_id,
@@ -155,7 +154,6 @@ export const createDriver = async (driverData) => {
         driverData.first_name || null,
         driverData.last_name || null,
         driverData.license_plate || null,
-        driverData.license_number || null,
         driverData.id_expiry_date || null,
         driverData.province || 'Unknown',
         driverData.vehicletype_id || 99, // Default vehicle type
@@ -203,6 +201,8 @@ export const updateDriver = async (driverId, driverData) => {
     const result = await db.query(
       `UPDATE drivers
        SET 
+         email = ?,
+         username = ?,
          first_name = ?,
          last_name = ?,
          id_expiry_date = ?,
