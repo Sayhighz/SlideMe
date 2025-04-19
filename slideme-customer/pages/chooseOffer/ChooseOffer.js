@@ -1,73 +1,58 @@
+import React, { useEffect, useState, useContext } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Modal,
-  Pressable,
   SafeAreaView,
   StyleSheet,
-  Text,
   View,
+  Alert,
+  Platform,
+  StatusBar,
+  ActivityIndicator,
 } from "react-native";
-import React, { useEffect, useState, useContext } from "react";
 import tw from "twrnc";
-import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
-import { TouchableOpacity, Animated } from "react-native";
-import MapView, { Circle, Marker } from "react-native-maps";
-import { Dropdown } from "react-native-element-dropdown";
 import axios from "axios";
-import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
 import { IP_ADDRESS } from "../../config";
-import MapViewDirections from "react-native-maps-directions";
 import { UserContext } from "../../UserContext";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import HeaderWithBackButton from "../../components/HeaderWithBackButton";
-import { ProgressBar } from "../../components/ProgressBar/ProgressBar";
+import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
+
+// Import individual components directly
+import DriverMap from "../../components/ChooseOffer/DriverMap";
+import DriverList from "../../components/ChooseOffer/DriverList";
+import CancelModal from "../../components/ChooseOffer/CancelModal";
+import DriverDetailModal from "../../components/ChooseOffer/DriverDetailModal";
+import RadioSelector from "../../components/ChooseOffer/RadioSelector";
 
 const ChooseOffer = ({ navigation, route }) => {
-  const fee = 200;
-
-  const [offer, setOffer] = useState([]);
-
-  const [chooseDriver, setChooseDriver] = useState({});
-
-  const [openModal, setOpenModal] = useState(false);
-
-  const [openModalCancel, setOpenModalCancel] = useState(false);
-
-  const [filteredOffer, setFilteredOffer] = useState([]);
-
+  const FEE = 200;
+  
+  // State management
+  const [offers, setOffers] = useState([]);
+  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [showDriverModal, setShowDriverModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [filteredOffers, setFilteredOffers] = useState([]);
   const [radiusInMeters, setRadiusInMeters] = useState(5000);
-
-  const [offerLoading, setOfferLoading] = useState(true);
-
-  const [fetchDataLoading, setFetchDataLoading] = useState(false);
-
-  const [sortedFilteredOffer, setSortedFilteredOffer] = useState([]);
-
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPolling, setIsPolling] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // Location state
   const [originLocation, setOriginLocation] = useState({
     name: "",
     latitude: 0,
     longitude: 0,
   });
-
+  
   const [destinationLocation, setDestinationLocation] = useState({
     name: "",
     latitude: 0,
     longitude: 0,
   });
 
-  const dataDropdown = [
-    { label: "1 กม.", value: "1000" },
-    { label: "5 กม.", value: "5000" },
-    { label: "10 กม.", value: "10000" },
-    { label: "20 กม.", value: "20000" },
-    { label: "30 กม.", value: "30000" },
-  ];
-
   const { userData } = useContext(UserContext);
   const { request_id } = route.params;
 
+  // Handle request cancellation
   const handleCancelRequest = async () => {
     try {
       const response = await fetch(
@@ -91,9 +76,9 @@ const ChooseOffer = ({ navigation, route }) => {
         navigation.getParent()?.setOptions({
           tabBarStyle: undefined,
         });
-        setOpenModalCancel(false);
+        setShowCancelModal(false);
       } else {
-        Alert.alert("ข้อผิดพลาด", result.message || "ยกเลิกรายการไม่สําเร็จ");
+        Alert.alert("ข้อผิดพลาด", result.message || "ยกเลิกรายการไม่สำเร็จ");
       }
     } catch (error) {
       Alert.alert("ข้อผิดพลาด", "เกิดข้อผิดพลาดในการยกเลิกรายการ");
@@ -101,27 +86,185 @@ const ChooseOffer = ({ navigation, route }) => {
     }
   };
 
+  // Fetch data and start polling
   useEffect(() => {
-    console.log("request_id", request_id);
-  }, [route.params]);
+    fetchData();
+    const interval = setInterval(() => {
+      if (!isPolling) {
+        fetchData();
+      }
+    }, 8000); // Changed to 8 seconds for better performance
+    
+    return () => clearInterval(interval);
+  }, [isPolling]);
 
+  // Update filtered offers when radius or offers change
   useEffect(() => {
-    // กรองข้อมูลด้วยรัศมีเมื่อเปลี่ยน `radiusInMeters`
-    const filtered = filterOffersByRadius(offer, radiusInMeters);
-    setFilteredOffer(filtered);
-
-    if (offer.length > 0) {
-      // คำนวณระยะทางเส้นทางจริงและอัพเดทข้อมูลใน `FlatList`
-      calculateAccurateRouteDistance(filtered).then((results) => {
-        setFilteredOffer(results);
-      });
+    if (offers.length > 0) {
+      filterAndSortOffers();
     }
-  }, [offer, radiusInMeters]);
+  }, [offers, radiusInMeters]);
 
-  useEffect(() => {
-    filterOffers(offer, radiusInMeters);
-  }, [offer, radiusInMeters]);
+  // Manual refresh function
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    setIsPolling(false);
+    fetchData().then(() => {
+      setTimeout(() => {
+        setIsRefreshing(false);
+      }, 1000);
+    });
+  };
 
+  // Fetch data from API
+  const fetchData = async () => {
+    if (isPolling) return;
+    
+    try {
+      setIsPolling(true);
+      
+      // First fetch request details
+      const requestResponse = await fetch(
+        `http://${IP_ADDRESS}:4000/api/v1/customer/request/details?request_id=${request_id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userData.token}`,
+          },
+        }
+      );
+
+      if (!requestResponse.ok) {
+        console.error(`Server responded with status: ${requestResponse.status}`);
+        setIsPolling(false);
+        return;
+      }
+
+      const contentType = requestResponse.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        console.error("Server returned non-JSON response");
+        setIsPolling(false);
+        return;
+      }
+
+      const requestData = await requestResponse.json();
+      
+      if (requestData.Status) {
+        // Update location data
+        setOriginLocation({
+          name: requestData.location_from,
+          latitude: parseFloat(requestData.pickup_lat),
+          longitude: parseFloat(requestData.pickup_long),
+        });
+        
+        setDestinationLocation({
+          name: requestData.location_to,
+          latitude: parseFloat(requestData.dropoff_lat),
+          longitude: parseFloat(requestData.dropoff_long),
+        });
+
+        // Then fetch driver offers
+        try {
+          const offersResponse = await axios.get(
+            `http://${IP_ADDRESS}:4000/api/v1/customer/request/offers?request_id=${request_id}&customer_id=${userData.customer_id}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${userData.token}`,
+              },
+            }
+          );
+
+          const driversData = offersResponse.data.offers;
+          
+          // Format driver data
+          const formattedDrivers = driversData.map((driver) => ({
+            id: driver.driver_id,
+            name: `${driver.first_name} ${driver.last_name}`,
+            rating: driver.average_rating || 0,
+            location: {
+              latitude: driver.current_latitude,
+              longitude: driver.current_longitude,
+            },
+            price: Number(driver.offered_price),
+            customer_id_request: driver.customer_id,
+            request_id: request_id,
+            offer_id: driver.offer_id,
+          }));
+          
+          if (formattedDrivers.length > 0) {
+            setOffers(formattedDrivers);
+            setIsLoading(false);
+          }
+          
+        } catch (error) {
+          console.error("Error fetching driver data:", error);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsPolling(false);
+    }
+  };
+
+  // Filter and sort drivers by distance
+  const filterAndSortOffers = async () => {
+    const filtered = offers.filter(item => {
+      const distance = calculateDistance(
+        originLocation.latitude,
+        originLocation.longitude,
+        item.location.latitude,
+        item.location.longitude
+      );
+      return distance <= radiusInMeters;
+    });
+    
+    // Get route distances and sort
+    try {
+      const driversWithRoutes = await Promise.all(
+        filtered.map(async (item) => {
+          try {
+            const routeInfo = await getRouteDistance(item.location, originLocation);
+            return {
+              ...item,
+              distance: routeInfo.distance || calculateDistance(
+                originLocation.latitude,
+                originLocation.longitude,
+                item.location.latitude,
+                item.location.longitude
+              ),
+              duration: routeInfo.duration,
+              durationText: routeInfo.durationText,
+            };
+          } catch (error) {
+            return { 
+              ...item, 
+              distance: calculateDistance(
+                originLocation.latitude,
+                originLocation.longitude,
+                item.location.latitude,
+                item.location.longitude
+              ), 
+              duration: null, 
+              durationText: null 
+            };
+          }
+        })
+      );
+      
+      const sorted = driversWithRoutes.sort(
+        (a, b) => (a.distance || Infinity) - (b.distance || Infinity)
+      );
+      
+      setFilteredOffers(sorted);
+    } catch (error) {
+      console.error("Error calculating routes:", error);
+    }
+  };
+
+  // Calculate straight-line distance between coordinates
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371000; // Earth's radius in meters
     const toRadians = (degrees) => (degrees * Math.PI) / 180;
@@ -137,48 +280,9 @@ const ChooseOffer = ({ navigation, route }) => {
     return R * c; // Distance in meters
   };
 
-  const filterOffers = async (offers, radius) => {
-    // กรองข้อเสนอโดยใช้การคำนวณระยะทางแบบ haversine
-    const haversineFiltered = offers.filter((item) => {
-      const distance = calculateDistance(
-        originLocation.latitude,
-        originLocation.longitude,
-        item.location.latitude,
-        item.location.longitude
-      );
-      return distance <= radius; // กรองตามรัศมีที่กำหนด
-    });
-
-    // ใช้ Google Maps API เพื่อดึงข้อมูลเส้นทางสำหรับการแสดงผล
-    const promises = haversineFiltered.map(async (item) => {
-      try {
-        const result = await getRouteDistance(item.location, originLocation);
-        return {
-          ...item,
-          distance:
-            result.distance !== null
-              ? result.distance
-              : calculateDistance(
-                  originLocation.latitude,
-                  originLocation.longitude,
-                  item.location.latitude,
-                  item.location.longitude
-                ), // ใช้ระยะทางแบบ haversine หาก API ไม่สามารถคืนค่าระยะทางได้
-          duration: result.duration,
-          durationText: result.durationText,
-        };
-      } catch (error) {
-        console.error(`Error fetching route distance for ${item.name}:`, error);
-        return { ...item, distance: null, duration: null, durationText: null };
-      }
-    });
-
-    const results = await Promise.all(promises);
-    setFilteredOffer(results);
-  };
-
+  // Get route distance using Google Maps API
   const getRouteDistance = async (driverLocation, originLocation) => {
-    const API_KEY = GOOGLE_MAPS_API_KEY; // Use your API key
+    const API_KEY = GOOGLE_MAPS_API_KEY;
     const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${driverLocation.latitude},${driverLocation.longitude}&destination=${originLocation.latitude},${originLocation.longitude}&key=${API_KEY}`;
 
     try {
@@ -197,540 +301,135 @@ const ChooseOffer = ({ navigation, route }) => {
         return { distance, duration, durationText };
       } else {
         console.error("No routes found");
-        return { distance: null, duration: null, durationText: null };
+        // Fall back to direct distance calculation
+        const distance = calculateDistance(
+          driverLocation.latitude,
+          driverLocation.longitude,
+          originLocation.latitude,
+          originLocation.longitude
+        );
+        const durationInSeconds = distance / 10; // Assuming 10 m/s average speed
+        const durationInMinutes = Math.round(durationInSeconds / 60);
+        
+        return { 
+          distance: distance, 
+          duration: durationInSeconds,
+          durationText: durationInMinutes.toString()
+        };
       }
     } catch (error) {
       console.error("Error calling Directions API:", error.message);
-      return { distance: null, duration: null, durationText: null };
-    }
-  };
-
-  const sortOffersByDistance = (offers) => {
-    return offers.sort(
-      (a, b) => (a.distance || Infinity) - (b.distance || Infinity)
-    );
-  };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refreshPage();
-    }, 5000); // Poll every 5 seconds
-
-    return () => clearInterval(interval); // Cleanup on component unmount
-  }, [fetchDataLoading]);
-
-  const refreshPage = async () => {
-    if (fetchDataLoading) return;
-    try {
-      const response = await fetch(
-        `http://${IP_ADDRESS}:4000/api/v1/customer/request/details?request_id=${request_id}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${userData.token}`,
-          },
-        }
-      );
-
-      // Check if response is OK before trying to parse JSON
-      // console.log(response)
-      if (!response.ok) {
-        console.error(`Server responded with status: ${response.status}`);
-        return;
-      }
-
-      // Get the content type
-      const contentType = response.headers.get("content-type");
-
-      // Only try to parse as JSON if the content type is application/json
-      if (contentType && contentType.includes("application/json")) {
-        const data = await response.json();
-        if (data.Status) {
-          setOriginLocation({
-            name: data.location_from,
-            latitude: parseFloat(data.pickup_lat),
-            longitude: parseFloat(data.pickup_long),
-          });
-          setDestinationLocation({
-            name: data.location_to,
-            latitude: parseFloat(data.dropoff_lat),
-            longitude: parseFloat(data.dropoff_long),
-          });
-
-          if (data.Result === "") {
-            setOfferLoading(true);
-          }
-
-          try {
-            const response = await axios.get(
-              `http://${IP_ADDRESS}:4000/api/v1/customer/request/offers?request_id=${request_id}&customer_id=${userData.customer_id}`,
-              {
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${userData.token}`,
-                },
-              }
-            );
-
-            const data = await response.data.offers;
-
-            // Handle driver data if available
-            const drivers = data.map((driver) => ({
-              id: driver.driver_id,
-              name: `${driver.first_name} ${driver.last_name}`,
-              rating: driver.average_rating || 0,
-              location: {
-                latitude: driver.current_latitude,
-                longitude: driver.current_longitude,
-              },
-              price: Number(driver.offered_price),
-              customer_id_request: driver.customer_id,
-              request_id: request_id,
-              offer_id: driver.offer_id,
-            }));
-            if (drivers.length > 0) {
-              setOffer(drivers);
-              setOfferLoading(false);
-              setFetchDataLoading(true);
-            }
-          } catch (error) {
-            console.error("Error fetching driver data:", error);
-          }
-        }
-      } else {
-        // Handle non-JSON response
-        console.error(
-          "Server returned non-JSON response:",
-          await response.text().slice(0, 100)
-        );
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      // Add more detailed logging for debugging
-      if (error instanceof SyntaxError) {
-        console.error(
-          "JSON parsing error. This usually means the server sent HTML instead of JSON."
-        );
-      }
-    }
-  };
-
-  const filterOffersByRadius = (offers, radius) => {
-    const filteredOffers = offers.filter((item) => {
+      // Fall back to direct distance calculation
       const distance = calculateDistance(
+        driverLocation.latitude,
+        driverLocation.longitude,
         originLocation.latitude,
-        originLocation.longitude,
-        item.location.latitude,
-        item.location.longitude
+        originLocation.longitude
       );
-      return distance <= radius;
-    });
-    return sortOffersByDistance(filteredOffers); // เรียงข้อมูลทันที
-  };
-
-  useEffect(() => {
-    if (offer.length > 0) {
-      calculateAccurateRouteDistance(offer);
+      const durationInSeconds = distance / 10; // Assuming 10 m/s average speed
+      const durationInMinutes = Math.round(durationInSeconds / 60);
+      
+      return { 
+        distance: distance, 
+        duration: durationInSeconds,
+        durationText: durationInMinutes.toString()
+      };
     }
-  }, [offer]);
-
-  const calculateAccurateRouteDistance = async (offers) => {
-    const promises = offers.map(async (item) => {
-      try {
-        const result = await getRouteDistance(item.location, originLocation);
-        return {
-          ...item,
-          distance: result.distance,
-          duration: result.duration,
-          durationText: result.durationText,
-        };
-      } catch (error) {
-        console.error(`Error fetching route distance for ${item.name}:`, error);
-        return { ...item, distance: null, duration: null, durationText: null };
-      }
-    });
-
-    const results = await Promise.all(promises);
-    setSortedFilteredOffer(results);
-    return sortOffersByDistance(results); // เรียงลำดับ
   };
 
-  useEffect(() => {
-    refreshPage();
-  }, []);
+  // Handle driver selection
+  const handleDriverSelect = (driver) => {
+    if (selectedDriver && selectedDriver.id === driver.id) {
+      setShowDriverModal(true);
+    } else {
+      setSelectedDriver(driver);
+    }
+  };
 
-  const renderEmptyList = () => {
-    return (
-      <View style={tw`flex-1 justify-center items-center mt-20 h-2/2`}>
-        <Text style={[styles.globalText, tw`text-lg`]}>
-          ไม่มีคนขับในระยะนี้
-        </Text>
-      </View>
-    );
+  // Handle driver confirmation
+  const handleDriverConfirm = () => {
+    navigation.navigate("payment", {
+      chooseDriver: selectedDriver,
+      request_id: request_id,
+      offer_id: selectedDriver.offer_id,
+    });
+    setShowDriverModal(false);
   };
 
   return (
-    <>
+    <SafeAreaView style={[
+      tw`flex-1 bg-gray-50`,
+      { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }
+    ]}>
       <HeaderWithBackButton
         showBackButton={true}
         title="เลือกคนขับ"
-        onPress={() => setOpenModalCancel(true)}
+        onPress={() => setShowCancelModal(true)}
       />
-      <SafeAreaView style={tw`flex-1`}>
-        <Modal transparent={true} visible={openModalCancel}>
-          <View
-            style={[
-              { backgroundColor: "rgba(0, 0, 0, 0.5)" },
-              tw`flex-1 justify-center items-center`,
-            ]}
-          >
-            <View style={tw`bg-white shadow flex rounded-lg p-3 h-40 w-2/4`}>
-              <View style={tw`flex-1 items-center justify-center`}>
-                <Text
-                  style={[
-                    styles.globalText,
-                    tw`text-sm text-center text-red-600`,
-                  ]}
-                >
-                  คุณต้องการใช้บริการ
-                </Text>
-                <Text
-                  style={[
-                    styles.globalText,
-                    tw`text-sm text-center text-red-600`,
-                  ]}
-                >
-                  นี้หรือไม่
-                </Text>
-              </View>
-              <View style={tw`flex-row flex-1 items-center justify-around`}>
-                <TouchableOpacity
-                  style={tw`p-2 bg-red-500 rounded-lg w-1/3`}
-                  onPress={() => setOpenModalCancel(false)}
-                >
-                  <Text style={[styles.globalText, tw`text-white text-center`]}>
-                    ไม่
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={tw`p-2 bg-green-500 rounded-lg w-1/3`}
-                  onPress={handleCancelRequest}
-                >
-                  <Text style={[styles.globalText, tw`text-white text-center`]}>
-                    ยืนยัน
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
-        <Modal transparent={true} visible={openModal}>
-          <View
-            style={[
-              tw`flex-1 justify-center items-center `,
-              { backgroundColor: "rgba(0, 0, 0, 0.5)" },
-            ]}
-          >
-            <View
-              style={tw`bg-white shadow-md border border-gray-300 w-4/5 h-1/3 flex rounded-lg p-3`}
-            >
-              <View style={tw`flex-2`}>
-                <View style={tw`flex-1 justify-between`}>
-                  <Text style={[styles.globalText, tw`text-lg text-center`]}>
-                    ข้อมูลคนขับ
-                  </Text>
-                  <View style={tw`flex-1`}>
-                    <Text style={[styles.globalText, tw`text-lg`]}>
-                      {"ชื่อ : "}
-                      <Text style={tw`text-lg text-green-700`}>
-                        {chooseDriver.name}
-                      </Text>
-                    </Text>
-                  </View>
-                  <View style={tw`flex-1`}>
-                    <Text style={[styles.globalText, tw`text-lg`]}>
-                      {"ราคา : "}
-                      <Text style={tw`text-lg text-red-700`}>
-                        {chooseDriver.price !== null
-                          ? chooseDriver.price + fee
-                          : "-"}
-                        {" บาท"}
-                      </Text>
-                    </Text>
-                  </View>
-                  <View style={tw`flex-1 justify-center flex-row items-center`}>
-                    <Text style={[styles.globalText, tw`text-lg`]}>
-                      {"คะแนน : "}
-                    </Text>
-                    <View>
-                      <MaterialIcons name="star" size={24} color="orange" />
-                    </View>
-                    <Text style={tw`text-lg text-green-700 flex-1`}>
-                      {chooseDriver.rating || "0.0"}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-              <View style={tw`flex-1 flex-row justify-around items-center`}>
-                <Pressable
-                  style={tw`bg-red-500 p-3 rounded-lg`}
-                  onPress={() => {
-                    setOpenModal(false);
-                  }}
-                >
-                  <Text style={[styles.globalText, tw`text-lg text-[#FDFFFD]`]}>
-                    ยกเลิก
-                  </Text>
-                </Pressable>
-                <Pressable
-                  style={tw`bg-[#60B876] p-3 rounded-lg`}
-                  onPress={() => {
-                    navigation.navigate("payment", {
-                      chooseDriver: chooseDriver,
-                      request_id: request_id,
-                      offer_id: offer.offer_id,
-                      // originLocation: originLocation,
-                      // destinationLocation: destinationLocation,
-                    }),
-                      setOpenModal(false);
-                  }}
-                >
-                  <Text style={[styles.globalText, tw`text-lg text-[#FDFFFD]`]}>
-                    ยืนยัน
-                  </Text>
-                </Pressable>
-              </View>
-            </View>
-          </View>
-        </Modal>
-
-        <View style={tw`flex-2`}>
-          {originLocation.latitude && destinationLocation.latitude ? (
-            <MapView
-              style={tw`flex-1`} // ปรับขนาดตามที่ต้องการ
-              initialRegion={{
-                latitude: originLocation.latitude,
-                longitude: originLocation.longitude,
-                latitudeDelta: 0.08, // ค่า zoom level สามารถปรับได้ตามต้องการ
-                longitudeDelta: 0.08,
-              }}
-            >
-              <Marker
-                coordinate={{
-                  latitude: originLocation.latitude,
-                  longitude: originLocation.longitude,
-                }}
-                title="ต้นทาง"
-                description={originLocation.name}
-              >
-                <MaterialIcons
-                  name="location-pin"
-                  size={35}
-                  color="red"
-                  style={tw`ml-2`}
-                />
-              </Marker>
-
-              <Marker
-                coordinate={{
-                  latitude: destinationLocation.latitude,
-                  longitude: destinationLocation.longitude,
-                }}
-                title="ปลายทาง"
-                description={destinationLocation.name}
-              >
-                <MaterialIcons
-                  name="location-pin"
-                  size={35}
-                  color="green"
-                  style={tw`ml-2`}
-                />
-              </Marker>
-
-              {filteredOffer.map((item, index) => (
-                <Marker
-                  key={index}
-                  coordinate={{
-                    latitude: item.location.latitude,
-                    longitude: item.location.longitude,
-                  }}
-                  title={item.name}
-                  description={`ราคา: ${item.price + fee} บาท`}
-                >
-                  <MaterialIcons
-                    name="local-shipping"
-                    size={35}
-                    color={chooseDriver.id === item.id ? "#1d4ed8" : "gray"}
-                    style={tw`ml-2`}
-                  />
-                </Marker>
-              ))}
-
-              <Circle
-                center={originLocation}
-                radius={radiusInMeters}
-                fillColor="rgba(255, 0, 0, 0.1)"
-                strokeColor="transparent"
-              />
-            </MapView>
-          ) : (
-            <View style={tw`flex-1 justify-center items-center`}>
-              <Text>Loading Map...</Text>
-            </View>
-          )}
-        </View>
-
-        <View style={tw`flex-2 p-4`}>
-          <View style={tw`flex-1 flex-row`}>
-            <View style={tw`flex-1 justify-center`}>
-              <Pressable
-                onPress={() => {
-                  refreshPage();
-                  setFetchDataLoading(false);
-                }}
-              >
-                <MaterialIcons name="refresh" size={24} color="gray" />
-              </Pressable>
-            </View>
-            <View style={tw`flex-1 justify-center items-end`}>
-              {!offerLoading ? (
-                <Dropdown
-                  style={tw`h-3/4 w-2/4 rounded-lg px-3 bg-white`}
-                  data={dataDropdown}
-                  maxHeight={300}
-                  labelField="label"
-                  valueField="value"
-                  placeholder="Radius"
-                  value={radiusInMeters.toString()}
-                  onChange={(item) => {
-                    const newRadius = parseInt(item.value, 10);
-                    setRadiusInMeters(newRadius);
-
-                    // กรองและเรียงข้อมูลทันที
-                    const filtered = filterOffersByRadius(offer, newRadius);
-                    calculateAccurateRouteDistance(filtered).then((results) => {
-                      const sorted = sortOffersByDistance(results); // เรียงข้อมูล
-                      setSortedFilteredOffer(sorted); // อัปเดตข้อมูลเรียงเสร็จแล้ว
-                    });
-                  }}
-                />
-              ) : (
-                <Dropdown
-                  style={tw`h-3/4 w-2/4 rounded-lg px-3 bg-white`}
-                  data={dataDropdown}
-                  maxHeight={300}
-                  labelField="label"
-                  valueField="value"
-                  placeholder="Radius"
-                  value={radiusInMeters.toString()}
-                  onChange={(item) => {
-                    const newRadius = parseInt(item.value, 10);
-                    setRadiusInMeters(newRadius);
-
-                    // กรองและเรียงข้อมูลทันที
-                    const filtered = filterOffersByRadius(offer, newRadius);
-                    calculateAccurateRouteDistance(filtered).then((results) => {
-                      const sorted = sortOffersByDistance(results); // เรียงข้อมูล
-                      setSortedFilteredOffer(sorted); // อัปเดตข้อมูลเรียงเสร็จแล้ว
-                    });
-                  }}
-                />
-              )}
-            </View>
-          </View>
-          <View style={tw`flex-8 items-center`}>
-            {!offerLoading ? (
-              <FlatList
-                data={sortedFilteredOffer}
-                keyExtractor={(item, index) => `${item.id}-${index}`}
-                ListEmptyComponent={renderEmptyList}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={[
-                      tw`flex-row items-center p-2 my-2 rounded shadow w-90 justify-between h-20`,
-                      chooseDriver.id === item.id
-                        ? tw`bg-[#60B876]`
-                        : tw`bg-white`,
-                    ]}
-                    onPress={() => {
-                      if (chooseDriver.id !== item.id) {
-                        setChooseDriver(item);
-                      } else {
-                        setOpenModal(true);
-                      }
-                    }}
-                  >
-                    <View style={tw`flex-3 justify-between`}>
-                      <View
-                        style={tw`flex-row flex-1 items-center justify-center`}
-                      >
-                        <Text style={[styles.globalText, tw`text-gray-600`]}>
-                          คนขับ : {item.name}
-                        </Text>
-                        <MaterialIcons name="star" size={24} color="orange" />
-                        <Text
-                          style={[styles.globalText, tw`text-gray-600 flex-1`]}
-                        >
-                          {item.rating ? item.rating : "-"}
-                        </Text>
-                      </View>
-                      <View style={tw`flex-1 justify-center`}>
-                        <Text style={[styles.globalText, tw``]}>
-                          ราคา :
-                          <Text style={tw`text-red-700`}>
-                            {" "}
-                            {item.price + fee}
-                          </Text>
-                          {" บาท"}{" "}
-                        </Text>
-                      </View>
-                    </View>
-
-                    <View
-                      style={[
-                        styles.globalText,
-                        tw`flex-2 items-center justify-between`,
-                      ]}
-                    >
-                      <View style={tw`flex-1 justify-center`}>
-                        <Text
-                          style={[
-                            styles.globalText,
-                            tw`text-gray-600 items-center`,
-                          ]}
-                        >
-                          ระยะทาง : {""}
-                          <Text style={tw`text-red-700`}>
-                            {item.distance
-                              ? (item.distance / 1000).toFixed(2)
-                              : "-"}
-                          </Text>
-                          {" กม."}
-                        </Text>
-                      </View>
-                      <View style={tw`flex-1 justify-center items-center`}>
-                        <Text style={[styles.globalText, tw`text-gray-600`]}>
-                          เวลาที่ใช้ : {""}
-                          <Text style={tw`text-red-700`}>
-                            {item.durationText}
-                          </Text>
-                          {" นาที"}
-                        </Text>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                )}
-              />
-            ) : (
-              <View style={tw`flex-1 justify-center items-center `}>
-                <ProgressBar status="pending" />
-              </View>
-            )}
+      
+      {/* Main Container */}
+      <View style={tw`flex-1`}>
+        {/* Map Component - Take 55% of the screen */}
+        <View style={tw`flex-1 h-3/5`}>
+          <DriverMap
+            originLocation={originLocation}
+            destinationLocation={destinationLocation}
+            drivers={filteredOffers}
+            selectedDriver={selectedDriver}
+            radiusInMeters={radiusInMeters}
+          />
+          
+          {/* Floating Filter */}
+          <View style={[
+            tw`absolute top-3 left-3 right-3 z-10`,
+            styles.floatingCard
+          ]}>
+            <RadioSelector
+              value={radiusInMeters.toString()}
+              onValueChange={(value) => setRadiusInMeters(parseInt(value, 10))}
+              onRefresh={handleRefresh}
+              isRefreshing={isRefreshing}
+            />
           </View>
         </View>
-      </SafeAreaView>
-    </>
+        
+        {/* Driver List - Take remaining 45% of the screen */}
+        <View style={[
+          tw`bg-white rounded-t-3xl z-10 flex-1`, 
+          styles.driverListContainer
+        ]}>
+          {/* Handle bar for drag indication */}
+          <View style={tw`items-center pt-2 pb-1`}>
+            <View style={tw`w-16 h-1 bg-gray-300 rounded-full`}></View>
+          </View>
+          
+          <View style={tw`px-4 pb-2 pt-1`}>
+            <DriverList
+              drivers={filteredOffers}
+              selectedDriver={selectedDriver}
+              onDriverSelect={handleDriverSelect}
+              fee={FEE}
+              isLoading={isLoading}
+            />
+          </View>
+        </View>
+      </View>
+      
+      {/* Modals */}
+      <CancelModal
+        visible={showCancelModal}
+        onCancel={() => setShowCancelModal(false)}
+        onConfirm={handleCancelRequest}
+      />
+      
+      <DriverDetailModal
+        visible={showDriverModal}
+        driver={selectedDriver}
+        fee={FEE}
+        onCancel={() => setShowDriverModal(false)}
+        onConfirm={handleDriverConfirm}
+      />
+    </SafeAreaView>
   );
 };
 
@@ -738,6 +437,23 @@ const styles = StyleSheet.create({
   globalText: {
     fontFamily: "Mitr-Regular",
   },
+  floatingCard: {
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  driverListContainer: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 8,
+  }
 });
 
 export default ChooseOffer;

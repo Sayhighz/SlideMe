@@ -17,8 +17,6 @@ export const getDriverById = async (driverId) => {
       `SELECT 
          d.driver_id, 
          d.phone_number, 
-         d.email, 
-         d.username,
          d.first_name, 
          d.last_name, 
          d.license_plate,
@@ -59,8 +57,6 @@ export const getDriverByPhone = async (phoneNumber) => {
       `SELECT 
          d.driver_id, 
          d.phone_number, 
-         d.email, 
-         d.username,
          d.first_name, 
          d.last_name, 
          d.license_plate,
@@ -142,8 +138,6 @@ export const createDriver = async (driverData) => {
     const result = await db.query(
       `INSERT INTO drivers (
          phone_number, 
-         email, 
-         username,
          first_name, 
          last_name,
          license_plate,
@@ -158,8 +152,6 @@ export const createDriver = async (driverData) => {
        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)`,
       [
         driverData.phone_number,
-        driverData.email || null,
-        driverData.username || null,
         driverData.first_name || null,
         driverData.last_name || null,
         driverData.license_plate || null,
@@ -211,8 +203,6 @@ export const updateDriver = async (driverId, driverData) => {
     const result = await db.query(
       `UPDATE drivers
        SET 
-         email = ?,
-         username = ?,
          first_name = ?,
          last_name = ?,
          id_expiry_date = ?,
@@ -221,8 +211,6 @@ export const updateDriver = async (driverId, driverData) => {
          birth_date = ?
        WHERE driver_id = ?`,
       [
-        driverData.email || existingDriver.email,
-        driverData.username || existingDriver.username,
         driverData.first_name || existingDriver.first_name,
         driverData.last_name || existingDriver.last_name,
         driverData.id_expiry_date || existingDriver.id_expiry_date,
