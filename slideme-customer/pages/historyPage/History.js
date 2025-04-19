@@ -167,8 +167,8 @@ const HistoryPage = () => {
             </Text>
             <Text style={[tw`text-gray-600`, styles.customFont]}>
               ค่าบริการ:{" "}
-              {item.offered_price_formatted
-                ? formatNumberWithCommas(item.offered_price_formatted)
+              {item.offered_price
+                ? formatNumberWithCommas(item.offered_price)
                 : "0"}{" "}
               บาท
             </Text>
@@ -294,7 +294,7 @@ const HistoryPage = () => {
                   สถานะ: {mapServiceStatus(selectedItem.status)}
                 </Text>
                 <Text style={[styles.customFont,tw`text-gray-700 mb-4`]}>
-                  ค่าบริการ: {formatNumberWithCommas(selectedItem.offered_price_formatted)} บาท
+                  ค่าบริการ: {formatNumberWithCommas(selectedItem.offered_price)} บาท
                 </Text>
                 <TouchableOpacity
                   onPress={() => setModalVisible(false)}
