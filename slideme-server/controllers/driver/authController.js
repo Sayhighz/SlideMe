@@ -129,11 +129,9 @@ export const registerDriver = asyncHandler(async (req, res) => {
     first_name, 
     last_name, 
     license_plate, 
-    license_number,
     id_expiry_date,
     province,
     vehicletype_id,
-    email
   } = req.body;
 
   // Validate required fields
@@ -151,11 +149,11 @@ export const registerDriver = asyncHandler(async (req, res) => {
   }
 
   // Validate email if provided
-  if (email && !validateEmail(email)) {
-    throw new ValidationError(ERROR_MESSAGES.VALIDATION.INVALID_EMAIL, [
-      'อีเมลไม่ถูกต้อง'
-    ]);
-  }
+  // if (email && !validateEmail(email)) {
+  //   throw new ValidationError(ERROR_MESSAGES.VALIDATION.INVALID_EMAIL, [
+  //     'อีเมลไม่ถูกต้อง'
+  //   ]);
+  // }
 
   // Validate password strength
   const passwordStrength = passwordService.checkPasswordStrength(password);
@@ -188,33 +186,31 @@ export const registerDriver = asyncHandler(async (req, res) => {
       
       // Insert new driver
       const insertSql = `
-        INSERT INTO drivers (
-          phone_number, 
-          password, 
-          first_name, 
-          last_name,
-          license_plate,
-          license_number,
-          id_expiry_date,
-          province,
-          vehicletype_id,
-          email,
-          created_date,
-          approval_status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)
-      `;
+  INSERT INTO drivers (
+    phone_number, 
+    password, 
+    first_name, 
+    last_name,
+    license_plate,
+    id_expiry_date,
+    province,
+    vehicletype_id,
+    created_date,
+    approval_status
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)
+`;
+
+const vehicleTypeIdNumber = parseInt(vehicletype_id) || 99; // ใช้ค่าดีฟอลต์ 99 ถ้าไม่สามารถแปลงเป็นตัวเลขได้
 
       const values = [
         phone_number,
-        password, // should be hashedPassword in production
+        password,
         first_name || null,
         last_name || null,
         license_plate || null,
-        license_number || null,
         id_expiry_date || null,
         province || "Unknown",
         vehicletype_id || 99, // Default vehicle type
-        email || null,
         APPROVAL_STATUS.PENDING
       ];
 
