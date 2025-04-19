@@ -88,6 +88,9 @@ const ChooseOffer = ({ navigation, route }) => {
       const result = await response.json();
       if (response.ok) {
         navigation.navigate("HomePage");
+        navigation.getParent()?.setOptions({
+          tabBarStyle: undefined,
+        });
         setOpenModalCancel(false);
       } else {
         Alert.alert("ข้อผิดพลาด", result.message || "ยกเลิกรายการไม่สําเร็จ");

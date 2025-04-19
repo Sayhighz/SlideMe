@@ -29,11 +29,14 @@ const formatThaiDate = (dateString) => {
     "พ.ย.",
     "ธ.ค.",
   ];
-  const date = new Date(dateString);
-  const day = date.getDate();
-  const month = monthsThai[date.getMonth()];
-  const year = date.getFullYear() + 543 - 2500;
-  return `${day} ${month} ${year}`;
+  const [dayStr, monthStr, yearStr] = dateString.split("/");
+  const day = parseInt(dayStr, 10);
+  const monthIndex = parseInt(monthStr, 10) - 1;
+  const yearBE = parseInt(yearStr, 10) + 543 - 2500; // ตัดเหลือ 2 หลักท้าย พ.ศ.
+
+  const monthThai = monthsThai[monthIndex];
+
+  return `${day} ${monthThai} ${yearBE}`;
 };
 
 const mapServiceStatus = (status) => {
@@ -77,13 +80,18 @@ const HistoryPage = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `http://${IP_ADDRESS}:4000/customer/service_history_customer?customer_id=${userData.user_id}`
+          `http://${IP_ADDRESS}:4000/api/v1/customer/request/history?customer_id=${userData.customer_id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${userData.token}`,
+            },
+          }
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
-        setServiceHistoryData(Array.isArray(data.Result) ? data.Result : []);
+        setServiceHistoryData(Array.isArray(data.requests) ? data.requests : []);
       } catch (error) {
         setError(error.message);
       } finally {
@@ -103,8 +111,8 @@ const HistoryPage = () => {
   }, [userData.user_id]);
 
   const filteredData = serviceHistoryData.filter((item) => {
-    if (filter === "completed") return item.service_status === "completed";
-    if (filter === "cancelled") return item.service_status === "cancelled";
+    if (filter === "completed") return item.status === "completed";
+    if (filter === "cancelled") return item.status === "cancelled";
     return true;
   });
 
@@ -127,7 +135,7 @@ const HistoryPage = () => {
   };
 
   const renderItem = ({ item }) => {
-    const { icon, color, bgColor } = getStatusIcon(item.service_status);
+    const { icon, color, bgColor } = getStatusIcon(item.status);
 
     return (
       <TouchableOpacity onPress={() => openModal(item)}>
@@ -149,18 +157,18 @@ const HistoryPage = () => {
           </View>
           <View>
             <Text style={[tw`text-lg`, styles.customFont]}>
-              {item.vehicle_type || "ไม่ระบุ"}
+              {item.vehicletype_name || "ไม่ระบุ"}
             </Text>
             <Text style={[tw`text-gray-600`, styles.customFont]}>
-              วันที่: {formatThaiDate(item.date)}
+              วันที่: {formatThaiDate(item.request_date)}
             </Text>
             <Text style={[tw`text-gray-600`, styles.customFont]}>
-              สถานะ: {mapServiceStatus(item.service_status)}
+              สถานะ: {mapServiceStatus(item.status)}
             </Text>
             <Text style={[tw`text-gray-600`, styles.customFont]}>
               ค่าบริการ:{" "}
-              {item.service_charge
-                ? formatNumberWithCommas(item.service_charge)
+              {item.offered_price
+                ? formatNumberWithCommas(item.offered_price)
                 : "0"}{" "}
               บาท
             </Text>
@@ -277,16 +285,16 @@ const HistoryPage = () => {
             <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
               <View style={tw`bg-white rounded-lg p-6 w-11/12`}>
                 <Text style={[styles.customFont,tw`text-xl font-bold mb-4`]}>
-                  {selectedItem.vehicle_type || "ไม่ระบุ"}
+                  {selectedItem.vehicletype_name || "ไม่ระบุ"}
                 </Text>
                 <Text style={[styles.customFont,tw`text-gray-700 mb-4`]}>
-                  วันที่: {formatThaiDate(selectedItem.date)}
+                  วันที่: {formatThaiDate(selectedItem.request_date)}
                 </Text>
                 <Text style={[styles.customFont,tw`text-gray-700 mb-4`]}>
-                  สถานะ: {mapServiceStatus(selectedItem.service_status)}
+                  สถานะ: {mapServiceStatus(selectedItem.status)}
                 </Text>
                 <Text style={[styles.customFont,tw`text-gray-700 mb-4`]}>
-                  ค่าบริการ: {formatNumberWithCommas(selectedItem.service_charge)} บาท
+                  ค่าบริการ: {formatNumberWithCommas(selectedItem.offered_price)} บาท
                 </Text>
                 <TouchableOpacity
                   onPress={() => setModalVisible(false)}

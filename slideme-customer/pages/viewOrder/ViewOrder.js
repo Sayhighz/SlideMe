@@ -59,10 +59,6 @@ export default function ViewOrder({ navigation }) {
   const request_id =
     route.params?.driverProfile.chooseDriver.request_id || "ไม่ระบุ";
 
-  // useEffect(() => {
-  //   console.log("route.params:", route.params || "ไม่ระบุ");
-  // }, [route.params]);
-
   const formatDateToThaiTimezone = (dateString) => {
     const date = new Date(dateString);
     const options = {
@@ -81,16 +77,6 @@ export default function ViewOrder({ navigation }) {
     return number.toString().padStart(length, "0");
   };
 
-  useEffect(() => {
-    console.log("driver_id:", driver_id);
-    console.log("customer_id_request:", customer_id_request);
-    console.log("request_id:", request_id);
-  }, [driver_id, customer_id_request, request_id]);
-
-  useEffect(() => {
-    console.log(route.params)
-  },[])
-
   const fetchOrderDetails = async () => {
     try {
       const response = await axios.get(
@@ -101,6 +87,8 @@ export default function ViewOrder({ navigation }) {
           },
         }
       );
+
+      getDriverLocation();
 
       if (response.data.Status) {
         const data = response.data; // Assuming you want the first result
@@ -249,12 +237,6 @@ export default function ViewOrder({ navigation }) {
       phoneNumber: driverInformation.phone,
     });
   };
-
-  // useEffect(() => {
-  //   console.log("origin:", origin);
-  //   console.log("destination:", destination);
-  //   console.log("driverInformation:", driverInformation);
-  // }, [origin, destination, driverInformation]);
 
   return (
     <>

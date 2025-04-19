@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef , useContext } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   StyleSheet,
   ActivityIndicator,
   Dimensions,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import StarRating from "react-native-star-rating-widget";
 import { IP_ADDRESS } from "../../config";
@@ -27,7 +29,7 @@ const Rating = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const requestId = route.params.requestId;
   const inputRef = useRef(null);
- const { userData } = useContext(UserContext);
+  const { userData } = useContext(UserContext);
 
   const { width, height } = Dimensions.get("window");
   const responsiveWidth = width * 0.9;
@@ -72,10 +74,9 @@ const Rating = ({ navigation }) => {
       } finally {
         setLoading(false);
       }
-    }; 
+    };
 
     fetchServiceInfo();
-    
   }, []);
 
   if (loading) {
@@ -110,7 +111,7 @@ const Rating = ({ navigation }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(newReview),
         }
@@ -124,9 +125,16 @@ const Rating = ({ navigation }) => {
         Alert.alert(
           "Success",
           "Thank you for your review!",
-          [{ text: "OK", onPress: () => navigation.navigate("HomePage" ,{
-            token: token
-          }) }
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                navigation.navigate("HomePage", { token });
+                navigation.getParent()?.setOptions({
+                  tabBarStyle: undefined,
+                });
+              },
+            },
           ],
           { cancelable: false }
         );
@@ -142,108 +150,129 @@ const Rating = ({ navigation }) => {
     }
   };
 
-
   const consoleLogData = () => {
     console.log("Service Data:", serviceData);
     console.log("Request ID:", requestId);
-
   };
 
   const truncateText = (text, maxLength = 22) => {
-    if (typeof text !== 'string') {
-      return ''; // Return an empty string if text is undefined or not a string
+    if (typeof text !== "string") {
+      return ""; // Return an empty string if text is undefined or not a string
     }
     return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
   };
 
   return (
     <>
-    <HeaderWithBackButton showBackButton={true} title="" onPress={() => navigation.navigate("HomePage")} />
-    <View style={tw`flex-1 p-4 items-center`}>
-      <Text style={[styles.globalText,tw`text-2xl mt-2 text-center`]}>ขอบคุณที่ใช้บริการ</Text>
-      <Text style={[styles.globalText,tw`text-xl mb-2 text-center text-gray-600`]}>ให้คะแนนกับคนขับเพื่อให้การบริการดียิ่งขึ้น</Text>
-      <View
-        style={[
-          tw`flex bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md `,
-        ]}
-      >
-        
+      <HeaderWithBackButton
+        showBackButton={true}
+        title=""
+        onPress={() => navigation.navigate("HomePage")}
+      />
 
-        <Text style={styles.globalText}>{`คนขับ: ${truncateText(
-          serviceData.driver_first_name
-        )} ${truncateText(serviceData.driver_last_name)}`}</Text>
-        <View style={tw`flex-row items-center`}> 
-          
-        <Text style={[styles.globalText]} >
-        {`คะแนน: ${(parseFloat(serviceData.average_rating) || 0).toFixed(1)}`}
-        </Text>
-          <MaterialIcons name="star" size={17} color="orange"/>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={tw`flex-1 p-4 items-center`}>
+          <Text style={[styles.globalText, tw`text-2xl mt-2 text-center`]}>
+            ขอบคุณที่ใช้บริการ
+          </Text>
+          <Text
+            style={[
+              styles.globalText,
+              tw`text-xl mb-2 text-center text-gray-600`,
+            ]}
+          >
+            ให้คะแนนกับคนขับเพื่อให้การบริการดียิ่งขึ้น
+          </Text>
+          <View
+            style={[
+              tw`flex bg-white p-4 rounded-lg border border-gray-300 w-11/12 shadow-md `,
+            ]}
+          >
+            <Text style={styles.globalText}>{`คนขับ: ${truncateText(
+              serviceData.driver_first_name
+            )} ${truncateText(serviceData.driver_last_name)}`}</Text>
+            <View style={tw`flex-row items-center`}>
+              <Text style={[styles.globalText]}>
+                {`คะแนน: ${(
+                  parseFloat(serviceData.average_rating) || 0
+                ).toFixed(1)}`}
+              </Text>
+              <MaterialIcons name="star" size={17} color="orange" />
+            </View>
+
+            <Text style={styles.globalText}>
+              {`ราคา: ${serviceData.payment_amount}`} บาท
+            </Text>
+            <Text
+              style={[styles.globalText]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              <MaterialIcons name="location-on" size={17} color="red" />
+              {`ต้นทาง: ${serviceData.location_from}`}
+            </Text>
+            <Text
+              style={styles.globalText}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              <MaterialIcons name="location-on" size={17} color="green" />
+              {`ปลายทาง: ${serviceData.location_to}`}
+            </Text>
+          </View>
+          <Text
+            style={[styles.globalText, tw`text-3xl mb-1 mt-5 text-center pt-2`]}
+          >
+            {getRatingText(rating)}
+          </Text>
+          <StarRating
+            rating={rating}
+            onChange={setRating}
+            starSize={40}
+            color="orange" // Optional: Customize color
+            emptyColor="#d4d4d4" // Optional: Customize empty star color
+            enableHalfStar={false}
+          />
+          <TextInput
+            style={[
+              styles.globalText,
+              tw`border border-gray-300 rounded p-2 w-full mb-4 mt-2 h-20`,
+            ]}
+            placeholder="คำแนะนำให้คนขับ..."
+            value={review}
+            onChangeText={setReview}
+            editable={!isSubmitting}
+            multiline={true}
+            textAlignVertical="top"
+          />
+          <View style={tw`w-full mb-4`}>
+            <TouchableOpacity
+              onPress={handleSubmitReview}
+              disabled={isSubmitting}
+              style={tw`bg-${
+                isSubmitting ? "[#60B876]" : "[#60B876]"
+              } text-white rounded p-2`}
+            >
+              <Text
+                style={[styles.globalText, tw`text-center text-white text-xl`]}
+              >
+                {isSubmitting ? "Submitting..." : "ส่งรีวิว"}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={consoleLogData}
+              style={tw`bg-[#60B876] text-white rounded p-2 mt-2`}
+            >
+              <Text
+                style={[styles.globalText, tw`text-center text-white text-xl`]}
+              >
+                ย้อนกลับ
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        
-        <Text style={styles.globalText}>
-          {`ราคา: ${serviceData.payment_amount}`} บาท
-        </Text>
-        <Text
-          style={[styles.globalText]}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          <MaterialIcons name="location-on" size={17} color="red" />
-          {`ต้นทาง: ${serviceData.location_from}`}
-        </Text>
-        <Text style={styles.globalText} numberOfLines={1} ellipsizeMode="tail">
-          <MaterialIcons name="location-on" size={17} color="green" />
-          {`ปลายทาง: ${serviceData.location_to}`}
-        </Text>
-      </View>
-      <Text
-        style={[styles.globalText, tw`text-3xl mb-1 mt-5 text-center pt-2`]}
-      >
-        {getRatingText(rating)}
-      </Text>
-      <StarRating
-        rating={rating}
-        onChange={setRating}
-        starSize={40}
-        color="orange" // Optional: Customize color
-        emptyColor="#d4d4d4" // Optional: Customize empty star color
-        enableHalfStar={false}
-      />
-      <TextInput
-        style={[
-          styles.globalText,
-          tw`border border-gray-300 rounded p-2 w-full mb-4 mt-2 h-20`,
-        ]}
-        placeholder="คำแนะนำให้คนขับ..."
-        value={review}
-        onChangeText={setReview}
-        editable={!isSubmitting}
-        multiline={true}
-        textAlignVertical="top"
-      />
-      <View style={tw`w-full mb-4`}>
-        <TouchableOpacity
-          onPress={handleSubmitReview}
-          disabled={isSubmitting}
-          style={tw`bg-${
-            isSubmitting ? "[#60B876]" : "[#60B876]"
-          } text-white rounded p-2`}
-        >
-          <Text style={[styles.globalText, tw`text-center text-white text-xl`]}>
-            {isSubmitting ? "Submitting..." : "ส่งรีวิว"}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={consoleLogData}
-          style={tw`bg-[#60B876] text-white rounded p-2 mt-2`}
-        >
-          <Text style={[styles.globalText, tw`text-center text-white text-xl`]}>
-            ย้อนกลับ
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      </TouchableWithoutFeedback>
     </>
   );
 };

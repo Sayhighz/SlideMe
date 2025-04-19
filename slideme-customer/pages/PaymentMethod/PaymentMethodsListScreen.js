@@ -77,6 +77,7 @@ const PaymentMethodsListScreen = ({ navigation }) => {
       const data = await response.json();
       if (data.Status) {
         setPaymentMethods(data.Result);
+        console.log("Payment Methods:", data.Result);
       } else {
         throw new Error("Unexpected response format");
       }
@@ -95,10 +96,10 @@ const PaymentMethodsListScreen = ({ navigation }) => {
 
   const openModal = (method) => {
     setSelectedMethod(method);
-    setEditAccountName(method.account_name);
+    setEditAccountName(method.cardholder_name);
     setEditAccountNumber(method.card_number);
-    setEditPaymentType(method.payment_type);
-    setEditExpirationDate(method.expiration_date);
+    setEditPaymentType(method.method_name);
+    setEditExpirationDate(method.card_expiry);
     setModalVisible(true);
   };
 
