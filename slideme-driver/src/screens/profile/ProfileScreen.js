@@ -124,23 +124,11 @@ export default function ProfileScreen({ navigation, userData, onLogout }) {
   const handleLogout = async () => {
     setLogoutModalVisible(false);
     
+    // Execute the logout process
     const logoutSuccess = await logout();
     
-    if (logoutSuccess) {
-      if (typeof onLogout === 'function') {
-        onLogout();
-      }
-      
-      // รีโหลดแอพเพื่อให้ AppNavigator ตรวจสอบสถานะการล็อกอินใหม่
-      if (__DEV__) {
-        const DevSettings = require('react-native').DevSettings;
-        DevSettings.reload();
-      } else {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Login' }],
-        });
-      }
+    if (logoutSuccess && typeof onLogout === 'function') {
+      onLogout();
     }
   };
   
