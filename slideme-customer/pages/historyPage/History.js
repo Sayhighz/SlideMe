@@ -87,14 +87,13 @@ const HistoryPage = () => {
           },
         }
       );
-      // console.log(response)
-
+      
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-
+      
       const data = await response.json();
-
+      
       if (data.Status) {
         // Process data and parse photos
         const processedData = Array.isArray(data.requests)
@@ -105,7 +104,7 @@ const HistoryPage = () => {
             }))
           : [];
 
-        console.log("sasds",processedData)
+        // console.log("sasds",processedData)
 
         // If first page, replace data. Otherwise append
         if (page === 1) {
@@ -185,7 +184,7 @@ const HistoryPage = () => {
   // ในฟังก์ชัน openPhotoModal
   // ในฟังก์ชัน openPhotoModal ของ HistoryPage.js
   const openPhotoModal = (type, index = 0) => {
-    console.log("Opening photo modal:", { type, index });
+    // console.log("Opening photo modal:", { type, index });
     setCurrentPhotoType(type);
     setCurrentPhotoIndex(index);
 
@@ -195,18 +194,18 @@ const HistoryPage = () => {
     // รอให้ DetailModal ปิดก่อนจึงเปิด PhotoViewer
     setTimeout(() => {
       setPhotoModalVisible(true);
-      console.log("photoModalVisible set to true after DetailModal closed");
+      // console.log("photoModalVisible set to true after DetailModal closed");
     }, 300); // รอเวลาให้ Modal แรกปิดก่อน
   };
 
   const closePhotoModal = () => {
-    console.log("Closing photo modal");
+    // console.log("Closing photo modal");
     setPhotoModalVisible(false);
 
     // เปิด DetailModal อีกครั้งหลังจากปิด PhotoViewer
     setTimeout(() => {
       setModalVisible(true);
-      console.log("DetailModal reopened after PhotoViewer closed");
+      // console.log("DetailModal reopened after PhotoViewer closed");
     }, 300);
   };
 
@@ -237,7 +236,7 @@ const HistoryPage = () => {
         {
           text: "ให้คะแนน",
           onPress: () => {
-            console.log(serviceHistoryData)
+            // console.log(serviceHistoryData)
             // ถ้า Rating อยู่ใน Stack Navigator ที่ชื่อ "ServiceStack"
             navigation.navigate("Home", {
               screen: "Rating",
@@ -378,26 +377,6 @@ const HistoryPage = () => {
             ) : null
           }
         />
-
-        {/* Animated filter button */}
-        <Animated.View
-          style={[
-            tw`absolute z-50 bottom-8 right-6`,
-            { transform: [{ rotate: rotateAnim }] },
-          ]}
-        >
-          <TouchableOpacity
-            style={[tw`bg-white rounded-full p-4`, styles.floatingButton]}
-            onPress={() =>
-              Alert.alert(
-                "Filter",
-                "Additional filtering options will be available soon."
-              )
-            }
-          >
-            <Ionicons name="options" size={24} color={PRIMARY_COLOR} />
-          </TouchableOpacity>
-        </Animated.View>
 
         {/* Detail Modal */}
         <DetailModal

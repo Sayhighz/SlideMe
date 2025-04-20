@@ -13,18 +13,18 @@ const PhotoViewer = ({
   onNext, 
   photoType 
 }) => {
-    console.log("Rendering PhotoViewer with:", {
-        visible, 
-        photosExist: !!photos,
-        photosLength: photos?.length || 0,
-        currentIndex,
-        photoType,
-        photoDetails: photos && photos[currentIndex] ? JSON.stringify(photos[currentIndex]).slice(0, 100) : 'No photo details' 
-      });
+    // console.log("Rendering PhotoViewer with:", {
+    //     visible, 
+    //     photosExist: !!photos,
+    //     photosLength: photos?.length || 0,
+    //     currentIndex,
+    //     photoType,
+    //     photoDetails: photos && photos[currentIndex] ? JSON.stringify(photos[currentIndex]).slice(0, 100) : 'No photo details' 
+    //   });
       
       // ตรวจสอบเฉพาะ visible
       if (!visible) {
-        console.log("PhotoViewer not visible because visible is false");
+        // console.log("PhotoViewer not visible because visible is false");
         return null;
       }
   if (!photos || photos.length === 0) return null;
@@ -64,7 +64,7 @@ const PhotoViewer = ({
   const photoUri = getPhotoUrl(currentPhoto);
   
   // Log URL เพื่อการแก้ไขปัญหา
-  console.log("Photo viewer URL:", photoUri);
+//   console.log("Photo viewer URL:", photoUri);
   
   // Map position to Thai text
   const getPositionText = (position) => {
@@ -83,7 +83,7 @@ const PhotoViewer = ({
   transparent={true}
   visible={visible}
   onRequestClose={() => {
-    console.log("Modal onRequestClose triggered");
+    // console.log("Modal onRequestClose triggered");
     onClose();
   }}
 >

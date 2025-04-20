@@ -35,7 +35,7 @@ const DetailModal = ({
     if (beforePhotos.length === 0 && afterPhotos.length === 0) {
       return null;
     }
-    console.log(beforePhotos[0].url)
+    // console.log(beforePhotos[0].url)
 
     // Map position to Thai text
     const getPositionText = (position) => {

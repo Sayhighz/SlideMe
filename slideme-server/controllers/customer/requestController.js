@@ -360,8 +360,8 @@ export const getRequestDetails = asyncHandler(async (req, res) => {
  */
 export const getRequestHistory = asyncHandler(async (req, res) => {
     const { customer_id, status } = req.query;
-    const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
-    const offset = req.query.offset ? parseInt(req.query.offset, 10) : 0;
+    const limit = 1000;
+    const offset = 1000;
   
     if (!customer_id) {
       throw new ValidationError("กรุณาระบุ customer_id");
@@ -431,7 +431,6 @@ export const getRequestHistory = asyncHandler(async (req, res) => {
       const total = countResult[0].total;
   
       // Add pagination to the main query manually to avoid parameter issues
-      sqlQuery += ` LIMIT ${limit} OFFSET ${offset}`;
   
       const result = await db.query(sqlQuery, queryParams);
   
@@ -451,11 +450,6 @@ export const getRequestHistory = asyncHandler(async (req, res) => {
           total,
           count: formattedRequests.length,
           requests: formattedRequests,
-          pagination: {
-            limit,
-            offset,
-            total_pages: limit ? Math.ceil(total / limit) : 1
-          }
         }, "ดึงประวัติคำขอบริการสำเร็จ")
       );
     } catch (error) {
