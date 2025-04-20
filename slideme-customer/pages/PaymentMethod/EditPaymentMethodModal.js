@@ -1,20 +1,23 @@
-import React, { useContext, useEffect, useState } from "react";
+// EditPaymentMethodModal.js
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   Modal,
-  FlatList,
   Alert,
   ActivityIndicator,
   StyleSheet,
+  Dimensions,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
-import card from "@material-tailwind/react/theme/components/card";
 import { UserContext } from "../../UserContext";
+import { LinearGradient } from "expo-linear-gradient";
+
+const { width } = Dimensions.get('window');
 
 const EditPaymentMethodModal = ({
   visible,
@@ -31,77 +34,64 @@ const EditPaymentMethodModal = ({
   paymentMethodId,
 }) => {
   const [isSaving, setIsSaving] = useState(false);
-  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { userData } = useContext(UserContext);
 
-  const paymentOptions = [
-    { label: "บัตรเครดิต", value: "credit_card", icon: "credit-card" },
-    { label: "บัตรเดบิต", value: "debit_card", icon: "credit-card" },
-  ];
-
-  const handleExpirationDateChange = (input) => {
-    let formattedInput = input.replace(/\D/g, "");
-    if (formattedInput.length > 2) {
-      formattedInput = `${formattedInput.slice(0, 2)}/${formattedInput.slice(
-        2
-      )}`;
-    }
-    setExpirationDate(formattedInput);
-  };
-
-  const handleSave = async () => {
-    if (!paymentType || !accountName || !accountNumber || !expirationDate) {
-      Alert.alert("Error", "โปรดกรอกข้อมูลให้ครบ");
-      return;
-    }
-
-    setIsSaving(true);
-    const payload = {
-      payment_method_id: Number(paymentMethodId),
-      method_name: paymentType,
-      card_number: accountNumber,
-      card_expiry: expirationDate,
-      card_cvv: "???", 
-      cardholder_name: accountName,
-    };
-
-    try {
-      const response = await fetch(
-        `http://${IP_ADDRESS}:4000/api/v1/customer/payment/update`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${userData.token}`
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (response.ok) {
-        Alert.alert("Success", "แก้ไขช่องทางการชำระเงินสําเร็จ");
-        onSave();
-        onClose();
-      } else {
-        Alert.alert("Error", "แก้ไขช่องทางการชำระเงินไม่สําเร็จ");
+  // Card brand configurations
+  const getCardConfig = (type) => {
+    const typeConfig = {
+      Visa: {
+        icon: "cc-visa",
+        colors: ['#436D99', '#2D57F2'],
+        textColor: "#ffffff"
+      },
+      Mastercard: {
+        icon: "cc-mastercard",
+        colors: ['#EB001B', '#F79E1B'],
+        textColor: "#ffffff"
+      },
+      PayPal: {
+        icon: "paypal",
+        colors: ['#003087', '#009cde'],
+        textColor: "#ffffff"
+      },
+      "Bank Transfer": {
+        icon: "university",
+        colors: ['#6f42c1', '#8a63d2'],
+        textColor: "#ffffff"
+      },
+      default: {
+        icon: "credit-card",
+        colors: ['#4a4a4a', '#666666'],
+        textColor: "#ffffff"
       }
-    } catch (error) {
-      Alert.alert("Error", "An error occurred: " + error.message);
-    } finally {
-      setIsSaving(false);
-    }
+    };
+    
+    return typeConfig[type] || typeConfig.default;
+  };
+  
+  // Format card number to show only last 4 digits
+  const formatCardNumber = (number) => {
+    if (!number) return "••••";
+    // Only display last 4 digits
+    return "•••• •••• •••• " + number.substring(number.length - 4);
   };
 
   const handleDelete = async () => {
     Alert.alert(
-      "ยืนยันการลบ",
-      "คุณต้องการลบช่องทางการชำระเงินใช่หรือไม่?",
+      "ยืนยันการปิดการใช้งาน",
+      "คุณต้องการปิดการใช้งานช่องทางการชำระเงินนี้ใช่หรือไม่?",
       [
-        { text: "ยกเลิก", style: "cancel" },
+        { 
+          text: "ยกเลิก", 
+          style: "cancel" 
+        },
         {
-          text: "ใช่",
+          text: "ยืนยัน",
+          style: "destructive",
           onPress: async () => {
             try {
+              setIsDeleting(true);
               const response = await fetch(
                 `http://${IP_ADDRESS}:4000/api/v1/customer/payment/disable`,
                 {
@@ -117,14 +107,25 @@ const EditPaymentMethodModal = ({
               );
 
               if (response.ok) {
-                Alert.alert("Success", "ลบช่องทางการชำระเงินสําเร็จ");
-                onSave();
-                onClose();
+                Alert.alert(
+                  "สำเร็จ", 
+                  "ปิดการใช้งานช่องทางการชำระเงินเรียบร้อยแล้ว",
+                  [{ text: "ตกลง", onPress: () => {
+                    onSave();
+                    onClose();
+                  }}]
+                );
               } else {
-                Alert.alert("Error", "ลบช่องทางการชำระเงินไม่สําเร็จ");
+                const errorData = await response.json();
+                Alert.alert(
+                  "ข้อผิดพลาด", 
+                  errorData.Error || "ไม่สามารถปิดการใช้งานช่องทางการชำระเงินได้"
+                );
               }
             } catch (error) {
-              Alert.alert("Error", "An error occurred: " + error.message);
+              Alert.alert("ข้อผิดพลาด", "เกิดข้อผิดพลาด: " + error.message);
+            } finally {
+              setIsDeleting(false);
             }
           },
         },
@@ -133,150 +134,112 @@ const EditPaymentMethodModal = ({
     );
   };
 
-  const renderDropdownItem = ({ item }) => (
-    <TouchableOpacity
-      style={tw`p-3 flex-row items-center border-b border-gray-300`}
-      onPress={() => {
-        setPaymentType(item.value);
-        setDropdownVisible(false);
-      }}
-    >
-      <Icon name={item.icon} size={20} color="#007bff" style={tw`mr-3`} />
-      <Text style={[tw`text-lg`, styles.customFont]}>{item.label}</Text>
-    </TouchableOpacity>
-  );
+  const cardConfig = getCardConfig(paymentType);
 
   return (
     <Modal
-      animationType="fade"
+      animationType="slide"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
     >
-      <View
-        style={tw`flex-1 justify-center items-center bg-gray-800 bg-opacity-50`}
-      >
-        <View style={tw`w-11/12 bg-white p-5 rounded`}>
-          <View style={tw`flex-row items-center justify-between`}>
-            <TouchableOpacity
-              style={[tw`flex-row items-center p-2 mt-[-1.30rem] rounded`]}
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContainer}>
+          {/* Header */}
+          <View style={styles.modalHeader}>
+            <TouchableOpacity 
               onPress={onClose}
-              disabled={isSaving}
+              style={styles.closeButton}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Icon name="arrow-left" size={16} color="black" />
+              <Icon name="times" size={22} color="#666" />
             </TouchableOpacity>
-            <Text style={[tw`text-2xl mb-5`, styles.customFont]}>
-              ข้อมูลการชำระเงิน
-            </Text>
-            <View />
+            <Text style={styles.modalTitle}>รายละเอียดการชำระเงิน</Text>
+            <View style={{ width: 24 }} />
           </View>
 
-          <Text style={[tw`text-lg mt-2`, styles.customFont]}>ประเภท</Text>
-          <TouchableOpacity
-            style={tw`border bg-gray-200 border-gray-300 rounded p-2 flex-row justify-between items-center`}
-            onPress={() => setDropdownVisible(true)}
-            disabled={true}
-          >
-            {/* <Text style={[tw`text-lg`, styles.customFont]}>
-              {paymentOptions.find((opt) => opt.value === paymentType)?.label ||
-                "เลือกประเภทการชำระเงิน"}
-            </Text>
-            <Icon name="chevron-down" size={16} /> */}
-            <Text style={[ styles.input]}>
-              {paymentType}
-            </Text>
-          </TouchableOpacity>
-
-          {dropdownVisible && (
-            <Modal transparent={true} animationType="fade">
-              <View
-                style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}
-              >
-                <View style={tw`w-10/12 bg-white rounded-lg`}>
-                  <FlatList
-                    data={paymentOptions}
-                    renderItem={renderDropdownItem}
-                    keyExtractor={(item) => item.value}
-                  />
-                  <TouchableOpacity
-                    style={tw`p-4 bg-gray-300 rounded-b-lg`}
-                    onPress={() => setDropdownVisible(false)}
-                  >
-                    <Text style={[tw`text-center text-lg`, styles.customFont]}>
-                      ปิด
+          {/* Card Preview */}
+          <View style={styles.cardPreviewContainer}>
+            <LinearGradient
+              colors={cardConfig.colors}
+              style={styles.cardPreview}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            >
+              <View style={styles.cardPreviewContent}>
+                <View style={styles.cardPreviewHeader}>
+                  <Text style={[styles.cardPreviewType, { color: cardConfig.textColor }]}>
+                    {paymentType}
+                  </Text>
+                  <Icon name={cardConfig.icon} size={28} color={cardConfig.textColor} />
+                </View>
+                
+                <Text style={[styles.cardPreviewNumber, { color: cardConfig.textColor }]}>
+                  {formatCardNumber(accountNumber)}
+                </Text>
+                
+                <View style={styles.cardPreviewFooter}>
+                  <View>
+                    <Text style={[styles.cardPreviewLabel, { color: cardConfig.textColor }]}>CARDHOLDER</Text>
+                    <Text style={[styles.cardPreviewValue, { color: cardConfig.textColor }]}>
+                      {accountName || "N/A"}
                     </Text>
-                  </TouchableOpacity>
+                  </View>
+                  
+                  <View>
+                    <Text style={[styles.cardPreviewLabel, { color: cardConfig.textColor }]}>EXPIRES</Text>
+                    <Text style={[styles.cardPreviewValue, { color: cardConfig.textColor }]}>
+                      {expirationDate || "MM/YY"}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </Modal>
-          )}
+            </LinearGradient>
+          </View>
 
-          <Text style={[tw`text-lg mt-4`, styles.customFont]}>ชื่อบัญชี</Text>
-          <TextInput
-            style={[tw`border bg-gray-200 border-gray-300 p-2 rounded mt-1`, styles.input]}
-            placeholder="ชื่อบัญชี"
-            value={accountName}
-            onChangeText={setAccountName}
-            editable={false}
-          />
+          {/* Card Details */}
+          <View style={styles.detailsContainer}>
+            {/* Payment Type */}
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>ประเภท</Text>
+              <Text style={styles.detailValue}>{paymentType}</Text>
+            </View>
+            
+            {/* Card Holder */}
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>ชื่อผู้ถือบัตร</Text>
+              <Text style={styles.detailValue}>{accountName}</Text>
+            </View>
+            
+            {/* Card Number */}
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>หมายเลขบัตร</Text>
+              <Text style={styles.detailValue}>{formatCardNumber(accountNumber)}</Text>
+            </View>
+            
+            {/* Expiry Date */}
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>วันหมดอายุ</Text>
+              <Text style={styles.detailValue}>{expirationDate}</Text>
+            </View>
+          </View>
 
-          <Text style={[tw`text-lg mt-4`, styles.customFont]}>
-            หมายเลขบัญชี
-          </Text>
-          <TextInput
-            style={[tw`border bg-gray-200 border-gray-300 p-2 rounded mt-1`, styles.input]}
-            placeholder="เลขบัญชี"
-            keyboardType="numeric"
-            value={accountNumber}
-            onChangeText={setAccountNumber}
-            maxLength={4}
-            editable={false}
-          />
-
-          <Text style={[tw`text-lg mt-4`, styles.customFont]}>วันหมดอายุ</Text>
-          <TextInput
-            style={[tw`border bg-gray-200 border-gray-300 p-2 rounded mt-1`, styles.input]}
-            placeholder="MM/YY"
-            value={expirationDate}
-            onChangeText={handleExpirationDateChange}
-            maxLength={5}
-            keyboardType="numeric"
-            editable={false}
-          />
-
-          <View style={tw`flex-row justify-center mt-5`}>
+          {/* Action Buttons */}
+          <View style={styles.actionContainer}>
             <TouchableOpacity
-              style={[
-                tw`flex-row items-center p-2 rounded bg-red-600`,
-                styles.button,
-              ]}
+              style={styles.deleteButton}
               onPress={handleDelete}
-              disabled={isSaving}
+              disabled={isDeleting}
             >
-              <Icon name="trash" size={16} color="white" style={tw`mr-2`} />
-              <Text style={[styles.customFont, tw`text-white text-lg`]}>
-                ปิดการใช้งาน
-              </Text>
-            </TouchableOpacity>
-            {/* <TouchableOpacity
-              style={[
-                tw`flex-row items-center p-2 rounded bg-green-600`,
-                styles.button,
-              ]}
-              onPress={handleSave}
-              disabled={isSaving}
-            >
-              {isSaving ? (
-                <ActivityIndicator color="#fff" />
+              {isDeleting ? (
+                <ActivityIndicator color="#fff" size="small" />
               ) : (
                 <>
-                  <Icon name="save" size={16} color="white" style={tw`mr-2`} />
-                  <Text style={[styles.customFont, tw`text-white text-lg`]}>
-                    บันทึก
-                  </Text>
+                  <Icon name="trash-alt" size={16} color="white" style={{ marginRight: 8 }} />
+                  <Text style={styles.buttonText}>ปิดการใช้งาน</Text>
                 </>
               )}
-            </TouchableOpacity> */}
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -285,17 +248,120 @@ const EditPaymentMethodModal = ({
 };
 
 const styles = StyleSheet.create({
-  customFont: {
-    fontFamily: "Mitr-Regular",
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
   },
-  input: {
-    fontFamily: "Mitr-Regular",
-    color: "#000",
+  modalContainer: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingBottom: 40,
+    maxHeight: '90%',
   },
-  button: {
-    minWidth: 80,
-    marginHorizontal: 5,
-    paddingHorizontal: 8,
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  closeButton: {
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalTitle: {
+    fontFamily: 'Mitr-Medium',
+    fontSize: 18,
+    color: '#333333',
+  },
+  cardPreviewContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 24,
+    alignItems: 'center',
+  },
+  cardPreview: {
+    width: '100%',
+    borderRadius: 16,
+    height: 180,
+  },
+  cardPreviewContent: {
+    padding: 20,
+    height: '100%',
+    justifyContent: 'space-between',
+  },
+  cardPreviewHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  cardPreviewType: {
+    fontFamily: 'Mitr-Medium',
+    fontSize: 18,
+  },
+  cardPreviewNumber: {
+    fontFamily: 'Mitr-Regular',
+    fontSize: 20,
+    letterSpacing: 2,
+    marginVertical: 20,
+  },
+  cardPreviewFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  cardPreviewLabel: {
+    fontFamily: 'Mitr-Light',
+    fontSize: 10,
+    opacity: 0.8,
+    marginBottom: 4,
+  },
+  cardPreviewValue: {
+    fontFamily: 'Mitr-Regular',
+    fontSize: 14,
+  },
+  detailsContainer: {
+    paddingHorizontal: 20,
+    marginTop: 10,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  detailLabel: {
+    fontFamily: 'Mitr-Regular',
+    fontSize: 16,
+    color: '#666666',
+  },
+  detailValue: {
+    fontFamily: 'Mitr-Medium',
+    fontSize: 16,
+    color: '#333333',
+  },
+  actionContainer: {
+    paddingHorizontal: 20,
+    marginTop: 30,
+  },
+  deleteButton: {
+    backgroundColor: '#EF4444',
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  buttonText: {
+    fontFamily: 'Mitr-Regular',
+    fontSize: 16,
+    color: '#FFFFFF',
   },
 });
 

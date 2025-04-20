@@ -59,7 +59,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(requestLogger);
-app.use(defaultRateLimiter);
+// app.use(defaultRateLimiter);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 

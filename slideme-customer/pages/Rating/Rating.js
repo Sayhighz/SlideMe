@@ -195,7 +195,7 @@ const Rating = ({ navigation }) => {
               <Text style={[styles.globalText]}>
                 {`คะแนน: ${(
                   parseFloat(serviceData.average_rating) || 0
-                ).toFixed(1)}`}
+                )}`}
               </Text>
               <MaterialIcons name="star" size={17} color="orange" />
             </View>

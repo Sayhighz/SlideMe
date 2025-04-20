@@ -373,7 +373,7 @@ export const getRequestHistory = asyncHandler(async (req, res) => {
     try {
       // Build SQL query with status filter if provided
       let sqlQuery = `
-        SELECT 
+        SELECT
           r.request_id,
           r.status,
           r.location_from,
@@ -388,12 +388,15 @@ export const getRequestHistory = asyncHandler(async (req, res) => {
           (SELECT rating FROM reviews WHERE request_id = r.request_id) AS rating,
           sr.receipt_id,
           sr.distance_km,
-          sr.travel_time_minutes
+          sr.travel_time_minutes,
+          dl.photos_before_service,
+          dl.photos_after_service
         FROM servicerequests r
         LEFT JOIN vehicle_types v ON r.vehicletype_id = v.vehicletype_id
         LEFT JOIN driveroffers o ON r.offer_id = o.offer_id
         LEFT JOIN drivers d ON o.driver_id = d.driver_id
         LEFT JOIN service_receipts sr ON r.request_id = sr.request_id
+        left join driverlogs dl on dl.request_id = dl.request_id 
         WHERE r.customer_id = ?
       `;
   

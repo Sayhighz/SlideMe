@@ -100,8 +100,6 @@ export const validateCardNumber = (cardNumber) => {
     
     if (!paymentData.card_number) {
       errors.push('Card number is required');
-    } else if (!validateCardNumber(paymentData.card_number)) {
-      errors.push('Card number is invalid');
     }
     
     if (!paymentData.card_expiry) {

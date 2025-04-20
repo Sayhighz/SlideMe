@@ -1,130 +1,163 @@
 import React, { useState, useEffect, useContext } from "react";
 import {
   View,
-  Text,
   FlatList,
-  TouchableOpacity,
-  Modal,
+  ActivityIndicator,
   StyleSheet,
+  Platform,
+  Animated,
+  TouchableOpacity,
+  Alert,
+  RefreshControl,
+  Text
 } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome5";
+import { Ionicons } from "@expo/vector-icons";
 import tw from "twrnc";
 import { IP_ADDRESS } from "../../config";
 import { UserContext } from "../../UserContext";
 import HeaderWithBackButton from "../../components/HeaderWithBackButton";
 
-// Utility functions
-const formatThaiDate = (dateString) => {
-  const monthsThai = [
-    "ม.ค.",
-    "ก.พ.",
-    "มี.ค.",
-    "เม.ย.",
-    "พ.ค.",
-    "มิ.ย.",
-    "ก.ค.",
-    "ส.ค.",
-    "ก.ย.",
-    "ต.ค.",
-    "พ.ย.",
-    "ธ.ค.",
-  ];
-  const [dayStr, monthStr, yearStr] = dateString.split("/");
-  const day = parseInt(dayStr, 10);
-  const monthIndex = parseInt(monthStr, 10) - 1;
-  const yearBE = parseInt(yearStr, 10) + 543 - 2500; // ตัดเหลือ 2 หลักท้าย พ.ศ.
-
-  const monthThai = monthsThai[monthIndex];
-
-  return `${day} ${monthThai} ${yearBE}`;
-};
-
-const mapServiceStatus = (status) => {
-  switch (status) {
-    case "completed":
-      return "สำเร็จ";
-    case "cancelled":
-      return "ยกเลิก";
-    default:
-      return "กำลังดำเนินการ";
-  }
-};
-
-const getStatusIcon = (status) => {
-  switch (status) {
-    case "completed":
-      return { icon: "check-circle", color: "#28a745", bgColor: "#d4edda" };
-    case "cancelled":
-      return { icon: "times-circle", color: "#dc3545", bgColor: "#f8d7da" };
-    default:
-      return { icon: "hourglass-half", color: "#ffc107", bgColor: "#fff3cd" };
-  }
-};
-
-const formatNumberWithCommas = (number) => {
-  return number ? number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "0";
-};
+// Import refactored components
+import FilterTabs from "../../components/history/FilterTabs";
+import HistoryCard from "../../components/history/HistoryCard";
+import DetailModal from "../../components/history/DetailModal";
+import PhotoViewer from "../../components/history/PhotoViewer";
+import EmptyState from "../../components/history/EmptyState";
+import { PRIMARY_COLOR, parsePhotos } from "../../components/history/utils";
 
 const HistoryPage = () => {
+  // State variables
   const [filter, setFilter] = useState("all");
   const [modalVisible, setModalVisible] = useState(false);
+  const [photoModalVisible, setPhotoModalVisible] = useState(false);
+  const [currentPhotoType, setCurrentPhotoType] = useState("before"); // "before" or "after"
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [filterMenuVisible, setFilterMenuVisible] = useState(false);
   const [serviceHistoryData, setServiceHistoryData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    limit: 10
+  });
 
+  // Animation for filter button
+  const filterButtonAnim = new Animated.Value(0);
+  
+  // Context for user data
   const { userData } = useContext(UserContext);
 
+  // Animation for filter button
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `http://${IP_ADDRESS}:4000/api/v1/customer/request/history?customer_id=${userData.customer_id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${userData.token}`,
-            },
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(filterButtonAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(filterButtonAnim, {
+          toValue: 0,
+          duration: 2000,
+          useNativeDriver: true,
+        })
+      ])
+    ).start();
+  }, []);
+  
+  const rotateAnim = filterButtonAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg']
+  });
+
+  // Fetch history data from API
+  const fetchData = async (page = 1, limit = 10) => {
+    try {
+      const offset = (page - 1) * limit;
+      
+      const response = await fetch(
+        `http://${IP_ADDRESS}:4000/api/v1/customer/request/history?customer_id=${userData.customer_id}&limit=${limit}&offset=${offset}`,
+        {
+          headers: {
+            Authorization: `Bearer ${userData.token}`,
+          },
         }
-        const data = await response.json();
-        setServiceHistoryData(Array.isArray(data.requests) ? data.requests : []);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
+      );
+      
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
       }
-    };
+      
+      const data = await response.json();
+      
+      if (data.Status) {
+        // Process data and parse photos
+        const processedData = Array.isArray(data.requests) 
+          ? data.requests.map(item => ({
+              ...item,
+              photos_before_service: parsePhotos(item.photos_before_service),
+              photos_after_service: parsePhotos(item.photos_after_service)
+            })) 
+          : [];
+        
+        // If first page, replace data. Otherwise append
+        if (page === 1) {
+          setServiceHistoryData(processedData);
+        } else {
+          setServiceHistoryData(prev => [...prev, ...processedData]);
+        }
+        
+        // Update pagination
+        if (data.pagination) {
+          setPagination({
+            currentPage: Math.floor(data.pagination.offset / data.pagination.limit) + 1,
+            totalPages: data.pagination.total_pages || 1,
+            limit: data.pagination.limit || 10
+          });
+        }
+      } else {
+        setError(data.Message || "Failed to fetch data");
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
-    fetchData(); // Initial fetch
+  // Initial fetch
+  useEffect(() => {
+    fetchData();
+  }, [userData.customer_id]);
 
-    // Set interval for data refresh every 5 seconds
-    const intervalId = setInterval(() => {
-      fetchData();
-    }, 5000);
+  // Pull-to-refresh handler
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchData(1, pagination.limit); // Reset to first page
+  };
 
-    // Cleanup interval when component unmounts
-    return () => clearInterval(intervalId);
-  }, [userData.user_id]);
+  // Load more data when reaching end of list
+  const loadMoreData = () => {
+    if (pagination.currentPage < pagination.totalPages && !loading && !refreshing) {
+      fetchData(pagination.currentPage + 1, pagination.limit);
+    }
+  };
 
+  // Filter data based on selected filter
   const filteredData = serviceHistoryData.filter((item) => {
     if (filter === "completed") return item.status === "completed";
     if (filter === "cancelled") return item.status === "cancelled";
-    return true;
+    if (filter === "active") {
+      return item.status !== "completed" && item.status !== "cancelled";
+    }
+    return true; // "all" filter
   });
 
-  const toggleFilterMenu = () => {
-    setFilterMenuVisible(!filterMenuVisible);
-  };
-
-  const applyFilter = (selectedFilter) => {
-    setFilter(selectedFilter);
-    setFilterMenuVisible(false);
-  };
-
+  // Modal handlers
   const openModal = (item) => {
     if (!item) {
       console.warn("Item is null or undefined");
@@ -134,177 +167,191 @@ const HistoryPage = () => {
     setModalVisible(true);
   };
 
-  const renderItem = ({ item }) => {
-    const { icon, color, bgColor } = getStatusIcon(item.status);
-
-    return (
-      <TouchableOpacity onPress={() => openModal(item)}>
-        <View
-          style={tw`bg-white rounded-lg p-4 mb-4 shadow flex-row items-center`}
-        >
-          <View
-            style={[
-              tw`items-center justify-center mr-4`,
-              {
-                width: 50,
-                height: 50,
-                borderRadius: 25,
-                backgroundColor: bgColor,
-              },
-            ]}
-          >
-            <Icon name={icon} size={24} color={color} />
-          </View>
-          <View>
-            <Text style={[tw`text-lg`, styles.customFont]}>
-              {item.vehicletype_name || "ไม่ระบุ"}
-            </Text>
-            <Text style={[tw`text-gray-600`, styles.customFont]}>
-              วันที่: {formatThaiDate(item.request_date)}
-            </Text>
-            <Text style={[tw`text-gray-600`, styles.customFont]}>
-              สถานะ: {mapServiceStatus(item.status)}
-            </Text>
-            <Text style={[tw`text-gray-600`, styles.customFont]}>
-              ค่าบริการ:{" "}
-              {item.offered_price
-                ? formatNumberWithCommas(item.offered_price)
-                : "0"}{" "}
-              บาท
-            </Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
+  const closeModal = () => {
+    setModalVisible(false);
   };
 
-  if (loading) {
+  // Photo modal handlers
+  const openPhotoModal = (type, index = 0) => {
+    setCurrentPhotoType(type);
+    setCurrentPhotoIndex(index);
+    setPhotoModalVisible(true);
+  };
+
+  const handlePreviousPhoto = () => {
+    if (currentPhotoIndex > 0) {
+      setCurrentPhotoIndex(currentPhotoIndex - 1);
+    }
+  };
+
+  const handleNextPhoto = () => {
+    const photos = currentPhotoType === 'before' 
+      ? (selectedItem.photos_before_service || [])
+      : (selectedItem.photos_after_service || []);
+      
+    if (currentPhotoIndex < photos.length - 1) {
+      setCurrentPhotoIndex(currentPhotoIndex + 1);
+    }
+  };
+
+  // Handle rating action
+  const handleRating = () => {
+    setModalVisible(false);
+    Alert.alert("แจ้งเตือน", "ฟีเจอร์การให้คะแนนจะเปิดให้บริการเร็วๆ นี้");
+  };
+
+  // Handle view status action
+  const handleViewStatus = () => {
+    setModalVisible(false);
+    Alert.alert("แจ้งเตือน", "กำลังนำท่านไปยังหน้าติดตามสถานะ");
+  };
+
+  // Apply filter
+  const applyFilter = (selectedFilter) => {
+    setFilter(selectedFilter);
+  };
+
+  // Render loading state
+  if (loading && !refreshing) {
     return (
-      <View style={tw`flex-1 justify-center items-center`}>
-        <Text>กำลังโหลดรายการ...</Text>
-      </View>
+      <>
+        <HeaderWithBackButton
+          title="ประวัติการใช้บริการ"
+          showBackButton={false}
+          backgroundColor={PRIMARY_COLOR}
+          titleColor="white"
+        />
+        <View style={tw`flex-1 justify-center items-center bg-gray-50`}>
+          <ActivityIndicator size="large" color={PRIMARY_COLOR} />
+          <Text style={[styles.customFont, tw`text-gray-600 mt-4`]}>กำลังโหลดประวัติ...</Text>
+        </View>
+      </>
     );
   }
 
-  if (error) {
+  // Render error state
+  if (error && !refreshing) {
     return (
-      <View style={tw`flex-1 justify-center items-center`}>
-        <Text>Error: {error}</Text>
-      </View>
+      <>
+        <HeaderWithBackButton
+          title="ประวัติการใช้บริการ"
+          showBackButton={false}
+          backgroundColor={PRIMARY_COLOR}
+          titleColor="white"
+        />
+        <View style={tw`flex-1 justify-center items-center bg-gray-50 p-5`}>
+          <Ionicons name="alert-circle-outline" size={60} color="#f87171" />
+          <Text style={[styles.customFont, tw`text-lg text-gray-700 mt-4 text-center`]}>
+            เกิดข้อผิดพลาด
+          </Text>
+          <Text style={[styles.customFont, tw`text-center text-gray-500 mt-2`]}>
+            {error}
+          </Text>
+          <TouchableOpacity 
+            style={[tw`mt-6 bg-[${PRIMARY_COLOR}] px-6 py-3 rounded-full`, styles.buttonShadow]}
+            onPress={onRefresh}
+          >
+            <Text style={[styles.customFont, tw`text-white font-bold`]}>
+              ลองใหม่อีกครั้ง
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </>
     );
   }
 
+  // Main render
   return (
     <>
       <HeaderWithBackButton
         title="ประวัติการใช้บริการ"
         showBackButton={false}
+        backgroundColor={PRIMARY_COLOR}
+        titleColor="white"
       />
-      <View style={tw`flex-1 bg-gray-100`}>
-        {/* Filter Button */}
-        <TouchableOpacity
-          style={[
-            tw`absolute z-50 bottom-6 right-6 bg-white rounded-full shadow`,
-            {
-              width: 60,
-              height: 60,
-              justifyContent: "center",
-              alignItems: "center",
-            },
-          ]}
-          onPress={toggleFilterMenu}
-        >
-          <Icon name="filter" size={24} color="#60B876" />
-        </TouchableOpacity>
+      <View style={tw`flex-1 bg-gray-50`}>
+        {/* Filter tabs */}
+        <FilterTabs activeFilter={filter} onFilterChange={applyFilter} />
 
-        {/* Filter Menu Modal */}
-        <Modal
-          transparent={true}
-          visible={filterMenuVisible}
-          animationType="fade"
-          onRequestClose={toggleFilterMenu}
-        >
-          <TouchableOpacity
-            style={tw`flex-1 bg-black bg-opacity-50`}
-            onPress={toggleFilterMenu}
-          />
-          <View
-            style={tw`absolute bottom-20 right-6 bg-white rounded-lg shadow p-4`}
-          >
-            <TouchableOpacity
-              style={tw`flex-row items-center mb-2`}
-              onPress={() => applyFilter("all")}
-            >
-              <Icon name="list" size={20} color="#60B876" style={tw`mr-2`} />
-              <Text style={tw`text-black text-lg`}>ทั้งหมด</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={tw`flex-row items-center mb-2`}
-              onPress={() => applyFilter("completed")}
-            >
-              <Icon
-                name="check-circle"
-                size={20}
-                color="#28a745"
-                style={tw`mr-2`}
-              />
-              <Text style={tw`text-black text-lg`}>สำเร็จ</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={tw`flex-row items-center`}
-              onPress={() => applyFilter("cancelled")}
-            >
-              <Icon
-                name="times-circle"
-                size={20}
-                color="#dc3545"
-                style={tw`mr-2`}
-              />
-              <Text style={tw`text-black text-lg`}>ยกเลิก</Text>
-            </TouchableOpacity>
-          </View>
-        </Modal>
-
-        {/* FlatList */}
+        {/* History list */}
         <FlatList
           data={filteredData}
-          renderItem={renderItem}
+          renderItem={({ item }) => (
+            <HistoryCard item={item} onPress={openModal} />
+          )}
           keyExtractor={(item, index) => {
-            return item && item.id ? item.id.toString() : `index-${index}`;
+            return item && item.request_id ? `request-${item.request_id}-${index}` : `index-${index}`;
           }}
-          contentContainerStyle={tw`pb-15`}
+          contentContainerStyle={[
+            tw`pb-20`,
+            filteredData.length === 0 && tw`flex-1`
+          ]}
+          ListEmptyComponent={<EmptyState filter={filter} onRefresh={onRefresh} />}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[PRIMARY_COLOR]}
+              tintColor={PRIMARY_COLOR}
+            />
+          }
+          onEndReached={loadMoreData}
+          onEndReachedThreshold={0.3}
+          initialNumToRender={5}
+          maxToRenderPerBatch={10}
+          windowSize={10}
+          removeClippedSubviews={Platform.OS === 'android'}
+          ListFooterComponent={
+            pagination.currentPage < pagination.totalPages && !loading ? (
+              <View style={tw`py-4 items-center`}>
+                <ActivityIndicator color={PRIMARY_COLOR} />
+                <Text style={[styles.customFont, tw`text-gray-500 mt-2`]}>กำลังโหลดข้อมูลเพิ่มเติม...</Text>
+              </View>
+            ) : null
+          }
+        />
+        
+        {/* Animated filter button */}
+        <Animated.View
+          style={[
+            tw`absolute z-50 bottom-8 right-6`,
+            { transform: [{ rotate: rotateAnim }] }
+          ]}
+        >
+          <TouchableOpacity
+            style={[
+              tw`bg-white rounded-full p-4`,
+              styles.floatingButton
+            ]}
+            onPress={() => Alert.alert("Filter", "Additional filtering options will be available soon.")}
+          >
+            <Ionicons name="options" size={24} color={PRIMARY_COLOR} />
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* Detail Modal */}
+        <DetailModal 
+          visible={modalVisible} 
+          item={selectedItem} 
+          onClose={closeModal}
+          onViewPhoto={openPhotoModal}
+          onRate={handleRating}
+          onViewStatus={handleViewStatus}
         />
 
+        {/* Photo Viewer Modal */}
         {selectedItem && (
-          <Modal
-            animationType="fade"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => setModalVisible(false)}
-          >
-            <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
-              <View style={tw`bg-white rounded-lg p-6 w-11/12`}>
-                <Text style={[styles.customFont,tw`text-xl font-bold mb-4`]}>
-                  {selectedItem.vehicletype_name || "ไม่ระบุ"}
-                </Text>
-                <Text style={[styles.customFont,tw`text-gray-700 mb-4`]}>
-                  วันที่: {formatThaiDate(selectedItem.request_date)}
-                </Text>
-                <Text style={[styles.customFont,tw`text-gray-700 mb-4`]}>
-                  สถานะ: {mapServiceStatus(selectedItem.status)}
-                </Text>
-                <Text style={[styles.customFont,tw`text-gray-700 mb-4`]}>
-                  ค่าบริการ: {formatNumberWithCommas(selectedItem.offered_price)} บาท
-                </Text>
-                <TouchableOpacity
-                  onPress={() => setModalVisible(false)}
-                  style={tw`bg-[#60B876] py-2 px-4 rounded-lg`}
-                >
-                  <Text style={[styles.customFont,tw`text-white text-center`]}>ปิดหน้าต่าง</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
+          <PhotoViewer
+            visible={photoModalVisible}
+            onClose={() => setPhotoModalVisible(false)}
+            photos={currentPhotoType === 'before' 
+              ? (selectedItem.photos_before_service || [])
+              : (selectedItem.photos_after_service || [])}
+            currentIndex={currentPhotoIndex}
+            onPrevious={handlePreviousPhoto}
+            onNext={handleNextPhoto}
+            photoType={currentPhotoType}
+          />
         )}
       </View>
     </>
@@ -313,7 +360,33 @@ const HistoryPage = () => {
 
 const styles = StyleSheet.create({
   customFont: {
-    fontFamily: "Mitr-Regular",
+    fontFamily: Platform.OS === 'ios' ? 'Mitr-Regular' : 'Mitr-Regular',
+  },
+  floatingButton: {
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
+  },
+  buttonShadow: {
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
 });
 

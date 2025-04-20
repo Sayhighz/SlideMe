@@ -71,7 +71,7 @@ const DriverCard = React.memo(({ item, selectedDriver, onDriverSelect, fee }) =>
               <View style={tw`flex-row items-center`}>
                 <MaterialIcons name="star" size={16} color="#F6AD55" />
                 <Text style={[styles.globalText, tw`ml-1 text-gray-600`]}>
-                  {item.rating ? item.rating.toFixed(1) : "0.0"}
+                  {item.rating ? item.rating : "0.0"}
                 </Text>
               </View>
             </View>
@@ -89,7 +89,7 @@ const DriverCard = React.memo(({ item, selectedDriver, onDriverSelect, fee }) =>
                 <MaterialIcons name="map" size={16} color="#4a5568" />
                 <Text style={[styles.globalText, tw`ml-1 text-gray-700`]}>
                   {item.distance
-                    ? `${(item.distance / 1000).toFixed(1)} กม.`
+                    ? `${(item.distance / 1000)} กม.`
                     : "- กม."}
                 </Text>
               </View>

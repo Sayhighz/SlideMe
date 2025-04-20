@@ -1,64 +1,85 @@
 import {
-  Pressable,
   SafeAreaView,
-  Text,
-  View,
   StyleSheet,
   Alert,
+  Platform,
+  StatusBar,
+  View,
+  ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import { MaterialIcons } from "@expo/vector-icons";
 import tw from "twrnc";
-import { TouchableOpacity } from "react-native";
-import MapView, { Marker } from "react-native-maps";
-import { openURL } from "expo-linking";
-import { rating } from "@material-tailwind/react";
 import { useRoute } from "@react-navigation/native";
-import { GOOGLE_MAPS_API_KEY } from "../../assets/api/api";
-import MapViewDirections from "react-native-maps-directions";
-import * as Location from "expo-location";
 import axios from "axios";
 import { IP_ADDRESS } from "../../config";
 import HeaderWithBackButton from "../../components/HeaderWithBackButton";
 import { UserContext } from "../../UserContext";
-import { ProgressBar } from "../../components/ProgressBar/ProgressBar";
+
+// Import components
+import OrderHeader from "../../components/viewOrder/OrderHeader";
+import OrderDetailsCard from "../../components/viewOrder/OrderDetailsCard";
+import OrderMap from "../../components/viewOrder/OrderMap";
+import RideProgressBar from "../../components/viewOrder/RideProgressBar";
+import ActionButtons from "../../components/viewOrder/ActionButtons";
 
 export default function ViewOrder({ navigation }) {
   const styles = StyleSheet.create({
     globalText: {
-      fontFamily: "Mitr-Regular",
+      fontFamily: Platform.OS === "android" ? "Roboto" : "Mitr-Regular",
+    },
+    container: {
+      flex: 1,
+      backgroundColor: "#f9fafb",
+      paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+    },
+    contentContainer: {
+      flexGrow: 1,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    shadow: {
+      ...Platform.select({
+        ios: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        },
+        android: {
+          elevation: 4,
+        },
+      }),
     },
   });
 
   const route = useRoute();
-
-  const [origin, setOrigin] = useState({});
-  const [destination, setDestination] = useState({});
-
-  const [driverInformation, setDriverInformation] = useState({});
-
-  const [driverLocation, setDriverLocation] = useState({});
-
-  const [confirmFromDriver, setConfirmFromDriver] = useState(false);
-
-  const [myLocation, setMyLocation] = useState({});
-
-  const [request, setRequest] = useState("");
-
-  const [time, setTime] = useState("");
-
-  const [status, setStatus] = useState(null);
-
-  const [alertComfirm, setAlertConfirm] = useState(false);
-
   const { userData } = useContext(UserContext);
 
-  const driver_id = route.params?.driverProfile.chooseDriver.id || "ไม่ระบุ";
-  const customer_id_request =
-    route.params?.driverProfile.chooseDriver.customer_id_request || "ไม่ระบุ";
-  const request_id =
-    route.params?.driverProfile.chooseDriver.request_id || "ไม่ระบุ";
+  // States
+  const [origin, setOrigin] = useState({});
+  const [destination, setDestination] = useState({});
+  const [driverInformation, setDriverInformation] = useState({});
+  const [driverLocation, setDriverLocation] = useState({});
+  const [confirmFromDriver, setConfirmFromDriver] = useState(false);
+  const [time, setTime] = useState("");
+  const [request, setRequest] = useState("");
+  const [status, setStatus] = useState(null);
+  const [alertComfirm, setAlertConfirm] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Get params from route
+  const driver_id = route.params?.driverProfile.chooseDriver?.id || "ไม่ระบุ";
+  const customer_id_request =
+    route.params?.driverProfile.chooseDriver?.customer_id_request || "ไม่ระบุ";
+  const request_id =
+    route.params?.driverProfile.chooseDriver?.request_id || "ไม่ระบุ";
+
+  // Helper functions
   const formatDateToThaiTimezone = (dateString) => {
     const date = new Date(dateString);
     const options = {
@@ -68,7 +89,6 @@ export default function ViewOrder({ navigation }) {
       day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
-      // second: "2-digit",
     };
     return new Intl.DateTimeFormat("th-TH", options).format(date);
   };
@@ -77,7 +97,10 @@ export default function ViewOrder({ navigation }) {
     return number.toString().padStart(length, "0");
   };
 
+  // API functions
   const fetchOrderDetails = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
       const response = await axios.get(
         `http://${IP_ADDRESS}:4000/api/v1/customer/request/details?request_id=${request_id}`,
@@ -88,10 +111,8 @@ export default function ViewOrder({ navigation }) {
         }
       );
 
-      getDriverLocation();
-
       if (response.data.Status) {
-        const data = response.data; // Assuming you want the first result
+        const data = response.data;
         setOrigin({
           name: data.location_from,
           latitude: parseFloat(data.pickup_lat),
@@ -114,11 +135,19 @@ export default function ViewOrder({ navigation }) {
 
         setTime(formatDateToThaiTimezone(data.booking_time));
         setRequest(padNumber(data.request_id, 10));
+        
+        // Get driver location after fetching details
+        await getDriverLocation();
+        setIsLoading(false);
       } else {
         console.error("No matching data found");
+        setError("ไม่พบข้อมูลคำขอ");
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("Error fetching order details:", error);
+      setError("เกิดข้อผิดพลาดในการดึงข้อมูลรายละเอียดคำขอ");
+      setIsLoading(false);
     }
   };
 
@@ -135,19 +164,20 @@ export default function ViewOrder({ navigation }) {
       );
 
       if (response.data.Status) {
-        console.log("response.data.StatusOrder:", response.data.StatusOrder);
-        setStatus(response.data.StatusOrder); // อัปเดตสถานะใน state
+        setStatus(response.data.StatusOrder);
 
-        if (response.data.StatusOrder === "delivery_in_progress") setConfirmFromDriver(true);
+        if (response.data.StatusOrder === "delivery_in_progress") {
+          setConfirmFromDriver(true);
+        }
 
         if (response.data.StatusOrder === "completed" && !alertComfirm) {
           setAlertConfirm(true);
           Alert.alert(
             "รถของคุณได้ถึงปลายทางแล้ว",
-            "",
+            "ขอบคุณที่ใช้บริการ",
             [
               {
-                text: "OK",
+                text: "ให้คะแนน",
                 onPress: () => {
                   navigation.navigate("Rating", {
                     requestId: request_id,
@@ -168,21 +198,6 @@ export default function ViewOrder({ navigation }) {
     }
   };
 
-  useEffect(() => {
-    let interval;
-
-    interval = setInterval(() => {
-      checkOrderStatus();
-    }, 10000);
-
-    if (status === "completed") {
-      clearInterval(interval);
-    }
-
-    // Cleanup function สำหรับ useEffect
-    return () => clearInterval(interval);
-  }, [status]);
-
   const getDriverLocation = async () => {
     try {
       const response = await axios.get(
@@ -194,42 +209,69 @@ export default function ViewOrder({ navigation }) {
           },
         }
       );
-      if (status === "accepted") {
-        if (response.data.Status) {
-          setDriverLocation({
-            latitude: response.data.latitude,
-            longitude: response.data.longitude,
-          });
-        } else {
-          console.error("Failed to fetch driver location:");
-        }
+      
+      if (response.data.Status) {
+        setDriverLocation({
+          latitude: response.data.latitude,
+          longitude: response.data.longitude,
+        });
+      } else {
+        console.error("Failed to fetch driver location");
       }
     } catch (error) {
       console.error("Error fetching driver location:", error);
     }
   };
 
-  useEffect(() => {
-    let intervalLocation;
-    if (status === "accepted") {
-      intervalLocation = setInterval(() => {
-        getDriverLocation();
-      }, 10000);
-    }
-    if (status === "completed") {
-      console.log("Clearing interval");
-      clearInterval(intervalLocation);
-    }
-
-    return () => clearInterval(intervalLocation);
-  }, [status]);
-
+  // Effect hooks for data fetching and intervals
   useEffect(() => {
     fetchOrderDetails();
     checkOrderStatus();
-    getDriverLocation();
+
+    // Hide tab bar when this screen is focused
+    navigation.getParent()?.setOptions({
+      tabBarStyle: { display: 'none' }
+    });
+
+    // Restore tab bar when leaving this screen
+    return () => {
+      navigation.getParent()?.setOptions({
+        tabBarStyle: undefined
+      });
+    };
   }, []);
 
+  useEffect(() => {
+    let statusInterval = setInterval(() => {
+      checkOrderStatus();
+    }, 10000);
+
+    if (status === "completed") {
+      clearInterval(statusInterval);
+    }
+
+    return () => clearInterval(statusInterval);
+  }, [status]);
+
+  useEffect(() => {
+    let locationInterval;
+    
+    if (status === "accepted" || status === "delivery_in_progress") {
+      locationInterval = setInterval(() => {
+        getDriverLocation();
+      }, 10000);
+    }
+    
+    if (status === "completed") {
+      clearInterval(locationInterval);
+    }
+
+    return () => {
+      if (locationInterval) clearInterval(locationInterval);
+    };
+  }, [status]);
+
+  // Event handlers
   const handleChat = () => {
     navigation.navigate("ChatScreen", {
       room_id: request_id,
@@ -238,221 +280,83 @@ export default function ViewOrder({ navigation }) {
     });
   };
 
-  return (
-    <>
-      <HeaderWithBackButton
-        showBackButton={true}
-        title="รายละเอียด"
-        onPress={() => {
-          navigation.navigate("HomePage"),
-          navigation.getParent()?.setOptions({
-            tabBarStyle: undefined,
-          });
-        }}
-      />
-      <SafeAreaView style={tw`flex-1 relative `}>
-        <View style={tw`flex-2`}>
-          <View style={tw`flex-2`}>
-            <View style={tw`flex-1`}>
-              <View
-                style={tw`flex-1 flex-row justify-between px-4 py-2 items-end`}
-              >
-                <Text style={[styles.globalText, tw`text-sm`]}>{time}</Text>
-                <Text style={[styles.globalText, tw`text-sm`]}>{request}</Text>
-              </View>
-              <View
-                style={tw`flex-4 justify-around mx-4 bg-white shadow-lg border border-gray-300 mb-1 p-1 rounded-lg`}
-              >
-                <View style={tw`flex-1 flex-row items-center w-full`}>
-                  <View style={tw`flex-1 flex-row items-center`}>
-                    <MaterialIcons name="location-pin" size={24} color="blue" />
-                    <Text style={[styles.globalText, tw`items-center`]}>
-                      คนขับ{" "}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.globalText,
-                        tw`items-center text-gray-600`,
-                      ]}
-                    >
-                      {driverInformation.name}
-                    </Text>
-                    <MaterialIcons name="star" size={24} color="orange" />
-                    <Text style={[styles.globalText, tw`text-center`]}>
-                      {driverInformation.rating || "0.0"}
-                    </Text>
-                  </View>
-                </View>
-                <View
-                  style={tw`flex-1 flex-row items-center w-full`}
-                  onTouchEnd={() => {
-                    Alert.alert("ต้นทาง :", origin.name);
-                  }}
-                >
-                  <MaterialIcons name="location-pin" size={24} color="red" />
-                  <Text
-                    style={[styles.globalText, tw`items-center flex-1`]}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    ต้นทาง : {origin.name}
-                  </Text>
-                  <Text
-                    style={[styles.globalText, tw`items-center flex-1`]}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {origin.name}
-                  </Text>
-                </View>
-                <View
-                  style={tw`flex-1 flex-row items-center w-full`}
-                  onTouchEnd={() => {
-                    Alert.alert("ปลายทาง :", destination.name);
-                  }}
-                >
-                  <MaterialIcons name="location-pin" size={24} color="green" />
-                  <Text
-                    style={[styles.globalText, tw`items-center flex-1`]}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    ปลายทาง : {destination.name}
-                  </Text>
-                </View>
-              </View>
-            </View>
-            <View style={tw`flex-2`}>
-              <View style={tw`flex-1 bg-black justify-center`}>
-                <MapView
-                  style={tw`flex-1`}
-                  initialRegion={{
-                    latitude: 13.855890002666245,
-                    longitude: 100.58553823947129,
-                    latitudeDelta: 0.0522,
-                    longitudeDelta: 0.0521,
-                  }}
-                >
-                  <Marker
-                    coordinate={origin}
-                    title="ต้นทาง"
-                    description={origin.name}
-                  >
-                    <MaterialIcons
-                      name="location-pin"
-                      size={35}
-                      color="red"
-                      style={tw`ml-2`}
-                    />
-                  </Marker>
+  const handleBackNavigation = () => {
+    navigation.navigate("HomePage");
+  };
 
-                  <Marker
-                    coordinate={destination}
-                    title="ปลายทาง"
-                    description={destination.name}
-                  >
-                    <MaterialIcons
-                      name="location-pin"
-                      size={35}
-                      color="green"
-                      style={tw`ml-2`}
-                    />
-                  </Marker>
-
-                  <Marker
-                    coordinate={driverLocation}
-                    title="คนขับ"
-                    description={driverInformation.name}
-                  >
-                    <MaterialIcons
-                      name="location-pin"
-                      size={35}
-                      color="blue"
-                      style={tw`ml-2`}
-                    />
-                  </Marker>
-
-                  {/* <Marker
-                  coordinate={myLocation}
-                  title="myLocation"
-                  description="myLocation"
-                  pinColor="red"
-                /> */}
-
-{origin.latitude &&
-  origin.longitude &&
-  destination.latitude &&
-  destination.longitude &&
-  driverInformation.latitude &&
-  driverInformation.longitude && (
-    <MapViewDirections
-      strokeColor={"#1e40af"}
-      strokeWidth={3}
-      apikey={GOOGLE_MAPS_API_KEY}
-      origin={`${driverInformation.latitude},${driverInformation.longitude}`}  // แก้เป็น string
-      destination={
-        confirmFromDriver
-          ? `${destination.latitude},${destination.longitude}`  // แก้เป็น string
-          : `${origin.latitude},${origin.longitude}`  // แก้เป็น string
-      }
-      // onError={(errorMessage) => {
-      //   console.log("Error fetching directions: ", errorMessage);
-      //   alert("ไม่พบเส้นทางระหว่างจุดต้นทางและปลายทางที่ระบุ");
-      // }}
-    />
-  )}
-
-                </MapView>
-              </View>
-            </View>
-          </View>
-          <View style={tw`flex-1`}>
-            <View style={tw`flex-1 items-center`}>
-              <ProgressBar status={status} />
-            </View>
-            <View style={tw`flex-1`}>
-              <View style={tw`flex-1 flex-row justify-around mb-4`}>
-                {/* Call Button */}
-                <Pressable
-                  style={tw`flex-1 bg-white shadow-md border border-gray-300 justify-center rounded-lg items-center mx-4 h-16`}
-                  onPress={() => {
-                    openURL(`tel:${driverInformation.phone}`);
-                    console.log(driverInformation.phone);
-                  }}
-                >
-                  <MaterialIcons name="call" size={24} color="green" />
-                  <Text style={[styles.globalText, tw`text-xs`]}>โทร</Text>
-                </Pressable>
-
-                {/* Chat Button */}
-                <Pressable
-                  style={tw`flex-1 bg-white shadow-md border border-gray-300 justify-center rounded-lg items-center mx-4 h-16`}
-                  onPress={handleChat}
-                >
-                  <MaterialIcons name="chat" size={24} color="black" />
-                  <Text style={[styles.globalText, tw`text-xs`]}>ข้อความ</Text>
-                </Pressable>
-
-                {/* Cancel Button */}
-                <Pressable
-                  style={tw`flex-1 bg-white shadow-md border border-gray-300 justify-center rounded-lg items-center mx-4 h-16`}
-                  onPress={() => {
-                    Alert.alert(
-                      "ฟังก์ชั่นนี้ยังไม่พร้อมใช้งาน",
-                      "",
-                      [{ text: "OK" }],
-                      { cancelable: false }
-                    );
-                  }}
-                >
-                  <MaterialIcons name="close" size={24} color="red" />
-                  <Text style={[styles.globalText, tw`text-xs`]}>ยกเลิก</Text>
-                </Pressable>
-              </View>
-            </View>
-          </View>
+  // Render loading state
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <HeaderWithBackButton
+          showBackButton={true}
+          title="รายละเอียดการเดินทาง"
+          onPress={handleBackNavigation}
+        />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#3b82f6" />
         </View>
       </SafeAreaView>
-    </>
+    );
+  }
+
+  // Render error state
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <HeaderWithBackButton
+          showBackButton={true}
+          title="รายละเอียดการเดินทาง"
+          onPress={handleBackNavigation}
+        />
+        <View style={styles.loadingContainer}>
+          <Text style={[styles.globalText, tw`text-red-500 text-lg`]}>{error}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <HeaderWithBackButton
+        showBackButton={true}
+        title="รายละเอียดการเดินทาง"
+        onPress={handleBackNavigation}
+      />
+      
+      <ScrollView 
+        style={tw`flex-1`}
+        contentContainerStyle={styles.contentContainer}
+        bounces={false}
+        showsVerticalScrollIndicator={false}
+      >
+        <OrderHeader time={time} requestId={request} styles={styles} />
+        
+        <OrderDetailsCard
+          driverInformation={driverInformation}
+          origin={origin}
+          destination={destination}
+          styles={styles}
+        />
+        
+        <View style={[tw`mx-4 rounded-xl overflow-hidden h-64`, styles.shadow]}>
+          <OrderMap
+            origin={origin}
+            destination={destination}
+            driverLocation={driverLocation}
+            driverInformation={driverInformation}
+            confirmFromDriver={confirmFromDriver}
+          />
+        </View>
+        
+        <RideProgressBar status={status} styles={styles} />
+      </ScrollView>
+      
+      <ActionButtons
+        driverInformation={driverInformation}
+        handleChat={handleChat}
+        styles={styles}
+      />
+    </SafeAreaView>
   );
 }

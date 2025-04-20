@@ -74,7 +74,7 @@ const DriverDetailModal = ({ visible, driver, fee = 0, onCancel, onConfirm }) =>
             <View style={tw`flex-row items-center mt-1`}>
               <MaterialIcons name="star" size={16} color="#F6AD55" />
               <Text style={[styles.globalText, tw`text-gray-600 ml-1`]}>
-                {driver.rating ? driver.rating.toFixed(1) : "0.0"}
+                {driver.rating ? driver.rating : "0.0"}
               </Text>
             </View>
           </View>
@@ -120,7 +120,7 @@ const DriverDetailModal = ({ visible, driver, fee = 0, onCancel, onConfirm }) =>
                   ระยะทาง
                 </Text>
                 <Text style={[styles.globalText, tw`text-lg font-medium text-gray-800`]}>
-                  {driver.distance ? `${(driver.distance / 1000).toFixed(1)} กม.` : "- กม."}
+                  {driver.distance ? `${(driver.distance / 1000)} กม.` : "- กม."}
                 </Text>
               </View>
             </View>
