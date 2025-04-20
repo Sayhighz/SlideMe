@@ -13,25 +13,59 @@ const PhotoViewer = ({
   onNext, 
   photoType 
 }) => {
+    console.log("Rendering PhotoViewer with:", {
+        visible, 
+        photosExist: !!photos,
+        photosLength: photos?.length || 0,
+        currentIndex,
+        photoType,
+        photoDetails: photos && photos[currentIndex] ? JSON.stringify(photos[currentIndex]).slice(0, 100) : 'No photo details' 
+      });
+      
+      // ตรวจสอบเฉพาะ visible
+      if (!visible) {
+        console.log("PhotoViewer not visible because visible is false");
+        return null;
+      }
   if (!photos || photos.length === 0) return null;
   
   const screenWidth = Dimensions.get('window').width;
   const screenHeight = Dimensions.get('window').height;
   const currentPhoto = photos[currentIndex];
   
-  // Safely handle photo URI
-  let photoUri = `http://${IP_ADDRESS}/placeholder-image.jpg`;
-  
-  if (currentPhoto) {
-    if (typeof currentPhoto === 'object' && currentPhoto.url) {
-      photoUri = `http://${IP_ADDRESS}${currentPhoto.url}`;
-    } else if (typeof currentPhoto === 'string') {
-      photoUri = currentPhoto.startsWith('http') 
-        ? currentPhoto 
-        : `http://${IP_ADDRESS}/${currentPhoto}`;
+  // สร้างฟังก์ชันสำหรับการสร้าง URL ของรูปภาพที่ถูกต้อง
+  const getPhotoUrl = (photo) => {
+    // กรณีไม่มีข้อมูลรูปภาพ
+    if (!photo) {
+      return `http://${IP_ADDRESS}:4000/api/v1/placeholder-image.jpg`;
     }
-  }
-
+    
+    // กรณีข้อมูลเป็น object ที่มี url property
+    if (typeof photo === 'object' && photo.url) {
+      // URL เต็มรูปแบบจาก database
+      return `http://${IP_ADDRESS}:4000/api/v1${photo.url.startsWith('/') ? photo.url : '/' + photo.url}`;
+    }
+    
+    // กรณีข้อมูลเป็น string
+    if (typeof photo === 'string') {
+      // ถ้าเริ่มต้นด้วย http แสดงว่าเป็น URL เต็ม
+      if (photo.startsWith('http')) {
+        return photo;
+      }
+      // ถ้าไม่ได้เริ่มต้นด้วย http ให้เติม domain
+      return `http://${IP_ADDRESS}:4000/api/v1${photo.startsWith('/') ? photo : '/' + photo}`;
+    }
+    
+    // กรณีอื่นๆ ให้ใช้รูปแทน
+    return `http://${IP_ADDRESS}:4000/api/v1/placeholder-image.jpg`;
+  };
+  
+  // นำฟังก์ชันมาใช้เพื่อสร้าง URL ของรูปภาพ
+  const photoUri = getPhotoUrl(currentPhoto);
+  
+  // Log URL เพื่อการแก้ไขปัญหา
+  console.log("Photo viewer URL:", photoUri);
+  
   // Map position to Thai text
   const getPositionText = (position) => {
     switch (position?.toLowerCase()) {
@@ -45,11 +79,14 @@ const PhotoViewer = ({
   
   return (
     <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
-    >
+  animationType="fade"
+  transparent={true}
+  visible={visible}
+  onRequestClose={() => {
+    console.log("Modal onRequestClose triggered");
+    onClose();
+  }}
+>
       <View style={tw`flex-1 bg-black justify-center items-center`}>
         {/* Header controls */}
         <View style={tw`absolute top-10 left-0 right-0 flex-row justify-between px-4 z-10`}>

@@ -254,6 +254,8 @@ export const getRequestDetails = asyncHandler(async (req, res) => {
       dd.current_latitude AS driver_current_lat,
       dd.current_longitude AS driver_current_lng,
       p.amount AS payment_amount,
+      dl.photos_before_service,
+      dl.photos_after_service,
       AVG(rv.rating) AS average_rating
     FROM servicerequests r
     LEFT JOIN vehicle_types v ON r.vehicletype_id = v.vehicletype_id
@@ -262,6 +264,7 @@ export const getRequestDetails = asyncHandler(async (req, res) => {
     LEFT JOIN driverdetails dd ON d.driver_id = dd.driver_id
     LEFT JOIN reviews rv ON d.driver_id = rv.driver_id
     LEFT JOIN payments p ON r.payment_id = p.payment_id
+    LEFT JOIN driverlogs dl ON r.request_id = dl.request_id
     WHERE r.request_id = ?
 
       GROUP BY 
@@ -287,7 +290,10 @@ export const getRequestDetails = asyncHandler(async (req, res) => {
     d.phone_number,
     d.license_plate,
     dd.current_latitude,
-    dd.current_longitude
+    dd.current_longitude,
+    p.amount,
+    dl.photos_before_service,
+    dl.photos_after_service
   `;
 
   const result = await db.query(sql, [request_id]);
@@ -346,16 +352,7 @@ export const getRequestDetails = asyncHandler(async (req, res) => {
   );
 });
 
-/**
- * Get customer's service request history
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-/**
- * Get customer's service request history
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
+
 /**
  * Get customer's service request history
  * @param {Object} req - Express request object
@@ -382,6 +379,7 @@ export const getRequestHistory = asyncHandler(async (req, res) => {
           r.booking_time,
           v.vehicletype_name,
           o.offered_price,
+          o.driver_id,
           d.first_name AS driver_first_name,
           d.last_name AS driver_last_name,
           d.license_plate,

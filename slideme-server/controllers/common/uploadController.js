@@ -2,7 +2,6 @@
  * Common upload controller
  * Handles file uploads across the application
  */
-import path from 'path';
 import logger from '../../config/logger.js';
 import { ValidationError, NotFoundError, CustomError } from '../../utils/errors/customErrors.js';
 import { STATUS_CODES } from '../../utils/constants/statusCodes.js';
@@ -12,11 +11,6 @@ import { asyncHandler } from '../../utils/errors/errorHandler.js';
 import fileService from '../../services/storage/fileService.js';
 import imageService from '../../services/storage/imageService.js';
 
-/**
- * Fetch image
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
 export const fetchImage = asyncHandler(async (req, res) => {
   const { filename, subdir } = req.query;
 
@@ -25,7 +19,9 @@ export const fetchImage = asyncHandler(async (req, res) => {
   }
 
   try {
-    const file = await fileService.getFile(filename, subdir || '');
+    // แก้ไขโค้ดให้ใช้ fs.promises.stat แทน fs.existsSync
+    const fileService = await import('../../services/storage/fileService.js');
+    const file = await fileService.default.getFile(filename, ('/'+subdir) || '');
 
     if (!file) {
       throw new NotFoundError('ไม่พบไฟล์ที่ต้องการ');
@@ -53,7 +49,8 @@ export const fetchImage = asyncHandler(async (req, res) => {
     logger.error('Error retrieving image', { 
       filename, 
       subdir, 
-      error: error.message 
+      error: error.message,
+      stack: error.stack
     });
     
     throw new CustomError('เกิดข้อผิดพลาดในการดึงรูปภาพ', STATUS_CODES.INTERNAL_SERVER_ERROR);

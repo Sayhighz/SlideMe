@@ -42,7 +42,8 @@ const upload = multer({ storage });
  *   get:
  *     summary: ดึงรูปภาพ
  *     description: |
- *       - ดึงรูปภาพจากเซิร์ฟเวอร์ตาม filename ที่ระบุ
+ *       - ดึงรูปภาพจากเซิร์ฟเวอร์ตาม filename และ subdir ที่ระบุ
+ *       - สามารถระบุ subdir เพื่อเข้าถึงไฟล์ในโฟลเดอร์ย่อย เช่น services/21
  *     tags: [Uploads]
  *     parameters:
  *       - in: query
@@ -50,16 +51,79 @@ const upload = multer({ storage });
  *         required: true
  *         schema:
  *           type: string
- *           example: "photos-1647852369852.jpg"
+ *           example: "1745148278184-d925abc47897.jpg"
+ *         description: ชื่อไฟล์ที่ต้องการดึง
+ *       - in: query
+ *         name: subdir
+ *         required: false
+ *         schema:
+ *           type: string
+ *           example: "services/156"
+ *         description: เส้นทางย่อยของไฟล์ (เช่น services/156)
  *     responses:
  *       200:
  *         description: ดึงรูปภาพสำเร็จ
+ *         content:
+ *           image/jpeg:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *           image/png:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *           image/gif:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *           application/octet-stream:
+ *             schema:
+ *               type: string
+ *               format: binary
  *       400:
  *         description: ต้องระบุชื่อไฟล์
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "ต้องระบุชื่อไฟล์"
+ *                 fields:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   example: ["filename"]
  *       404:
  *         description: ไม่พบไฟล์
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "ไม่พบไฟล์ที่ต้องการ"
  *       500:
  *         description: เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "เกิดข้อผิดพลาดในการดึงรูปภาพ"
  */
 router.get("/fetch_image", fetchImage);
 

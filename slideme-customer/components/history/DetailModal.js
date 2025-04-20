@@ -35,7 +35,7 @@ const DetailModal = ({
     if (beforePhotos.length === 0 && afterPhotos.length === 0) {
       return null;
     }
-    console.log(beforePhotos)
+    console.log(beforePhotos[0].url)
 
     // Map position to Thai text
     const getPositionText = (position) => {
@@ -48,6 +48,7 @@ const DetailModal = ({
       }
     };
 
+    
     return (
       <View style={tw`mb-6`}>
         <Text style={[styles.sectionTitle, tw`mb-3 text-gray-800`]}>รูปภาพบริการ</Text>
@@ -64,10 +65,10 @@ const DetailModal = ({
                 >
                   <Image
                     source={{ 
-                      uri: photo && typeof photo === 'object' && photo.url 
-                        ? `http://${IP_ADDRESS}${photo.url}`
+                      uri: photo && photo.url 
+                        ? `http://${IP_ADDRESS}:4000/api/v1${photo.url}`
                         : (photo && typeof photo === 'string'
-                          ? (`http://${IP_ADDRESS}/${photo}`)
+                          ? (`http://${IP_ADDRESS}:4000/api/v1${photo}`)
                           : `http://${IP_ADDRESS}/placeholder-image.jpg`)
                     }}
                     style={[tw`w-24 h-24 rounded-lg`, styles.photoThumbnail]}
@@ -100,10 +101,10 @@ const DetailModal = ({
                   <Image
                     source={{ 
                       uri: photo && typeof photo === 'object' && photo.url 
-                        ? `http://${IP_ADDRESS}${photo.url}`
+                        ? `http://${IP_ADDRESS}:4000/api/v1${photo.url}`
                         : (photo && typeof photo === 'string'
-                          ? (photo.startsWith('http') ? photo : `http://${IP_ADDRESS}/${photo}`)
-                          : `http://${IP_ADDRESS}/placeholder-image.jpg`)
+                          ? (photo.startsWith('http') ? photo : `http://${IP_ADDRESS}:4000/api/v1${photo.url}`)
+                          : `http://${IP_ADDRESS}:4000/api/v1${photo.url}`)
                     }}
                     style={[tw`w-24 h-24 rounded-lg`, styles.photoThumbnail]}
                     resizeMode="cover"
@@ -307,7 +308,7 @@ const DetailModal = ({
                     tw`flex-1 ml-2 rounded-xl py-3 px-4 bg-[${PRIMARY_COLOR}]`,
                     styles.buttonShadow
                   ]}
-                  onPress={onRate}
+                  onPress={() => onRate(item.request_id)}
                 >
                   <Text style={[styles.customFont, tw`text-white text-center font-bold`]}>ให้คะแนน</Text>
                 </TouchableOpacity>
@@ -337,14 +338,14 @@ const styles = StyleSheet.create({
     fontFamily: Platform.OS === 'ios' ? 'Mitr-Regular' : 'Mitr-Regular',
   },
   sectionTitle: {
-    fontFamily: Platform.OS === 'ios' ? 'Mitr-Medium' : 'Mitr-Medium',
+    fontFamily: Platform.OS === 'ios' ? 'Mitr-Regular' : 'Mitr-Regular',
     fontSize: 16,
   },
   priceText: {
-    fontFamily: Platform.OS === 'ios' ? 'Mitr-Medium' : 'Mitr-Medium',
+    fontFamily: Platform.OS === 'ios' ? 'Mitr-Regular' : 'Mitr-Regular',
   },
   modalTitle: {
-    fontFamily: Platform.OS === 'ios' ? 'Mitr-SemiBold' : 'Mitr-SemiBold',
+    fontFamily: Platform.OS === 'ios' ? 'Mitr-Regular' : 'Mitr-Regular',
   },
   modalShadow: {
     ...Platform.select({

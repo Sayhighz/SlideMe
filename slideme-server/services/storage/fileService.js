@@ -124,6 +124,12 @@ export const saveFile = async (file, subdir = '') => {
  * @param {string} subdir - Subdirectory under uploads (optional)
  * @returns {Promise<Object>} File info and content
  */
+/**
+ * Get file from disk
+ * @param {string} filename - Filename
+ * @param {string} subdir - Subdirectory under uploads (optional)
+ * @returns {Promise<Object>} File info and content
+ */
 export const getFile = async (filename, subdir = '') => {
   try {
     if (!filename) {
@@ -136,12 +142,36 @@ export const getFile = async (filename, subdir = '') => {
       ? path.join(UPLOAD_DIR, subdir, filename)
       : path.join(UPLOAD_DIR, filename);
     
-    // Check if file exists
+    // ตรวจสอบว่าไฟล์มีอยู่จริง (ใช้ try/catch กับ stat แทน existsSync)
     try {
       await stat(filePath);
     } catch (error) {
-      logger.warn('File does not exist', { filename, path: filePath });
-      return null;
+      // ถ้าไม่เจอไฟล์ ลองดูเส้นทางอื่น
+      const alternativePaths = [
+        path.join(UPLOAD_DIR, subdir.replace(/^\/+/, ''), filename), // ลบ / นำหน้า ถ้ามี
+        path.join(UPLOAD_DIR, subdir.replace(/^services\//, ''), filename), // กรณีที่มี services/ นำหน้า
+        // เพิ่มเส้นทางอื่นๆ ที่อาจเป็นไปได้
+      ];
+      
+      let found = false;
+      for (const altPath of alternativePaths) {
+        try {
+          await stat(altPath);
+          // ถ้าเจอไฟล์ ใช้เส้นทางนี้แทน
+          logger.info('Found file at alternative path', { altPath });
+          filePath = altPath;
+          found = true;
+          break;
+        } catch {
+          // ข้ามไปเส้นทางถัดไป
+          continue;
+        }
+      }
+      
+      if (!found) {
+        logger.warn('File does not exist', { filename, path: filePath });
+        return null;
+      }
     }
     
     // Read file
@@ -151,6 +181,7 @@ export const getFile = async (filename, subdir = '') => {
     const extension = path.extname(filename).toLowerCase();
     let mimetype = 'application/octet-stream'; // Default MIME type
     
+    // ตรวจสอบประเภทไฟล์
     switch (extension) {
       case '.jpg':
       case '.jpeg':
