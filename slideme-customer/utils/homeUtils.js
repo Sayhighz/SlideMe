@@ -110,7 +110,12 @@ export const handleRequestFromBookmark = async (selectedBookmark, userData, navi
 export const checkOrderStatus = async (userData, navigation) => {
   try {
     const response = await fetch(
-      `http://${IP_ADDRESS}:4000/customer/order_status/${userData.user_id}`
+      `http://${IP_ADDRESS}:4000/api/v1/customer/address/order-status/${userData.customer_id}`,
+      {
+      headers: {
+        Authorization: `Bearer ${userData.token}`,
+      },
+    }
     );
     const data = await response.json();
     console.log("order_status:", data);
@@ -118,9 +123,9 @@ export const checkOrderStatus = async (userData, navigation) => {
       navigation.navigate("viewOrder", {
         driverProfile: {
           chooseDriver: {
-            request_id: data.Result.request_id,
-            id: data.Result.accepted_driver_id,
-            customer_id_request: userData.user_id,
+            request_id: data.request_id,
+            id: data.driver_id,
+            customer_id_request: userData.customer_id,
           },
         },
       });

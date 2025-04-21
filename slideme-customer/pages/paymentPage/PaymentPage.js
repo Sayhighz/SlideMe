@@ -1,13 +1,13 @@
 import {
   SafeAreaView,
-  Text,
   View,
   StyleSheet,
   Platform,
   StatusBar,
   Dimensions,
   KeyboardAvoidingView,
-  SectionList,
+  ScrollView,
+  FlatList,
 } from "react-native";
 import React, { useEffect, useState, useContext, useMemo } from "react";
 import tw from "twrnc";
@@ -153,35 +153,6 @@ export default function PaymentPage({ navigation }) {
     navigation.navigate("viewOrder", { driverProfile: route.params });
   };
 
-  // สร้างข้อมูลสำหรับ SectionList - แยกเป็นส่วนต่างๆ
-  const getSectionData = () => {
-    // ส่วนที่ 1: Tabs
-    const tabsSection = {
-      type: 'tabs',
-      data: [{ id: 'tabs' }]
-    };
-    
-    // ส่วนที่ 2: แสดงตามแท็บที่เลือก
-    const contentSection = {
-      type: 'content',
-      data: [{ id: 'content' }]
-    };
-    
-    // ส่วนที่ 3: ข้อมูลสรุป (ไม่รวม payment button ซึ่งจะอยู่ fixed ด้านล่าง)
-    const summarySection = {
-      type: 'summary',
-      data: [{ id: 'summary' }]
-    };
-    
-    // ส่วนที่ 4: พื้นที่ว่างด้านล่าง (สำหรับให้พื้นที่แสดงผลมีพื้นที่ scroll ได้เหนือ fixed button)
-    const spacerSection = {
-      type: 'spacer',
-      data: [{ id: 'spacer' }]
-    };
-    
-    return [tabsSection, contentSection, summarySection, spacerSection];
-  };
-
   // Render Tab Section
   const renderTabsSection = () => (
     <PaymentTabs 
@@ -190,6 +161,8 @@ export default function PaymentPage({ navigation }) {
     />
   );
 
+  console.log("paymentMethods:", paymentMethods.length);
+
   // Render Content Section (ตามแท็บที่เลือก)
   const renderContentSection = () => (
     <View style={[
@@ -197,20 +170,18 @@ export default function PaymentPage({ navigation }) {
       { minHeight: tabIndex === 0 ? height * 0.4 : height * 0.6 }
     ]}>
       {tabIndex === 0 ? (
-        <>
-          <View style={[tw`flex-1`, { minHeight: height * 0.35 }]}>
+      
+          <ScrollView style={[tw`flex-1 h-20`, { minHeight: height * 0.35 }]}>
             <CreditCardList 
               paymentMethods={paymentMethods}
               selectedMethod={choosePaymentMethod}
               onSelectMethod={setChoosePaymentMethod}
               loading={loading}
-              style={[tw`flex-1`, { maxHeight: height * 0.35 }]}
-            />
-          </View>
-          <AddPaymentMethodButton 
-            onPress={() => navigation.navigate("AddMethod")} 
-          />
-        </>
+              style={[tw`flex-1`]}
+              />
+          </ScrollView>
+
+        
       ) : (
         <PromptPayQR 
           totalPrice={totalPrice}
@@ -241,8 +212,8 @@ export default function PaymentPage({ navigation }) {
   );
 
   // Render section item based on section type
-  const renderSectionItem = ({ section, item }) => {
-    switch (section.type) {
+  const renderFlatListItem = ({ item }) => {
+    switch (item.type) {
       case 'tabs':
         return renderTabsSection();
       case 'content':
@@ -255,6 +226,17 @@ export default function PaymentPage({ navigation }) {
         return null;
     }
   };
+
+  const getFlatListData = () => {
+    return [
+      { id: 'tabs', type: 'tabs' },
+      { id: 'content', type: 'content' },
+      { id: 'summary', type: 'summary' },
+      { id: 'spacer', type: 'spacer' },
+    ];
+  };
+
+  
 
   return (
     <SafeAreaView style={[
@@ -279,13 +261,10 @@ export default function PaymentPage({ navigation }) {
         style={tw`flex-1`}
         keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
       >
-        {/* ใช้ SectionList แทน ScrollView เพื่อแก้ปัญหา VirtualizedLists */}
-        <SectionList
-          sections={getSectionData()}
+        <FlatList
+          data={getFlatListData()}
           keyExtractor={(item) => item.id}
-          renderItem={renderSectionItem}
-          renderSectionHeader={() => null} // ไม่แสดงหัวข้อ section
-          stickySectionHeadersEnabled={false}
+          renderItem={renderFlatListItem}
           showsVerticalScrollIndicator={true}
           contentContainerStyle={tw`flex-grow px-4 py-2`}
           bounces={true}
