@@ -482,33 +482,12 @@ export const getActiveRequest = asyncHandler(async (req, res) => {
     SELECT 
       r.request_id,
       r.status,
-      r.location_from,
-      r.location_to,
-      r.pickup_lat,
-      r.pickup_long,
-      r.dropoff_lat,
-      r.dropoff_long,
-      r.request_time,
-      r.booking_time,
-      r.customer_message,
-      v.vehicletype_name,
-      o.offer_id,
-      o.driver_id,
-      o.offered_price,
-      d.first_name AS driver_first_name,
-      d.last_name AS driver_last_name,
-      d.phone_number AS driver_phone,
-      d.license_plate,
-      dd.current_latitude AS driver_current_lat,
-      dd.current_longitude AS driver_current_lng,
-      dd.updated_at AS driver_location_updated
+      r.customer_id,
+      o.driver_id
     FROM servicerequests r
-    LEFT JOIN vehicle_types v ON r.vehicletype_id = v.vehicletype_id
-    LEFT JOIN driveroffers o ON r.offer_id = o.offer_id
-    LEFT JOIN drivers d ON o.driver_id = d.driver_id
-    LEFT JOIN driverdetails dd ON d.driver_id = dd.driver_id
-    WHERE r.customer_id = ? AND r.status IN ('pending', 'accepted')
-    ORDER BY FIELD(r.status, 'accepted', 'pending'), r.request_time DESC
+    LEFT JOIN driveroffers o ON r.request_id = o.request_id
+    WHERE r.customer_id = ? AND r.status IN ('pickup_in_progress', 'delivery_in_progress')
+    ORDER BY FIELD(r.status, 'pickup_in_progress', 'delivery_in_progress'), r.request_time DESC
     LIMIT 1
   `;
 
@@ -522,46 +501,17 @@ export const getActiveRequest = asyncHandler(async (req, res) => {
 
   const request = result[0];
   
-  // Calculate distance, duration, and ETA
-  const tripDistance = distanceService.calculateDistance(
-    request.pickup_lat,
-    request.pickup_long,
-    request.dropoff_lat,
-    request.dropoff_long
-  );
+  // No additional calculations needed
   
-  const estimatedDuration = distanceService.calculateTravelTime(tripDistance);
-  
-  // Format response data
+  // Format response data - only include the 4 required fields
   const formattedRequest = {
-    ...request,
-    trip_distance: tripDistance,
-    trip_distance_text: `${tripDistance.toFixed(1)} กม.`,
-    estimated_duration: estimatedDuration,
-    estimated_duration_text: `${estimatedDuration} นาที`,
-    request_time_formatted: formatDisplayDate(request.request_time),
-    request_time_display: formatTimeString(request.request_time),
-    offered_price_formatted: request.offered_price ? formatThaiBaht(request.offered_price) : null,
-    driver_name: request.driver_first_name ? 
-      `${request.driver_first_name} ${request.driver_last_name || ''}`.trim() : null
+    request_id: request.request_id,
+    status: request.status,
+    customer_id: request.customer_id,
+    driver_id: request.driver_id
   };
   
-  // Add driver ETA if driver location is available
-  if (request.driver_current_lat && request.driver_current_lng) {
-    const distanceToPickup = distanceService.calculateDistance(
-      request.driver_current_lat,
-      request.driver_current_lng,
-      request.pickup_lat,
-      request.pickup_long
-    );
-    
-    const etaToPickup = distanceService.calculateTravelTime(distanceToPickup);
-    
-    formattedRequest.distance_to_pickup = distanceToPickup;
-    formattedRequest.distance_to_pickup_text = `${distanceToPickup.toFixed(1)} กม.`;
-    formattedRequest.eta_to_pickup = etaToPickup;
-    formattedRequest.eta_to_pickup_text = `${etaToPickup} นาที`;
-  }
+  // No additional calculations or fields needed
 
   return res.status(STATUS_CODES.OK).json(
     formatSuccessResponse(formattedRequest, "ดึงข้อมูลคำขอบริการที่กำลังดำเนินการสำเร็จ")

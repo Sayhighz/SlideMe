@@ -1,19 +1,20 @@
 // PhoneVerify.js
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Text, 
-  View, 
-  TouchableOpacity, 
-  SafeAreaView, 
-  TextInput, 
-  Keyboard, 
-  TouchableWithoutFeedback, 
-  Alert, 
-  StyleSheet, 
-  Dimensions,
-  StatusBar,
-  Platform,
-  ActivityIndicator
+    Text, 
+    View, 
+    TouchableOpacity, 
+    SafeAreaView, 
+    TextInput, 
+    Keyboard, 
+    TouchableWithoutFeedback, 
+    Alert, 
+    StyleSheet, 
+    Dimensions,
+    StatusBar,
+    Platform,
+    Animated,
+    KeyboardAvoidingView
 } from 'react-native';
 import tw from 'twrnc';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -27,25 +28,38 @@ function PhoneVerify({ onLogin }) {
     const navigation = useNavigation();
     const { phoneNumber, otp: initialOtp, isExistingUser, userDetails, token } = route.params;
     const [otp, setOtp] = useState(['', '', '', '']);
-    const [generatedOtp, setGeneratedOtp] = useState(initialOtp);
-    const [cooldown, setCooldown] = useState(0);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [activeInput, setActiveInput] = useState(0);
+    const [generatedOtp, setGeneratedOtp] = useState(initialOtp); // Store current OTP
+    const [cooldown, setCooldown] = useState(0); // Cooldown state
+    const [fadeIn] = useState(new Animated.Value(0));
+    const [scaleIn] = useState(new Animated.Value(0.95));
 
-    // ดึงค่าความกว้างของหน้าจอเพื่อใช้ในการคำนวณขนาดองค์ประกอบที่ตอบสนอง
-    const { width } = Dimensions.get("window");
+    const { width, height } = Dimensions.get("window");
     const dynamicFontSize = (size) => Math.max(16, (size * width) / 375);
-    const BOX_SIZE = width * 0.15; // ขนาดกล่อง OTP ที่ตอบสนองตามขนาดหน้าจอ
+    const formattedPhoneNumber = phoneNumber ? phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3') : '';
 
     const otpRefs = useRef([
-      React.createRef(), 
-      React.createRef(), 
-      React.createRef(), 
-      React.createRef()
+        React.createRef(), 
+        React.createRef(), 
+        React.createRef(), 
+        React.createRef()
     ]);
 
-    // timer สำหรับการส่ง OTP ซ้ำ
     useEffect(() => {
+        // Animate entrance
+        Animated.parallel([
+            Animated.timing(fadeIn, {
+                toValue: 1,
+                duration: 400,
+                useNativeDriver: true
+            }),
+            Animated.timing(scaleIn, {
+                toValue: 1,
+                duration: 400,
+                useNativeDriver: true
+            })
+        ]).start();
+
+        // Handle OTP cooldown
         let timer;
         if (cooldown > 0) {
             timer = setInterval(() => setCooldown(prev => prev - 1), 1000);
@@ -53,96 +67,111 @@ function PhoneVerify({ onLogin }) {
         return () => clearInterval(timer);
     }, [cooldown]);
 
-    // จัดการเมื่อมีการกรอก OTP
     const handleOtpChange = (index, value) => {
-        // รับเฉพาะตัวเลข
-        if (value && !/^\d+$/.test(value)) return;
-
+        // Only allow numbers
+        if (value && !/^[0-9]$/.test(value)) return;
+        
         const newOtp = [...otp];
         newOtp[index] = value;
         setOtp(newOtp);
         
-        // ไปยังช่องถัดไปเมื่อกรอกข้อมูล หรือย้อนกลับเมื่อลบ
+        // Auto focus management
         if (value && index < otpRefs.current.length - 1) {
             otpRefs.current[index + 1].current.focus();
-            setActiveInput(index + 1);
         } else if (!value && index > 0) {
             otpRefs.current[index - 1].current.focus();
-            setActiveInput(index - 1);
         }
-    };
-
-    // จัดการการกดปุ่ม backspace ให้ย้อนกลับไปช่องก่อนหน้า
-    const handleKeyPress = (e, index) => {
-        if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
-            otpRefs.current[index - 1].current.focus();
-            setActiveInput(index - 1);
-        }
-    };
-
-    // แสดงการโหลดเมื่อกำลังตรวจสอบ OTP
-    const handleLoginClick = () => {
-        const enteredOtp = otp.join('');
         
-        setIsSubmitting(true);
-        
-        // จำลองการรอที่เห็นได้ชัดเจน (ในระบบจริงอาจไม่จำเป็น)
-        setTimeout(() => {
-            if (enteredOtp === generatedOtp.toString()) {
-                if (isExistingUser) {
-                    if (userDetails) {
-                        const { customer_id, phone_number, email, username, first_name, last_name, role } = userDetails;
-                        
-                        // บันทึกข้อมูลผู้ใช้ลง UserContext
-                        setUserData({
-                            customer_id,
-                            phone_number,
-                            email,
-                            username,
-                            first_name,
-                            last_name,
-                            role,
-                            token
-                        });
-                    }
-                    onLogin(); // เรียกฟังก์ชันล็อกอิน
-                } else {
-                    navigation.navigate('InfoCustomer', { phoneNumber });
-                }
-            } else {
-                // แสดงการแจ้งเตือนเมื่อ OTP ไม่ถูกต้อง
-                Alert.alert(
-                    "OTP ไม่ถูกต้อง", 
-                    "กรุณาตรวจสอบรหัส OTP และลองอีกครั้ง",
-                    [{ text: "ตกลง", style: "default" }]
-                );
-                // เคลียร์ค่า OTP เมื่อกรอกผิด
-                setOtp(['', '', '', '']);
-                // โฟกัสที่ช่องแรก
-                otpRefs.current[0].current.focus();
-                setActiveInput(0);
+        // Auto-submit if all digits are filled
+        if (value && index === otpRefs.current.length - 1) {
+            const completeOtp = [...newOtp.slice(0, index), value].join('');
+            if (completeOtp.length === 4) {
+                Keyboard.dismiss();
+                // Add a slight delay to give visual feedback
+                setTimeout(() => handleVerifyOtp(completeOtp), 300);
             }
-            setIsSubmitting(false);
-        }, 1000); // เพิ่มการหน่วงเวลา 1 วินาที
+        }
+    };
+
+    const handleVerifyOtp = (completeOtp = otp.join('')) => {
+        if (completeOtp === generatedOtp.toString()) {
+            if (isExistingUser) {
+                if (userDetails) {
+                    const { customer_id, phone_number, email, username, first_name, last_name, role } = userDetails;
+                    
+                    // Save user details to UserContext
+                    setUserData({
+                        customer_id,
+                        phone_number,
+                        email,
+                        username,
+                        first_name,
+                        last_name,
+                        role,
+                        token
+                    });
+                }
+
+                // Success animation
+                Animated.sequence([
+                    Animated.timing(scaleIn, {
+                        toValue: 1.05,
+                        duration: 200,
+                        useNativeDriver: true
+                    }),
+                    Animated.timing(scaleIn, {
+                        toValue: 1,
+                        duration: 200,
+                        useNativeDriver: true
+                    })
+                ]).start(() => {
+                    onLogin(); // Trigger the login process
+                });
+            } else {
+                navigation.navigate('InfoCustomer', { phoneNumber });
+            }
+        } else {
+            // Error animation
+            Animated.sequence([
+                Animated.timing(scaleIn, {
+                    toValue: 0.95,
+                    duration: 100,
+                    useNativeDriver: true
+                }),
+                Animated.timing(scaleIn, {
+                    toValue: 1,
+                    duration: 100,
+                    useNativeDriver: true
+                })
+            ]).start();
+            
+            Alert.alert("OTP ไม่ถูกต้อง", "กรุณาตรวจสอบ OTP อีกครั้ง");
+        }
     };
     
-    // ส่ง OTP ใหม่
     const handleResendClick = () => {
         if (cooldown === 0) {
             const newOtp = Math.floor(1000 + Math.random() * 9000);
-            setGeneratedOtp(newOtp);
-            Alert.alert(
-                "ส่งรหัส OTP แล้ว", 
-                `รหัส OTP ใหม่ของคุณคือ: ${newOtp}`,
-                [{ text: "ตกลง", style: "default" }]
-            );
-            setCooldown(60); // เวลาคูลดาวน์ 60 วินาที
+            setGeneratedOtp(newOtp); // Update OTP state
+            Alert.alert("New OTP Code", `OTP: ${newOtp}`);
+            setCooldown(30); // Set 30 seconds cooldown
             
-            // เคลียร์ค่า OTP เก่า
+            // Clear current OTP input
             setOtp(['', '', '', '']);
-            // โฟกัสที่ช่องแรก
+            // Focus on first field
             otpRefs.current[0].current.focus();
-            setActiveInput(0);
+        }
+    };
+
+    const handleKeyBackspace = (index, event) => {
+        const { nativeEvent } = event;
+        if (nativeEvent.key === 'Backspace') {
+            if (otp[index] === '' && index > 0) {
+                const newOtp = [...otp];
+                newOtp[index - 1] = '';
+                setOtp(newOtp);
+                otpRefs.current[index - 1].current.focus();
+            }
         }
     };
 
@@ -150,190 +179,141 @@ function PhoneVerify({ onLogin }) {
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <SafeAreaView style={[tw`flex-1 bg-white`, styles.container]}>
+            <SafeAreaView style={tw`flex-1 bg-white`}>
                 <StatusBar barStyle="dark-content" backgroundColor="white" />
                 
-                {/* Logo และส่วนหัว */}
-                <View style={tw`flex-1 justify-center items-center mt-4`}>
-                    <LinearGradient
-                        colors={['#4CAF50', '#60B876', '#8FD3A5']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={tw`rounded-full p-6 mb-4 shadow-lg`}
-                    >
-                        <View style={tw`items-center justify-center`}>
-                            <Text style={[
-                                styles.globalText,
-                                tw.style("text-center", {
-                                    fontSize: dynamicFontSize(40),
-                                    color: "#FFFFFF",
-                                    lineHeight: dynamicFontSize(42),
-                                }),
-                            ]}>
-                                SLIDE
-                            </Text>
-                            <Text style={[
-                                styles.globalText,
-                                tw.style("text-center font-bold", {
-                                    fontSize: dynamicFontSize(60),
-                                    color: "#FFFFFF",
-                                    lineHeight: dynamicFontSize(62),
-                                }),
-                            ]}>
-                                ME
-                            </Text>
-                        </View>
-                    </LinearGradient>
-                </View>
-
-                {/* ส่วนกรอก OTP */}
-                <View style={tw`flex-2 items-center p-5 bg-white rounded-t-3xl shadow-lg`}>
-                    <Text style={[styles.title, tw`mb-2`]}>ยืนยันตัวตน</Text>
-                    <Text style={[styles.subtitle, tw`mb-6 text-gray-500 text-center px-8`]}>
-                        กรุณากรอกรหัส OTP 4 หลักที่ส่งไปยังเบอร์ {phoneNumber?.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3')}
-                    </Text>
-                    
-                    {/* OTP Input */}
-                    <View style={tw`flex-row justify-center mb-8`}>
-                        {otp.map((code, index) => (
-                            <View key={index} style={tw`mx-2`}>
-                                <TextInput
-                                    ref={otpRefs.current[index]}
-                                    style={[
-                                        styles.otpInput,
-                                        activeInput === index && styles.activeInput,
-                                        {
-                                            width: BOX_SIZE,
-                                            height: BOX_SIZE,
-                                            fontSize: BOX_SIZE * 0.5
-                                        }
-                                    ]}
-                                    maxLength={1}
-                                    keyboardType="numeric"
-                                    value={code}
-                                    onFocus={() => setActiveInput(index)}
-                                    onChangeText={(value) => handleOtpChange(index, value)}
-                                    onKeyPress={(e) => handleKeyPress(e, index)}
-                                    selectionColor="#60B876"
-                                />
-                            </View>
-                        ))}
-                    </View>
-
-                    {/* ตัวเลือกรอง */}
-                    <View style={tw`flex-row justify-between w-full mb-6 px-4`}>
-                        <TouchableOpacity onPress={navigation.goBack}>
-                            <Text style={[styles.link, tw`text-blue-500`]}>
-                                แก้ไขเบอร์โทร
-                            </Text>
-                        </TouchableOpacity>
-                        
-                        <TouchableOpacity 
-                            onPress={handleResendClick}
-                            disabled={cooldown > 0}
-                        >
-                            <Text style={[
-                                styles.link,
-                                cooldown > 0 ? tw`text-gray-400` : tw`text-blue-500`
-                            ]}>
-                                {cooldown > 0 
-                                    ? `ส่งรหัสอีกครั้งใน (${cooldown})` 
-                                    : "ส่งรหัสอีกครั้ง"}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* ปุ่มยืนยัน */}
-                    <TouchableOpacity
+                <KeyboardAvoidingView 
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                    style={tw`flex-1`}
+                >
+                    <Animated.View 
                         style={[
-                            styles.button,
-                            tw`mt-2 w-full`,
-                            (!isOtpComplete || isSubmitting) && styles.buttonDisabled
+                            tw`flex-1 justify-between`,
+                            { opacity: fadeIn, transform: [{ scale: scaleIn }] }
                         ]}
-                        onPress={handleLoginClick}
-                        disabled={!isOtpComplete || isSubmitting}
                     >
-                        {isSubmitting ? (
-                            <ActivityIndicator color="#FFFFFF" size="small" />
-                        ) : (
-                            <Text style={[styles.buttonText]}>ยืนยัน</Text>
-                        )}
-                    </TouchableOpacity>
-                </View>
+                        {/* Logo Section */}
+                        <View style={tw`items-center justify-center pt-8`}>
+                            <TouchableOpacity
+                                style={tw`absolute top-0 left-6 p-2 z-10`}
+                                onPress={navigation.goBack}
+                            >
+                                <Text style={[styles.globalText, tw`text-gray-500 text-base`]}>แก้ไขเบอร์โทร</Text>
+                            </TouchableOpacity>
+                            
+                            <View style={tw`items-center justify-center`}>
+                                <Text
+                                    style={[
+                                        styles.globalText,
+                                        tw.style("text-center", {
+                                            fontSize: dynamicFontSize(42),
+                                            color: "#60B876",
+                                            lineHeight: dynamicFontSize(48),
+                                        }),
+                                    ]}
+                                >
+                                    SLIDE
+                                </Text>
+                                <Text
+                                    style={[
+                                        styles.globalText,
+                                        tw.style("text-center", {
+                                            fontSize: dynamicFontSize(64),
+                                            color: "#60B876",
+                                            lineHeight: dynamicFontSize(70),
+                                            marginTop: -dynamicFontSize(10),
+                                        }),
+                                    ]}
+                                >
+                                    ME
+                                </Text>
+                            </View>
+                        </View>
+
+                        {/* OTP Section */}
+                        <View style={tw`flex-1 items-center justify-center px-6 pb-8`}>
+                            <View style={tw`w-full items-center`}>
+                                <Text style={[styles.globalText, tw`text-xl text-gray-800 mb-2`]}>
+                                    กรอกรหัส OTP CODE
+                                </Text>
+                                <Text style={[styles.globalText, tw`text-gray-500 mb-6 text-center`]}>
+                                    รหัสยืนยันได้ถูกส่งไปที่หมายเลข {'\n'}
+                                    <Text style={tw`text-gray-800 font-medium`}>{formattedPhoneNumber}</Text>
+                                </Text>
+
+                                <View style={tw`flex-row justify-center w-full mb-6`}>
+                                    {otp.map((code, index) => (
+                                        <View 
+                                            key={index} 
+                                            style={tw`mx-2 w-16 items-center`}
+                                        >
+                                            <TextInput
+                                                ref={otpRefs.current[index]}
+                                                style={[
+                                                    styles.globalText,
+                                                    tw`border-b-2 w-14 h-16 text-center text-2xl`,
+                                                    code ? tw`border-[#60B876]` : tw`border-gray-300`,
+                                                ]}
+                                                maxLength={1}
+                                                keyboardType="numeric"
+                                                value={code}
+                                                onChangeText={(value) => handleOtpChange(index, value)}
+                                                onKeyPress={(e) => handleKeyBackspace(index, e)}
+                                                selectionColor="#60B876"
+                                            />
+                                        </View>
+                                    ))}
+                                </View>
+
+                                <TouchableOpacity
+                                    style={[
+                                        tw`rounded-full mt-4 w-full py-4 items-center shadow-sm`,
+                                        isOtpComplete ? tw`bg-[#60B876]` : tw`bg-gray-300`
+                                    ]}
+                                    onPress={() => handleVerifyOtp()}
+                                    disabled={!isOtpComplete}
+                                >
+                                    <Text style={[styles.globalText, tw`text-white text-lg font-medium`]}>
+                                        ยืนยัน
+                                    </Text>
+                                </TouchableOpacity>
+                                
+                                <TouchableOpacity 
+                                    style={tw`mt-4 py-2`}
+                                    onPress={handleResendClick}
+                                    disabled={cooldown > 0}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.globalText, 
+                                            cooldown > 0 ? tw`text-gray-400` : tw`text-[#60B876]`
+                                        ]}
+                                    >
+                                        {cooldown > 0 ? `ส่งรหัสอีกครั้งใน ${cooldown} วินาที` : "ส่งรหัสอีกครั้ง"}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        
+                        {/* Bottom Section - Additional help */}
+                        <View style={tw`items-center pb-6`}>
+                            <TouchableOpacity>
+                                <Text style={[styles.globalText, tw`text-sm text-gray-500`]}>
+                                    ต้องการความช่วยเหลือ?
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </Animated.View>
+                </KeyboardAvoidingView>
             </SafeAreaView>
         </TouchableWithoutFeedback>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: '#FFFFFF',
-        flex: 1,
-        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-    },
     globalText: {
         fontFamily: 'Mitr-Regular',
-        fontWeight: '500',
-    },
-    title: {
-        fontFamily: 'Mitr-Medium',
-        fontSize: 24,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 8,
-    },
-    subtitle: {
-        fontFamily: 'Mitr-Regular',
-        fontSize: 16,
-        color: '#666',
-    },
-    otpInput: {
-        borderWidth: 1.5,
-        borderColor: '#E0E0E0',
-        borderRadius: 16,
-        textAlign: 'center',
-        backgroundColor: '#F9F9F9',
-        color: '#333333',
-        fontFamily: 'Mitr-Regular',
-        fontWeight: '500',
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 1,
-    },
-    activeInput: {
-        borderColor: '#60B876',
-        borderWidth: 2,
-        backgroundColor: '#F0FFF4',
-    },
-    link: {
-        fontFamily: 'Mitr-Regular',
-        fontSize: 14,
-        textDecorationLine: 'underline',
-    },
-    button: {
-        backgroundColor: '#60B876',
-        paddingVertical: 14,
-        borderRadius: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-        elevation: 3,
-        shadowColor: '#60B876',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-    },
-    buttonDisabled: {
-        backgroundColor: '#CCCCCC',
-        elevation: 0,
-        shadowOpacity: 0,
-    },
-    buttonText: {
-        color: '#FFFFFF',
-        fontFamily: 'Mitr-Medium',
-        fontSize: 16,
-        fontWeight: '600',
+        includeFontPadding: false,
     },
 });
 

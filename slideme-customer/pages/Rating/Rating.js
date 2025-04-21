@@ -105,7 +105,7 @@ const Rating = ({ navigation }) => {
     };
 
     try {
-      console.log("asd",newReview);
+      // console.log("asd",newReview);
       const response = await fetch(
         `http://${IP_ADDRESS}:4000/api/v1/customer/review/add`,
         {

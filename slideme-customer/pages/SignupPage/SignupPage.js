@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,15 +8,47 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   StyleSheet,
+  Animated,
+  KeyboardAvoidingView,
+  Platform,
+  Dimensions,
+  ScrollView,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import tw from "twrnc";
 import { useNavigation } from "@react-navigation/native";
 import { IP_ADDRESS } from "../../config";
+import { LinearGradient } from "expo-linear-gradient";
 
 const SignupPage = ({ onLogin }) => {
   const navigation = useNavigation();
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [fadeAnimation] = useState(new Animated.Value(0));
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const { width, height } = Dimensions.get("window");
+  
+  useEffect(() => {
+    Animated.timing(fadeAnimation, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+    
+    // Keyboard listeners
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => setKeyboardVisible(true)
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => setKeyboardVisible(false)
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const skipLogin = () => {
     onLogin();
@@ -42,7 +74,7 @@ const SignupPage = ({ onLogin }) => {
         }
   
         const result = await response.json();
-        console.log("Check Phone Result:", result); // ✅ DEBUG LOG
+        console.log("Check Phone Result:", result);
   
         const otp = generateOtp();
         Alert.alert("Your OTP Code", `OTP: ${otp}`);
@@ -53,7 +85,7 @@ const SignupPage = ({ onLogin }) => {
             otp,
             isExistingUser: true,
             userDetails: result.User,
-            token: result.token || null, // 👈 include token if exists
+            token: result.token || null,
           });
         } else {
           navigation.navigate("PhoneVerify", {
@@ -71,129 +103,170 @@ const SignupPage = ({ onLogin }) => {
       Alert.alert("Invalid Input", "Please enter a valid 9-digit phone number.");
     }
   };
-  
-  
 
   const generateOtp = () => Math.floor(1000 + Math.random() * 9000);
 
+  const buttonOpacity = phoneNumber.length === 9 ? 1 : 0.6;
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={tw`flex-1 w-full justify-start items-center`}>
-        <View style={tw`w-full p-4 items-center h-full`}>
-          <Text
-            style={[
-              styles.globalText,
-              tw`text-2xl text-white text-center mb-5`,
-            ]}
+      <LinearGradient
+        colors={['#60B876', '#4DA060']}
+        style={[
+          tw`flex-1 w-full`,
+          { borderTopLeftRadius: 30, borderTopRightRadius: 30 }
+        ]}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={tw`flex-1`}
+        >
+          <ScrollView
+            contentContainerStyle={tw`flex-grow`}
+            keyboardShouldPersistTaps="handled"
           >
-            ยินดีต้อนรับสู่ SLIDE ME!
-          </Text>
-
-          <View
-            style={tw`w-full items-center justify-center p-4 border border-gray-300 rounded-lg bg-white`}
-          >
-            <Text
+            <Animated.View 
               style={[
-                styles.globalText,
-                tw`text-lg text-center mb-2`,
+                tw`flex-1 w-full items-center p-6 pt-10`,
+                { opacity: fadeAnimation }
               ]}
             >
-              เข้าสู่ระบบด้วย โทรศัพท์
-            </Text>
-            <View
-              style={tw`flex-row items-center w-full h-12 border border-gray-300 rounded-lg px-3`}
-            >
-              <Text style={[styles.globalText, tw`text-lg`]}>🇹🇭 +66</Text>
-              <TextInput
-                style={tw`flex-1 ml-2 text-black`}
-                keyboardType="phone-pad"
-                placeholder="กรอกเบอร์โทรศัพท์ 9 ตัว"
-                placeholderTextColor="#999"
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
-                maxLength={9}
-              />
-              {phoneNumber.length > 0 && phoneNumber.length < 9 && (
-                <Icon
-                  name="times-circle"
-                  size={20}
-                  color="red"
-                  style={tw`ml-2`}
-                  onPress={() => setPhoneNumber("")}
-                />
-              )}
-              {phoneNumber.length === 9 && (
-                <Icon
-                  name="check-circle"
-                  size={20}
-                  color="green"
-                  style={tw`ml-2`}
-                />
-              )}
-            </View>
-            <TouchableOpacity
-              style={tw`mt-4 w-full bg-green-700 rounded-lg py-2`}
-              onPress={handlePhoneLogin}
-            >
               <Text
-                style={[styles.globalText, tw`text-white text-lg text-center`]}
+                style={[
+                  styles.globalText,
+                  tw`text-2xl text-white text-center mb-8 font-medium`
+                ]}
               >
-                รับรหัสยืนยัน
+                ยินดีต้อนรับสู่ SLIDE ME!
               </Text>
-            </TouchableOpacity>
-          </View>
-          <View style={tw`h-[2px] w-full bg-black my-5`}></View>
 
-          <View style={tw`w-full flex-1`}>
-            <TouchableOpacity
-              style={tw`w-full items-center justify-center bg-blue-700 rounded-lg px-5 py-3 mb-5`}
-              onPress={skipLogin}
-            >
-              <View style={tw`flex-row items-center w-full justify-center`}>
-                <Icon name="facebook" size={20} color="#fff" />
+              <View
+                style={tw`w-full items-center justify-center p-5 border border-gray-100 rounded-3xl bg-white shadow-md`}
+              >
                 <Text
                   style={[
                     styles.globalText,
-                    tw`text-white text-lg text-center ml-2`,
+                    tw`text-lg text-center mb-4 text-gray-700`
                   ]}
                 >
-                  เข้าสู่ระบบด้วย Facebook
+                  เข้าสู่ระบบด้วย โทรศัพท์
                 </Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={tw`flex-row items-center justify-center w-full bg-red-700 rounded-lg py-3 mb-5`}
-            >
-              <View style={tw`flex-row items-center w-full justify-center`}>
-                <Icon name="google" size={20} color="#fff" />
-                <Text
+                <View
+                  style={tw`flex-row items-center w-full h-14 border border-gray-200 rounded-xl px-4 bg-gray-50`}
+                >
+                  <View style={tw`flex-row items-center border-r border-gray-200 pr-2`}>
+                    <Text style={[styles.globalText, tw`text-lg text-gray-700`]}>🇹🇭 +66</Text>
+                  </View>
+                  <TextInput
+                    style={[styles.globalText, tw`flex-1 ml-3 text-black text-lg`]}
+                    keyboardType="phone-pad"
+                    placeholder="กรอกเบอร์โทรศัพท์ 9 ตัว"
+                    placeholderTextColor="#999"
+                    value={phoneNumber}
+                    onChangeText={setPhoneNumber}
+                    maxLength={9}
+                  />
+                  {phoneNumber.length > 0 && (
+                    <TouchableOpacity onPress={() => setPhoneNumber("")}>
+                      <Icon
+                        name={phoneNumber.length === 9 ? "check-circle" : "times-circle"}
+                        size={22}
+                        color={phoneNumber.length === 9 ? "green" : "red"}
+                        style={tw`ml-2`}
+                      />
+                    </TouchableOpacity>
+                  )}
+                </View>
+                <TouchableOpacity
                   style={[
-                    styles.globalText,
-                    tw`text-white text-lg text-center ml-2`,
+                    tw`mt-4 w-full rounded-xl py-3 shadow-sm`, 
+                    { 
+                      backgroundColor: phoneNumber.length === 9 ? '#60B876' : '#A8D4B5',
+                      opacity: buttonOpacity
+                    }
                   ]}
+                  onPress={handlePhoneLogin}
+                  disabled={phoneNumber.length !== 9}
                 >
-                  เข้าสู่ระบบด้วย Google
+                  <Text
+                    style={[styles.globalText, tw`text-white text-lg text-center font-medium`]}
+                  >
+                    รับรหัสยืนยัน
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {!keyboardVisible && (
+                <>
+                  <View style={tw`flex-row items-center w-full my-6`}>
+                    <View style={tw`flex-1 h-[1px] bg-white opacity-50`}></View>
+                    <Text style={[styles.globalText, tw`mx-4 text-white`]}>หรือ</Text>
+                    <View style={tw`flex-1 h-[1px] bg-white opacity-50`}></View>
+                  </View>
+
+                  <View style={tw`w-full`}>
+                    <TouchableOpacity
+                      style={tw`w-full items-center justify-center bg-blue-600 rounded-xl px-5 py-3 mb-4 shadow-sm`}
+                      onPress={skipLogin}
+                    >
+                      <View style={tw`flex-row items-center w-full justify-center`}>
+                        <Icon name="facebook" size={20} color="#fff" />
+                        <Text
+                          style={[
+                            styles.globalText,
+                            tw`text-white text-lg text-center ml-3`
+                          ]}
+                        >
+                          เข้าสู่ระบบด้วย Facebook
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={tw`flex-row items-center justify-center w-full bg-white rounded-xl py-3 mb-4 shadow-sm`}
+                    >
+                      <View style={tw`flex-row items-center w-full justify-center`}>
+                        <Icon name="google" size={20} color="#DB4437" />
+                        <Text
+                          style={[
+                            styles.globalText,
+                            tw`text-gray-800 text-lg text-center ml-3`
+                          ]}
+                        >
+                          เข้าสู่ระบบด้วย Google
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={tw`flex-row items-center justify-center w-full bg-black rounded-xl py-3 shadow-sm`}
+                    >
+                      <View style={tw`flex-row items-center w-full justify-center`}>
+                        <Icon name="apple" size={20} color="#fff" />
+                        <Text
+                          style={[
+                            styles.globalText,
+                            tw`text-white text-lg text-center ml-3`
+                          ]}
+                        >
+                          เข้าสู่ระบบด้วย Apple
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              )}
+
+              <View style={tw`mt-5 w-full items-center`}>
+                <Text style={[styles.globalText, tw`text-xs text-white text-center`]}>
+                  การเข้าสู่ระบบ คุณยอมรับ 
+                  <Text style={tw`font-bold underline`}> ข้อกำหนดและเงื่อนไข</Text>
+                  <Text> และ </Text>
+                  <Text style={tw`font-bold underline`}>นโยบายความเป็นส่วนตัว</Text>
                 </Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={tw`flex-row items-center justify-center w-full bg-black rounded-lg py-3 mb-5`}
-            >
-              <View style={tw`flex-row items-center w-full justify-center`}>
-                <Icon name="apple" size={20} color="#fff" />
-                <Text
-                  style={[
-                    styles.globalText,
-                    tw`text-white text-lg text-center ml-2`,
-                  ]}
-                >
-                  เข้าสู่ระบบด้วย Apple
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+            </Animated.View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </LinearGradient>
     </TouchableWithoutFeedback>
   );
 };
@@ -201,6 +274,7 @@ const SignupPage = ({ onLogin }) => {
 const styles = StyleSheet.create({
   globalText: {
     fontFamily: "Mitr-Regular",
+    includeFontPadding: false,
   },
 });
 

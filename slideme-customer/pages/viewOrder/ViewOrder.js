@@ -7,6 +7,7 @@ import {
   View,
   ScrollView,
   ActivityIndicator,
+  Text,
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import tw from "twrnc";
@@ -162,11 +163,11 @@ export default function ViewOrder({ navigation }) {
           },
         }
       );
-
+      console.log(response)
       if (response.data.Status) {
         setStatus(response.data.StatusOrder);
 
-        if (response.data.StatusOrder === "delivery_in_progress") {
+        if (response.data.StatusOrder === "delivery_in_progress" || response.data.StatusOrder === "pickup_in_progress") {
           setConfirmFromDriver(true);
         }
 

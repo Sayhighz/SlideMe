@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   View,
   SafeAreaView,
@@ -6,6 +6,8 @@ import {
   Platform,
   KeyboardAvoidingView,
   StatusBar,
+  Animated,
+  Dimensions,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import tw from "twrnc";
@@ -19,14 +21,26 @@ import LocationDisplay from "../../components/Mapdetail/LocationDisplay";
 import LocationList from "../../components/Mapdetail/LocationList";
 import { locationsData } from "../../components/Mapdetail/mockData";
 
+const { width } = Dimensions.get('window');
+
 export default function Mapdetail({ navigation }) {
   const route = useRoute();
   const { userData } = useContext(UserContext);
+  const [animatedValue] = useState(new Animated.Value(0));
   
   // Extract location data from route params or set default
   const origin = route.params?.confirmOrigin || "";
   const destination = route.params?.confirmDestination || "";
   
+  // Animation effect on component mount
+  useEffect(() => {
+    Animated.timing(animatedValue, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
   // Select location handler
   const handleSelectLocation = (location) => {
     // You can implement logic here to decide if this is for origin or destination
@@ -48,15 +62,18 @@ export default function Mapdetail({ navigation }) {
     });
   };
 
+  const isButtonDisabled = !origin || !destination;
+
   return (
     <KeyboardAvoidingView
       style={tw`flex-1 bg-white`}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 40}
     >
       <StatusBar
-        barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"}
-        backgroundColor={Platform.OS === 'ios' ? "white" : "#0066CC"}
+        barStyle="dark-content"
+        backgroundColor="#FFFFFF"
+        translucent={false}
       />
       
       <HeaderWithBackButton
@@ -66,7 +83,22 @@ export default function Mapdetail({ navigation }) {
       />
       
       <SafeAreaView style={tw`flex-1 bg-white`}>
-        <View style={tw`p-4 flex-1`}>
+        <Animated.View 
+          style={[
+            tw`p-4 flex-1`,
+            {
+              opacity: animatedValue,
+              transform: [
+                {
+                  translateY: animatedValue.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [20, 0],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
           {/* Search Bar Component */}
           <LocationSearchBar onPress={navigateToMap} />
           
@@ -78,16 +110,35 @@ export default function Mapdetail({ navigation }) {
             locations={locationsData}
             onSelectLocation={handleSelectLocation}
           />
-        </View>
+        </Animated.View>
         
-        {/* Submit Button */}
-        <View style={tw`px-4 pb-6 ${Platform.OS === 'ios' ? 'pb-8' : ''}`}>
+        {/* Submit Button with animation */}
+        <Animated.View 
+          style={[
+            tw`px-4 pb-6 ${Platform.OS === 'ios' ? 'pb-8' : ''}`,
+            {
+              opacity: animatedValue,
+              transform: [
+                {
+                  translateY: animatedValue.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [50, 0],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
           <SubmitButton
             onPress={handleSubmit}
             title="ยืนยัน"
-            disabled={!origin || !destination}
+            disabled={isButtonDisabled}
+            style={isButtonDisabled ? 
+              tw`bg-gray-300` : 
+              tw`bg-blue-600 shadow-md`
+            }
           />
-        </View>
+        </Animated.View>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );

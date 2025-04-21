@@ -1,23 +1,56 @@
 import React, { useEffect, useState } from "react";
-import { Alert } from "react-native";
+import { Alert, View, Text, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { getRequest, postRequest } from "../../services/api";
 import { API_ENDPOINTS } from "../../constants";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import tw from "twrnc";
 
 // Import Components
 import ServiceScreenWrapper from "../../components/job/ServiceScreen/ServiceScreenWrapper";
 import OfferNotificationService from '../../services/OfferNotificationService';
+import globalChatService from "../../services/GlobalChatService";
 
 export default function JobWorkingPickupScreen({ route }) {
   const navigation = useNavigation();
   const { request_id, workStatus } = route.params || {};
   const { userData = {} } = route.params || {};
+  const SCREEN_ID = "JobWorkingPickupScreen"; // เอกลักษณ์สำหรับหน้าจอนี้
 
   const [request, setRequest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [statusUpdated, setStatusUpdated] = useState(false);
+  const [hasNewMessage, setHasNewMessage] = useState(false); // เพิ่มสถานะสำหรับการแจ้งเตือนข้อความใหม่
+
+  // เชื่อมต่อและเริ่มต้น chat service เมื่อเข้าหน้าจอนี้
+  useEffect(() => {
+    if (request_id && userData?.driver_id) {
+      console.log(`[JobWorkingPickupScreen] Initializing chat service for request: ${request_id}, driver: ${userData.driver_id}`);
+      
+      // ตั้งค่า GlobalChatService สำหรับงานนี้
+      globalChatService.initialize(request_id, userData.driver_id, "driver");
+      
+      // ลงทะเบียนตัวจัดการข้อความสำหรับหน้าจอนี้
+      globalChatService.registerMessageHandler(SCREEN_ID, handleNewMessage);
+    }
+    
+    return () => {
+      // ยกเลิกการลงทะเบียนเมื่อออกจากหน้าจอ
+      if (request_id) {
+        console.log("[JobWorkingPickupScreen] Unregistering message handler");
+        globalChatService.unregisterMessageHandler(SCREEN_ID);
+      }
+    };
+  }, [request_id, userData?.driver_id]);
+
+  // ฟังก์ชันจัดการข้อความใหม่
+  const handleNewMessage = (message) => {
+    console.log("[JobWorkingPickupScreen] New message received:", message);
+    // แสดงการแจ้งเตือนข้อความใหม่
+    setHasNewMessage(true);
+  };
 
   // Update service status to "pickup_in_progress" when entering this screen
   useEffect(() => {
@@ -65,6 +98,7 @@ export default function JobWorkingPickupScreen({ route }) {
           }
           
           setRequest(requestData);
+          console.log(request)
           
           // Check if status is already pickup_in_progress and navigate to dropoff
           if (requestData.status === 'delivery_in_progress') {
@@ -116,6 +150,19 @@ export default function JobWorkingPickupScreen({ route }) {
       return unsubscribe;
     };
   }, [request_id, navigation]);
+
+  // ฟังก์ชันสำหรับเปิดหน้า chat
+  const navigateToChat = () => {
+    // รีเซ็ตแจ้งเตือนข้อความใหม่
+    setHasNewMessage(false);
+    
+    // นำทางไปยังหน้า ChatScreen พร้อมพารามิเตอร์ที่จำเป็น
+    navigation.navigate("ChatScreen", {
+      room_id: request_id,
+      user_name: request?.name || "ลูกค้า",
+      phoneNumber: request?.phone_number || null
+    });
+  };
 
   // Handle next step based on work status
   const checkWorkStatus = async () => {
@@ -179,6 +226,23 @@ export default function JobWorkingPickupScreen({ route }) {
       : "คุณต้องการยืนยันถึงจุดรับรถใช่หรือไม่?";
   };
 
+  // สร้างปุ่มแชทสำหรับใส่ใน ServiceScreenWrapper
+  const renderChatButton = () => {
+    return (
+      <TouchableOpacity
+        style={tw`absolute right-4 top-4 z-10 bg-white p-3 rounded-full shadow-md border border-gray-200`}
+        onPress={navigateToChat}
+      >
+        <View style={tw`relative`}>
+          <Icon name="chat" size={24} color="#60B876" />
+          {hasNewMessage && (
+            <View style={tw`absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border border-white`} />
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <ServiceScreenWrapper
       isLoading={loading}
@@ -196,6 +260,7 @@ export default function JobWorkingPickupScreen({ route }) {
       handleConfirm={checkWorkStatus}
       showConfirmDialog={isModalVisible}
       setShowConfirmDialog={setIsModalVisible}
+      renderChatButton={renderChatButton} // ส่งปุ่มแชทไปยัง ServiceScreenWrapper
     />
   );
 }

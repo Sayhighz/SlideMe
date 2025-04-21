@@ -23,7 +23,7 @@ export const fetchBookmarks = async (userData, setBookmarks, setLoading) => {
   setLoading(true);
   try {
     const response = await fetch(
-      `http://${IP_ADDRESS}:4000/customer/getuserbookmarks?user_id=${userData.user_id}`
+      `http://${IP_ADDRESS}:4000/customer/getuserbookmarks?customer_id=${userData.customer_id}`
     );
     const data = await response.json();
     if (data.Status) {
@@ -44,7 +44,7 @@ export const handleRequestFromBookmark = async (selectedBookmark, userData, navi
   }
 
   const requestData = {
-    customer_id: userData.user_id,
+    customer_id: userData.customer_id,
     request_time: formatDateToMySQL(new Date()),
     pickup_lat: selectedBookmark.pickup_lat,
     pickup_long: selectedBookmark.pickup_long,
@@ -109,6 +109,7 @@ export const handleRequestFromBookmark = async (selectedBookmark, userData, navi
 
 export const checkOrderStatus = async (userData, navigation) => {
   try {
+    console.log(userData)
     const response = await fetch(
       `http://${IP_ADDRESS}:4000/api/v1/customer/address/order-status/${userData.customer_id}`,
       {
@@ -118,7 +119,7 @@ export const checkOrderStatus = async (userData, navigation) => {
     }
     );
     const data = await response.json();
-    console.log("order_status:", data);
+    console.log("order_status:", data.driver_id, data.customer_id, data.request_id);
     if (data.Status) {
       navigation.navigate("viewOrder", {
         driverProfile: {
@@ -127,7 +128,9 @@ export const checkOrderStatus = async (userData, navigation) => {
             id: data.driver_id,
             customer_id_request: userData.customer_id,
           },
-        },
+          customer_id_request: data?.customer_id,
+          request_id: data?.request_id
+        }
       });
     } else if (data.Message === "No accepted records found for customer_id") {
       Alert.alert("ไม่มี Order ที่กำลังทำงานอยู่");

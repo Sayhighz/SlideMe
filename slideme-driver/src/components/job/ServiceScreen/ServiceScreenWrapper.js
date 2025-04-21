@@ -43,6 +43,8 @@ const ServiceScreenWrapper = ({
   // Format data for components
   const getFormattedData = () => {
     if (!serviceData) return null;
+    console.log("serviceData",serviceData.price_estimate)
+    // console.log("serviceData",serviceData)
 
     return {
       customer: {
@@ -79,6 +81,7 @@ const ServiceScreenWrapper = ({
   const handleChat = () => {
     const data = getFormattedData();
     if (!data) return;
+    console.log(serviceData.request_id)
 
     navigation.navigate("ChatScreen", { 
       room_id: serviceData.request_id, 

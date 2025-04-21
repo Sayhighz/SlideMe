@@ -2,97 +2,92 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
-  TextInput,
-  FlatList,
-  TouchableOpacity,
   KeyboardAvoidingView,
   StyleSheet,
   Animated,
   Alert,
   Linking,
+  TouchableOpacity,
 } from "react-native";
-import io from "socket.io-client";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tw from "twrnc";
-import { IP_ADDRESS } from "../../config";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
+import { IP_ADDRESS } from "../../config";
 import HeaderWithBackButton from "../../components/HeaderWithBackButton";
-const socket = io(`http://${IP_ADDRESS}:4000`);
+
+// Import our new components
+import MessageList from "../../components/chat/MessageList";
+import ChatInput from "../../components/chat/ChatInput";
+import NewMessageNotification from "../../components/chat/NewMessageNotification";
+import ChatService from "../../components/chat/ChatService";
 
 export default function ChatScreen({ route }) {
   const { room_id, user_name, phoneNumber } = route.params;
-  const user_id = "customer"; // Current user ID
+  const user_id = "customer"; // Current user ID (ประเภทผู้ใช้คงที่เป็น customer)
+  const user_type = "customer"; // Explicitly define user type
+  
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [atBottom, setAtBottom] = useState(true); // Check if user is at the bottom
-  const [newMessage, setNewMessage] = useState(false); // Show new message indicator
+  const [atBottom, setAtBottom] = useState(true);
+  const [newMessage, setNewMessage] = useState(false);
+  
   const navigation = useNavigation();
-  const flatListRef = useRef(null); // Ref for FlatList
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Animation for new message notification
-
-  // Key for AsyncStorage
-  const storageKey = `chat_messages_${room_id}`;
-
+  const flatListRef = useRef(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const chatServiceRef = useRef(null);
+  
   useEffect(() => {
-    // Join room on component mount
-    socket.emit("joinRoom", { room_id, user_id });
-
-    // Listen for incoming messages
-    socket.on("receiveMessage", (data) => {
+    // Initialize chat service
+    chatServiceRef.current = new ChatService(room_id, user_id, user_type, IP_ADDRESS);
+    
+    // Set message handler
+    chatServiceRef.current.setMessageHandler((newMsg) => {
+      // Check if we already have this message (prevent duplicates)
       setMessages((prevMessages) => {
-        const updatedMessages = [...prevMessages, data];
-        saveMessagesToStorage(updatedMessages); // Save to AsyncStorage
+        // Optional: Could add more sophisticated message deduplication here
+        // For now, we're relying on the chatService to filter out self-messages
+        
+        const updatedMessages = [...prevMessages, newMsg];
+        chatServiceRef.current.saveMessages(updatedMessages);
+        
+        // Show "new message" animation if not at bottom
+        if (!atBottom) {
+          setNewMessage(true);
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 300,
+            useNativecustomer: true,
+          }).start();
+        }
+        
         return updatedMessages;
       });
-
-      // Show "new message" animation if not at bottom
-      if (!atBottom) {
-        setNewMessage(true);
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }).start();
-      }
     });
-
-    // Load messages from AsyncStorage
-    loadMessagesFromStorage();
-
+    
+    // Connect to socket
+    chatServiceRef.current.connect().then(() => {
+      // Load previous messages from AsyncStorage
+      loadPreviousMessages();
+    });
+    
+    // Clean up on unmount
     return () => {
-      socket.off("receiveMessage"); // Clean up listener
+      if (chatServiceRef.current) {
+        chatServiceRef.current.disconnect();
+      }
     };
-  }, [room_id, user_id, atBottom]);
+  }, []);
 
-  const sendMessage = () => {
-    if (message.trim()) {
-      // Emit the message to the server
-      socket.emit("sendMessage", { room_id, user_id, message });
-
-      // Clear input field
-      setMessage("");
-    }
-  };
-
-  // Save messages to AsyncStorage
-  const saveMessagesToStorage = async (messages) => {
+  const loadPreviousMessages = async () => {
+    if (!chatServiceRef.current) return;
+    
     try {
-      await AsyncStorage.setItem(storageKey, JSON.stringify(messages));
-    } catch (error) {
-      console.error("Error saving messages to AsyncStorage:", error);
-    }
-  };
-
-  // Load messages from AsyncStorage
-  const loadMessagesFromStorage = async () => {
-    try {
-      const cachedMessages = await AsyncStorage.getItem(storageKey);
-      if (cachedMessages) {
-        setMessages(JSON.parse(cachedMessages));
+      const loadedMsgs = await chatServiceRef.current.loadMessages();
+      if (loadedMsgs && loadedMsgs.length > 0) {
+        setMessages(loadedMsgs);
       }
     } catch (error) {
-      console.error("Error loading messages from AsyncStorage:", error);
+      console.error("Error loading messages:", error);
     }
   };
 
@@ -113,6 +108,25 @@ export default function ChatScreen({ route }) {
     setNewMessage(false);
   };
 
+  const sendMessage = () => {
+    if (!message.trim() || !chatServiceRef.current) return;
+    
+    // Send message via chat service
+    const sentMessage = chatServiceRef.current.sendMessage(message);
+    
+    if (sentMessage) {
+      // Add to local state
+      setMessages((prevMessages) => {
+        const updatedMessages = [...prevMessages, sentMessage];
+        chatServiceRef.current.saveMessages(updatedMessages);
+        return updatedMessages;
+      });
+      
+      // Clear input field
+      setMessage("");
+    }
+  };
+
   const handleCall = (phoneNumber) => {
     if (phoneNumber) {
       const url = `tel:${phoneNumber}`;
@@ -122,95 +136,53 @@ export default function ChatScreen({ route }) {
     }
   };
 
-
   return (
     <KeyboardAvoidingView style={tw`flex-1 bg-[#f5f7fa]`} behavior="padding">
       {/* Header */}
       <HeaderWithBackButton
-      showBackButton={true}
+        showBackButton={true}
         title={`คุณ ${user_name}`}
         onPress={() => navigation.goBack()}
       />
       <View style={tw`absolute right-7 top-15`}>
-      <TouchableOpacity
-                  style={tw`bg-[#60B876] w-10 h-10 rounded-full flex items-center justify-center mx-1`}
-                  onPress={() => handleCall(phoneNumber)}
-                >
-                  <Icon name="phone" size={15} color="white" />
-                </TouchableOpacity>
-        </View>
-
-      {/* Message List */}
-      <FlatList
-        data={messages}
-        ref={flatListRef} // Ref for scrolling
-        onScroll={handleScroll} // Handle scroll events
-        renderItem={({ item }) => (
-          <View
-            style={[
-              tw`m-2 rounded-xl max-w-3/4 px-4 py-3 shadow-sm`,
-              item.sender === user_id
-                ? tw`bg-[#60B876] self-end`
-                : tw`bg-white self-start border border-gray-200`,
-            ]}
-          >
-            <Text
-              style={[
-                styles.globalText,
-                tw`text-sm`,
-                item.sender === user_id ? tw`text-white` : tw`text-gray-700`,
-              ]}
-            >
-              {item.message}
-            </Text>
-          </View>
-        )}
-        keyExtractor={(item, index) => index.toString()}
-        style={tw`flex-1 px-4`}
-        contentContainerStyle={tw`py-2`}
-      />
-
-      {/* New Message Notification */}
-      {newMessage && !atBottom && (
-        <Animated.View
-          style={[
-            tw`absolute bottom-23  left-33 bg-red-600 px-4 py-2 rounded-full`,
-            { opacity: fadeAnim },
-          ]}
-        >
-          <Text style={[styles.globalText, tw`text-white text-sm`]}>ข้อความใหม่!</Text>
-        </Animated.View>
-      )}
-
-      {/* Scroll to Bottom Icon */}
-      {!atBottom && (
         <TouchableOpacity
-          style={tw`absolute bottom-20 right-4 bg-gray-700 p-3 rounded-full`}
-          onPress={scrollToBottom}
+          style={tw`bg-[#60B876] w-10 h-10 rounded-full flex items-center justify-center mx-1`}
+          onPress={() => handleCall(phoneNumber)}
         >
-          <Icon name="chevron-down" size={24} color="#fff" />
-        </TouchableOpacity>
-      )}
-
-      {/* Input and Action Buttons */}
-      <View style={tw`flex-row items-center p-3 bg-white border-t border-gray-200`}>
-        {/* Input */}
-        <TextInput
-          style={[
-            styles.globalText,
-            tw`flex-1 bg-gray-100 px-4 py-3 mx-2 rounded-full border border-gray-300`,
-          ]}
-          value={message}
-          onChangeText={setMessage}
-          placeholder="พิมพ์ข้อความ..."
-          placeholderTextColor="#999"
-        />
-
-        {/* Send Icon */}
-        <TouchableOpacity style={tw`p-3 bg-[#60B876] rounded-full`} onPress={sendMessage}>
-          <Icon name="send" size={24} color="#fff" />
+          <Icon name="phone" size={15} color="white" />
         </TouchableOpacity>
       </View>
+
+      {/* Debug message logger */}
+      <View style={tw`px-4 py-1 bg-gray-100`}>
+        <Text style={[styles.globalText, tw`text-xs text-gray-500`]}>
+          Debug: ขั้นตอน authenticate → joinRequest → รับข้อความ
+        </Text>
+      </View>
+
+      {/* Message List Component */}
+      <MessageList
+        messages={messages}
+        flatListRef={flatListRef}
+        handleScroll={handleScroll}
+        atBottom={atBottom}
+        user_id={user_id}
+        user_type={user_type}
+        scrollToBottom={scrollToBottom}
+      />
+
+      {/* New Message Notification Component */}
+      <NewMessageNotification 
+        visible={newMessage && !atBottom} 
+        fadeAnim={fadeAnim} 
+      />
+
+      {/* Chat Input Component */}
+      <ChatInput
+        message={message}
+        setMessage={setMessage}
+        sendMessage={sendMessage}
+      />
     </KeyboardAvoidingView>
   );
 }

@@ -49,7 +49,7 @@ function Home({ navigation }) {
   };
 
   useEffect(() => {
-    console.log("userData:", userData);
+    // console.log("userData:", userData);
   }, [userData]);
 
   return (

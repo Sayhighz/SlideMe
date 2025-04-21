@@ -339,6 +339,8 @@ const AddPaymentMethod = ({ route }) => {
                 value={cardholderName}
                 onChangeText={setCardholderName}
                 autoCapitalize="words"
+                //length={20}
+                maxLength={21}
               />
             </View>
 
