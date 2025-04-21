@@ -13,11 +13,53 @@ const dbConfig = {
   database: process.env.DB_DATABASE || 'slideme',
   connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '10'),
   waitForConnections: true,
-  queueLimit: 0
+  queueLimit: 0,
+  connectTimeout: 30000, // 30 วินาทีสำหรับการเชื่อมต่อครั้งแรก
+  acquireTimeout: 30000 // 30 วินาทีสำหรับการรอการเชื่อมต่อจาก pool
 };
 
 // Create connection pool
 const pool = mysql.createPool(dbConfig);
+
+// ฟังก์ชันตรวจสอบการเชื่อมต่อเป็นระยะ
+const checkConnection = async () => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.ping(); // ส่ง ping เพื่อรักษาการเชื่อมต่อ
+    logger.info('✅ Database connection is alive');
+  } catch (err) {
+    logger.error('❌ Database connection check failed', {
+      error: err.message,
+      errorCode: err.code,
+      sqlState: err.sqlState
+    });
+    if (err.code === 'ECONNRESET') {
+      logger.warn('Connection reset detected, pool will attempt to recover');
+    }
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+// ทดสอบการเชื่อมต่อเมื่อเริ่มต้น
+checkConnection();
+
+// ตรวจสอบการเชื่อมต่อทุก 5 นาทีเพื่อป้องกันการหลุด
+setInterval(checkConnection, 5 * 60 * 1000); // 5 นาที
+
+// จัดการ error จาก pool
+pool.on('error', (err) => {
+  logger.error('❌ Database pool error', {
+    error: err.message,
+    errorCode: err.code,
+    sqlState: err.sql,
+    motes: err.sqlState
+  });
+  if (err.code === 'ECONNRESET') {
+    logger.warn('Connection reset, pool will attempt to recover');
+  }
+});
 
 /**
  * Test database connection
@@ -57,7 +99,6 @@ const query = async (sql, params = []) => {
       sql, 
       params, 
       error: err.message,
-      // Include additional context to help debugging
       errorCode: err.code,
       sqlState: err.sqlState,
       originalStack: err.stack 
@@ -129,6 +170,7 @@ export default {
   pool,
   query,
   testConnection,
+  checkConnection, // เพิ่มฟังก์ชัน checkConnection ใน export
   beginTransaction,
   commitTransaction,
   rollbackTransaction,

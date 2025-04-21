@@ -209,6 +209,7 @@ export const getRequestDetails = asyncHandler(async (req, res) => {
       request.driver_offer = offers[0];
     }
   }
+  console.log(offers);
 
   // Calculate route information if driver_id and their location are provided
   if (driver_id) {

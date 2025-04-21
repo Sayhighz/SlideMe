@@ -12,15 +12,15 @@ const AdsSwiper = () => {
   const ads = [
     {
       id: 1,
-      image: `http://${IP_ADDRESS}:4000/upload/fetch_image?filename=ads1.png`,
+      image: "https://via.placeholder.com/600x200/60B876/FFFFFF?text=SLIDEME+DRIVER+PROMO",
     },
     {
       id: 2,
-      image: `http://${IP_ADDRESS}:4000/upload/fetch_image?filename=ads2.png`,
+      image: "https://via.placeholder.com/600x200/4682B4/FFFFFF?text=SPECIAL+OFFER",
     },
     {
       id: 3,
-      image: `http://${IP_ADDRESS}:4000/upload/fetch_image?filename=ads3.png`,
+      image: "https://via.placeholder.com/600x200/ffc107/000000?text=NEW+FEATURES",
     },
   ];
 

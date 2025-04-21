@@ -50,7 +50,7 @@ export default function RideProgressBar({ status, styles }) {
   return (
     <View style={[tw`mx-4 my-4 bg-white p-4 rounded-xl`, styles.shadow]}>
       <View style={tw`flex-row items-center mb-3`}>
-        <View style={tw`h-10 w-10 rounded-full justify-center items-center mr-3`} style={{ backgroundColor: `${getStatusColor()}20` }}>
+        <View style={[tw`h-10 w-10 rounded-full justify-center items-center mr-3`,{ backgroundColor: `${getStatusColor()}20` }]}>
           <MaterialIcons name={getStatusIcon()} size={24} color={getStatusColor()} />
         </View>
         <View>

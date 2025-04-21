@@ -13,7 +13,7 @@ import env from '../../config/env.js';
 const configureSocket = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: env.ALLOWED_ORIGINS,
+      origin: 'http://127.0.0.1:5500',
       methods: ['GET', 'POST'],
       credentials: true
     }
@@ -87,35 +87,46 @@ const configureSocket = (server) => {
     });
 
     // Handle chat messages
-    socket.on('chatMessage', (data) => {
-      try {
-        const { request_id, sender_type, sender_id, message } = data;
-        
-        if (!request_id || !sender_type || !sender_id || !message) {
-          logger.warn('Invalid chat message data', { socketId: socket.id });
-          socket.emit('error', { message: 'Invalid chat message data' });
-          return;
-        }
-        
-        // Create message object
-        const messageObj = {
-          request_id,
-          sender_type,
-          sender_id,
-          message,
-          timestamp: new Date().toISOString()
-        };
-        
-        // Send to request room
-        const roomName = `request_${request_id}`;
-        io.to(roomName).emit('newMessage', messageObj);
-        
-        logger.info('Chat message sent', { requestId: request_id, senderType: sender_type, senderId: sender_id });
-      } catch (error) {
-        logger.error('Chat message error', { error: error.message });
-        socket.emit('error', { message: 'Failed to send chat message' });
-      }
+    // Handle chat messages
+socket.on('chatMessage', (data) => {
+  try {
+    const { request_id, sender_type, sender_id, message } = data;
+    console.log(data)
+    
+    if (!request_id || !sender_type || !sender_id || !message) {
+      logger.warn('Invalid chat message data', { socketId: socket.id });
+      socket.emit('error', { message: 'Invalid chat message data' });
+      return;
+    }
+    
+    // Create message object
+    const messageObj = {
+      request_id,
+      sender_type,
+      sender_id,
+      message,
+      timestamp: new Date().toISOString()
+    };
+    
+    // ล็อกข้อความที่ส่ง
+    logger.info('Chat message content', { 
+      requestId: request_id, 
+      senderType: sender_type, 
+      senderId: sender_id,
+      message: message,
+      timestamp: messageObj.timestamp
     });
+    
+    // Send to request room
+    const roomName = `request_${request_id}`;
+    io.to(roomName).emit('newMessage', messageObj);
+    
+    logger.info('Chat message sent', { requestId: request_id, senderType: sender_type, senderId: sender_id });
+  } catch (error) {
+    logger.error('Chat message error', { error: error.message });
+    socket.emit('error', { message: 'Failed to send chat message' });
+  }
+});
 
     // Update driver location
     socket.on('updateLocation', (data) => {
