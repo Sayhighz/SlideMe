@@ -17,37 +17,38 @@ const MessageBoxScreen = () => {
 
   useEffect(() => {
     const fetchMessages = async () => {
-      try {
-        const response = await fetch(`http://${IP_ADDRESS}:3000/auth/getAllNotifications`);
+      alert("ฟังชั่นนี้ไม่พร้อมใช้งาน")
+      // try {
+      //   const response = await fetch(`http://${IP_ADDRESS}:3000/auth/getAllNotifications`);
         
-        if (!response.ok) {
-          if (response.status === 404) {
-            throw new Error('The requested resource was not found. Please check the endpoint.');
-          }
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+      //   if (!response.ok) {
+      //     if (response.status === 404) {
+      //       throw new Error('The requested resource was not found. Please check the endpoint.');
+      //     }
+      //     throw new Error(`HTTP error! status: ${response.status}`);
+      //   }
   
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          const textResponse = await response.text();
-          throw new Error(`Unexpected response type: ${contentType}. Response: ${textResponse}`);
-        }
+      //   const contentType = response.headers.get('content-type');
+      //   if (!contentType || !contentType.includes('application/json')) {
+      //     const textResponse = await response.text();
+      //     throw new Error(`Unexpected response type: ${contentType}. Response: ${textResponse}`);
+      //   }
   
-        const data = await response.json();
-        console.log('Fetched data:', data);
+      //   const data = await response.json();
+      //   console.log('Fetched data:', data);
   
-        if (data.Status && Array.isArray(data.Result)) {
-          setMessages(data.Result);
-        } else {
-          console.error('Unexpected data structure:', data);
-          setMessages([]);
-        }
-      } catch (error) {
-        console.error('Error fetching messages:', error);
-        setMessages([]);
-      } finally {
-        setLoading(false);
-      }
+      //   if (data.Status && Array.isArray(data.Result)) {
+      //     setMessages(data.Result);
+      //   } else {
+      //     console.error('Unexpected data structure:', data);
+      //     setMessages([]);
+      //   }
+      // } catch (error) {
+      //   console.error('Error fetching messages:', error);
+      //   setMessages([]);
+      // } finally {
+      //   setLoading(false);
+      // }
     };
   
     fetchMessages();

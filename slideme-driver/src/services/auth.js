@@ -13,13 +13,16 @@ export const login = async (phoneNumber, password) => {
     
     if (response && response.token) {
       // Extract the user data we want to store
+      console.log(response)
       const userData = {
         driver_id: response.driver_id,
         first_name: response.first_name,
         last_name: response.last_name,
         license_plate: response.license_plate,
         phone_number: response.phone_number,
-        token: response.token
+        token: response.token,
+        profile_picture: response.profile_picture
+        
       };
       
       // Save the user data to AsyncStorage

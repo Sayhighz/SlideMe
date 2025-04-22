@@ -22,7 +22,7 @@ export const DEFAULT_LOCATION = {
   longitudeDelta: 0.0421
 };
 
-// ประเภทของรถ
+// ประเภทของรถc
 export const VEHICLE_TYPES = [
   { label: "รถสไลด์มาตรฐาน", value: "standard_slide" },
   { label: "รถสไลด์ขนาดใหญ่", value: "heavy_duty_slide" },

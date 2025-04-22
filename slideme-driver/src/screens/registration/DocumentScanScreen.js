@@ -9,10 +9,13 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Image,
+  TouchableOpacity,
 } from "react-native";
 import tw from "twrnc";
 import * as Animatable from "react-native-animatable";
 import Toast from "react-native-toast-message";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 // Import components
 import AuthHeader from "../../components/auth/AuthHeader";
@@ -47,6 +50,9 @@ const DocumentScanScreen = ({ navigation, route }) => {
     vehicleWithPlate: null, // รูปรถพร้อมป้ายทะเบียน
     vehicleRegistration: null, // รูปเล่มทะเบียนรถ
   });
+
+  // รูปโปรไฟล์
+  const [profilePicture, setProfilePicture] = useState(null);
 
   // สถานะการโหลดและข้อผิดพลาด
   const [isLoading, setIsLoading] = useState(false);
@@ -107,6 +113,11 @@ const DocumentScanScreen = ({ navigation, route }) => {
       };
     }
 
+    // ตรวจสอบรูปโปรไฟล์ (เป็นตัวเลือก ไม่บังคับ)
+    if (!profilePicture) {
+      newErrors.profilePicture = { message: "กรุณาอัปโหลดรูปโปรไฟล์" };
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -126,11 +137,12 @@ const DocumentScanScreen = ({ navigation, route }) => {
     if (licenseNumber) completed++;
     total += 7;
 
-    // ตรวจสอบรูปภาพ (3 ไฟล์)
+    // ตรวจสอบรูปภาพ (4 ไฟล์ - รวมรูปโปรไฟล์)
     if (documents.driverLicense) completed++;
     if (documents.vehicleWithPlate) completed++;
     if (documents.vehicleRegistration) completed++;
-    total += 3;
+    if (profilePicture) completed++;
+    total += 4;
 
     // คำนวณเปอร์เซ็นต์
     return Math.round((completed / total) * 100);
@@ -189,7 +201,7 @@ const DocumentScanScreen = ({ navigation, route }) => {
     }));
   };
 
-  // เลือกรูปภาพเล่มทะเบียนรถ
+  // บันทึกรูปภาพเล่มทะเบียนรถ
   const handleVehicleRegistrationImage = (uri) => {
     setDocuments((prev) => ({
       ...prev,
@@ -197,131 +209,147 @@ const DocumentScanScreen = ({ navigation, route }) => {
     }));
   };
 
+  // บันทึกรูปโปรไฟล์
+  const handleProfilePictureImage = (uri) => {
+    setProfilePicture(uri);
+  };
+
   // ทำการอัปโหลดและลงทะเบียน
-  // ทำการอัปโหลดและลงทะเบียน
-const handleRegister = async () => {
-  if (!validateForm()) {
-    Toast.show({
-      type: "error",
-      text1: "ข้อมูลไม่ครบถ้วน",
-      text2: "กรุณากรอกข้อมูลและอัปโหลดเอกสารให้ครบถ้วน",
-    });
-    return;
-  }
-
-  setIsLoading(true);
-  setUploadProgress(10);
-
-  try {
-    // 1. สร้าง FormData สำหรับอัปโหลดไฟล์
-    const formData = new FormData();
-
-    // เพิ่มข้อมูลพื้นฐาน (ตามข้อกำหนด API)
-    formData.append("phone_number", phoneNumber);
-    formData.append("password", password);
-    formData.append("first_name", firstName);
-    formData.append("last_name", lastName);
-    formData.append("license_plate", licensePlate);
-    formData.append("province", selectedProvince);
-    
-    // ข้อมูลเพิ่มเติมที่ไม่บังคับ
-    if (birthDate) {
-      formData.append("birth_date", birthDate);
-    }
-    
-    // เพิ่ม vehicletype_id ที่ได้จากหน้าก่อนหน้า
-    formData.append("vehicletype_id", selectedVehicleType);
-    
-    // ข้อมูลเพิ่มเติมสำหรับการตรวจสอบ (ไม่อยู่ในข้อกำหนด API แต่อาจจะใช้ในการประมวลผลเพิ่มเติม)
-    if (idNumber) {
-      formData.append("id_number", idNumber);
-    }
-    
-    if (licenseNumber) {
-      formData.append("license_number", licenseNumber);
-    }
-    
-    if (idExpiryDate) {
-      formData.append("id_expiry_date", idExpiryDate);
-    }
-
-    setUploadProgress(20);
-
-    // เพิ่มรูปใบขับขี่ (ต้องการโดย API)
-    if (documents.driverLicense) {
-      const driverLicenseFile = {
-        uri: documents.driverLicense,
-        type: "image/jpeg",
-        name: "thai_driver_license.jpg",
-      };
-      formData.append("thai_driver_license", driverLicenseFile);
-    }
-
-    setUploadProgress(40);
-
-    // เพิ่มรูปรถพร้อมป้ายทะเบียน (ต้องการโดย API)
-    if (documents.vehicleWithPlate) {
-      const vehicleWithPlateFile = {
-        uri: documents.vehicleWithPlate,
-        type: "image/jpeg",
-        name: "car_with_license_plate.jpg",
-      };
-      formData.append("car_with_license_plate", vehicleWithPlateFile);
-    }
-
-    setUploadProgress(60);
-
-    // เพิ่มรูปเล่มทะเบียนรถ (ต้องการโดย API)
-    if (documents.vehicleRegistration) {
-      const vehicleRegistrationFile = {
-        uri: documents.vehicleRegistration,
-        type: "image/jpeg",
-        name: "vehicle_registration.jpg",
-      };
-      formData.append("vehicle_registration", vehicleRegistrationFile);
-    }
-
-    setUploadProgress(80);
-
-    // 2. ส่งข้อมูลไปยัง API เพื่อลงทะเบียน
-    console.log("Sending registration data to API:", API_ENDPOINTS.AUTH.REGISTER);
-    const response = await uploadFile(API_ENDPOINTS.AUTH.REGISTER, formData);
-
-    setUploadProgress(100);
-
-    console.log("Registration Response:", response);
-
-    if (response.Status) {
-      // ลงทะเบียนสำเร็จ - นำผู้ใช้ไปยังหน้าแสดงสถานะการตรวจสอบ
+  const handleRegister = async () => {
+    if (!validateForm()) {
       Toast.show({
-        type: "success",
-        text1: "ส่งข้อมูลสำเร็จ",
-        text2: "กรุณารอการตรวจสอบและอนุมัติจากทีมงาน",
+        type: "error",
+        text1: "ข้อมูลไม่ครบถ้วน",
+        text2: "กรุณากรอกข้อมูลและอัปโหลดเอกสารให้ครบถ้วน",
       });
-      
-      navigation.navigate("VerificationStatus", {
-        driverId: response.driver_id,
-        phoneNumber: phoneNumber,
-        name: `${firstName} ${lastName}`,
-        password: password
-      });
-    } else {
-      // ลงทะเบียนไม่สำเร็จ
-      Alert.alert(
-        "ลงทะเบียนไม่สำเร็จ",
-        response.Error || "เกิดข้อผิดพลาดในการลงทะเบียน กรุณาลองอีกครั้ง"
-      );
+      return;
     }
-  } catch (error) {
-    console.error("Registration Error:", error);
-    Alert.alert(
-      "เกิดข้อผิดพลาด",
-      "เกิดข้อผิดพลาดในการลงทะเบียน กรุณาลองอีกครั้ง"
-    );
-  } finally {
-    setIsLoading(false);
-  }
-};
+
+    setIsLoading(true);
+    setUploadProgress(10);
+
+    try {
+      // 1. สร้าง FormData สำหรับอัปโหลดไฟล์
+      const formData = new FormData();
+
+      // เพิ่มข้อมูลพื้นฐาน (ตามข้อกำหนด API)
+      formData.append("phone_number", phoneNumber);
+      formData.append("password", password);
+      formData.append("first_name", firstName);
+      formData.append("last_name", lastName);
+      formData.append("license_plate", licensePlate);
+      formData.append("province", selectedProvince);
+      
+      // ข้อมูลเพิ่มเติมที่ไม่บังคับ
+      if (birthDate) {
+        formData.append("birth_date", birthDate);
+      }
+      
+      // เพิ่ม vehicletype_id ที่ได้จากหน้าก่อนหน้า
+      formData.append("vehicletype_id", selectedVehicleType);
+      
+      // ข้อมูลเพิ่มเติมสำหรับการตรวจสอบ (ไม่อยู่ในข้อกำหนด API แต่อาจจะใช้ในการประมวลผลเพิ่มเติม)
+      if (idNumber) {
+        formData.append("id_number", idNumber);
+      }
+      
+      if (licenseNumber) {
+        formData.append("license_number", licenseNumber);
+      }
+      
+      if (idExpiryDate) {
+        formData.append("id_expiry_date", idExpiryDate);
+      }
+
+      setUploadProgress(20);
+
+      // เพิ่มรูปโปรไฟล์ (ถ้ามี)
+      if (profilePicture) {
+        const profilePictureFile = {
+          uri: profilePicture,
+          type: "image/jpeg",
+          name: "profile_picture.jpg",
+        };
+        formData.append("profile_picture", profilePictureFile);
+      }
+
+      setUploadProgress(30);
+
+      // เพิ่มรูปใบขับขี่ (ต้องการโดย API)
+      if (documents.driverLicense) {
+        const driverLicenseFile = {
+          uri: documents.driverLicense,
+          type: "image/jpeg",
+          name: "thai_driver_license.jpg",
+        };
+        formData.append("thai_driver_license", driverLicenseFile);
+      }
+
+      setUploadProgress(50);
+
+      // เพิ่มรูปรถพร้อมป้ายทะเบียน (ต้องการโดย API)
+      if (documents.vehicleWithPlate) {
+        const vehicleWithPlateFile = {
+          uri: documents.vehicleWithPlate,
+          type: "image/jpeg",
+          name: "car_with_license_plate.jpg",
+        };
+        formData.append("car_with_license_plate", vehicleWithPlateFile);
+      }
+
+      setUploadProgress(70);
+
+      // เพิ่มรูปเล่มทะเบียนรถ (ต้องการโดย API)
+      if (documents.vehicleRegistration) {
+        const vehicleRegistrationFile = {
+          uri: documents.vehicleRegistration,
+          type: "image/jpeg",
+          name: "vehicle_registration.jpg",
+        };
+        formData.append("vehicle_registration", vehicleRegistrationFile);
+      }
+
+      setUploadProgress(90);
+
+      // 2. ส่งข้อมูลไปยัง API เพื่อลงทะเบียน
+      console.log("Sending registration data to API:", API_ENDPOINTS.AUTH.REGISTER);
+      const response = await uploadFile(API_ENDPOINTS.AUTH.REGISTER, formData);
+
+      setUploadProgress(100);
+
+      console.log("Registration Response:", response);
+
+      if (response.Status) {
+        // ลงทะเบียนสำเร็จ - นำผู้ใช้ไปยังหน้าแสดงสถานะการตรวจสอบ
+        Toast.show({
+          type: "success",
+          text1: "ส่งข้อมูลสำเร็จ",
+          text2: "กรุณารอการตรวจสอบและอนุมัติจากทีมงาน",
+        });
+        
+        navigation.navigate("VerificationStatus", {
+          driverId: response.driver_id,
+          phoneNumber: phoneNumber,
+          name: `${firstName} ${lastName}`,
+          password: password
+        });
+      } else {
+        // ลงทะเบียนไม่สำเร็จ
+        Alert.alert(
+          "ลงทะเบียนไม่สำเร็จ",
+          response.Error || "เกิดข้อผิดพลาดในการลงทะเบียน กรุณาลองอีกครั้ง"
+        );
+      }
+    } catch (error) {
+      console.error("Registration Error:", error);
+      Alert.alert(
+        "เกิดข้อผิดพลาด",
+        "เกิดข้อผิดพลาดในการลงทะเบียน กรุณาลองอีกครั้ง"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
@@ -399,6 +427,29 @@ const handleRegister = async () => {
           </Animatable.View>
 
           <Animatable.View animation="fadeInUp" duration={600} delay={200}>
+            {/* ส่วนอัปโหลดรูปโปรไฟล์ */}
+            <View style={tw`mb-6`}>
+              <Text
+                style={{
+                  fontFamily: FONTS.FAMILY.MEDIUM,
+                  fontSize: FONTS.SIZE.M,
+                  ...tw`text-gray-800 mb-4 border-l-4 border-[${COLORS.PRIMARY}] pl-2`,
+                }}
+              >
+                1. อัปโหลดรูปโปรไฟล์
+              </Text>
+
+              <DocumentUploader
+                label="profilePicture"
+                displayName="รูปโปรไฟล์*"
+                icon="account"
+                imageUri={profilePicture}
+                onImageSelected={handleProfilePictureImage}
+                isProcessing={false}
+                description="อัปโหลดรูปถ่ายหน้าตรงของคุณสำหรับแสดงในโปรไฟล์"
+              />
+            </View>
+
             {/* ส่วนสแกนใบขับขี่ */}
             <View style={tw`mb-6`}>
               <Text
@@ -408,7 +459,7 @@ const handleRegister = async () => {
                   ...tw`text-gray-800 mb-4 border-l-4 border-[${COLORS.PRIMARY}] pl-2`,
                 }}
               >
-                1. สแกนใบขับขี่
+                2. สแกนใบขับขี่
               </Text>
 
               <DriverLicenseScanner
@@ -500,7 +551,7 @@ const handleRegister = async () => {
                   ...tw`text-gray-800 mb-4 border-l-4 border-[${COLORS.PRIMARY}] pl-2`,
                 }}
               >
-                2. สแกนรถและป้ายทะเบียน
+                3. สแกนรถและป้ายทะเบียน
               </Text>
 
               <LicensePlateScanner
@@ -541,7 +592,7 @@ const handleRegister = async () => {
                   ...tw`text-gray-800 mb-4 border-l-4 border-[${COLORS.PRIMARY}] pl-2`,
                 }}
               >
-                3. อัปโหลดเล่มทะเบียนรถ
+                4. อัปโหลดเล่มทะเบียนรถ
               </Text>
 
               <DocumentUploader

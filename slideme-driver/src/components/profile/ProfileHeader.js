@@ -11,7 +11,7 @@ const ProfileHeader = ({ userData, onEditPress }) => {
   
   // Fallback image if profile picture is missing
   const profileImage = userData?.profile_picture 
-    ? { uri: `${IMAGE_URL}${userData.profile_picture}`, headers: { pragma: 'no-cache' } }
+    ? { uri: `${IMAGE_URL}/uploads/drivers/profile/${userData.profile_picture}`, headers: { pragma: 'no-cache' } }
     : require('../../assets/images/default-avatar.png'); // Make sure to add this default image
   
   // Generate stars based on rating

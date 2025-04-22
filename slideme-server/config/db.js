@@ -15,7 +15,6 @@ const dbConfig = {
   waitForConnections: true,
   queueLimit: 0,
   connectTimeout: 30000, // 30 วินาทีสำหรับการเชื่อมต่อครั้งแรก
-  acquireTimeout: 30000 // 30 วินาทีสำหรับการรอการเชื่อมต่อจาก pool
 };
 
 // Create connection pool

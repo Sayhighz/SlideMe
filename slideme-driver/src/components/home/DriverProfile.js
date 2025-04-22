@@ -23,11 +23,12 @@ const DriverProfile = ({ userData, driverScore, profitToday, isLoading, onProfil
   useEffect(() => {
     // Reset states when userData changes
     setImageError(false);
-    
+    console.log("asdad",`${IMAGE_URL}${userData?.profile_picture}&subdir=/drivers/profile`)
     // Only attempt to load image if profile_picture exists
     if (userData?.profile_picture) {
       setImageLoading(true);
-      setProfileImage(`${IMAGE_URL}${userData.profile_picture}`);
+      setProfileImage(`${IMAGE_URL}${userData?.profile_picture}&subdir=/drivers/profile`);
+      // console.log(profileImage)
     } else {
       setImageLoading(false);
     }
@@ -78,9 +79,9 @@ const DriverProfile = ({ userData, driverScore, profitToday, isLoading, onProfil
               </View>
             )}
             
-            {!imageLoading && (profileImage && !imageError) ? (
+            {(userData?.profile_picture) ? (
               <Image
-                source={{ uri: profileImage }}
+                source={{ uri: `${IMAGE_URL}${userData?.profile_picture}&subdir=/drivers/profile` }}
                 style={[
                   tw`w-16 h-16 rounded-full bg-gray-100`,
                   { borderWidth: 1.5, borderColor: COLORS.PRIMARY }

@@ -51,7 +51,8 @@ export const loginDriver = asyncHandler(async (req, res) => {
         first_name, 
         last_name,
         phone_number,
-        license_plate 
+        license_plate,
+        profile_picture
       FROM drivers 
       WHERE phone_number = ?`,
       [phone_number]
@@ -80,6 +81,7 @@ export const loginDriver = asyncHandler(async (req, res) => {
         first_name: driver.first_name,
         last_name: driver.last_name,
         phone_number: driver.phone_number,
+        profile_picture: driver.profile_picture
       }, ERROR_MESSAGES.AUTH.ACCOUNT_NOT_APPROVED));
     }
 
@@ -107,6 +109,7 @@ export const loginDriver = asyncHandler(async (req, res) => {
       last_name: driver.last_name,
       phone_number: driver.phone_number,
       license_plate: driver.license_plate,
+      profile_picture: driver.profile_picture,
       token
     }, "เข้าสู่ระบบสำเร็จ"));
   } catch (error) {
