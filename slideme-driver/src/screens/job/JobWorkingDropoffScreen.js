@@ -84,7 +84,7 @@ export default function JobWorkingDropoffScreen({ route }) {
     const fetchRequestDetails = async () => {
       try {
         const response = await getRequest(
-          `${API_ENDPOINTS.JOBS.GET_DETAIL}?request_id=${request_id}`
+          `${API_ENDPOINTS.JOBS.GET_DETAIL}?request_id=${request_id}&driver_id=${userData.driver_id}`
         );
         
         if (response && response.Status) {
@@ -93,7 +93,6 @@ export default function JobWorkingDropoffScreen({ route }) {
           } else {
             const { Message, Status, ...requestData } = response;
             setRequest(requestData);
-            console.log(request)
           }
         } else {
           setRequest(null);
@@ -182,6 +181,8 @@ export default function JobWorkingDropoffScreen({ route }) {
           MESSAGES.SUCCESS.COMPLETE, 
           [{ text: "ตกลง", onPress: () => navigation.navigate("HomeMain") }]
         );
+        const DevSettings = require('react-native').DevSettings;
+        DevSettings.reload();
       } else {
         Alert.alert("ข้อผิดพลาด", response.message || "ไม่สามารถจบงานได้");
       }
