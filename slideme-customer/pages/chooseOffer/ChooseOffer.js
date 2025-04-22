@@ -403,7 +403,7 @@ const ChooseOffer = ({ navigation, route }) => {
             <View style={tw`w-16 h-1 bg-gray-300 rounded-full`}></View>
           </View>
           
-          <View style={tw`px-4 pb-2 pt-1`}>
+          <View style={tw`px-4 pb-2 flex-1`}>
             <DriverList
               drivers={filteredOffers}
               selectedDriver={selectedDriver}

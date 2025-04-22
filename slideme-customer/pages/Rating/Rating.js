@@ -76,16 +76,16 @@ const Rating = ({ navigation }) => {
     fetchServiceInfo();
 
     // Hide tab bar when rating screen is shown
-    navigation.getParent()?.setOptions({
-      tabBarStyle: { display: "none" },
-    });
+    // navigation.getParent()?.setOptions({
+    //   tabBarStyle: { display: "none" },
+    // });
 
-    return () => {
-      // Restore tab bar when leaving the screen
-      navigation.getParent()?.setOptions({
-        tabBarStyle: undefined,
-      });
-    };
+    // return () => {
+    //   // Restore tab bar when leaving the screen
+    //   navigation.getParent()?.setOptions({
+    //     tabBarStyle: undefined,
+    //   });
+    // };
   }, []);
 
   const handleSubmitReview = async () => {

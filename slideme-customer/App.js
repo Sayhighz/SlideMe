@@ -206,9 +206,9 @@ const AppContent = () => {
     "Order",
     "ChatScreen",
     "ChooseOffer",
-    // "ViewOrder",
+    "ViewOrder",
     "PaymentPage",
-    // "Rating",
+    "Rating",
     "PaymentMethodsStack",
     "editProfile",
     "Bookmarklist",
@@ -232,7 +232,7 @@ const AppContent = () => {
             return {
               headerShown: false,
               tabBarStyle: [
-                shouldHideTabBar ? { display: "none" } : {},
+                shouldHideTabBar ? {} : {},
                 tw`bg-white border-t border-gray-300 shadow-md`, 
               ],
               tabBarIcon: ({ color, size }) => {
