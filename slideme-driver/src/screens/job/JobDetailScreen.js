@@ -74,6 +74,8 @@ export default function JobDetailScreen({ route, navigation }) {
           MESSAGES.SUCCESS.OFFER,
           [{ text: "ตกลง", onPress: () => navigation.navigate("HomeMain") }]
         );
+        const DevSettings = require('react-native').DevSettings;
+        DevSettings.reload();
       } else {
         Alert.alert(
           "ข้อผิดพลาด", 
