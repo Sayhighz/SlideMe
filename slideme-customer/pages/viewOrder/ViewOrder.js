@@ -353,12 +353,6 @@ export default function ViewOrder({ navigation }) {
         
         <RideProgressBar status={status} styles={styles} />
       </ScrollView>
-      
-      <ActionButtons
-        driverInformation={driverInformation}
-        handleChat={handleChat}
-        styles={styles}
-      />
     </SafeAreaView>
   );
 }
