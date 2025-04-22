@@ -9,10 +9,12 @@ import {
   formatDistance, 
   formatDuration, 
   formatNumberWithCommas, 
-  hasPhotos 
+  hasPhotos,
+  isActiveTrip 
 } from './utils';
 import StatusBadge from './StatusBadge';
 import RatingStars from './RatingStars';
+import { useNavigation } from '@react-navigation/native';
 
 const DetailModal = ({ 
   visible, 
@@ -22,10 +24,32 @@ const DetailModal = ({
   onRate,
   onViewStatus
 }) => {
+  const navigation = useNavigation();
+  
   if (!item) return null;
   
   const formattedPrice = item.offered_price_formatted || 
                          (item.offered_price ? `฿${formatNumberWithCommas(item.offered_price)}` : "฿0");
+  
+  // กดปุ่มดูเส้นทางเพื่อไปยังหน้า ViewOrder
+  const handleViewRoute = () => {
+    // สร้างข้อมูลสำหรับส่งไปยังหน้า ViewOrder
+    const driverProfileData = {
+      chooseDriver: {
+        id: item.driver_id || '',
+        customer_id_request: item.customer_id || '',
+        request_id: item.request_id || ''
+      }
+    };
+    
+    // ลองนำทางไปที่แท็บหลักก่อน แล้วจึงไปที่ viewOrder
+    navigation.navigate('Home', {
+      screen: 'viewOrder',
+      params: {
+        driverProfile: driverProfileData
+      }
+    });
+  };
   
   // Photo section
   const renderPhotoService = () => {
@@ -35,7 +59,6 @@ const DetailModal = ({
     if (beforePhotos.length === 0 && afterPhotos.length === 0) {
       return null;
     }
-    // console.log(beforePhotos[0].url)
 
     // Map position to Thai text
     const getPositionText = (position) => {
@@ -48,6 +71,8 @@ const DetailModal = ({
       }
     };
 
+    // ส่วนที่เหลือของ renderPhotoService คงเดิม
+    // ...
     
     return (
       <View style={tw`mb-6`}>
@@ -314,7 +339,19 @@ const DetailModal = ({
                 </TouchableOpacity>
               )}
               
-              {(item.status !== "completed" && item.status !== "cancelled") && (
+              {isActiveTrip(item.status) && (
+                <TouchableOpacity
+                  style={[
+                    tw`flex-1 ml-2 rounded-xl py-3 px-4 bg-[${PRIMARY_COLOR}]`,
+                    styles.buttonShadow
+                  ]}
+                  onPress={handleViewRoute}
+                >
+                  <Text style={[styles.customFont, tw`text-white text-center font-bold`]}>ดูเส้นทาง</Text>
+                </TouchableOpacity>
+              )}
+              
+              {(!isActiveTrip(item.status) && item.status !== "completed" && item.status !== "cancelled") && (
                 <TouchableOpacity
                   style={[
                     tw`flex-1 ml-2 rounded-xl py-3 px-4 bg-[${PRIMARY_COLOR}]`,

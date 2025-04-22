@@ -273,8 +273,9 @@ export const getTodayProfit = asyncHandler(async (req, res) => {
     const result = await db.query(sql, [driver_id]);
     
     // Calculate driver's actual earnings (after fees)
+    console.log(result);
     const totalFare = result[0].total_fare || 0;
-    const driverEarnings = calculateDriverPayout(totalFare);
+    const driverEarnings = totalFare;
     
     // Get completed trips with details
     const tripsSql = `

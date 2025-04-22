@@ -291,6 +291,7 @@ export const checkPhoneNumber = asyncHandler (async (req, res) => {
      WHERE phone_number = ?`,
     [phone_number]
   );
+  console.log(drivers);
 
   if (drivers.length === 0) {
     return res.status(STATUS_CODES.OK).json(formatSuccessResponse({

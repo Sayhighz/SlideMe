@@ -153,6 +153,7 @@ export default function ViewOrder({ navigation }) {
   };
 
   const checkOrderStatus = async () => {
+    console.log(request_id);
     try {
       const response = await axios.get(
         `http://${IP_ADDRESS}:4000/api/v1/customer/address/check-status/${request_id}`,

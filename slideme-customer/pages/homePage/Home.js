@@ -1,125 +1,69 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View, StyleSheet, SafeAreaView, StatusBar, ImageBackground } from "react-native";
-import { useRoute } from "@react-navigation/native";
-import { LinearGradient } from "expo-linear-gradient";
-import tw from "twrnc";
+import { View, StyleSheet, SafeAreaView, StatusBar, ScrollView, Dimensions } from "react-native";
 import { UserContext } from "../../UserContext";
 
-// Import components
+// นำเข้าคอมโพเนนต์ย่อย
 import Header from "../../components/home/Header";
 import MainButton from "../../components/home/MainButton";
-import ActionButtons from "../../components/home/ActionButtons";
 import AdsSwiper from "../../components/home/AdsSwiper";
-import BookmarksModal from "../../components/home/BookmarksModal";
+import ActionButtons from "../../components/home/ActionButtons";
+import RecentActivity from "../../components/home/RecentActivity";
 
-// Import utilities
-import { 
-  fetchBookmarks, 
-  handleRequestFromBookmark, 
-  checkOrderStatus, 
-  truncateText 
-} from "../../utils/homeUtils";
+// เมื่อนำไปใช้จริง ให้แน่ใจว่าได้นำเข้าฟังก์ชันที่จำเป็น
+import { checkOrderStatus } from "../../utils/homeUtils";
 
-function Home({ navigation }) {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [bookmarks, setBookmarks] = useState([]);
-  const [loading, setLoading] = useState(false);
+// นำเข้าค่าคงที่ของธีม (ถ้ามี)
+import { COLORS } from "../../components/home/Theme";
+
+const Home = ({ navigation }) => {
   const { userData } = useContext(UserContext);
-  const route = useRoute();
-
-  // Open modal and fetch bookmarks
-  const openModal = () => {
-    setModalVisible(true);
-    fetchBookmarks(userData, setBookmarks, setLoading);
-  };
-
-  // Close modal
-  const closeModal = () => {
-    setModalVisible(false);
-  };
-
-  // Handle order status check
+  const { width, height } = Dimensions.get("window");
+  
+  useEffect(() => {
+    // เช็คสถานะการเรียกรถเมื่อหน้าโหลด
+    handleOrderStatus();
+  }, [userData]);
+  
+  // ฟังก์ชันตรวจสอบสถานะการเรียกรถ
   const handleOrderStatus = () => {
     checkOrderStatus(userData, navigation);
   };
 
-  // Handle request from bookmark
-  const handleBookmarkRequest = (selectedBookmark) => {
-    handleRequestFromBookmark(selectedBookmark, userData, navigation, setModalVisible);
-  };
-
-  useEffect(() => {
-    // console.log("userData:", userData);
-  }, [userData]);
-
   return (
-    <SafeAreaView style={[tw`flex-1`]} edges={["top", "left", "right"]}>
-      <StatusBar backgroundColor="#f9fafb" barStyle="dark-content" />
-      <LinearGradient
-        colors={["#f8fcfa", "#f2f9f5", "#edf7f1"]}
-        style={tw`flex-1`}
-      >
-        <View style={[tw`flex-1 items-center justify-start pt-2 px-4`]}>
-          {/* Header - ส่วนแสดงคำทักทาย */}
-          <Header userData={userData} styles={styles} />
-
-          {/* Ads Swiper - สไลด์โฆษณา */}
-          <View style={tw`my-4 w-full`}>
-            <AdsSwiper />
-          </View>
-
-          {/* Main Button - ปุ่มเรียกรถสไลด์ */}
-          <View style={tw`my-5 w-full`}>
-            <MainButton navigation={navigation} styles={styles} />
-          </View>
-
-          {/* Action Buttons - ปุ่มติดตามสถานะ, ติดต่อเรา, รายการโปรด */}
-          <View style={tw`mt-5 w-full`}>
-            <ActionButtons
-              styles={styles}
-              handleOrderStatus={handleOrderStatus}
-              openModal={openModal}
-            />
-          </View>
-        </View>
-      </LinearGradient>
-
-      {/* Bookmarks Modal - Modal แสดงรายการโปรด */}
-      <BookmarksModal
-        modalVisible={modalVisible}
-        closeModal={closeModal}
-        bookmarks={bookmarks}
-        loading={loading}
-        handleRequestFromBookmark={handleBookmarkRequest}
-        styles={styles}
-        truncateText={truncateText}
-      />
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <StatusBar backgroundColor={COLORS ? COLORS.primary : "#4CAF50"} barStyle="light-content" />
+      <View style={styles.container}>
+        <Header userData={userData} navigation={navigation} />
+        
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <MainButton navigation={navigation} />
+          <AdsSwiper />
+          <ActionButtons navigation={navigation} />
+          <RecentActivity navigation={navigation} />
+          
+          {/* เพิ่มพื้นที่ด้านล่างเพื่อให้เลื่อนได้สุด */}
+          <View style={{ height: 20 }} />
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  globalText: {
-    fontFamily: "Mitr-Regular",
-  },
-  modalOverlay: {
+  safeArea: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: "#4CAF50", // สีเขียวหลัก (สำหรับส่วน status bar)
   },
-  modalContent: {
-    width: "85%",
-    backgroundColor: "#fff",
-    borderRadius: 24,
-    padding: 22,
-    alignItems: "center",
-    shadowColor: "#60B876",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 10,
+  container: {
+    flex: 1,
+    backgroundColor: "#F5F9F6", // สีพื้นหลังอ่อนๆ
   },
+  scrollContent: {
+    paddingBottom: 20,
+  }
 });
 
 export default Home;

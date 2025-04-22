@@ -3,9 +3,9 @@ export const API_ENDPOINTS = {
   // ===== Auth =====
   AUTH: {
     LOGIN: '/driver/auth/login',
-    REGISTER: '/driver/registration/register',
-    CHECK_PHONE: '/driver/registration/check-phone-number',
-    CHECK_STATUS: '/driver/registration/check-status',
+    REGISTER: '/driver/registaration/register',
+    CHECK_PHONE: '/driver/registaration/check-phone-number',
+    CHECK_STATUS: '/driver/registaration/check-status',
     RESET_PASSWORD: '/driver/auth/reset-password',
   },
   

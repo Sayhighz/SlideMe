@@ -142,6 +142,11 @@ export const getAvailableRequests = asyncHandler(async (req, res) => {
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
+/**
+ * Get request details
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 export const getRequestDetails = asyncHandler(async (req, res) => {
   const { request_id, driver_id } = req.query;
 
@@ -196,7 +201,7 @@ export const getRequestDetails = asyncHandler(async (req, res) => {
     };
   }
 
-  // If driver_id is provided, check if driver has made an offer for this request
+  // Get driver offer if available
   if (driver_id) {
     const offerSql = `
       SELECT offer_id, offered_price, offer_status, created_at
@@ -204,12 +209,63 @@ export const getRequestDetails = asyncHandler(async (req, res) => {
       WHERE request_id = ? AND driver_id = ?
     `;
     
-    const offers = await db.query(offerSql, [request_id, driver_id]);
-    if (offers.length > 0) {
-      request.driver_offer = offers[0];
+    const driverOffers = await db.query(offerSql, [request_id, driver_id]);
+    if (driverOffers.length > 0) {
+      request.driver_offer = driverOffers[0];
+      // Use the offered_price directly
+      request.price_estimate = driverOffers[0].offered_price;
+      request.price_estimate_text = `฿${driverOffers[0].offered_price}`;
+    } else {
+      // If no driver offer found, get the offered_price directly from the driveroffers table
+      const priceQuery = `
+        SELECT offered_price 
+        FROM driveroffers 
+        WHERE request_id = ? 
+        LIMIT 1`;
+      
+      const priceResult = await db.query(priceQuery, [request_id]);
+      
+      if (priceResult.length > 0) {
+        request.price_estimate = priceResult[0].offered_price;
+        request.price_estimate_text = `฿${priceResult[0].offered_price}`;
+      } else {
+        // If no offers at all, set to null or 0
+        request.price_estimate = 0;
+        request.price_estimate_text = `฿0`;
+      }
+    }
+  } else {
+    // No driver_id provided, just get the offered_price from any driver
+    const priceQuery = `
+      SELECT offered_price 
+      FROM driveroffers 
+      WHERE request_id = ? 
+      LIMIT 1`;
+    
+    const priceResult = await db.query(priceQuery, [request_id]);
+    
+    if (priceResult.length > 0) {
+      request.price_estimate = priceResult[0].offered_price;
+      request.price_estimate_text = `฿${priceResult[0].offered_price}`;
+    } else {
+      // If no offers at all, set to null or 0
+      request.price_estimate = 0;
+      request.price_estimate_text = `฿0`;
     }
   }
-  console.log(offers);
+
+  // Calculate trip distance
+  const tripDistance = distanceService.calculateDistance(
+    request.pickup_lat,
+    request.pickup_long,
+    request.dropoff_lat,
+    request.dropoff_long
+  );
+  
+  request.trip_distance = tripDistance;
+  request.trip_distance_text = `${tripDistance.toFixed(1)} กม.`;
+  request.estimated_duration = distanceService.calculateTravelTime(tripDistance);
+  request.estimated_duration_text = `${request.estimated_duration} นาที`;
 
   // Calculate route information if driver_id and their location are provided
   if (driver_id) {
@@ -234,26 +290,6 @@ export const getRequestDetails = asyncHandler(async (req, res) => {
       request.eta_to_pickup_text = `${eta} นาที`;
     }
   }
-
-  // Calculate trip distance and estimated price
-  const tripDistance = distanceService.calculateDistance(
-    request.pickup_lat,
-    request.pickup_long,
-    request.dropoff_lat,
-    request.dropoff_long
-  );
-  
-  const estimatedPrice = distanceService.calculatePriceEstimate(
-    tripDistance,
-    request.vehicletype_id
-  );
-  
-  request.trip_distance = tripDistance;
-  request.trip_distance_text = `${tripDistance.toFixed(1)} กม.`;
-  request.estimated_duration = distanceService.calculateTravelTime(tripDistance);
-  request.estimated_duration_text = `${request.estimated_duration} นาที`;
-  request.price_estimate = estimatedPrice;
-  request.price_estimate_text = `฿${estimatedPrice}`;
 
   // Mask customer phone for privacy
   if (request.customer_phone) {

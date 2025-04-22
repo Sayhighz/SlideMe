@@ -42,7 +42,7 @@ export const PAYMENT_METHOD_TYPES = {
   export const calculateDriverPayout = (amount) => {
     if (!amount || isNaN(parseFloat(amount))) return 0;
     
-    const applicationFee = calculateApplicationFee(amount);
+    // const applicationFee = calculateApplicationFee(amount);
     
-    return parseFloat((amount - applicationFee).toFixed(2));
+    return parseFloat((amount));
   };

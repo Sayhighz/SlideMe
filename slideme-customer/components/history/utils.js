@@ -64,9 +64,12 @@ export const mapServiceStatus = (status) => {
     case "pickup_in_progress":
       return "กำลังไปรับ";
     case "waiting_for_driver":
+    case "pending":
       return "รอคนขับรับงาน";
+    case "delivery_in_progress":
     case "in_progress":
       return "กำลังเดินทาง";
+    case "accepted":
     case "confirmed":
       return "ยืนยันแล้ว";
     default:
@@ -98,12 +101,14 @@ export const getStatusInfo = (status) => {
         label: "กำลังไปรับ" 
       };
     case "waiting_for_driver":
+    case "pending":
       return { 
         icon: "time", 
         color: "#ffc107", 
         bgColor: "#fff3cd",
         label: "รอคนขับ" 
       };
+    case "delivery_in_progress":
     case "in_progress":
       return { 
         icon: "navigate", 
@@ -111,6 +116,7 @@ export const getStatusInfo = (status) => {
         bgColor: "#d1ecf1",
         label: "กำลังเดินทาง" 
       };
+    case "accepted":
     case "confirmed":
       return { 
         icon: "thumbs-up", 
@@ -126,6 +132,11 @@ export const getStatusInfo = (status) => {
         label: "กำลังดำเนินการ" 
       };
   }
+};
+
+// เช็คว่าสถานะนี้อยู่ระหว่างการเดินทางหรือไม่
+export const isActiveTrip = (status) => {
+  return ['accepted', 'pickup_in_progress', 'delivery_in_progress'].includes(status);
 };
 
 export const formatNumberWithCommas = (number) => {
@@ -175,7 +186,6 @@ export const hasPhotos = (item) => {
   
   const beforePhotos = item.photos_before_service || [];
   const afterPhotos = item.photos_after_service || [];
-//   console.log(beforePhotos)
   
   return beforePhotos.length > 0 || afterPhotos.length > 0;
 };

@@ -84,7 +84,7 @@ export default function JobWorkingPickupScreen({ route }) {
     const fetchRequestDetails = async () => {
       try {
         const response = await getRequest(
-          `${API_ENDPOINTS.JOBS.GET_DETAIL}?request_id=${request_id}`
+          `${API_ENDPOINTS.JOBS.GET_DETAIL}?request_id=${request_id}&driver_id=${userData.driver_id}`
         );
         
         if (response && response.Status) {

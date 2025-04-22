@@ -2,18 +2,42 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import tw from 'twrnc';
-import { PRIMARY_COLOR } from './utils';
+import { PRIMARY_COLOR, formatThaiDate, formatNumberWithCommas, hasPhotos, isActiveTrip } from './utils';
 import StatusBadge from './StatusBadge';
 import RatingStars from './RatingStars';
-import { formatThaiDate, formatNumberWithCommas, hasPhotos } from './utils';
+import { useNavigation } from '@react-navigation/native';
 
 const HistoryCard = ({ item, onPress }) => {
+  const navigation = useNavigation();
   const formattedPrice = item.offered_price_formatted || 
                          (item.offered_price ? `฿${formatNumberWithCommas(item.offered_price)}` : "฿0");
+  
+  // กดดูเส้นทางกรณีเป็นการเดินทางที่กำลังดำเนินอยู่
+  const handleCardPress = () => {
+    // ถ้าอยู่ในสถานะที่กำลังเดินทาง
+    if (isActiveTrip(item.status)) {
+      // นำทางไปที่ Home stack ก่อน แล้วค่อยไปที่ viewOrder
+      navigation.navigate('Home', {
+        screen: 'viewOrder',
+        params: {
+          driverProfile: {
+            chooseDriver: {
+              id: item.driver_id || '',
+              customer_id_request: item.customer_id || '',
+              request_id: item.request_id || ''
+            }
+          }
+        }
+      });
+    } else {
+      // กรณีอื่นๆ ให้เปิด modal ตามปกติ
+      onPress(item);
+    }
+  };
 
   return (
     <TouchableOpacity 
-      onPress={() => onPress(item)}
+      onPress={handleCardPress}
       activeOpacity={0.7}
       style={tw`px-4 pt-2`}
     >
@@ -98,6 +122,18 @@ const HistoryCard = ({ item, onPress }) => {
               <Ionicons name="images-outline" size={14} color={PRIMARY_COLOR} />
               <Text style={[tw`text-xs text-gray-700 ml-1`, styles.customFont]}>
                 มีรูปภาพบริการ
+              </Text>
+            </View>
+          </View>
+        )}
+        
+        {/* Indicator for active trip */}
+        {isActiveTrip(item.status) && (
+          <View style={tw`mb-2`}>
+            <View style={tw`self-start flex-row items-center bg-blue-100 rounded-full px-3 py-1`}>
+              <Ionicons name="navigate-circle-outline" size={14} color="#007bff" />
+              <Text style={[tw`text-xs text-blue-700 ml-1`, styles.customFont]}>
+                ดูเส้นทางการเดินทาง
               </Text>
             </View>
           </View>
