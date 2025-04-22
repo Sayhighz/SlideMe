@@ -1,139 +1,265 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, FlatList } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+
+// ค่าคงที่สี
+const COLORS = {
+  primary: "#4CAF50",
+  secondary: "#2E7D32",
+  accent: "#FF9800",
+  text: "#333333",
+  lightText: "#FFFFFF",
+  background: "#F5F9F6",
+  card: "#FFFFFF",
+};
+
+// ข้อมูลจำลองสำหรับกิจกรรมล่าสุด
+const recentActivities = [
+  {
+    id: "1",
+    type: "ride",
+    date: "18 เม.ย. 2025",
+    status: "completed",
+    from: "บ้านเลขที่ 123 ถนนสุขุมวิท",
+    to: "เซ็นทรัล ลาดพร้าว",
+    price: "฿180",
+    icon: "directions-car"
+  },
+  {
+    id: "2",
+    type: "ride",
+    date: "15 เม.ย. 2025",
+    status: "completed",
+    from: "สยามพารากอน",
+    to: "สนามบินดอนเมือง",
+    price: "฿350",
+    icon: "directions-car"
+  }
+];
 
 const RecentActivity = ({ navigation }) => {
-  // ข้อมูลกิจกรรมล่าสุด (ในการใช้งานจริงควรดึงจาก API)
-  const activities = [
-    {
-      id: 1,
-      type: "ride",
-      title: "การเดินทางล่าสุด",
-      description: "บางนา - อโศก • 120 บาท",
-      time: "วันนี้, 14:30",
-      icon: "directions-car",
-      color: "#4CAF50"
-    },
-    {
-      id: 2,
-      type: "payment",
-      title: "การชำระเงิน",
-      description: "เติมเงินในบัญชี • 500 บาท",
-      time: "เมื่อวาน, 10:15",
-      icon: "payment",
-      color: "#3949AB"
-    }
-  ];
-
+  // ฟังก์ชันสำหรับไปยังหน้าประวัติทั้งหมด
+  const navigateToHistory = () => {
+    navigation.navigate("ประวัติการใช้บริการ");
+  };
+  
+  // ฟังก์ชันสำหรับดูรายละเอียดการเดินทาง
+  const viewOrderDetails = (item) => {
+    navigation.navigate("viewOrder", { orderId: item.id });
+  };
+  
+  // ฟังก์ชันสำหรับแสดงแต่ละรายการ
+  const renderActivityItem = ({ item }) => (
+    <TouchableOpacity 
+      style={styles.activityItem}
+      onPress={() => viewOrderDetails(item)}
+      activeOpacity={0.7}
+    >
+      <View style={styles.activityHeader}>
+        <View style={styles.iconContainer}>
+          <MaterialIcons name={item.icon} size={20} color={COLORS.primary} />
+        </View>
+        <Text style={styles.dateText}>{item.date}</Text>
+        <View style={[
+          styles.statusBadge,
+          { backgroundColor: item.status === "completed" ? "#E1F5E1" : "#FFF3E0" }
+        ]}>
+          <Text style={[
+            styles.statusText,
+            { color: item.status === "completed" ? COLORS.primary : COLORS.accent }
+          ]}>
+            {item.status === "completed" ? "เสร็จสิ้น" : "กำลังดำเนินการ"}
+          </Text>
+        </View>
+      </View>
+      
+      <View style={styles.routeContainer}>
+        <View style={styles.locationContainer}>
+          <MaterialIcons name="place" size={16} color="#F44336" />
+          <Text style={styles.locationText} numberOfLines={1}>
+            {item.from}
+          </Text>
+        </View>
+        
+        <View style={styles.routeLine}>
+          <View style={styles.routeDot} />
+          <View style={styles.routeDash} />
+          <View style={styles.routeDot} />
+        </View>
+        
+        <View style={styles.locationContainer}>
+          <MaterialIcons name="place" size={16} color={COLORS.primary} />
+          <Text style={styles.locationText} numberOfLines={1}>
+            {item.to}
+          </Text>
+        </View>
+      </View>
+      
+      <View style={styles.priceContainer}>
+        <Text style={styles.priceLabel}>ราคา:</Text>
+        <Text style={styles.priceValue}>{item.price}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+  
   return (
     <View style={styles.container}>
-      <View style={styles.headerRow}>
-        <Text style={styles.sectionTitle}>กิจกรรมล่าสุด</Text>
-        <TouchableOpacity 
-          style={styles.viewAllButton}
-          onPress={() => navigation.navigate("ประวัติการใช้บริการ")}
-        >
+      <View style={styles.header}>
+        <Text style={styles.title}>กิจกรรมล่าสุด</Text>
+        <TouchableOpacity onPress={navigateToHistory} style={styles.viewAllButton}>
           <Text style={styles.viewAllText}>ดูทั้งหมด</Text>
-          <MaterialIcons name="chevron-right" size={16} color="#4CAF50" />
+          <MaterialIcons name="chevron-right" size={16} color={COLORS.primary} />
         </TouchableOpacity>
       </View>
       
-      {activities.map((activity) => (
-        <TouchableOpacity 
-          key={activity.id}
-          style={styles.activityCard}
-          activeOpacity={0.7}
-          onPress={() => navigation.navigate("ActivityDetail", { activityId: activity.id })}
-        >
-          <View 
-            style={[
-              styles.activityIconContainer,
-              { backgroundColor: `${activity.color}15` } // ใช้สีเดียวกับไอคอนแต่ความโปร่งแสง 15%
-            ]}
-          >
-            <MaterialIcons name={activity.icon} size={24} color={activity.color} />
-          </View>
-          <View style={styles.activityContent}>
-            <Text style={styles.activityTitle}>{activity.title}</Text>
-            <Text style={styles.activityDescription}>{activity.description}</Text>
-            <Text style={styles.activityTime}>{activity.time}</Text>
-          </View>
-          <MaterialIcons name="chevron-right" size={20} color="#BDBDBD" />
-        </TouchableOpacity>
-      ))}
+      {recentActivities.length > 0 ? (
+        <FlatList
+          data={recentActivities}
+          renderItem={renderActivityItem}
+          keyExtractor={(item) => item.id}
+          scrollEnabled={false}
+          contentContainerStyle={styles.listContainer}
+        />
+      ) : (
+        <View style={styles.emptyContainer}>
+          <MaterialIcons name="history" size={40} color="#CCCCCC" />
+          <Text style={styles.emptyText}>ไม่มีกิจกรรมล่าสุด</Text>
+        </View>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 20,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
     padding: 16,
-    elevation: 4,
-    shadowColor: "rgba(0, 0, 0, 0.1)",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    marginBottom: 20,
+    marginHorizontal: 16,
+    marginVertical: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  headerRow: {
+  header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
   },
-  sectionTitle: {
-    color: "#212121",
+  title: {
     fontSize: 18,
-    fontWeight: "600",
-    fontFamily: "Mitr-Regular",
+    fontWeight: "bold",
+    color: COLORS.text,
   },
   viewAllButton: {
     flexDirection: "row",
     alignItems: "center",
   },
   viewAllText: {
-    color: "#4CAF50",
     fontSize: 14,
-    fontFamily: "Mitr-Regular",
+    color: COLORS.primary,
+    marginRight: 4,
   },
-  activityCard: {
+  listContainer: {
+    paddingBottom: 8,
+  },
+  activityItem: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#EEEEEE",
+  },
+  activityHeader: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    marginBottom: 12,
   },
-  activityIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 16,
+  iconContainer: {
+    backgroundColor: "#E8F5E9",
+    padding: 6,
+    borderRadius: 8,
+    marginRight: 8,
   },
-  activityContent: {
+  dateText: {
+    fontSize: 14,
+    color: "#666666",
     flex: 1,
   },
-  activityTitle: {
-    color: "#212121",
-    fontSize: 16,
-    fontWeight: "600",
-    fontFamily: "Mitr-Regular",
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 16,
   },
-  activityDescription: {
-    color: "#757575",
-    fontSize: 14,
-    fontFamily: "Mitr-Regular",
-    marginTop: 2,
-  },
-  activityTime: {
-    color: "#9E9E9E",
+  statusText: {
     fontSize: 12,
-    fontFamily: "Mitr-Regular",
-    marginTop: 2,
+    fontWeight: "500",
+  },
+  routeContainer: {
+    marginVertical: 8,
+  },
+  locationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 4,
+  },
+  locationText: {
+    marginLeft: 8,
+    fontSize: 14,
+    color: COLORS.text,
+    flex: 1,
+  },
+  routeLine: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 8,
+    height: 16,
+  },
+  routeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.primary,
+  },
+  routeDash: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#CCCCCC",
+    marginHorizontal: 4,
+  },
+  priceContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#EEEEEE",
+  },
+  priceLabel: {
+    fontSize: 14,
+    color: "#666666",
+    marginRight: 4,
+  },
+  priceValue: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: COLORS.primary,
+  },
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+  },
+  emptyText: {
+    marginTop: 8,
+    fontSize: 16,
+    color: "#999999",
   },
 });
 

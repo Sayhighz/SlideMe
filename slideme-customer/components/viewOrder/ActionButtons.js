@@ -1,103 +1,177 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Alert, Platform } from "react-native";
-import tw from "twrnc";
+import { View, TouchableOpacity, Text, StyleSheet, Dimensions } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { openURL } from "expo-linking";
+import { LinearGradient } from "expo-linear-gradient";
 
-export default function ActionButtons({ driverInformation, handleChat, styles }) {
-  // Custom shadow styles for buttons
-  const buttonShadow = {
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
+// ใช้ COLORS ถ้ามีการนำเข้า หรือใช้ค่าสีโดยตรง
+const COLORS = {
+  primary: "#4CAF50",
+  secondary: "#2E7D32",
+  accent: "#FF9800",
+  text: "#333333",
+  lightText: "#FFFFFF",
+  background: "#F5F9F6",
+  card: "#FFFFFF",
+};
+
+const ActionButtons = ({ navigation }) => {
+  const { width } = Dimensions.get("window");
+  const buttonSize = width * 0.22; // ลดขนาดปุ่มลงเล็กน้อย
+  
+  // สร้างฟังก์ชันสำหรับการนำทางไปยังหน้าต่างๆ
+  const navigateToHistory = () => {
+    navigation.navigate("ประวัติการใช้บริการ");
   };
+  
+  const navigateToPayment = () => {
+    navigation.navigate("payment");
+  };
+  
+  const navigateToMessages = () => {
+    navigation.navigate("กล่องข้อความ");
+  };
+  
+  const navigateToContacts = () => {
+    // สำหรับปุ่มติดต่อเรา - สามารถเพิ่มฟังก์ชันที่เหมาะสมในอนาคต
+    console.log("Contact button pressed");
+  };
+  
+  // ฟังก์ชันสร้างปุ่ม
+  const renderButton = (iconName, text, onPress, backgroundColor) => (
+    <TouchableOpacity
+      style={[
+        styles.buttonContainer,
+        { width: buttonSize, height: buttonSize }
+      ]}
+      activeOpacity={0.75}
+      onPress={onPress}
+    >
+      <LinearGradient
+        colors={[backgroundColor, backgroundColor + "DD"]}
+        style={styles.buttonGradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <View style={styles.iconContainer}>
+          <MaterialIcons name={iconName} size={24} color="white" />
+        </View>
+        <Text style={styles.buttonText} numberOfLines={1}>
+          {text}
+        </Text>
+      </LinearGradient>
+    </TouchableOpacity>
+  );
 
   return (
-    <View style={[
-      tw`px-4 py-3 bg-white border-t border-gray-200`,
-      Platform.OS === 'ios' ? tw`pb-6` : {}
-    ]}>
-      <View style={tw`flex-row justify-between`}>
-        {/* Call Button */}
-        <TouchableOpacity
-          style={[
-            tw`flex-1 bg-white py-3 rounded-xl items-center mx-1.5 border border-gray-100`,
-            buttonShadow
-          ]}
-          activeOpacity={0.7}
-          onPress={() => {
-            if (driverInformation.phone) {
-              openURL(`tel:${driverInformation.phone}`);
-            } else {
-              Alert.alert("ไม่พบเบอร์โทรศัพท์", "ไม่สามารถโทรหาคนขับได้ในขณะนี้");
-            }
-          }}
-        >
-          <View style={tw`h-12 w-12 rounded-full bg-green-50 justify-center items-center mb-1.5`}>
-            <MaterialIcons name="call" size={24} color="#22c55e" />
-          </View>
-          <Text style={[styles.globalText, tw`text-sm font-medium text-gray-700`]}>โทร</Text>
-        </TouchableOpacity>
-
-        {/* Chat Button */}
-        <TouchableOpacity
-          style={[
-            tw`flex-1 bg-white py-3 rounded-xl items-center mx-1.5 border border-gray-100`,
-            buttonShadow
-          ]}
-          activeOpacity={0.7}
-          onPress={handleChat}
-        >
-          <View style={tw`h-12 w-12 rounded-full bg-blue-50 justify-center items-center mb-1.5`}>
-            <MaterialIcons name="chat" size={24} color="#3b82f6" />
-          </View>
-          <Text style={[styles.globalText, tw`text-sm font-medium text-gray-700`]}>ข้อความ</Text>
-        </TouchableOpacity>
-
-        {/* Cancel Button */}
-        <TouchableOpacity
-          style={[
-            tw`flex-1 bg-white py-3 rounded-xl items-center mx-1.5 border border-gray-100`,
-            buttonShadow
-          ]}
-          activeOpacity={0.7}
-          onPress={() => {
-            Alert.alert(
-              "ยืนยันการยกเลิก",
-              "คุณต้องการยกเลิกการเดินทางนี้ใช่หรือไม่?",
-              [
-                { text: "ไม่ใช่", style: "cancel" },
-                { 
-                  text: "ใช่, ยกเลิก", 
-                  style: "destructive",
-                  onPress: () => {
-                    Alert.alert(
-                      "ฟังก์ชั่นนี้ยังไม่พร้อมใช้งาน",
-                      "ขณะนี้ไม่สามารถยกเลิกการเดินทางได้",
-                      [{ text: "ตกลง" }],
-                      { cancelable: false }
-                    );
-                  }
-                }
-              ],
-              { cancelable: true }
-            );
-          }}
-        >
-          <View style={tw`h-12 w-12 rounded-full bg-red-50 justify-center items-center mb-1.5`}>
-            <MaterialIcons name="close" size={24} color="#ef4444" />
-          </View>
-          <Text style={[styles.globalText, tw`text-sm font-medium text-gray-700`]}>ยกเลิก</Text>
-        </TouchableOpacity>
+    <View style={styles.container}>
+      {/* หัวข้อกล่อง */}
+      <LinearGradient
+        colors={[COLORS.primary, COLORS.secondary]}
+        style={styles.headerContainer}
+      >
+        <Text style={styles.headerText}>
+          บริการเพิ่มเติม
+        </Text>
+      </LinearGradient>
+      
+      {/* กลุ่มปุ่ม */}
+      <View style={styles.buttonsRow}>
+        {/* ปุ่มประวัติการใช้บริการ */}
+        {renderButton(
+          "history", 
+          "ประวัติ", 
+          navigateToHistory,
+          "#FF9800"
+        )}
+        
+        {/* ปุ่มวิธีการชำระเงิน */}
+        {renderButton(
+          "credit-card", 
+          "ชำระเงิน", 
+          navigateToPayment,
+          "#3F51B5"
+        )}
+        
+        {/* ปุ่มข้อความ */}
+        {renderButton(
+          "email", 
+          "ข้อความ", 
+          navigateToMessages,
+          "#00BCD4"
+        )}
+        
+        {/* ปุ่มติดต่อเรา */}
+        {renderButton(
+          "call", 
+          "ติดต่อเรา", 
+          navigateToContacts,
+          "#4CAF50"
+        )}
       </View>
     </View>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 16,
+    marginHorizontal: 16,
+    marginVertical: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  headerContainer: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    alignSelf: "center",
+    marginBottom: 16,
+  },
+  headerText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  buttonsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  buttonContainer: {
+    borderRadius: 12,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  buttonGradient: {
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 8,
+  },
+  iconContainer: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    padding: 8,
+    borderRadius: 12,
+    marginBottom: 4,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "500",
+    textAlign: "center",
+    marginTop: 4,
+  },
+});
+
+export default ActionButtons;

@@ -1,90 +1,147 @@
 import React from "react";
-import { Text, View, TouchableOpacity, Image } from "react-native";
-import tw from "twrnc";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 
-const Header = ({ userData, styles, navigation }) => {
-  // สร้างตัวอักษรตัวแรกของชื่อสำหรับกรณีที่มีชื่อผู้ใช้
-  const getInitial = () => {
-    if (userData?.first_name) {
-      return userData.first_name.charAt(0).toUpperCase();
-    }
-    return "S"; // Default "S" for SlideMe
-  };
+// ค่าคงที่สี
+const COLORS = {
+  primary: "#4CAF50",
+  secondary: "#2E7D32",
+  accent: "#FF9800",
+  text: "#333333",
+  lightText: "#FFFFFF",
+  background: "#F5F9F6",
+  card: "#FFFFFF",
+};
 
+const Header = ({ userData, navigation }) => {
+  // ฟังก์ชันสำหรับนำทางไปยังโปรไฟล์ผู้ใช้
   const goToProfile = () => {
-    if (navigation) {
-      navigation.navigate("โปรไฟล์ผู้ใช้");
-    }
+    navigation.navigate("โปรไฟล์ผู้ใช้");
+  };
+  
+  // ฟังก์ชันสำหรับเปิดการแจ้งเตือน
+  const openNotifications = () => {
+    // ในอนาคตสามารถใส่การนำทางไปยังหน้าแจ้งเตือนได้
+    console.log("Notifications button pressed");
   };
 
   return (
-    <View style={tw`w-full flex-row justify-between items-center px-2 mt-4 mb-2`}>
-      {/* ส่วนซ้าย - คำทักทาย */}
-      <View style={tw`flex-row items-center`}>
-        <LinearGradient
-          colors={["#73CB89", "#60B876"]}
-          style={tw`w-12 h-12 rounded-xl items-center justify-center mr-3 shadow-sm`}
-        >
-          <Text style={[styles.globalText, tw`text-white text-2xl font-bold`]}>
-            {getInitial()}
+    <View style={styles.container}>
+      {/* ส่วนข้อมูลผู้ใช้ */}
+      <View style={styles.userInfoContainer}>
+        <View style={styles.userAvatar}>
+          <Text style={styles.userInitial}>
+            {userData?.first_name ? userData.first_name.charAt(0).toUpperCase() : "S"}
           </Text>
-        </LinearGradient>
-
-        <View>
-          <Text
-            style={[
-              styles.globalText,
-              tw`text-gray-500 text-sm mb-0.5`,
-            ]}
-          >
-            สวัสดี,
-          </Text>
-          <Text
-            style={[
-              styles.globalText,
-              tw`text-xl font-medium text-[#60B876]`,
-            ]}
-          >
+        </View>
+        
+        <View style={styles.userGreeting}>
+          <Text style={styles.greetingText}>สวัสดี,</Text>
+          <Text style={styles.userName}>
             {userData?.first_name || userData?.phone_number || "คุณ"}!
           </Text>
         </View>
       </View>
-
-      {/* ส่วนขวา - ไอคอนการแจ้งเตือนและปุ่มไปยังโปรไฟล์ */}
-      <View style={tw`flex-row items-center`}>
+      
+      {/* ส่วนปุ่มด้านขวา */}
+      <View style={styles.actionsContainer}>
         {/* ปุ่มการแจ้งเตือน */}
         <TouchableOpacity 
-          style={tw`bg-gray-100 p-2 rounded-full mr-3 relative`}
-          activeOpacity={0.7}
+          style={styles.iconButton}
+          onPress={openNotifications}
         >
-          <MaterialIcons name="notifications" size={24} color="#60B876" />
-          {/* แสดงแต้มแจ้งเตือน */}
-          <View style={tw`absolute -top-1 -right-1 bg-red-500 w-4 h-4 rounded-full items-center justify-center`}>
-            <Text style={[styles.globalText, tw`text-white text-xs font-bold`]}>
-              3
-            </Text>
+          <MaterialIcons name="notifications" size={24} color={COLORS.primary} />
+          {/* แต้มแจ้งเตือน (ถ้ามี) */}
+          <View style={styles.notificationBadge}>
+            <Text style={styles.badgeText}>3</Text>
           </View>
         </TouchableOpacity>
-
-        {/* ปุ่มไปยังโปรไฟล์ */}
+        
+        {/* ปุ่มโปรไฟล์ */}
         <TouchableOpacity 
-          style={tw`bg-gray-100 p-2 rounded-full`}
-          activeOpacity={0.7}
+          style={styles.iconButton}
           onPress={goToProfile}
         >
-          <MaterialIcons name="person" size={24} color="#60B876" />
+          <MaterialIcons name="person" size={24} color={COLORS.primary} />
         </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-const styles = {
-  globalText: {
-    fontFamily: "Mitr-Regular",
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: COLORS.card,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEEEEE",
   },
-};
+  userInfoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  userAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.primary,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  userInitial: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: COLORS.lightText,
+  },
+  userGreeting: {
+    justifyContent: "center",
+  },
+  greetingText: {
+    fontSize: 14,
+    color: "#666666",
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: COLORS.primary,
+  },
+  actionsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#F0F0F0",
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 8,
+    position: "relative",
+  },
+  notificationBadge: {
+    position: "absolute",
+    top: -2,
+    right: -2,
+    backgroundColor: "#F44336",
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: COLORS.card,
+  },
+  badgeText: {
+    color: COLORS.lightText,
+    fontSize: 10,
+    fontWeight: "bold",
+  },
+});
 
 export default Header;
