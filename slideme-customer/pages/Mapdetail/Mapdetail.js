@@ -75,15 +75,15 @@ export default function Mapdetail({ navigation }) {
         backgroundColor="#FFFFFF"
         translucent={false}
       />
-      
+
       <HeaderWithBackButton
         showBackButton={true}
         title="เลือกสถานที่รับ-ส่งรถ"
         onPress={() => navigation.goBack()}
       />
-      
+
       <SafeAreaView style={tw`flex-1 bg-white`}>
-        <Animated.View 
+        <Animated.View
           style={[
             tw`p-4 flex-1`,
             {
@@ -101,21 +101,21 @@ export default function Mapdetail({ navigation }) {
         >
           {/* Search Bar Component */}
           <LocationSearchBar onPress={navigateToMap} />
-          
+
           {/* Location Display Component */}
           <LocationDisplay origin={origin} destination={destination} />
-          
+
           {/* Location List Component */}
           <LocationList
             locations={locationsData}
             onSelectLocation={handleSelectLocation}
           />
         </Animated.View>
-        
+
         {/* Submit Button with animation */}
-        <Animated.View 
+        <Animated.View
           style={[
-            tw`px-4 pb-6 ${Platform.OS === 'ios' ? 'pb-8' : ''}`,
+            tw`px-4 pb-6 ${Platform.OS === "ios" ? "pb-8" : ""}`,
             {
               opacity: animatedValue,
               transform: [
@@ -133,9 +133,8 @@ export default function Mapdetail({ navigation }) {
             onPress={handleSubmit}
             title="ยืนยัน"
             disabled={isButtonDisabled}
-            style={isButtonDisabled ? 
-              tw`bg-gray-300` : 
-              tw`bg-blue-600 shadow-md`
+            style={
+              isButtonDisabled ? tw`bg-gray-300` : tw`bg-blue-600 shadow-md`
             }
           />
         </Animated.View>

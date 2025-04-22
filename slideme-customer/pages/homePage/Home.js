@@ -59,9 +59,9 @@ const Home = ({ navigation }) => {
           </View>
           
           {/* ปุ่มบริการเพิ่มเติม */}
-          <View style={styles.sectionContainer}>
+          {/* <View style={styles.sectionContainer}>
             <ActionButtons navigation={navigation} />
-          </View>
+          </View> */}
           
           {/* กิจกรรมล่าสุด (ถ้ามี component นี้) */}
           {RecentActivity && (

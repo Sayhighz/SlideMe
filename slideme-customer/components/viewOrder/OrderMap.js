@@ -253,7 +253,7 @@ export default function OrderMap({
             lineDashPattern={[0]}
             mode="DRIVING"
             precision="high"
-            timePrecision="high"
+            departureTime="now"
             onError={(errorMessage) => {
               console.log("Error fetching directions: ", errorMessage);
             }}
@@ -271,7 +271,7 @@ export default function OrderMap({
             lineDashPattern={[1]}
             mode="DRIVING"
             precision="high"
-            timePrecision="high"
+            departureTime="now"
             onError={(errorMessage) => {
               console.log("Error fetching directions: ", errorMessage);
             }}

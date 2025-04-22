@@ -74,16 +74,16 @@ const Rating = ({ navigation }) => {
     };
 
     fetchServiceInfo();
-    
+
     // Hide tab bar when rating screen is shown
     navigation.getParent()?.setOptions({
-      tabBarStyle: { display: 'none' }
+      tabBarStyle: { display: "none" },
     });
-    
+
     return () => {
       // Restore tab bar when leaving the screen
       navigation.getParent()?.setOptions({
-        tabBarStyle: undefined
+        tabBarStyle: undefined,
       });
     };
   }, []);
@@ -140,7 +140,10 @@ const Rating = ({ navigation }) => {
         Alert.alert("เกิดข้อผิดพลาด", `ไม่สามารถส่งรีวิวได้: ${result.Error}`);
       }
     } catch (error) {
-      Alert.alert("เกิดข้อผิดพลาด", `เกิดข้อผิดพลาดในการเชื่อมต่อ: ${error.message}`);
+      Alert.alert(
+        "เกิดข้อผิดพลาด",
+        `เกิดข้อผิดพลาดในการเชื่อมต่อ: ${error.message}`
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -173,9 +176,9 @@ const Rating = ({ navigation }) => {
         title=""
         onPress={() => navigation.navigate("HomePage")}
       />
-      
+
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={tw`pb-8`}
           keyboardShouldPersistTaps="handled"
         >
@@ -184,36 +187,44 @@ const Rating = ({ navigation }) => {
               <Text style={[styles.headerText, tw`text-2xl text-center`]}>
                 ขอบคุณที่ใช้บริการ
               </Text>
-              <Text style={[styles.subHeaderText, tw`text-base text-center text-gray-600`]}>
+              <Text
+                style={[
+                  styles.subHeaderText,
+                  tw`text-base text-center text-gray-600`,
+                ]}
+              >
                 ให้คะแนนกับคนขับเพื่อให้การบริการดียิ่งขึ้น
               </Text>
             </View>
-            
+
             <DriverInfoCard driverData={serviceData} />
-            
+
             {/* Add the new ServicePhotos component */}
-            <ServicePhotos 
-              beforePhotos={serviceData.photos_before_service} 
-              afterPhotos={serviceData.photos_after_service} 
+            {serviceData.photos_before_service &&
+              serviceData.photos_after_service && (
+                <ServicePhotos
+                  beforePhotos={serviceData.photos_before_service}
+                  afterPhotos={serviceData.photos_after_service}
+                />
+              )}
+
+            <RatingSelector
+              rating={rating}
+              setRating={setRating}
+              getRatingText={getRatingText}
             />
-            
-            <RatingSelector 
-              rating={rating} 
-              setRating={setRating} 
-              getRatingText={getRatingText} 
-            />
-            
-            <ReviewInput 
-              review={review} 
-              setReview={setReview} 
+
+            <ReviewInput
+              review={review}
+              setReview={setReview}
               isSubmitting={isSubmitting}
               autoFocus={false}
             />
-            
-            <ActionButtons 
-              onSubmit={handleSubmitReview} 
-              onBack={handleBack} 
-              isSubmitting={isSubmitting} 
+
+            <ActionButtons
+              onSubmit={handleSubmitReview}
+              onBack={handleBack}
+              isSubmitting={isSubmitting}
             />
           </View>
         </ScrollView>

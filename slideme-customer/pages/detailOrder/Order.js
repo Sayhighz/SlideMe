@@ -1,5 +1,15 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View, Text, StyleSheet, Alert, Dimensions, SafeAreaView, StatusBar, Platform } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  Dimensions,
+  SafeAreaView,
+  StatusBar,
+  Platform,
+  ScrollView,
+} from "react-native";
 import { useRoute } from "@react-navigation/native";
 import { Provider as PaperProvider } from "react-native-paper";
 import tw from "twrnc";
@@ -17,8 +27,17 @@ import VehicleTypeSelector from "../../components/order/VehicleTypeSelector";
 import MessageInput from "../../components/order/MessageInput";
 
 // Import utils and API functions
-import { formatDate, formatTime, formatDateToMySQL } from "../../components/order/utils";
-import { fetchVehicleTypes, fetchBookmarks, submitRequest, submitRequestFromBookmark } from "../../components/order/api";
+import {
+  formatDate,
+  formatTime,
+  formatDateToMySQL,
+} from "../../components/order/utils";
+import {
+  fetchVehicleTypes,
+  fetchBookmarks,
+  submitRequest,
+  submitRequestFromBookmark,
+} from "../../components/order/api";
 
 dayjs.locale("th");
 
@@ -65,7 +84,7 @@ export default function Order({ navigation }) {
         setIsLoading(false);
       }
     };
-    
+
     loadInitialData();
   }, []);
 
@@ -108,9 +127,9 @@ export default function Order({ navigation }) {
       );
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     // Construct the request data object
     const requestData = {
       customer_id: userId,
@@ -130,7 +149,7 @@ export default function Order({ navigation }) {
 
     try {
       const responseData = await submitRequest(requestData, token);
-      
+
       if (responseData && responseData.request_id) {
         Alert.alert(
           "คุณได้ส่งคําร้องเรียบร้อยแล้ว",
@@ -161,78 +180,78 @@ export default function Order({ navigation }) {
 
   return (
     <PaperProvider>
-      <SafeAreaView style={styles.safeArea}>
-        <StatusBar
-          backgroundColor="#FFFFFF"
-          barStyle={Platform.OS === 'ios' ? 'dark-content' : 'dark-content'}
-        />
-        <View style={[styles.container, tw`flex-1`]}>
-          <HeaderWithBackButton
-            showBackButton={true}
-            title="กรอกข้อมูลการให้บริการ"
-            onPress={() => navigation.goBack()}
+      <ScrollView>
+        <SafeAreaView style={styles.safeArea}>
+          <StatusBar
+            backgroundColor="#FFFFFF"
+            barStyle={Platform.OS === "ios" ? "dark-content" : "dark-content"}
           />
-          
-          <View style={tw`flex-1 w-full items-center px-4 pt-2`}>
-            <Text style={[styles.labelText, tw`self-start ml-2 mb-1`]}>
-              คุณต้องการให้ไปส่งที่ไหน?
-            </Text>
-            
-            {/* Location Picker Component */}
-            <LocationPicker
-              confirmOrigin={confirmOrigin}
-              confirmDestination={confirmDestination}
-              onPress={() => navigation.navigate("Mapdetail")}
+          <View style={[styles.container, tw`flex-1`]}>
+            <HeaderWithBackButton
+              showBackButton={true}
+              title="กรอกข้อมูลการให้บริการ"
+              onPress={() => navigation.goBack()}
             />
 
-            {/* Vehicle Type Selector Component */}
-            <VehicleTypeSelector
-              category={category}
-              menuVisible={menuVisible}
-              setMenuVisible={setMenuVisible}
-              vehicleTypes={vehicleTypes}
-              selectCategory={selectCategory}
-              isLoading={isLoading}
-            />
+            <View style={tw`flex-1 w-full items-center px-4 pt-2`}>
+              <Text style={[styles.labelText, tw`self-start ml-2 mb-1`]}>
+                คุณต้องการให้ไปส่งที่ไหน?
+              </Text>
 
-            {/* Date/Time Picker Component */}
-            <DateTimePickerComponent
-              formattedDate={formattedDate}
-              date={date}
-              setDate={setDate}
-              showPicker={showPicker}
-              setShowPicker={setShowPicker}
-              showModal={showModal}
-              setShowModal={setShowModal}
-              showDatePicker={showDatePicker}
-              setShowDatePicker={setShowDatePicker}
-              showTimePicker={showTimePicker}
-              setShowTimePicker={setShowTimePicker}
-              formattedTime={formattedTime}
-              handleDateChange={handleDateChange}
-              confirmDate={confirmDate}
-            />
+              {/* Location Picker Component */}
+              <LocationPicker
+                confirmOrigin={confirmOrigin}
+                confirmDestination={confirmDestination}
+                onPress={() => navigation.navigate("Mapdetail")}
+              />
 
-            {/* Message Input Component */}
-            <MessageInput
-              moreDetail={moreDetail}
-              showModal2={showModal2}
-              setShowModal2={setShowModal2}
-              preMoreDetail={preMoreDetail}
-              setPreMoreDetail={setPreMoreDetail}
-              handleRequestSubmit={handleRequestSubmit}
-            />
+              {/* Vehicle Type Selector Component */}
+              <VehicleTypeSelector
+                category={category}
+                menuVisible={menuVisible}
+                setMenuVisible={setMenuVisible}
+                vehicleTypes={vehicleTypes}
+                selectCategory={selectCategory}
+                isLoading={isLoading}
+              />
+
+              {/* Date/Time Picker Component */}
+              <DateTimePickerComponent
+                formattedDate={formattedDate}
+                date={date}
+                setDate={setDate}
+                showPicker={showPicker}
+                setShowPicker={setShowPicker}
+                showModal={showModal}
+                setShowModal={setShowModal}
+                showDatePicker={showDatePicker}
+                setShowDatePicker={setShowDatePicker}
+                showTimePicker={showTimePicker}
+                setShowTimePicker={setShowTimePicker}
+                formattedTime={formattedTime}
+                handleDateChange={handleDateChange}
+                confirmDate={confirmDate}
+              />
+
+              {/* Message Input Component */}
+              <MessageInput
+                moreDetail={moreDetail}
+                showModal2={showModal2}
+                setShowModal2={setShowModal2}
+                preMoreDetail={preMoreDetail}
+                setPreMoreDetail={setPreMoreDetail}
+                handleRequestSubmit={handleRequestSubmit}
+              />
+            </View>
           </View>
-          
-          {/* Submit Button */}
-          <SubmitButton 
-            onPress={handleSubmitRequest} 
-            title="ยืนยัน" 
-            disabled={isLoading}
-            isLoading={isLoading}
-          />
-        </View>
-      </SafeAreaView>
+        </SafeAreaView>
+      </ScrollView>
+      <SubmitButton
+        onPress={handleSubmitRequest}
+        title="ยืนยัน"
+        disabled={isLoading}
+        isLoading={isLoading}
+      />
     </PaperProvider>
   );
 }
@@ -241,10 +260,10 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#F5F7FA",
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
-  container: { 
-    flex: 1, 
+  container: {
+    flex: 1,
     backgroundColor: "#F5F7FA",
   },
   labelText: {

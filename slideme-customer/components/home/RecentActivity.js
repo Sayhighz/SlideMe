@@ -46,7 +46,8 @@ const RecentActivity = ({ navigation }) => {
   
   // ฟังก์ชันสำหรับดูรายละเอียดการเดินทาง
   const viewOrderDetails = (item) => {
-    navigation.navigate("viewOrder", { orderId: item.id });
+    // navigation.navigate("viewOrder", { orderId: item.id });
+    console.log("กำลังพัฒนา")
   };
   
   // ฟังก์ชันสำหรับแสดงแต่ละรายการ
