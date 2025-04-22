@@ -14,9 +14,7 @@ export const formatDateToMySQL = (date) => {
 
 export const truncateText = (text, maxLength = 28) => {
   if (!text) return "";
-  return text.length > maxLength
-    ? `${text.substring(0, maxLength)}...`
-    : text;
+  return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
 };
 
 export const fetchBookmarks = async (userData, setBookmarks, setLoading) => {
@@ -37,7 +35,12 @@ export const fetchBookmarks = async (userData, setBookmarks, setLoading) => {
   setLoading(false);
 };
 
-export const handleRequestFromBookmark = async (selectedBookmark, userData, navigation, setModalVisible) => {
+export const handleRequestFromBookmark = async (
+  selectedBookmark,
+  userData,
+  navigation,
+  setModalVisible
+) => {
   if (false) {
     alert("จากตําแหน่งต้องไม่เว้นว่าง, กรุณากรอกข้อมูลให้ครบถ้วน");
     return;
@@ -109,7 +112,7 @@ export const handleRequestFromBookmark = async (selectedBookmark, userData, navi
 
 export const checkOrderStatus = async (userData, navigation) => {
   try {
-    console.log(userData)
+    console.log(userData);
     const response = await fetch(
       `http://${IP_ADDRESS}:4000/api/v1/customer/request/active?customer_id=${userData.customer_id}`,
       {
@@ -121,16 +124,23 @@ export const checkOrderStatus = async (userData, navigation) => {
       }
     );
     const data = await response.json();
-    console.log("order_status:", data.driver_id, data.customer_id, data.request_id);
+    console.log(
+      "order_status:",
+      data.driver_id,
+      data.customer_id,
+      data.request_id
+    );
     if (data.Status) {
       navigation.navigate("viewOrder", {
         driverProfile: {
           chooseDriver: {
-            id: data?.driver_id,
+            request_id: data.request_id,
+            id: data.driver_id,
+            customer_id_request: userData.customer_id,
           },
           customer_id_request: data?.customer_id,
-          request_id: data?.request_id
-        }
+          request_id: data?.request_id,
+        },
       });
     } else if (data.Message === "No accepted records found for customer_id") {
       Alert.alert("ไม่มี Order ที่กำลังทำงานอยู่");

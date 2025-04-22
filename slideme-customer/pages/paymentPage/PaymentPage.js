@@ -1,13 +1,13 @@
 import {
   SafeAreaView,
-  Text,
   View,
   StyleSheet,
   Platform,
   StatusBar,
   Dimensions,
   KeyboardAvoidingView,
-  SectionList,
+  ScrollView,
+  FlatList,
 } from "react-native";
 import React, { useEffect, useState, useContext, useMemo } from "react";
 import tw from "twrnc";
@@ -131,11 +131,14 @@ export default function PaymentPage({ navigation }) {
           },
         }
       );
-      
+
       setOpenModal(false);
-      
+
       if (response.data.Status) {
-        console.log("Service request updated successfully:", response.data.Message);
+        console.log(
+          "Service request updated successfully:",
+          response.data.Message
+        );
         navigation.navigate("viewOrder", { driverProfile: route.params });
       } else {
         console.error("Error:", response.data.Message);
@@ -153,66 +156,39 @@ export default function PaymentPage({ navigation }) {
     navigation.navigate("viewOrder", { driverProfile: route.params });
   };
 
-  // สร้างข้อมูลสำหรับ SectionList - แยกเป็นส่วนต่างๆ
-  const getSectionData = () => {
-    // ส่วนที่ 1: Tabs
-    const tabsSection = {
-      type: 'tabs',
-      data: [{ id: 'tabs' }]
-    };
-    
-    // ส่วนที่ 2: แสดงตามแท็บที่เลือก
-    const contentSection = {
-      type: 'content',
-      data: [{ id: 'content' }]
-    };
-    
-    // ส่วนที่ 3: ข้อมูลสรุป (ไม่รวม payment button ซึ่งจะอยู่ fixed ด้านล่าง)
-    const summarySection = {
-      type: 'summary',
-      data: [{ id: 'summary' }]
-    };
-    
-    // ส่วนที่ 4: พื้นที่ว่างด้านล่าง (สำหรับให้พื้นที่แสดงผลมีพื้นที่ scroll ได้เหนือ fixed button)
-    const spacerSection = {
-      type: 'spacer',
-      data: [{ id: 'spacer' }]
-    };
-    
-    return [tabsSection, contentSection, summarySection, spacerSection];
-  };
-
   // Render Tab Section
   const renderTabsSection = () => (
-    <PaymentTabs 
-      activeTab={tabIndex} 
-      onTabChange={setTabIndex}
-    />
+    <PaymentTabs activeTab={tabIndex} onTabChange={setTabIndex} />
   );
+
+  console.log("paymentMethods:", paymentMethods.length);
 
   // Render Content Section (ตามแท็บที่เลือก)
   const renderContentSection = () => (
-    <View style={[
-      tw`my-2`,
-      { minHeight: tabIndex === 0 ? height * 0.4 : height * 0.6 }
-    ]}>
+    <View
+      style={[
+        tw`my-2`,
+        { minHeight: tabIndex === 0 ? height * 0.4 : height * 0.6 },
+      ]}
+    >
       {tabIndex === 0 ? (
         <>
-          <View style={[tw`flex-1`, { minHeight: height * 0.35 }]}>
-            <CreditCardList 
+          <ScrollView style={[tw`flex-1 h-20`, { minHeight: height * 0.35 }]}>
+            <CreditCardList
               paymentMethods={paymentMethods}
               selectedMethod={choosePaymentMethod}
               onSelectMethod={setChoosePaymentMethod}
               loading={loading}
-              style={[tw`flex-1`, { maxHeight: height * 0.35 }]}
+              style={[tw`flex-1`]}
             />
-          </View>
-          <AddPaymentMethodButton 
-            onPress={() => navigation.navigate("AddMethod")} 
+          </ScrollView>
+
+          <AddPaymentMethodButton
+            onPress={() => navigation.navigate("AddMethod")}
           />
         </>
       ) : (
-        <PromptPayQR 
+        <PromptPayQR
           totalPrice={totalPrice}
           phoneNumber="0812345678"
           onPaymentComplete={handlePromptPayComplete}
@@ -224,7 +200,7 @@ export default function PaymentPage({ navigation }) {
   // Render Summary Section
   const renderSummarySection = () => (
     <View style={tw`mb-4`}>
-      <OrderSummary 
+      <OrderSummary
         driverName={driverData.name}
         driverRating={driverData.rating}
         driverPrice={driverData.price}
@@ -236,56 +212,62 @@ export default function PaymentPage({ navigation }) {
   );
 
   // Render spacer for bottom area (to allow scrolling above fixed button)
-  const renderSpacerSection = () => (
-    <View style={{ height: 90 }} />
-  );
+  const renderSpacerSection = () => <View style={{ height: 90 }} />;
 
   // Render section item based on section type
-  const renderSectionItem = ({ section, item }) => {
-    switch (section.type) {
-      case 'tabs':
+  const renderFlatListItem = ({ item }) => {
+    switch (item.type) {
+      case "tabs":
         return renderTabsSection();
-      case 'content':
+      case "content":
         return renderContentSection();
-      case 'summary':
+      case "summary":
         return renderSummarySection();
-      case 'spacer':
+      case "spacer":
         return renderSpacerSection();
       default:
         return null;
     }
   };
 
+  const getFlatListData = () => {
+    return [
+      { id: "tabs", type: "tabs" },
+      { id: "content", type: "content" },
+      { id: "summary", type: "summary" },
+      { id: "spacer", type: "spacer" },
+    ];
+  };
+
   return (
-    <SafeAreaView style={[
-      tw`flex-1 bg-gray-50`, 
-      { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }
-    ]}>
+    <SafeAreaView
+      style={[
+        tw`flex-1 bg-gray-50`,
+        { paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0 },
+      ]}
+    >
       <HeaderWithBackButton
         showBackButton={true}
         title="ชําระเงิน"
         onPress={() => navigation.goBack()}
       />
-      
-      <ConfirmationModal 
+
+      <ConfirmationModal
         visible={openModal}
         onCancel={() => setOpenModal(false)}
         onConfirm={handlePayment}
         loading={loading}
       />
 
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={tw`flex-1`}
         keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
       >
-        {/* ใช้ SectionList แทน ScrollView เพื่อแก้ปัญหา VirtualizedLists */}
-        <SectionList
-          sections={getSectionData()}
+        <FlatList
+          data={getFlatListData()}
           keyExtractor={(item) => item.id}
-          renderItem={renderSectionItem}
-          renderSectionHeader={() => null} // ไม่แสดงหัวข้อ section
-          stickySectionHeadersEnabled={false}
+          renderItem={renderFlatListItem}
           showsVerticalScrollIndicator={true}
           contentContainerStyle={tw`flex-grow px-4 py-2`}
           bounces={true}
@@ -297,15 +279,17 @@ export default function PaymentPage({ navigation }) {
 
         {/* Fixed Payment Button at bottom */}
         {tabIndex === 0 && (
-          <View style={[
-            tw`px-4 py-4 items-center border-t border-gray-200 bg-white`,
-            styles.fixedBottom,
-            Platform.select({
-              ios: { paddingBottom: isSmallScreen ? 10 : 20 },
-              android: { paddingBottom: 10 }
-            })
-          ]}>
-            <PaymentButton 
+          <View
+            style={[
+              tw`px-4 py-4 items-center border-t border-gray-200 bg-white`,
+              styles.fixedBottom,
+              Platform.select({
+                ios: { paddingBottom: isSmallScreen ? 10 : 20 },
+                android: { paddingBottom: 10 },
+              }),
+            ]}
+          >
+            <PaymentButton
               disabled={choosePaymentMethod === "" || loading}
               onPress={() => {
                 if (choosePaymentMethod !== "") {
@@ -327,11 +311,11 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: "Mitr-Regular",
       android: "Mitr-Regular",
-      default: "System"
+      default: "System",
     }),
   },
   fixedBottom: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
