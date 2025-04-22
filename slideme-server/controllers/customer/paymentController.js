@@ -235,8 +235,8 @@ export const getAllUserPaymentMethods = async (req, res) => {
     }));
 
     if (maskedResult.length === 0) {
-      return res.status(STATUS_CODES.NOT_FOUND).json(
-        formatErrorResponse("ไม่พบวิธีการชำระเงินสำหรับผู้ใช้รายนี้")
+      return res.status(STATUS_CODES.OK).json(
+        formatSuccessResponse(maskedResult)
       );
     }
 
