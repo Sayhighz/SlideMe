@@ -112,7 +112,7 @@ const ChooseOffer = ({ navigation, route }) => {
     fetchData().then(() => {
       setTimeout(() => {
         setIsRefreshing(false);
-      }, 1000);
+      }, 5000);
     });
   };
 
@@ -177,7 +177,7 @@ const ChooseOffer = ({ navigation, route }) => {
           );
 
           const driversData = offersResponse.data.offers;
-          // console.log("Driver data:", driversData);
+          console.log("Driver data:", driversData);
           
           // Format driver data
           const formattedDrivers = driversData.map((driver) => ({
