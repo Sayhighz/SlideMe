@@ -22,6 +22,7 @@ import { Ionicons } from '@expo/vector-icons';
 import tw from 'twrnc';
 import { IP_ADDRESS } from '../../config';
 import { UserContext } from '../../UserContext';
+// import { tokens } from 'react-native-paper/lib/typescript/styles/themes/v3/tokens';
 
 const InfoCustomer = ({ onLogin }) => {
   const route = useRoute();
@@ -113,6 +114,7 @@ const InfoCustomer = ({ onLogin }) => {
           username: username.trim(),
           first_name: name.trim(),
           last_name: lastname.trim(),
+          token: result.token
         };
         setUserData(userData);
         Alert.alert("สำเร็จ", "สมัครสมาชิกสำเร็จ ยินดีต้อนรับ!");
@@ -155,6 +157,7 @@ const InfoCustomer = ({ onLogin }) => {
         const userData = {
           customer_id: result.customer_id,
           phone_number: phoneNumber,
+          token: result.token
         };
         setUserData(userData);
         Alert.alert("สำเร็จ", "สมัครสมาชิกสำเร็จ ยินดีต้อนรับ!");
