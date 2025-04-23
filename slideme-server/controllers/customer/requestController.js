@@ -228,128 +228,165 @@ export const getRequestDetails = asyncHandler(async (req, res) => {
     throw new ValidationError("กรุณาระบุ request_id");
   }
 
-  const sql = `
-    SELECT 
-      r.request_id,
-      r.customer_id,
-      r.pickup_lat,
-      r.pickup_long,
-      r.location_from,
-      r.dropoff_lat,
-      r.dropoff_long,
-      r.location_to,
-      r.status,
-      r.booking_time,
-      r.request_time,
-      r.customer_message,
-      r.vehicletype_id,
-      v.vehicletype_name,
-      o.offer_id,
-      o.driver_id,
-      o.offered_price,
-      d.first_name AS driver_first_name,
-      d.last_name AS driver_last_name,
-      d.phone_number AS driver_phone,
-      d.license_plate,
-      dd.current_latitude AS driver_current_lat,
-      dd.current_longitude AS driver_current_lng,
-      p.amount AS payment_amount,
-      dl.photos_before_service,
-      dl.photos_after_service,
-      AVG(rv.rating) AS average_rating
-    FROM servicerequests r
-    LEFT JOIN vehicle_types v ON r.vehicletype_id = v.vehicletype_id
-    LEFT JOIN driveroffers o ON r.offer_id = o.offer_id
-    LEFT JOIN drivers d ON o.driver_id = d.driver_id
-    LEFT JOIN driverdetails dd ON d.driver_id = dd.driver_id
-    LEFT JOIN reviews rv ON d.driver_id = rv.driver_id
-    LEFT JOIN payments p ON r.payment_id = p.payment_id
-    LEFT JOIN driverlogs dl ON r.request_id = dl.request_id
-    WHERE r.request_id = ?
+  // Add connection pooling and retry mechanism
+  let retries = 3;
+  let result;
+  
+  while (retries > 0) {
+    try {
+      const sql = `
+        SELECT 
+          r.request_id,
+          r.customer_id,
+          r.pickup_lat,
+          r.pickup_long,
+          r.location_from,
+          r.dropoff_lat,
+          r.dropoff_long,
+          r.location_to,
+          r.status,
+          r.booking_time,
+          r.request_time,
+          r.customer_message,
+          r.vehicletype_id,
+          v.vehicletype_name,
+          o.offer_id,
+          o.driver_id,
+          o.offered_price,
+          d.first_name AS driver_first_name,
+          d.last_name AS driver_last_name,
+          d.phone_number AS driver_phone,
+          d.profile_picture,
+          d.license_plate,
+          dd.current_latitude AS driver_current_lat,
+          dd.current_longitude AS driver_current_lng,
+          p.amount AS payment_amount,
+          dl.photos_before_service,
+          dl.photos_after_service,
+          AVG(rv.rating) AS average_rating
+        FROM servicerequests r
+        LEFT JOIN vehicle_types v ON r.vehicletype_id = v.vehicletype_id
+        LEFT JOIN driveroffers o ON r.offer_id = o.offer_id
+        LEFT JOIN drivers d ON o.driver_id = d.driver_id
+        LEFT JOIN driverdetails dd ON d.driver_id = dd.driver_id
+        LEFT JOIN reviews rv ON d.driver_id = rv.driver_id
+        LEFT JOIN payments p ON r.payment_id = p.payment_id
+        LEFT JOIN driverlogs dl ON r.request_id = dl.request_id
+        WHERE r.request_id = ?
+        GROUP BY 
+          r.request_id,
+          r.customer_id,
+          r.pickup_lat,
+          r.pickup_long,
+          r.location_from,
+          r.dropoff_lat,
+          r.dropoff_long,
+          r.location_to,
+          r.status,
+          r.booking_time,
+          r.request_time,
+          r.customer_message,
+          r.vehicletype_id,
+          v.vehicletype_name,
+          o.offer_id,
+          o.driver_id,
+          o.offered_price,
+          d.first_name,
+          d.last_name,
+          d.phone_number,
+          d.license_plate,
+          dd.current_latitude,
+          dd.current_longitude,
+          p.amount,
+          dl.photos_before_service,
+          dl.photos_after_service
+      `;
 
-      GROUP BY 
-    r.request_id,
-    r.customer_id,
-    r.pickup_lat,
-    r.pickup_long,
-    r.location_from,
-    r.dropoff_lat,
-    r.dropoff_long,
-    r.location_to,
-    r.status,
-    r.booking_time,
-    r.request_time,
-    r.customer_message,
-    r.vehicletype_id,
-    v.vehicletype_name,
-    o.offer_id,
-    o.driver_id,
-    o.offered_price,
-    d.first_name,
-    d.last_name,
-    d.phone_number,
-    d.license_plate,
-    dd.current_latitude,
-    dd.current_longitude,
-    p.amount,
-    dl.photos_before_service,
-    dl.photos_after_service
-  `;
+      result = await db.query(sql, [request_id]);
+      break; // If query succeeds, exit the retry loop
+    } catch (dbError) {
+      retries--;
+      if (retries === 0) {
+        // If all retries failed, throw the error to be caught by the outer catch block
+        throw dbError;
+      }
+      
+      // Log retry attempt
+      logger.warn('Database connection error in getRequestDetails, retrying...', {
+        request_id,
+        error: dbError.message,
+        retriesLeft: retries
+      });
+      
+      // Wait before retrying (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, 1000 * (3 - retries)));
+    }
+  }
 
-  const result = await db.query(sql, [request_id]);
-
-  if (result.length === 0) {
+  if (!result || result.length === 0) {
     throw new NotFoundError("ไม่พบข้อมูลคำขอบริการ");
   }
 
-  const request = result[0];
-  
-  // Calculate distance and duration
-  const tripDistance = distanceService.calculateDistance(
-    request.pickup_lat,
-    request.pickup_long,
-    request.dropoff_lat,
-    request.dropoff_long
-  );
-  
-  const estimatedDuration = distanceService.calculateTravelTime(tripDistance);
-  
-  // Format response data
-  const formattedRequest = {
-    ...request,
-    trip_distance: tripDistance,
-    trip_distance_text: `${tripDistance.toFixed(1)} กม.`,
-    estimated_duration: estimatedDuration,
-    estimated_duration_text: `${estimatedDuration} นาที`,
-    request_time_formatted: formatDisplayDate(request.request_time),
-    request_time_display: formatTimeString(request.request_time)
-  };
-  
-  // Add driver ETA if driver location is available
-  if (request.driver_current_lat && request.driver_current_lng) {
-    const distanceToPickup = distanceService.calculateDistance(
-      request.driver_current_lat,
-      request.driver_current_lng,
+  try {
+    const request = result[0];
+    
+    // Calculate distance and duration
+    const tripDistance = distanceService.calculateDistance(
       request.pickup_lat,
-      request.pickup_long
+      request.pickup_long,
+      request.dropoff_lat,
+      request.dropoff_long
     );
     
-    const etaToPickup = distanceService.calculateTravelTime(distanceToPickup);
+    const estimatedDuration = distanceService.calculateTravelTime(tripDistance);
     
-    formattedRequest.distance_to_pickup = distanceToPickup;
-    formattedRequest.distance_to_pickup_text = `${distanceToPickup.toFixed(1)} กม.`;
-    formattedRequest.eta_to_pickup = etaToPickup;
-    formattedRequest.eta_to_pickup_text = `${etaToPickup} นาที`;
-  }
+    // Format response data
+    const formattedRequest = {
+      ...request,
+      trip_distance: tripDistance,
+      trip_distance_text: `${tripDistance.toFixed(1)} กม.`,
+      estimated_duration: estimatedDuration,
+      estimated_duration_text: `${estimatedDuration} นาที`,
+      request_time_formatted: formatDisplayDate(request.request_time),
+      request_time_display: formatTimeString(request.request_time)
+    };
+    
+    // Add driver ETA if driver location is available
+    if (request.driver_current_lat && request.driver_current_lng) {
+      const distanceToPickup = distanceService.calculateDistance(
+        request.driver_current_lat,
+        request.driver_current_lng,
+        request.pickup_lat,
+        request.pickup_long
+      );
+      
+      const etaToPickup = distanceService.calculateTravelTime(distanceToPickup);
+      
+      formattedRequest.distance_to_pickup = distanceToPickup;
+      formattedRequest.distance_to_pickup_text = `${distanceToPickup.toFixed(1)} กม.`;
+      formattedRequest.eta_to_pickup = etaToPickup;
+      formattedRequest.eta_to_pickup_text = `${etaToPickup} นาที`;
+    }
 
-  // If offered price exists, format it
-  if (formattedRequest.offered_price) {
-    formattedRequest.offered_price_formatted = formatThaiBaht(formattedRequest.offered_price);
-  }
+    // If offered price exists, format it
+    if (formattedRequest.offered_price) {
+      formattedRequest.offered_price_formatted = formatThaiBaht(formattedRequest.offered_price);
+    }
 
-  return res.status(STATUS_CODES.OK).json(
-    formatSuccessResponse(formattedRequest, "ดึงข้อมูลคำขอบริการสำเร็จ")
-  );
+    return res.status(STATUS_CODES.OK).json(
+      formatSuccessResponse(formattedRequest, "ดึงข้อมูลคำขอบริการสำเร็จ")
+    );
+  } catch (processingError) {
+    logger.error('Error processing request details data', { 
+      request_id,
+      error: processingError.message,
+      stack: processingError.stack
+    });
+    
+    return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json(
+      formatErrorResponse('เกิดข้อผิดพลาดในการประมวลผลข้อมูลคำขอบริการ')
+    );
+  }
 });
 
 

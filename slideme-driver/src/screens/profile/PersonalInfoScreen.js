@@ -139,8 +139,8 @@ const PersonalInfoScreen = ({ navigation, route }) => {
   }
 
   // Profile image source
-  const profileImage = userInfo?.profile_picture 
-    ? { uri: `${IMAGE_URL}${userInfo.profile_picture}`, headers: { pragma: 'no-cache' } }
+  const profileImage = userData?.profile_picture 
+    ? { uri: `${IMAGE_URL}${userData?.profile_picture}&subdir=/drivers/profile`, headers: { pragma: 'no-cache' } }
     : require('../../assets/images/default-avatar.png'); // Make sure to add this default image
 
   return (

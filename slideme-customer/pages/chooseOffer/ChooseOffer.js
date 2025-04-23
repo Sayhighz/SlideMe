@@ -177,6 +177,7 @@ const ChooseOffer = ({ navigation, route }) => {
           );
 
           const driversData = offersResponse.data.offers;
+          // console.log("Driver data:", driversData);
           
           // Format driver data
           const formattedDrivers = driversData.map((driver) => ({

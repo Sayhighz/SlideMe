@@ -26,59 +26,98 @@ export const getDriverProfile = asyncHandler(async (req, res) => {
     throw new ValidationError("กรุณาระบุ driver_id");
   }
 
-  // Query driver profile data
-  const sql = `
-    SELECT 
-      d.driver_id,
-      d.phone_number,
-      d.first_name,
-      d.last_name,
-      d.license_plate,
-      d.id_expiry_date,
-      d.province,
-      d.approval_status,
-      d.created_date,
-      d.birth_date,
-      v.vehicletype_name,
-      v.vehicletype_id,
-      (SELECT AVG(rating) FROM reviews WHERE driver_id = d.driver_id) AS average_rating,
-      (SELECT COUNT(*) FROM reviews WHERE driver_id = d.driver_id) AS review_count
-    FROM drivers d
-    LEFT JOIN vehicle_types v ON d.vehicletype_id = v.vehicletype_id
-    WHERE d.driver_id = ?
-  `;
+  try {
+    // Query driver profile data with error handling
+    const sql = `
+      SELECT 
+        d.driver_id,
+        d.phone_number,
+        d.first_name,
+        d.last_name,
+        d.license_plate,
+        d.id_expiry_date,
+        d.province,
+        d.approval_status,
+        d.created_date,
+        d.birth_date,
+        v.vehicletype_name,
+        v.vehicletype_id,
+        COALESCE((SELECT AVG(rating) FROM reviews WHERE driver_id = d.driver_id), 0) AS average_rating,
+        COALESCE((SELECT COUNT(*) FROM reviews WHERE driver_id = d.driver_id), 0) AS review_count
+      FROM drivers d
+      LEFT JOIN vehicle_types v ON d.vehicletype_id = v.vehicletype_id
+      WHERE d.driver_id = ?
+    `;
 
-  const result = await db.query(sql, [driver_id]);
+    // Add reconnection logic before query
+    await ensureDatabaseConnection();
+    
+    const result = await db.query(sql, [driver_id]);
 
-  if (result.length === 0) {
-    throw new NotFoundError("ไม่พบข้อมูลคนขับ");
+    if (!result || result.length === 0) {
+      throw new NotFoundError("ไม่พบข้อมูลคนขับ");
+    }
+
+    // Format the response data
+    const driver = result[0];
+
+    // Handle null values before formatting
+    if (driver.phone_number) {
+      driver.phone_number_masked = maskString(driver.phone_number, 3, 3);
+    }
+
+    // Format date fields
+    if (driver.birth_date) {
+      driver.birth_date_formatted = formatDisplayDate(driver.birth_date);
+    }
+
+    if (driver.id_expiry_date) {
+      driver.id_expiry_date_formatted = formatDisplayDate(driver.id_expiry_date);
+    }
+
+    // Format rating (ensure it's always a number first)
+    driver.average_rating = driver.average_rating ? parseFloat(driver.average_rating).toFixed(1) : "0.0";
+
+    return res.status(STATUS_CODES.OK).json(formatSuccessResponse(driver));
+  } catch (error) {
+    // Log specific database errors
+    logger.error(`Database error in getDriverProfile: ${error.message}`, {
+      driver_id,
+      errorCode: error.code || error.errorCode,
+      stack: error.stack
+    });
+    
+    // If it's a connection issue, try to reconnect and throw appropriate error
+    if (error.code === 'ECONNRESET' || error.code === 'PROTOCOL_CONNECTION_LOST') {
+      throw new DatabaseError("การเชื่อมต่อกับฐานข้อมูลถูกตัดขาด กรุณาลองใหม่อีกครั้ง");
+    }
+    
+    // Re-throw for the global error handler
+    throw error;
   }
-
-  // Format the response data
-  const driver = result[0];
-
-  if (driver.phone_number) {
-    driver.phone_number_masked = maskString(driver.phone_number, 3, 3);
-  }
-
-  // Format date fields
-  if (driver.birth_date) {
-    driver.birth_date_formatted = formatDisplayDate(driver.birth_date);
-  }
-
-  if (driver.id_expiry_date) {
-    driver.id_expiry_date_formatted = formatDisplayDate(driver.id_expiry_date);
-  }
-
-  // Format rating
-  if (driver.average_rating) {
-    driver.average_rating = parseFloat(driver.average_rating).toFixed(1);
-  } else {
-    driver.average_rating = "0.0";
-  }
-
-  return res.status(STATUS_CODES.OK).json(formatSuccessResponse(driver));
 });
+
+/**
+ * Ensure database connection is active before query
+ */
+const ensureDatabaseConnection = async () => {
+  try {
+    // Ping database to check connection
+    await db.query("SELECT 1");
+  } catch (error) {
+    if (
+      error.code === 'PROTOCOL_CONNECTION_LOST' || 
+      error.code === 'ECONNRESET' ||
+      error.code === 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR'
+    ) {
+      logger.info("Reconnecting to database...");
+      // Implement reconnection logic here
+      // If you're using a pool, it may auto-reconnect
+      // For specific implementation, you might need to modify your db.js file
+    }
+    throw error;
+  }
+};
 
 /**
  * Update driver profile
@@ -239,56 +278,76 @@ export const getDriverStats = asyncHandler(async (req, res) => {
     throw new ValidationError("กรุณาระบุ driver_id");
   }
 
-  // Get total completed trips
-  const tripsSql = `
-    SELECT 
-      COUNT(*) AS completed_trips
-    FROM servicerequests s
-    JOIN driveroffers o ON s.offer_id = o.offer_id
-    WHERE o.driver_id = ? AND s.status = 'completed'
-  `;
+  try {
+    // Get total completed trips
+    const tripsSql = `
+      SELECT 
+        COUNT(*) AS completed_trips
+      FROM servicerequests s
+      JOIN driveroffers o ON s.offer_id = o.offer_id
+      WHERE o.driver_id = ? AND s.status = 'completed'
+    `;
 
-  // Get average rating
-  const ratingSql = `
-    SELECT 
-      COALESCE(AVG(rating), 0) AS average_rating,
-      COUNT(*) AS review_count
-    FROM reviews
-    WHERE driver_id = ?
-  `;
+    // Get average rating
+    const ratingSql = `
+      SELECT 
+        COALESCE(AVG(rating), 0) AS average_rating,
+        COUNT(*) AS review_count
+      FROM reviews
+      WHERE driver_id = ?
+    `;
 
-  // Get recent reviews
-  const reviewsSql = `
-    SELECT 
-      r.review_id,
-      r.rating,
-      r.review_text,
-      r.created_at,
-      c.first_name,
-      c.last_name
-    FROM reviews r
-    JOIN customers c ON r.customer_id = c.customer_id
-    WHERE r.driver_id = ?
-    ORDER BY r.created_at DESC
-    LIMIT 5
-  `;
+    // Get recent reviews
+    const reviewsSql = `
+      SELECT 
+        r.review_id,
+        r.rating,
+        r.review_text,
+        r.created_at,
+        c.first_name,
+        c.last_name
+      FROM reviews r
+      JOIN customers c ON r.customer_id = c.customer_id
+      WHERE r.driver_id = ?
+      ORDER BY r.created_at DESC
+      LIMIT 5
+    `;
 
-  // Execute all queries
-  const [tripsResult, ratingResult, reviewsResult] = await Promise.all([
-    db.query(tripsSql, [driver_id]),
-    db.query(ratingSql, [driver_id]),
-    db.query(reviewsSql, [driver_id])
-  ]);
+    // Add connection pooling retry mechanism
+    const executeQueryWithRetry = async (sql, params, retries = 3) => {
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          return await db.query(sql, params);
+        } catch (err) {
+          if (attempt === retries || !['ECONNRESET', 'ETIMEDOUT', 'PROTOCOL_CONNECTION_LOST'].includes(err.code)) {
+            throw err;
+          }
+          // Wait before retry (with exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, 300 * attempt));
+        }
+      }
+    };
 
-  // Format response
-  const stats = {
-    completed_trips: tripsResult[0].completed_trips,
-    average_rating: parseFloat(ratingResult[0].average_rating).toFixed(1),
-    review_count: ratingResult[0].review_count,
-    recent_reviews: reviewsResult
-  };
+    // Execute all queries with retry mechanism
+    const [tripsResult, ratingResult, reviewsResult] = await Promise.all([
+      executeQueryWithRetry(tripsSql, [driver_id]),
+      executeQueryWithRetry(ratingSql, [driver_id]),
+      executeQueryWithRetry(reviewsSql, [driver_id])
+    ]);
 
-  return res.status(STATUS_CODES.OK).json(formatSuccessResponse(stats));
+    // Format response
+    const stats = {
+      completed_trips: tripsResult[0].completed_trips,
+      average_rating: parseFloat(ratingResult[0].average_rating).toFixed(1),
+      review_count: ratingResult[0].review_count,
+      recent_reviews: reviewsResult
+    };
+
+    return res.status(STATUS_CODES.OK).json(formatSuccessResponse(stats));
+  } catch (error) {
+    console.error("Database error in getDriverStats:", error);
+    throw new DatabaseError("เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล กรุณาลองใหม่อีกครั้ง");
+  }
 });
 
 /**

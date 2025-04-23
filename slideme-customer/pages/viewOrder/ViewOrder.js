@@ -127,6 +127,7 @@ export default function ViewOrder({ navigation }) {
         });
 
         setDriverInformation({
+          profile_picture: data.profile_picture,
           name: data.driver_first_name + " " + data.driver_last_name,
           latitude: data.driver_current_lat,
           longitude: data.driver_current_lng,
@@ -153,7 +154,7 @@ export default function ViewOrder({ navigation }) {
   };
 
   const checkOrderStatus = async () => {
-    console.log(request_id);
+    // console.log(request_id);
     try {
       const response = await axios.get(
         `http://${IP_ADDRESS}:4000/api/v1/customer/address/check-status/${request_id}`,
@@ -164,7 +165,7 @@ export default function ViewOrder({ navigation }) {
           },
         }
       );
-      console.log(response)
+      // console.log(response)
       if (response.data.Status) {
         setStatus(response.data.StatusOrder);
 
@@ -231,16 +232,16 @@ export default function ViewOrder({ navigation }) {
     checkOrderStatus();
 
     // Hide tab bar when this screen is focused
-    // navigation.getParent()?.setOptions({
-    //   tabBarStyle: { display: 'none' }
-    // });
+    navigation.getParent()?.setOptions({
+      tabBarStyle: { display: 'none' }
+    });
 
-    // // Restore tab bar when leaving this screen
-    // return () => {
-    //   navigation.getParent()?.setOptions({
-    //     tabBarStyle: undefined
-    //   });
-    // };
+    // Restore tab bar when leaving this screen
+    return () => {
+      navigation.getParent()?.setOptions({
+        tabBarStyle: undefined
+      });
+    };
   }, []);
 
   useEffect(() => {
@@ -354,11 +355,11 @@ export default function ViewOrder({ navigation }) {
         <RideProgressBar status={status} styles={styles} />
       </ScrollView>
       
-      {/* <ActionButtons
+      <ActionButtons
         driverInformation={driverInformation}
         handleChat={handleChat}
         styles={styles}
-      /> */}
+      />
     </SafeAreaView>
   );
 }

@@ -44,10 +44,9 @@ const PROVINCES = [
 ];
 
 const VEHICLE_TYPES = [
-  { label: "รถสไลด์มาตรฐาน", value: 1 },
-  { label: "รถสไลด์ขนาดใหญ่", value: 2 },
-  { label: "รถสไลด์สำหรับรถหรู", value: 3 },
-  { label: "รถสไลด์ฉุกเฉิน", value: 4 }
+  { label: "Mini Slide Car", value: 1 },
+  { label: "Medium Slide Car", value: 2 },
+  { label: "Large Slide Car", value: 3 },
 ];
 
 const BasicInfoScreen = ({ navigation }) => {

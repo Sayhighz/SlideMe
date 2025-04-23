@@ -214,11 +214,11 @@ const UserProfile = ({ navigation, onLogout }) => {
                 onPress={() => navigation.navigate("editProfile")} 
               />
               
-              <NavButton 
+              {/* <NavButton 
                 icon="heart-outline" 
                 title="รายการโปรด" 
                 onPress={() => navigation.navigate("Bookmarklist")} 
-              />
+              /> */}
               
               <NavButton 
                 icon="card-outline" 

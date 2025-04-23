@@ -121,7 +121,7 @@ const EditInfoScreen = ({ navigation, route }) => {
           });
           
           if (user.profile_picture) {
-            setProfileImage(`${IMAGE_URL}${user.profile_picture}`);
+            setProfileImage(`${IMAGE_URL}${userData?.profile_picture}&subdir=/drivers/profile`);
           }
         }
       } catch (error) {
@@ -319,8 +319,8 @@ const EditInfoScreen = ({ navigation, route }) => {
               <View
                 style={styles.profileImageWrapper}
               >
-                {profileImage ? (
-                  <Image source={{ uri: profileImage }} style={styles.profileImage} />
+                {true ? (
+                  <Image source={{ uri: `${IMAGE_URL}${userData?.profile_picture}&subdir=/drivers/profile` }} style={styles.profileImage} />
                 ) : (
                   <View style={styles.profileImagePlaceholder}>
                     <Icon name="account" size={60} color={COLORS.GRAY_400} />

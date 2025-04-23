@@ -2,13 +2,19 @@ import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 import tw from "twrnc";
 import { MaterialIcons } from "@expo/vector-icons";
+import { IP_ADDRESS } from "../../config";
 
 export default function DriverInfo({ driverInformation, styles }) {
+    console.log("Driver Information:", driverInformation);
   return (
     <View style={tw`flex-row items-center w-full py-4 px-4`}>
       {/* Driver Avatar */}
       <View style={tw`h-14 w-14 rounded-full bg-blue-100 mr-4 justify-center items-center overflow-hidden`}>
-        <MaterialIcons name="person" size={28} color="#3b82f6" />
+      <Image
+            source={driverInformation.profile_picture ? { uri: `http://${IP_ADDRESS}:4000/api/v1/upload/fetch_image?filename=${driverInformation?.profile_picture}&subdir=/drivers/profile` } : { uri: `http://${IP_ADDRESS}:4000/upload/fetch_image?filename=${driverInformation?.profile_picture}&subdir=/drivers/profile` }}
+            style={tw`w-full h-full`}
+            resizeMode="cover"
+          />
       </View>
       
       {/* Driver Info */}

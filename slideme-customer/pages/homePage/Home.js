@@ -64,11 +64,11 @@ const Home = ({ navigation }) => {
           </View> */}
           
           {/* กิจกรรมล่าสุด (ถ้ามี component นี้) */}
-          {RecentActivity && (
+          {/* {RecentActivity && (
             <View style={styles.sectionContainer}>
               <RecentActivity navigation={navigation} />
             </View>
-          )}
+          )} */}
           
           {/* เพิ่มพื้นที่ด้านล่างเพื่อให้เลื่อนได้สุด */}
           <View style={{ height: 20 }} />
