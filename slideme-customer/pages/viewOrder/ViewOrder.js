@@ -232,16 +232,16 @@ export default function ViewOrder({ navigation }) {
     checkOrderStatus();
 
     // Hide tab bar when this screen is focused
-    navigation.getParent()?.setOptions({
-      tabBarStyle: { display: 'none' }
-    });
+    // navigation.getParent()?.setOptions({
+    //   tabBarStyle: { display: 'none' }
+    // });
 
-    // Restore tab bar when leaving this screen
-    return () => {
-      navigation.getParent()?.setOptions({
-        tabBarStyle: undefined
-      });
-    };
+    // // Restore tab bar when leaving this screen
+    // return () => {
+    //   navigation.getParent()?.setOptions({
+    //     tabBarStyle: undefined
+    //   });
+    // };
   }, []);
 
   useEffect(() => {

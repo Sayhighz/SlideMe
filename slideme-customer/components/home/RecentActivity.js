@@ -180,6 +180,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 12,
+    // fontFamily: "Mitr-Regular",
   },
   iconContainer: {
     backgroundColor: "#E8F5E9",
@@ -191,6 +192,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666666",
     flex: 1,
+    fontFamily: "Mitr-Regular",
   },
   statusBadge: {
     paddingHorizontal: 8,
@@ -200,6 +202,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 12,
     fontWeight: "500",
+    fontFamily: "Mitr-Regular",
   },
   routeContainer: {
     marginVertical: 8,
@@ -213,6 +216,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 14,
     color: COLORS.text,
+    fontFamily: "Mitr-Regular",
     flex: 1,
   },
   routeLine: {

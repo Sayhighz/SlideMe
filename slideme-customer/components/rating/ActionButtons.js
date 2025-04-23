@@ -67,7 +67,7 @@ const ActionButtons = ({ onSubmit, onBack, isSubmitting }) => {
         </TouchableOpacity>
       </Animated.View>
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         onPress={onBack}
         style={[tw`rounded-xl p-3`, styles.secondaryButton]}
         activeOpacity={0.7}
@@ -78,7 +78,7 @@ const ActionButtons = ({ onSubmit, onBack, isSubmitting }) => {
             ย้อนกลับ
           </Text>
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };
